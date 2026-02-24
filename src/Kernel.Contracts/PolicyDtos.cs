@@ -48,3 +48,15 @@ public sealed record PolicyRollbackAuditDto(
     string? Reason,
     DateTimeOffset CreatedAt
 );
+
+
+public sealed record PolicyRollbackAuditDetailedDto(
+    long RollbackId,
+    string Domain,
+    string ActionType,
+    string Scenario,
+    long TargetVersion,
+    string PerformedBy,
+    string? Reason,
+    DateTimeOffset CreatedAt
+);
