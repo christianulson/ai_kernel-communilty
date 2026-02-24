@@ -27,3 +27,24 @@ public sealed record PolicySnapshotDto(
     DateTimeOffset CapturedAt,
     IReadOnlyList<PolicyEntryDto> Policies
 );
+
+public sealed record PolicyVersionDto(
+    long Version,
+    string Domain,
+    string ActionType,
+    string Scenario,
+    double SuccessRate,
+    double AvgDeltaImprovement,
+    int Samples,
+    DateTimeOffset CreatedAt
+);
+
+public sealed record PolicyRollbackRequest(long Version, string? Reason = null);
+
+public sealed record PolicyRollbackAuditDto(
+    long RollbackId,
+    long TargetVersion,
+    string PerformedBy,
+    string? Reason,
+    DateTimeOffset CreatedAt
+);
