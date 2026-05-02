@@ -14,3 +14,10 @@ public record CausalEdgeContract(
     double Confidence,
     int EvidenceCount
 );
+
+public record EmotionalStateContract(
+    double Valence,
+    double Arousal,
+    double Motivation,
+    DateTimeOffset UpdatedAt
+);
