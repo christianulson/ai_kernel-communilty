@@ -1,0 +1,109 @@
+{
+  "name": "aikernel-vscode",
+  "displayName": "AI Kernel",
+  "description": "AI Kernel - Agente cognitivo no VsCode",
+  "version": "1.0.0",
+  "publisher": "aikernel",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:aikernel.start",
+    "onCommand:aikernel.chat"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "aikernel.start",
+        "title": "AI Kernel: Iniciar Sidecar"
+      },
+      {
+        "command": "aikernel.stop",
+        "title": "AI Kernel: Parar Sidecar"
+      },
+      {
+        "command": "aikernel.chat",
+        "title": "AI Kernel: Chat"
+      },
+      {
+        "command": "aikernel.dashboard",
+        "title": "AI Kernel: Dashboard"
+      },
+      {
+        "command": "aikernel.policies",
+        "title": "AI Kernel: Políticas"
+      },
+      {
+        "command": "aikernel.episodes",
+        "title": "AI Kernel: Episódios"
+      },
+      {
+        "command": "aikernel.memory",
+        "title": "AI Kernel: Memória"
+      },
+      {
+        "command": "aikernel.settings",
+        "title": "AI Kernel: Configurações"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "aikernel",
+          "title": "AI Kernel",
+          "icon": "$(hubot)"
+        }
+      ]
+    },
+    "views": {
+      "aikernel": [
+        {
+          "id": "aikernel.nav",
+          "name": "Navegação"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "aikernel.start",
+          "when": "view == aikernel.nav",
+          "group": "navigation"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "AI Kernel",
+      "properties": {
+        "aikernel.endpoint": {
+          "type": "string",
+          "default": "http://localhost:5000",
+          "description": "Endpoint do backend AI Kernel"
+        },
+        "aikernel.standalone": {
+          "type": "boolean",
+          "default": false,
+          "description": "Usar Sidecar local em vez da API remota"
+        },
+        "aikernel.sidecarPort": {
+          "type": "number",
+          "default": 5001,
+          "description": "Porta do Sidecar local"
+        }
+      }
+    }
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "^25.6.2",
+    "@types/vscode": "^1.118.0",
+    "jest": "^30.4.1",
+    "ts-jest": "^29.4.9",
+    "typescript": "^6.0.3"
+  }
+}
