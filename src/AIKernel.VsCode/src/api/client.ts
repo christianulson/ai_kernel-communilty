@@ -15,7 +15,18 @@ export class KernelClient {
         if (config.get<boolean>('standalone', false)) {
             return `http://localhost:${config.get<number>('sidecarPort', 5001)}`;
         }
-        return config.get<string>('endpoint', 'http://localhost:5000');
+        const endpoint = config.get<string>('endpoint', 'http://localhost:5000');
+        try {
+            const url = new URL(endpoint);
+            if (url.hostname !== 'localhost' && url.hostname !== '127.0.0.1' && url.hostname !== '::1') {
+                console.warn(`[AI Kernel] Endpoint rejeitado (não é loopback): ${endpoint}. Usando default.`);
+                return 'http://localhost:5000';
+            }
+        } catch {
+            console.warn(`[AI Kernel] Endpoint inválido: ${endpoint}. Usando default.`);
+            return 'http://localhost:5000';
+        }
+        return endpoint;
     }
 
     private async fetchJson<T>(path: string, options?: RequestInit): Promise<T | null> {
@@ -46,7 +57,7 @@ export class KernelClient {
 
     async getScorecard(): Promise<ScorecardData | null> { return this.fetchJson('/agent/metrics/scorecard'); }
     async getPolicies(domain?: string): Promise<PolicyInfo[] | null> {
-        const params = domain ? `?domain=${domain}` : '';
+        const params = domain ? `?domain=${encodeURIComponent(domain)}` : '';
         const r = await this.fetchJson<{ policies: PolicyInfo[] }>(`/policy/list${params}`);
         return r?.policies || null;
     }

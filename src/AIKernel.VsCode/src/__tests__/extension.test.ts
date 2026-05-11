@@ -28,7 +28,7 @@ jest.mock('vscode', () => ({
     })),
     TreeItem: jest.fn(),
     TreeItemCollapsibleState: { None: 0 },
-    Disposable: { from: jest.fn() },
+    Disposable: jest.fn(() => ({ dispose: jest.fn() })),
     StatusBarAlignment: { Right: 1 }
 }), { virtual: true });
 

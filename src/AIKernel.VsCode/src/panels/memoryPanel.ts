@@ -1,17 +1,17 @@
 import * as vscode from 'vscode';
 import { KernelClient } from '../api/client';
 
-const CSP = `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'nonce-aikernel';">`;
-
 export class MemoryPanel {
     public static currentPanel: MemoryPanel | undefined;
     private readonly _panel: vscode.WebviewPanel;
     private readonly _client: KernelClient;
+    private readonly _nonce: string;
     private _disposables: vscode.Disposable[] = [];
 
     private constructor(panel: vscode.WebviewPanel) {
         this._panel = panel;
         this._client = new KernelClient();
+        this._nonce = Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10);
         this._panel.webview.html = this._getHtml();
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
         this._panel.webview.onDidReceiveMessage(msg => this._handle(msg), null, this._disposables);
@@ -34,9 +34,11 @@ export class MemoryPanel {
         }
     }
 
-    private _getHtml(): string { return `<!DOCTYPE html>
-<html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">${CSP}<title>Memória</title>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--vscode-editor-background);color:var(--vscode-editor-foreground);padding:24px}
+    private _getHtml(): string { const nonce = this._nonce; return `<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'nonce-${nonce}'; script-src 'nonce-${nonce}';">
+<title>Memória</title>
+<style nonce="${nonce}">*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--vscode-editor-background);color:var(--vscode-editor-foreground);padding:24px}
 h1{font-size:20px;margin-bottom:4px}p{color:var(--vscode-descriptionForeground);margin-bottom:16px;font-size:13px}
 .tabs{display:flex;gap:8px;margin-bottom:16px}.tab{padding:8px 16px;border-radius:4px;cursor:pointer;font-size:13px;background:var(--vscode-editor-inactiveSelectionBackground)}
 .tab.active{background:var(--vscode-button-background);color:var(--vscode-button-foreground)}
@@ -58,7 +60,7 @@ button{padding:8px 16px;background:var(--vscode-button-background);color:var(--v
 <div class="metrics-grid"><div class="metric"><div class="val" id="m-chunks">--</div><div class="lbl">Chunks</div></div>
 <div class="metric"><div class="val" id="m-docs">--</div><div class="lbl">Documentos</div></div>
 <div class="metric"><div class="val" id="m-size">--</div><div class="lbl">Bytes</div></div></div></div>
-<script nonce="aikernel">(function(){
+<script nonce="${nonce}">(function(){
 const vscode=acquireVsCodeApi(),results=document.getElementById('results')!;
 window.addEventListener('message',e=>{const m=e.data;
 if(m.type==='results'){results.innerHTML='';if(m.total===0){results.textContent='Nenhum resultado.';return;}

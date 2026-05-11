@@ -206,10 +206,10 @@ describe('KernelClient', () => {
 
     // ── getBaseUrl ──
     describe('base URL', () => {
-        it('should use endpoint when not standalone', () => {
-            mockGetConfiguration({ endpoint: 'http://custom:8080' });
-            const client = new KernelClient();
-            expect((client as any).getBaseUrl()).toBe('http://custom:8080');
+        it('should reject non-loopback endpoint and fall back to default', () => {
+            mockGetConfiguration({ endpoint: 'http://evil.com:8080' });
+            const client = new KernelClient() as any;
+            expect((client as any).getBaseUrl()).toBe('http://localhost:5000');
         });
 
         it('should use sidecar port when standalone', () => {

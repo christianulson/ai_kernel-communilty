@@ -1,4 +1,5 @@
 import { spawn } from 'child_process';
+import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { KernelClient } from './api/client';
@@ -26,7 +27,12 @@ export function activate(context: vscode.ExtensionContext) {
         statusBarItem.text = `$(hubot) ${status}`;
     }
     updateHealth();
-    setInterval(updateHealth, 30000);
+    const healthTimer = setInterval(updateHealth, 30000);
+    context.subscriptions.push(new vscode.Disposable(() => clearInterval(healthTimer)));
+
+    context.subscriptions.push(new vscode.Disposable(() => {
+        if (sidecarProcess) { sidecarProcess.kill(); sidecarProcess = undefined; }
+    }));
 
     // Sidecar
     context.subscriptions.push(vscode.commands.registerCommand('aikernel.start', async () => {
@@ -37,7 +43,6 @@ export function activate(context: vscode.ExtensionContext) {
             return;
         }
         const csprojPath = path.join(projectDir, 'src', 'AIKernel.Sidecar', 'AIKernel.Sidecar.csproj');
-        const fs = require('fs');
         if (!fs.existsSync(csprojPath)) {
             vscode.window.showErrorMessage(`Sidecar não encontrado em: ${csprojPath}`);
             return;
@@ -48,8 +53,12 @@ export function activate(context: vscode.ExtensionContext) {
                 cwd: path.dirname(csprojPath),
                 stdio: 'pipe'
             });
-            sidecarProcess.stdout.on('data', (d: any) => console.log(`[sidecar] ${d}`));
-            sidecarProcess.stderr.on('data', (d: any) => console.error(`[sidecar] ${d}`));
+            const sanitizeLog = (data: any): string => {
+                const s = String(data);
+                return s.replace(/((?:token|secret|password|key|authorization|api_key)\s*[:=]\s*['"]?)[^\s'"&]+/gi, '$1***');
+            };
+            sidecarProcess.stdout.on('data', (d: any) => console.log(`[sidecar] ${sanitizeLog(d)}`));
+            sidecarProcess.stderr.on('data', (d: any) => console.error(`[sidecar] ${sanitizeLog(d)}`));
             sidecarProcess.on('close', (code: number) => { console.log(`Sidecar exited: ${code}`); sidecarProcess = undefined; });
             setTimeout(() => { vscode.window.showInformationMessage('Sidecar iniciado na porta 5001'); updateHealth(); }, 5000);
         } catch (ex: any) { vscode.window.showErrorMessage(`Erro: ${ex.message}`); }

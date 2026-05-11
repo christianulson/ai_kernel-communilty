@@ -1,14 +1,14 @@
 import * as vscode from 'vscode';
 
-const CSP = `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'nonce-aikernel';">`;
-
 export class SettingsPanel {
     public static currentPanel: SettingsPanel | undefined;
     private readonly _panel: vscode.WebviewPanel;
+    private readonly _nonce: string;
     private _disposables: vscode.Disposable[] = [];
 
     private constructor(panel: vscode.WebviewPanel) {
         this._panel = panel;
+        this._nonce = Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10);
         this._panel.webview.html = this._getHtml();
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
         this._panel.webview.onDidReceiveMessage(msg => this._handle(msg), null, this._disposables);
@@ -20,7 +20,7 @@ export class SettingsPanel {
         SettingsPanel.currentPanel = new SettingsPanel(panel);
     }
 
-    private _handle(msg: any) {
+    private async _handle(msg: any) {
         if (msg.type === 'load') {
             const config = vscode.workspace.getConfiguration('aikernel');
             this._panel.webview.postMessage({
@@ -31,25 +31,45 @@ export class SettingsPanel {
             });
         }
         if (msg.type === 'save') {
-            if (typeof msg.endpoint !== 'string' || !msg.endpoint.startsWith('http://') && !msg.endpoint.startsWith('https://')) {
-                vscode.window.showErrorMessage('URL inválida. Use http:// ou https://');
+            if (typeof msg.endpoint !== 'string') return;
+            try {
+                const url = new URL(msg.endpoint);
+                if (url.hostname !== 'localhost' && url.hostname !== '127.0.0.1' && url.hostname !== '::1') {
+                    vscode.window.showErrorMessage('Endpoint deve ser um endereço local (localhost, 127.0.0.1)');
+                    return;
+                }
+            } catch {
+                vscode.window.showErrorMessage('URL inválida');
+                return;
+            }
+            const port = Number(msg.sidecarPort);
+            if (msg.sidecarPort !== undefined && (!Number.isInteger(port) || port < 1 || port > 65535)) {
+                vscode.window.showErrorMessage('Porta inválida. Use 1-65535');
                 return;
             }
             const config = vscode.workspace.getConfiguration('aikernel');
             const currentEndpoint = config.inspect('endpoint');
-            if (currentEndpoint?.workspaceValue && currentEndpoint.workspaceValue !== msg.endpoint) {
-                vscode.window.showWarningMessage('O endpoint foi alterado nas configurações do workspace. Verifique o arquivo .vscode/settings.json');
+            if (currentEndpoint?.workspaceValue) {
+                const action = await vscode.window.showWarningMessage(
+                    'O endpoint está definido nas configurações do workspace (.vscode/settings.json) e sobrescreverá a configuração global. Deseja removê-lo do workspace?',
+                    'Sim, remover do workspace', 'Ignorar'
+                );
+                if (action === 'Sim, remover do workspace') {
+                    config.update('endpoint', undefined, vscode.ConfigurationTarget.Workspace);
+                }
             }
             config.update('endpoint', msg.endpoint, vscode.ConfigurationTarget.Global);
             config.update('standalone', !!msg.standalone, vscode.ConfigurationTarget.Global);
-            config.update('sidecarPort', Number(msg.sidecarPort) || 5001, vscode.ConfigurationTarget.Global);
+            config.update('sidecarPort', port || 5001, vscode.ConfigurationTarget.Global);
             vscode.window.showInformationMessage('Configurações salvas!');
         }
     }
 
-    private _getHtml(): string { return `<!DOCTYPE html>
-<html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">${CSP}<title>Configurações</title>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--vscode-editor-background);color:var(--vscode-editor-foreground);padding:24px;max-width:500px}
+    private _getHtml(): string { const nonce = this._nonce; return `<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'nonce-${nonce}'; script-src 'nonce-${nonce}';">
+<title>Configurações</title>
+<style nonce="${nonce}">*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--vscode-editor-background);color:var(--vscode-editor-foreground);padding:24px;max-width:500px}
 h1{font-size:20px;margin-bottom:24px}h2{font-size:14px;font-weight:600;margin-bottom:12px;margin-top:24px}
 label{display:block;margin-bottom:16px;font-size:13px}label span{display:block;margin-bottom:4px;color:var(--vscode-descriptionForeground)}
 input,select{width:100%;padding:8px 12px;border:1px solid var(--vscode-input-border);background:var(--vscode-input-background);color:var(--vscode-input-foreground);border-radius:4px}
@@ -62,7 +82,7 @@ button{padding:10px 24px;background:var(--vscode-button-background);color:var(--
 <label><span>Endpoint</span><input type="text" id="endpoint" placeholder="http://localhost:5000" /></label>
 <label><span>Porta Sidecar</span><input type="number" id="sidecarPort" /></label></div>
 <button onclick="save()">💾 Salvar</button><div id="status"></div>
-<script nonce="aikernel">(function(){
+<script nonce="${nonce}">(function(){
 const vscode=acquireVsCodeApi();vscode.postMessage({type:'load'});
 window.addEventListener('message',e=>{const m=e.data;if(m.type==='config'){
 (document.getElementById('endpoint')as HTMLInputElement).value=m.endpoint||'http://localhost:5000';

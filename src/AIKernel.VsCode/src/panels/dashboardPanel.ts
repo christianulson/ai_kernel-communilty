@@ -1,17 +1,17 @@
 import * as vscode from 'vscode';
 import { KernelClient } from '../api/client';
 
-const CSP = `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'nonce-aikernel';">`;
-
 export class DashboardPanel {
     public static currentPanel: DashboardPanel | undefined;
     private readonly _panel: vscode.WebviewPanel;
     private readonly _client: KernelClient;
+    private readonly _nonce: string;
     private _disposables: vscode.Disposable[] = [];
 
     private constructor(panel: vscode.WebviewPanel) {
         this._panel = panel;
         this._client = new KernelClient();
+        this._nonce = Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10);
         this._panel.webview.html = this._getHtml();
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
         this._panel.webview.onDidReceiveMessage(msg => this._handle(msg), null, this._disposables);
@@ -31,9 +31,11 @@ export class DashboardPanel {
         }
     }
 
-    private _getHtml(): string { return `<!DOCTYPE html>
-<html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">${CSP}<title>Dashboard</title>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--vscode-editor-background);color:var(--vscode-editor-foreground);padding:24px}
+    private _getHtml(): string { const nonce = this._nonce; return `<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'nonce-${nonce}'; script-src 'nonce-${nonce}';">
+<title>Dashboard</title>
+<style nonce="${nonce}">*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--vscode-editor-background);color:var(--vscode-editor-foreground);padding:24px}
 h1{font-size:20px;margin-bottom:4px}p{color:var(--vscode-descriptionForeground);margin-bottom:24px;font-size:13px}
 .card{background:var(--vscode-editor-inactiveSelectionBackground);border-radius:8px;padding:20px;margin-bottom:16px}
 .card h2{font-size:14px;margin-bottom:16px;font-weight:600}.grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:8px;text-align:center}
@@ -58,7 +60,7 @@ button:hover{background:var(--vscode-button-hoverBackground)}#loading{text-align
 <div><div class="metric-value" id="sc-safety">--</div><div class="metric-label">Safety</div></div>
 <div><div class="metric-value" id="sc-antiloop">--</div><div class="metric-label">Anti-Loop</div></div>
 <div><div class="metric-value" id="sc-governance">--</div><div class="metric-label">Governança</div></div></div></div></div>
-<script nonce="aikernel">(function(){
+<script nonce="${nonce}">(function(){
 const vscode=acquireVsCodeApi();vscode.postMessage({type:'load'});
 window.addEventListener('message',e=>{const m=e.data;
 if(m.type==='data'){

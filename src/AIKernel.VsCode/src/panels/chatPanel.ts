@@ -5,17 +5,17 @@ function escapeHtml(s: string): string {
     return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
 }
 
-const CSP = `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'nonce-aikernel';">`;
-
 export class ChatPanel {
     public static currentPanel: ChatPanel | undefined;
     private readonly _panel: vscode.WebviewPanel;
     private readonly _client: KernelClient;
+    private readonly _nonce: string;
     private _disposables: vscode.Disposable[] = [];
 
     private constructor(panel: vscode.WebviewPanel) {
         this._panel = panel;
         this._client = new KernelClient();
+        this._nonce = Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10);
         this._panel.webview.html = this._getHtml();
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
         this._panel.webview.onDidReceiveMessage(msg => this._handleMessage(msg), null, this._disposables);
@@ -42,9 +42,11 @@ export class ChatPanel {
         }
     }
 
-    private _getHtml(): string { return `<!DOCTYPE html>
-<html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">${CSP}<title>AI Kernel Chat</title>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--vscode-editor-background);color:var(--vscode-editor-foreground)}
+    private _getHtml(): string { const nonce = this._nonce; return `<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'nonce-${nonce}'; script-src 'nonce-${nonce}';">
+<title>AI Kernel Chat</title>
+<style nonce="${nonce}">*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--vscode-editor-background);color:var(--vscode-editor-foreground)}
 #status{padding:8px 16px;font-size:12px;border-bottom:1px solid var(--vscode-panel-border)}#messages{padding:16px;overflow-y:auto;height:calc(100vh - 120px)}
 .msg{margin:0 0 12px;padding:12px;border-radius:8px;max-width:85%}.user{background:var(--vscode-textBlockQuote-background);margin-left:auto}
 .assistant{background:var(--vscode-editor-inactiveSelectionBackground)}.msg-label{font-size:11px;opacity:0.7;margin-bottom:4px}.error{color:var(--vscode-errorForeground)}
@@ -55,7 +57,7 @@ export class ChatPanel {
 </style></head><body>
 <div id="status">$(sync) Conectando...</div><div id="messages"></div>
 <div id="input-area"><input id="input" type="text" placeholder="Digite sua mensagem..." /><button id="send">Enviar</button></div>
-<script nonce="aikernel">(function(){
+<script nonce="${nonce}">(function(){
 const vscode=acquireVsCodeApi(),msgDiv=document.getElementById('messages')!,input=document.getElementById('input')as HTMLInputElement,status=document.getElementById('status')!;
 vscode.postMessage({type:'checkHealth'});
 window.addEventListener('message',e=>{const m=e.data;

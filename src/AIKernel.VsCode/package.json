@@ -13,7 +13,8 @@
   ],
   "activationEvents": [
     "onCommand:aikernel.start",
-    "onCommand:aikernel.chat"
+    "onCommand:aikernel.chat",
+    "onView:aikernel.nav"
   ],
   "main": "./out/extension.js",
   "contributes": {
