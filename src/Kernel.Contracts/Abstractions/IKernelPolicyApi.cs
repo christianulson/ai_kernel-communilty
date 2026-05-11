@@ -1,4 +1,3 @@
-using Kernel.Contracts;
 using Refit;
 
 namespace Kernel.Contracts.Abstractions;
