@@ -15,6 +15,6 @@ public sealed class AuthSidecarWebAppFactory : SidecarWebAppFactory
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         base.ConfigureWebHost(builder);
-        builder.UseSetting("AIKERNEL_AUTH_TOKEN", "test-secret-123");
+        builder.UseSetting("Sidecar:Auth:Token", "test-secret-123");
     }
 }
