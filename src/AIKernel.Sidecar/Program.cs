@@ -4,12 +4,14 @@ using Kernel.Abstractions;
 using Kernel.Core.Services.Safety;
 using Kernel.Infrastructure.InMemory;
 using Kernel.Services;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<IAdversarialGuard, AdversarialGuard>();
 builder.Services.AddSingleton<IRiskScorer, SimpleRiskScorer>();
 builder.Services.AddSingleton<IPolicyStore, InMemoryPolicyStore>();
 builder.Services.AddSingleton<IStateStore, InMemoryStateStore>();
+builder.Services.Configure<RiskScorerOptions>(_ => { });
 
 builder.Services.AddRateLimiter(options =>
 {
@@ -25,9 +27,20 @@ app.Use(async (ctx, next) =>
 {
     if (ctx.Request.Path != "/health")
     {
-        var auth = ctx.Request.Headers["Authorization"].FirstOrDefault();
-        var token = Environment.GetEnvironmentVariable("AIKERNEL_AUTH_TOKEN");
-        if (!string.IsNullOrEmpty(token) && auth != $"Bearer {token}") { ctx.Response.StatusCode = 401; await ctx.Response.WriteAsJsonAsync(new { error = "unauthorized" }); return; }
+        var config = ctx.RequestServices.GetRequiredService<IConfiguration>();
+        var authToken = config["AIKERNEL_AUTH_TOKEN"];
+        if (!string.IsNullOrEmpty(authToken))
+        {
+            var auth = ctx.Request.Headers["Authorization"].FirstOrDefault();
+            if (auth != $"Bearer {authToken}")
+            {
+                var logger = ctx.RequestServices.GetRequiredService<ILogger<Program>>();
+                logger.LogWarning("Unauthorized access attempt to {Path} from {RemoteIp}", ctx.Request.Path, ctx.Connection.RemoteIpAddress);
+                ctx.Response.StatusCode = 401;
+                await ctx.Response.WriteAsJsonAsync(new { error = "unauthorized" });
+                return;
+            }
+        }
     }
     await next();
 });
@@ -36,12 +49,24 @@ app.Use(async (ctx, next) =>
 app.MapGet("/health", () => Results.Ok(new { status = "ok", ts = DateTime.UtcNow, version = "AIKernel.Sidecar/1.0.0" }));
 
 // 🤖 Agent run
-app.MapPost("/agent/run", async (HttpContext ctx, IAdversarialGuard guard) =>
+app.MapPost("/agent/run", async (HttpContext ctx, IAdversarialGuard guard, ILogger<Program> logger) =>
 {
-    var body = await ctx.Request.ReadFromJsonAsync<AgentRunRequest>();
+        AgentRunRequest? body;
+        try
+        {
+            body = await ctx.Request.ReadFromJsonAsync<AgentRunRequest>(cancellationToken: ctx.RequestAborted);
+        }
+        catch
+        {
+            body = null;
+        }
     if (body == null) return Results.BadRequest(new { error = "invalid_request" });
     var safetyResult = await guard.ValidateAsync(body.Prompt ?? "", ctx.RequestAborted);
     var blocked = !safetyResult.IsAllowed;
+    if (blocked)
+        logger.LogWarning("Agent run blocked. ThreatLevel={Threat}, Patterns={Patterns}", safetyResult.ThreatLevel, safetyResult.DetectedPatterns);
+    else
+        logger.LogInformation("Agent run allowed. Prompt={PromptLen}chars", body.Prompt?.Length ?? 0);
     return Results.Ok(new AgentRunResponse
     {
         Narration = blocked ? "Conteúdo bloqueado." : BuildNarration(body.Prompt ?? ""),
@@ -59,9 +84,10 @@ app.MapGet("/policy/list", (string? domain) =>
 app.MapGet("/agent/metrics/scorecard", () => Results.Ok(new { reliability = 0.85, efficiency = 0.78, safety = 0.95, antiLoop = 0.88, governance = 0.82, overall = 0.86 }));
 
 // 🧠 Memory
-app.MapPost("/memory/search", async (HttpContext ctx) =>
+app.MapPost("/memory/search", async (HttpContext ctx, ILogger<Program> logger) =>
 {
-    var body = await ctx.Request.ReadFromJsonAsync<Dictionary<string, object>>();
+    var body = await ctx.Request.ReadFromJsonAsync<Dictionary<string, object>>(cancellationToken: ctx.RequestAborted);
+    logger.LogInformation("Memory search requested with {KeyCount} keys", body?.Count ?? 0);
     return Results.Ok(new { hits = Array.Empty<object>(), totalCount = 0 });
 });
 app.MapGet("/memory/metrics", () => Results.Ok(new { totalChunks = 0, totalDocuments = 0, totalSizeBytes = 0 }));
@@ -81,3 +107,5 @@ static string BuildNarration(string prompt) => prompt.ToLower() switch
     var p when p.Contains("quem é") => "AI Kernel em modo standalone. Safety ativo.",
     _ => "Processado em modo standalone."
 };
+
+public partial class Program { }
