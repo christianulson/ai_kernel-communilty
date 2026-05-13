@@ -28,61 +28,99 @@ public static class EndpointRouteExtensions
         app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = check => check.Tags.Contains("live") })
             .RequireRateLimiting("health");
 
-        app.MapPost("/agent/run", async (HttpContext ctx, IAdversarialGuard guard, ILogger<Program> logger) =>
+        app.MapPost("/agent/run", async (HttpContext ctx, IAdversarialGuard guard, KernelApiProxy kernel, ILogger<Program> logger) =>
         {
             AgentRunRequest? body;
-            try
-            {
-                body = await ctx.Request.ReadFromJsonAsync<AgentRunRequest>(cancellationToken: ctx.RequestAborted);
-            }
-            catch
-            {
-                body = null;
-            }
+            try { body = await ctx.Request.ReadFromJsonAsync<AgentRunRequest>(cancellationToken: ctx.RequestAborted); }
+            catch { body = null; }
             if (body == null) return Results.BadRequest(new { error = "invalid_request" });
+
             var safetyResult = await guard.ValidateAsync(body.Prompt ?? "", ctx.RequestAborted);
-            var blocked = !safetyResult.IsAllowed;
-            if (blocked)
+            if (!safetyResult.IsAllowed)
+            {
                 logger.LogWarning("Agent run blocked. ThreatLevel={Threat}, Patterns={Patterns}", safetyResult.ThreatLevel, safetyResult.DetectedPatterns);
-            else
-                logger.LogInformation("Agent run allowed. Prompt={PromptLen}chars", body.Prompt?.Length ?? 0);
+                return Results.Ok(new AgentRunResponse
+                {
+                    Narration = "Conteúdo bloqueado.",
+                    Error = "safety_block",
+                    TransportSteps = [new TransportStepDto { Label = "Segurança", Detail = "BLOQUEADO", Ok = false }],
+                    ActiveStages = ["standalone"]
+                });
+            }
+
+            var proxyResult = await kernel.ProxyPostAsync<AgentRunRequest, AgentRunResponse>("/v1/agent/run", body, ctx.RequestAborted);
+            if (proxyResult != null) return Results.Ok(proxyResult);
+
+            logger.LogInformation("Agent run processed locally. Prompt={PromptLen}chars", body.Prompt?.Length ?? 0);
             return Results.Ok(new AgentRunResponse
             {
-                Narration = blocked ? "Conteúdo bloqueado." : BuildNarration(body.Prompt ?? ""),
-                Error = blocked ? "safety_block" : null,
-                TransportSteps = new[] { new TransportStepDto { Label = "Segurança", Detail = blocked ? "BLOQUEADO" : "OK", Ok = !blocked } },
-                ActiveStages = new[] { "standalone" }
+                Narration = BuildNarration(body.Prompt ?? ""),
+                Error = null,
+                TransportSteps = [new TransportStepDto { Label = "Segurança", Detail = "OK", Ok = true }],
+                ActiveStages = ["standalone"]
             });
         }).RequireRateLimiting("agent-run");
 
-        app.MapGet("/policy/list", (string? domain) =>
-            Results.Ok(new { policies = new[] { new { id = "p1", name = "Default Policy", domain = "general", version = "1.0", createdAt = DateTime.UtcNow, isActive = true } }, totalCount = 1 }));
+        app.MapGet("/policy/list", async (KernelApiProxy kernel, ILogger<Program> logger) =>
+        {
+            var proxyResult = await kernel.ProxyGetAsync<object>("/policy/list", CancellationToken.None);
+            if (proxyResult != null) return Results.Ok(proxyResult);
 
-        app.MapGet("/agent/metrics/scorecard", () => Results.Ok(new { reliability = 0.85, efficiency = 0.78, safety = 0.95, antiLoop = 0.88, governance = 0.82, overall = 0.86 }));
+            logger.LogInformation("Policy list returned locally (no Kernel API)");
+            return Results.Ok(new { policies = Array.Empty<object>(), totalCount = 0 });
+        });
 
-        app.MapPost("/memory/search", async (HttpContext ctx, ILogger<Program> logger) =>
+        app.MapGet("/agent/metrics/scorecard", async (KernelApiProxy kernel, ILogger<Program> logger) =>
+        {
+            var proxyResult = await kernel.ProxyGetAsync<object>("/agent/metrics/scorecard", CancellationToken.None);
+            if (proxyResult != null) return Results.Ok(proxyResult);
+
+            logger.LogInformation("Scorecard returned locally (no Kernel API)");
+            return Results.Ok(new { reliability = 0.0, efficiency = 0.0, safety = 0.0, antiLoop = 0.0, governance = 0.0, overall = 0.0, source = "local_fallback" });
+        });
+
+        app.MapPost("/memory/search", async (HttpContext ctx, KernelApiProxy kernel, ILogger<Program> logger) =>
         {
             Dictionary<string, object>? body;
-            try
-            {
-                body = await ctx.Request.ReadFromJsonAsync<Dictionary<string, object>>(cancellationToken: ctx.RequestAborted);
-            }
-            catch
-            {
-                body = null;
-            }
+            try { body = await ctx.Request.ReadFromJsonAsync<Dictionary<string, object>>(cancellationToken: ctx.RequestAborted); }
+            catch { body = null; }
             if (body == null) return Results.BadRequest(new { error = "invalid_request" });
             if (body.Keys.Except(new[] { "query", "limit", "offset", "domain" }).Any())
                 return Results.BadRequest(new { error = "unexpected_fields", allowed = new[] { "query", "limit", "offset", "domain" } });
-            logger.LogInformation("Memory search requested with {KeyCount} keys", body.Count);
+
+            var proxyResult = await kernel.ProxyPostAsync<Dictionary<string, object>, object>("/memory/search", body, ctx.RequestAborted);
+            if (proxyResult != null) return Results.Ok(proxyResult);
+
+            logger.LogInformation("Memory search returned locally (no Kernel API)");
             return Results.Ok(new { hits = Array.Empty<object>(), totalCount = 0 });
         }).RequireRateLimiting("memory-read");
 
-        app.MapGet("/memory/metrics", () => Results.Ok(new { totalChunks = 0, totalDocuments = 0, totalSizeBytes = 0 }))
-            .RequireRateLimiting("memory-read");
+        app.MapGet("/memory/metrics", async (KernelApiProxy kernel, ILogger<Program> logger) =>
+        {
+            var proxyResult = await kernel.ProxyGetAsync<object>("/memory/metrics", CancellationToken.None);
+            if (proxyResult != null) return Results.Ok(proxyResult);
 
-        app.MapGet("/episodes/search", () => Results.Ok(new { episodes = Array.Empty<object>(), totalCount = 0 }));
-        app.MapGet("/episodes/{id}", (string id) => Results.Ok(new { id, goalId = "standalone", status = "idle", createdAt = DateTime.UtcNow }));
+            logger.LogInformation("Memory metrics returned locally (no Kernel API)");
+            return Results.Ok(new { totalChunks = 0, totalDocuments = 0, totalSizeBytes = 0 });
+        }).RequireRateLimiting("memory-read");
+
+        app.MapGet("/episodes/search", async (KernelApiProxy kernel, ILogger<Program> logger) =>
+        {
+            var proxyResult = await kernel.ProxyGetAsync<object>("/episodes/search", CancellationToken.None);
+            if (proxyResult != null) return Results.Ok(proxyResult);
+
+            logger.LogInformation("Episodes search returned locally (no Kernel API)");
+            return Results.Ok(new { episodes = Array.Empty<object>(), totalCount = 0 });
+        });
+
+        app.MapGet("/episodes/{id}", async (string id, KernelApiProxy kernel, ILogger<Program> logger) =>
+        {
+            var proxyResult = await kernel.ProxyGetAsync<object>($"/episodes/{id}", CancellationToken.None);
+            if (proxyResult != null) return Results.Ok(proxyResult);
+
+            logger.LogInformation("Episode {Id} returned locally (no Kernel API)", id);
+            return Results.Ok(new { id, goalId = "standalone", status = "idle", createdAt = DateTime.UtcNow });
+        });
 
         return app;
     }

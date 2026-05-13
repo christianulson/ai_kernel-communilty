@@ -9,6 +9,7 @@ public sealed class SidecarOptions
     public AuthOptions Auth { get; init; } = new();
     public RateLimitingOptions RateLimiting { get; init; } = new();
     public CorsOptions Cors { get; init; } = new();
+    public KernelApiOptions KernelApi { get; init; } = new();
 }
 
 public sealed class AuthOptions
@@ -31,4 +32,10 @@ public sealed class RateLimitingOptions
 public sealed class CorsOptions
 {
     public string[]? AllowedOrigins { get; init; }
+}
+
+public sealed class KernelApiOptions
+{
+    public string BaseUrl { get; init; } = "";
+    public int TimeoutSeconds { get; init; } = 10;
 }

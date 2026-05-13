@@ -40,6 +40,19 @@ public static class ServiceCollectionExtensions
             });
         });
 
+        // Kernel API proxy (optional — for proxying to remote Kernel API)
+        services.AddHttpClient("kernel")
+            .ConfigureHttpClient((sp, client) =>
+            {
+                var options = sp.GetRequiredService<IOptions<SidecarOptions>>();
+                if (!string.IsNullOrWhiteSpace(options.Value.KernelApi.BaseUrl))
+                {
+                    client.BaseAddress = new Uri(options.Value.KernelApi.BaseUrl.TrimEnd('/'));
+                    client.Timeout = TimeSpan.FromSeconds(Math.Max(1, options.Value.KernelApi.TimeoutSeconds));
+                }
+            });
+        services.AddSingleton<KernelApiProxy>();
+
         // Per-endpoint rate limiting
         services.AddRateLimiter(options =>
         {
