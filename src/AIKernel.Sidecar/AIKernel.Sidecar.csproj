@@ -9,6 +9,7 @@
     <AssemblyName>AIKernel.Sidecar</AssemblyName>
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>false</SelfContained>
+      <UserSecretsId>ai_kernel_AIKernel.Sidecar</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,3 +19,4 @@
   </ItemGroup>
 
 </Project>
+
