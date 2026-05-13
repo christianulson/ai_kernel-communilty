@@ -1,111 +1,26 @@
-using System.Threading.RateLimiting;
 using AIKernel.Sidecar;
-using Kernel.Abstractions;
-using Kernel.Core.Services.Safety;
-using Kernel.Infrastructure.InMemory;
-using Kernel.Services;
-using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddSingleton<IAdversarialGuard, AdversarialGuard>();
-builder.Services.AddSingleton<IRiskScorer, SimpleRiskScorer>();
-builder.Services.AddSingleton<IPolicyStore, InMemoryPolicyStore>();
-builder.Services.AddSingleton<IStateStore, InMemoryStateStore>();
-builder.Services.Configure<RiskScorerOptions>(_ => { });
+builder.WebHost.UseKestrel(o => o.Limits.MaxRequestBodySize = 1024 * 1024);
 
-builder.Services.AddRateLimiter(options =>
-{
-    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(ctx =>
-        RateLimitPartition.GetFixedWindowLimiter(ctx.Connection.RemoteIpAddress?.ToString() ?? "unknown", _ => new() { PermitLimit = 60, Window = TimeSpan.FromSeconds(10) }));
-    options.RejectionStatusCode = 429;
-});
+builder.Services.AddSidecarServices(builder.Configuration, builder.Environment);
 
 var app = builder.Build();
-app.UseRateLimiter();
-app.Use(async (ctx, next) => { ctx.Response.Headers["X-Content-Type-Options"] = "nosniff"; ctx.Response.Headers["X-Frame-Options"] = "DENY"; await next(); });
-app.Use(async (ctx, next) =>
+app.ConfigureSidecarPipeline();
+app.MapSidecarEndpoints();
+
+var port = "5001";
+for (var i = 0; i < args.Length; i++)
 {
-    if (ctx.Request.Path != "/health")
-    {
-        var config = ctx.RequestServices.GetRequiredService<IConfiguration>();
-        var authToken = config["AIKERNEL_AUTH_TOKEN"];
-        if (!string.IsNullOrEmpty(authToken))
-        {
-            var auth = ctx.Request.Headers["Authorization"].FirstOrDefault();
-            if (auth != $"Bearer {authToken}")
-            {
-                var logger = ctx.RequestServices.GetRequiredService<ILogger<Program>>();
-                logger.LogWarning("Unauthorized access attempt to {Path} from {RemoteIp}", ctx.Request.Path, ctx.Connection.RemoteIpAddress);
-                ctx.Response.StatusCode = 401;
-                await ctx.Response.WriteAsJsonAsync(new { error = "unauthorized" });
-                return;
-            }
-        }
-    }
-    await next();
-});
+    if (args[i] == "--port" && i + 1 < args.Length) { port = args[i + 1]; break; }
+    if (args[i].StartsWith("--port=", StringComparison.OrdinalIgnoreCase)) { port = args[i]["--port=".Length..]; break; }
+}
+app.Urls.Clear();
+app.Urls.Add($"http://127.0.0.1:{port}");
 
-// 🩺 Health
-app.MapGet("/health", () => Results.Ok(new { status = "ok", ts = DateTime.UtcNow, version = "AIKernel.Sidecar/1.0.0" }));
+app.Lifetime.ApplicationStarted.Register(() => Console.WriteLine($"AIKernel.Sidecar started on http://127.0.0.1:{port}"));
+app.Lifetime.ApplicationStopping.Register(() => Console.WriteLine("AIKernel.Sidecar shutting down..."));
 
-// 🤖 Agent run
-app.MapPost("/agent/run", async (HttpContext ctx, IAdversarialGuard guard, ILogger<Program> logger) =>
-{
-        AgentRunRequest? body;
-        try
-        {
-            body = await ctx.Request.ReadFromJsonAsync<AgentRunRequest>(cancellationToken: ctx.RequestAborted);
-        }
-        catch
-        {
-            body = null;
-        }
-    if (body == null) return Results.BadRequest(new { error = "invalid_request" });
-    var safetyResult = await guard.ValidateAsync(body.Prompt ?? "", ctx.RequestAborted);
-    var blocked = !safetyResult.IsAllowed;
-    if (blocked)
-        logger.LogWarning("Agent run blocked. ThreatLevel={Threat}, Patterns={Patterns}", safetyResult.ThreatLevel, safetyResult.DetectedPatterns);
-    else
-        logger.LogInformation("Agent run allowed. Prompt={PromptLen}chars", body.Prompt?.Length ?? 0);
-    return Results.Ok(new AgentRunResponse
-    {
-        Narration = blocked ? "Conteúdo bloqueado." : BuildNarration(body.Prompt ?? ""),
-        Error = blocked ? "safety_block" : null,
-        TransportSteps = new[] { new TransportStepDto { Label = "Segurança", Detail = blocked ? "BLOQUEADO" : "OK", Ok = !blocked } },
-        ActiveStages = new[] { "standalone" }
-    });
-});
-
-// 📋 Policies
-app.MapGet("/policy/list", (string? domain) =>
-    Results.Ok(new { policies = new[] { new { id = "p1", name = "Default Policy", domain = "general", version = "1.0", createdAt = DateTime.UtcNow, isActive = true } }, totalCount = 1 }));
-
-// 📊 Scorecard
-app.MapGet("/agent/metrics/scorecard", () => Results.Ok(new { reliability = 0.85, efficiency = 0.78, safety = 0.95, antiLoop = 0.88, governance = 0.82, overall = 0.86 }));
-
-// 🧠 Memory
-app.MapPost("/memory/search", async (HttpContext ctx, ILogger<Program> logger) =>
-{
-    var body = await ctx.Request.ReadFromJsonAsync<Dictionary<string, object>>(cancellationToken: ctx.RequestAborted);
-    logger.LogInformation("Memory search requested with {KeyCount} keys", body?.Count ?? 0);
-    return Results.Ok(new { hits = Array.Empty<object>(), totalCount = 0 });
-});
-app.MapGet("/memory/metrics", () => Results.Ok(new { totalChunks = 0, totalDocuments = 0, totalSizeBytes = 0 }));
-
-// 📜 Episodes
-app.MapGet("/episodes/search", () => Results.Ok(new { episodes = Array.Empty<object>(), totalCount = 0 }));
-app.MapGet("/episodes/{id}", (string id) => Results.Ok(new { id, goalId = "standalone", status = "idle", createdAt = DateTime.UtcNow }));
-
-var port = args switch { ["--port", var p] => p, _ => "5001" };
-try { app.Run($"https://localhost:{port}"); }
-catch { Console.WriteLine($"HTTPS unavailable, falling back to HTTP on {port}"); app.Run($"http://127.0.0.1:{port}"); }
-
-static string BuildNarration(string prompt) => prompt.ToLower() switch
-{
-    var p when p.Contains("olá") || p.Contains("oi") => "Olá! Modo standalone local ativo. Como posso ajudar?",
-    var p when p.Contains("ajuda") => "Modo standalone: segurança e risco ativos. Backend completo requer conexão remota.",
-    var p when p.Contains("quem é") => "AI Kernel em modo standalone. Safety ativo.",
-    _ => "Processado em modo standalone."
-};
+await app.RunAsync();
 
 public partial class Program { }
