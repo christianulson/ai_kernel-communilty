@@ -9,6 +9,8 @@ public static class WebApplicationExtensions
     public static WebApplication ConfigureSidecarPipeline(this WebApplication app)
     {
         // Global exception handler
+        app.MapPrometheusScrapingEndpoint();
+
         app.UseExceptionHandler(appError =>
         {
             appError.Run(async ctx =>

@@ -5,6 +5,9 @@ using Kernel.Infrastructure.InMemory;
 using Kernel.Services;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 namespace AIKernel.Sidecar;
 
@@ -23,6 +26,23 @@ public static class ServiceCollectionExtensions
             .Bind(configuration.GetSection(SidecarOptions.SectionName))
             .ValidateDataAnnotations()
             .ValidateOnStart();
+
+        // Safety pipeline
+        services.AddSingleton<FundamentalRulesEngine>();
+        services.AddSingleton<EthicalEnforcer>();
+
+        // OpenTelemetry
+        services.AddOpenTelemetry()
+            .ConfigureResource(r => r.AddService("AIKernel.Sidecar", "1.0.0"))
+            .WithTracing(t => t
+                .AddAspNetCoreInstrumentation()
+                .AddHttpClientInstrumentation()
+                .SetSampler(new AlwaysOnSampler()))
+            .WithMetrics(m => m
+                .AddAspNetCoreInstrumentation()
+                .AddHttpClientInstrumentation()
+                .AddRuntimeInstrumentation()
+                .AddPrometheusExporter());
 
         services.AddHealthChecks()
             .AddCheck<SidecarHealthCheck>("self", tags: ["live", "ready"]);

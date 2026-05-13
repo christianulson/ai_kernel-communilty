@@ -1,4 +1,5 @@
 using Kernel.Abstractions;
+using Kernel.Core.Services.Safety;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.RateLimiting;
 
@@ -28,35 +29,83 @@ public static class EndpointRouteExtensions
         app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = check => check.Tags.Contains("live") })
             .RequireRateLimiting("health");
 
-        app.MapPost("/agent/run", async (HttpContext ctx, IAdversarialGuard guard, KernelApiProxy kernel, ILogger<Program> logger) =>
+        app.MapPost("/agent/run", async (HttpContext ctx, IAdversarialGuard guard, FundamentalRulesEngine rules, EthicalEnforcer ethics, KernelApiProxy kernel, ILogger<Program> logger) =>
         {
             AgentRunRequest? body;
             try { body = await ctx.Request.ReadFromJsonAsync<AgentRunRequest>(cancellationToken: ctx.RequestAborted); }
             catch { body = null; }
             if (body == null) return Results.BadRequest(new { error = "invalid_request" });
 
-            var safetyResult = await guard.ValidateAsync(body.Prompt ?? "", ctx.RequestAborted);
+            var prompt = body.Prompt ?? "";
+            var transportSteps = new List<TransportStepDto>();
+
+            // Layer 1: Adversarial input guard
+            var safetyResult = await guard.ValidateAsync(prompt, ctx.RequestAborted);
             if (!safetyResult.IsAllowed)
             {
-                logger.LogWarning("Agent run blocked. ThreatLevel={Threat}, Patterns={Patterns}", safetyResult.ThreatLevel, safetyResult.DetectedPatterns);
+                logger.LogWarning("Agent run blocked by AdversarialGuard. ThreatLevel={Threat}", safetyResult.ThreatLevel);
                 return Results.Ok(new AgentRunResponse
                 {
                     Narration = "Conteúdo bloqueado.",
                     Error = "safety_block",
-                    TransportSteps = [new TransportStepDto { Label = "Segurança", Detail = "BLOQUEADO", Ok = false }],
+                    TransportSteps = [new TransportStepDto { Label = "AdversarialGuard", Detail = "BLOQUEADO", Ok = false }],
                     ActiveStages = ["standalone"]
                 });
             }
+            transportSteps.Add(new TransportStepDto { Label = "AdversarialGuard", Detail = "OK", Ok = true });
 
+            // Layer 2: Fundamental Rules (R01-R20)
+            var ruleResult = await rules.EvaluateAsync(prompt, "sidecar", ctx.RequestAborted);
+            if (!ruleResult.IsAllowed)
+            {
+                logger.LogWarning("Agent run blocked by FundamentalRules. Violations={Violations}", string.Join(", ", ruleResult.ViolatedRules));
+                return Results.Ok(new AgentRunResponse
+                {
+                    Narration = "Ação bloqueada pelas regras fundamentais.",
+                    Error = "rules_block",
+                    TransportSteps = [.. transportSteps, new TransportStepDto { Label = "FundamentalRules", Detail = $"Violações: {ruleResult.ViolatedRules.Count}", Ok = false }],
+                    ActiveStages = ["standalone"]
+                });
+            }
+            if (ruleResult.ViolatedRules.Any())
+                transportSteps.Add(new TransportStepDto { Label = "FundamentalRules", Detail = $"Avisos: {ruleResult.ViolatedRules.Count}", Ok = true });
+            else
+                transportSteps.Add(new TransportStepDto { Label = "FundamentalRules", Detail = "OK", Ok = true });
+
+            // Layer 3: Ethical enforcement
+            var ethical = ethics.Assess(prompt);
+            if (!ethical.Approved)
+            {
+                logger.LogWarning("Agent run blocked by EthicalEnforcer. Reasons={Reasons}", string.Join(", ", ethical.PrinciplesViolated));
+                return Results.Ok(new AgentRunResponse
+                {
+                    Narration = "Ação bloqueada pela avaliação ética.",
+                    Error = "ethical_block",
+                    TransportSteps = [.. transportSteps, new TransportStepDto { Label = "EthicalEnforcer", Detail = $"Violações: {ethical.PrinciplesViolated.Count}", Ok = false }],
+                    ActiveStages = ["standalone"]
+                });
+            }
+            transportSteps.Add(new TransportStepDto { Label = "EthicalEnforcer", Detail = "OK", Ok = true });
+
+            // Try proxy to Kernel API first
             var proxyResult = await kernel.ProxyPostAsync<AgentRunRequest, AgentRunResponse>("/v1/agent/run", body, ctx.RequestAborted);
-            if (proxyResult != null) return Results.Ok(proxyResult);
+            if (proxyResult != null)
+            {
+                return Results.Ok(new AgentRunResponse
+                {
+                    Narration = proxyResult.Narration,
+                    Error = proxyResult.Error,
+                    TransportSteps = [.. transportSteps, .. proxyResult.TransportSteps ?? []],
+                    ActiveStages = proxyResult.ActiveStages
+                });
+            }
 
-            logger.LogInformation("Agent run processed locally. Prompt={PromptLen}chars", body.Prompt?.Length ?? 0);
+            logger.LogInformation("Agent run processed locally. Prompt={PromptLen}chars", prompt.Length);
             return Results.Ok(new AgentRunResponse
             {
-                Narration = BuildNarration(body.Prompt ?? ""),
+                Narration = BuildNarration(prompt),
                 Error = null,
-                TransportSteps = [new TransportStepDto { Label = "Segurança", Detail = "OK", Ok = true }],
+                TransportSteps = [.. transportSteps, new TransportStepDto { Label = "Narration", Detail = "local_fallback", Ok = true }],
                 ActiveStages = ["standalone"]
             });
         }).RequireRateLimiting("agent-run");
