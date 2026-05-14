@@ -58,7 +58,8 @@ public sealed record MemoryQueryContract(
     double MinScore,
     DateTimeOffset? AsOf,
     IReadOnlyList<string> RequiredEvidenceIds,
-    IReadOnlyDictionary<string, string> Metadata);
+    IReadOnlyDictionary<string, string> Metadata,
+    bool IncludeGraveyard = false);
 
 /// <summary>
 /// Canonical memory retrieval hit with provenance.
