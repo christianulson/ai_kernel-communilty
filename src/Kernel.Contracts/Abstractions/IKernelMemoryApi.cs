@@ -28,7 +28,7 @@ public interface IKernelMemoryApi
 
 public sealed record SearchMemoryRequest(string Query, int TopK);
 public sealed record MemorySearchResponse(bool Ok, List<MemoryHit> Hits);
-public sealed record MemoryHit(double Score, string DocId, string ChunkId, string Text);
+public sealed record MemoryHit(double Score, string DocId, string ChunkId, string Text, DateTimeOffset? CreatedAt = null);
 public sealed record UpsertDocumentRequest(string DocId, string Title, string? Source, string? TagsJson, string Text);
 public sealed record UpsertResponse(bool Ok, string DocId, int ChunkCount);
 public sealed record MemoryMetricsResponse(bool Ok, MemoryMetricsValue Metrics);
@@ -37,7 +37,7 @@ public sealed record WorkingContextResponse(bool Ok, List<WorkingMemoryLine> Lin
 public sealed record WorkingMemoryLine(string Key, string Content, double Relevance, DateTimeOffset CreatedAt, DateTimeOffset? ExpiresAt);
 public sealed record SearchEpisodeMemoryRequest(string UserId, string Query, int TopK = 5);
 public sealed record EpisodeMemorySearchResponse(bool Ok, List<EpisodeMemoryHit> Hits);
-public sealed record EpisodeMemoryHit(string Text, double Score);
+public sealed record EpisodeMemoryHit(string Text, double Score, string? DocId = null, string? ChunkId = null, DateTimeOffset? CreatedAt = null);
 public sealed record MultimodalInputDto(string DataType, string Content, string? BinaryDataBase64 = null, string? MetadataJson = null);
 public sealed record MultimodalIngestResponse(string ChunkId, double Confidence, string ExtractedText, DateTimeOffset IngestedAt);
 public sealed record MultimodalSearchDto(string Query, int TopK = 10, string? FilterType = null);
