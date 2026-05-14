@@ -2,6 +2,10 @@ using System.Net.Http.Json;
 
 namespace AIKernel.Sidecar;
 
+/// <summary>
+/// Proxies requests to the Kernel API when configured. Falls back gracefully when unreachable.
+/// Registered as singleton — safe for concurrent use.
+/// </summary>
 public sealed class KernelApiProxy(IHttpClientFactory httpClientFactory, IConfiguration configuration, ILogger<KernelApiProxy> logger)
 {
     private readonly string _baseUrl = configuration.GetValue<string>("Sidecar:KernelApi:BaseUrl") ?? "";
