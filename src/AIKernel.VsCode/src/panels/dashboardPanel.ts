@@ -45,6 +45,7 @@ h1{font-size:20px;margin-bottom:4px}p{color:var(--vscode-descriptionForeground);
 .metric-value{font-size:24px;font-weight:700;color:var(--vscode-charts-green)}.metric-label{font-size:11px;color:var(--vscode-descriptionForeground);margin-top:4px}
 .badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
 .badge.online{background:var(--vscode-testing-iconPassed);color:#fff}.badge.offline{background:var(--vscode-testing-iconFailed);color:#fff}
+@keyframes moodPulse{0%,100%{opacity:.7}50%{opacity:1}}#mood-display{animation:moodPulse 3s ease-in-out infinite}
 button{padding:8px 16px;background:var(--vscode-button-background);color:var(--vscode-button-foreground);border:none;border-radius:4px;cursor:pointer;font-size:13px;margin-bottom:16px}
 button:hover{background:var(--vscode-button-hoverBackground)}#loading{text-align:center;padding:40px;color:var(--vscode-descriptionForeground)}
 #error{display:none;padding:16px;background:var(--vscode-inputValidation-errorBackground);border-radius:8px;margin-bottom:16px;color:var(--vscode-errorForeground)}
