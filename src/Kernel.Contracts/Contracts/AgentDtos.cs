@@ -168,7 +168,11 @@ public sealed record PlannerStructuredOutputContract(
 /// <summary>
 /// Plano multi-step do agente.
 /// </summary>
-public sealed record AgentPlan(string Goal, IReadOnlyList<AgentPlanStep> Steps);
+public sealed record AgentPlan(
+    string Goal,
+    IReadOnlyList<AgentPlanStep> Steps,
+    DateTimeOffset? ExpectedCompletion = null,
+    TimeSpan? TotalEstimatedDuration = null);
 
 /// <summary>
 /// Estrutura hierárquica do plano para governança/autonomia controlada.
@@ -207,7 +211,8 @@ public sealed record AgentPlanStep(
     string ExpectedOutcome,
     string Risk,
     string? RollbackHint,
-    string? IdempotencyKey = null
+    string? IdempotencyKey = null,
+    TimeSpan? EstimatedDuration = null
 );
 
 /// <summary>
