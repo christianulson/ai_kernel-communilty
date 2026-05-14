@@ -70,6 +70,11 @@ public sealed record MemoryQueryContract(
 /// <param name="Source">Source store or subsystem.</param>
 /// <param name="EvidenceIds">Evidence identifiers supporting the hit.</param>
 /// <param name="Metadata">Small key/value metadata for routing and audit.</param>
+/// <param name="ObservedAt">When the memory was observed (null if unknown).</param>
+/// <param name="CreatedAt">When the memory was created (null if unknown).</param>
+/// <param name="LastAccessedAt">When the memory was last accessed (null if unknown).</param>
+/// <param name="MomentId">Cognitive moment id when observed (null if unbound).</param>
+/// <param name="MomentSequence">Monotonic moment sequence when observed (null if unbound).</param>
 public sealed record MemoryHitContract(
     string MemoryId,
     MemoryScope Scope,
@@ -77,4 +82,9 @@ public sealed record MemoryHitContract(
     double Score,
     string Source,
     IReadOnlyList<string> EvidenceIds,
-    IReadOnlyDictionary<string, string> Metadata);
+    IReadOnlyDictionary<string, string> Metadata,
+    DateTimeOffset? ObservedAt = null,
+    DateTimeOffset? CreatedAt = null,
+    DateTimeOffset? LastAccessedAt = null,
+    string? MomentId = null,
+    long? MomentSequence = null);
