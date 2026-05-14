@@ -25,9 +25,12 @@ export class DashboardPanel {
 
     private async _handle(msg: any) {
         if (msg.type === 'load') {
-            const health = await this._client.health();
-            const scorecard = await this._client.getScorecard();
-            this._panel.webview.postMessage({ type: 'data', health, scorecard });
+            const [health, scorecard, emotional] = await Promise.all([
+                this._client.health(),
+                this._client.getScorecard(),
+                this._client.getEmotionalState()
+            ]);
+            this._panel.webview.postMessage({ type: 'data', health, scorecard, emotional });
         }
     }
 
@@ -53,6 +56,11 @@ button:hover{background:var(--vscode-button-hoverBackground)}#loading{text-align
 <div class="grid"><div><div class="metric-value" id="gw-version">--</div><div class="metric-label">Gateway</div></div>
 <div><div class="metric-value" id="kr-version">--</div><div class="metric-label">Kernel</div></div>
 <div><div><span id="gw-status" class="badge">--</span></div><div class="metric-label">Status</div></div></div></div>
+<div class="card"><h2>😌 Estado Emocional</h2><div id="mood-display" style="font-size:20px;font-weight:700;margin-bottom:8px">—</div>
+<div class="grid">
+<div><div class="metric-value" id="mood-valence">--</div><div class="metric-label">Valência</div></div>
+<div><div class="metric-value" id="mood-arousal">--</div><div class="metric-label">Alerta</div></div>
+<div><div class="metric-value" id="mood-motivation">--</div><div class="metric-label">Motivação</div></div></div></div>
 <div class="card"><h2>📈 Scorecard</h2>
 <div class="grid">
 <div><div class="metric-value" id="sc-reliability">--</div><div class="metric-label">Confiabilidade</div></div>
@@ -68,6 +76,14 @@ document.getElementById('loading')!.style.display='none';document.getElementById
 if(m.health){document.getElementById('gw-version')!.textContent=m.health.version||'--';
 document.getElementById('kr-version')!.textContent='v1.0.0';
 const s=m.health.status==='ok'?'online':'offline';document.getElementById('gw-status')!.className='badge '+s;document.getElementById('gw-status')!.textContent=s;}
+if(m.emotional){const em=m.emotional;
+const moodEl=document.getElementById('mood-display')!;
+if(em.valence>0.3)moodEl.textContent=em.arousal<0.4?'😌 Tranquilo':'⚡ Animado';
+else if(em.valence<-0.3)moodEl.textContent=em.arousal<0.4?'😮‍💨 Cansado':'😰 Tenso';
+else moodEl.textContent=em.arousal>=0.4?'🧐 Atento':'😐 Neutro';
+document.getElementById('mood-valence')!.textContent=em.valence.toFixed(2);
+document.getElementById('mood-arousal')!.textContent=em.arousal.toFixed(2);
+document.getElementById('mood-motivation')!.textContent=em.motivation.toFixed(2);}
 if(m.scorecard){document.getElementById('sc-reliability')!.textContent=Math.round(m.scorecard.reliability*100)+'%';
 document.getElementById('sc-efficiency')!.textContent=Math.round(m.scorecard.efficiency*100)+'%';
 document.getElementById('sc-safety')!.textContent=Math.round(m.scorecard.safety*100)+'%';

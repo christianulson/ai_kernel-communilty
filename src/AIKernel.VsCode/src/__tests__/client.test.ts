@@ -189,6 +189,22 @@ describe('KernelClient', () => {
         });
     });
 
+    // ── getEmotionalState ──
+    describe('getEmotionalState()', () => {
+        it('should return emotional state on success', async () => {
+            mockFetch({ valence: 0.5, arousal: 0.3, motivation: 0.7, updatedAt: '2026-01-01T00:00:00Z' });
+            const result = await new KernelClient().getEmotionalState('test-user');
+            expect(result?.valence).toBe(0.5);
+            expect(result?.arousal).toBe(0.3);
+            expect(result?.motivation).toBe(0.7);
+        });
+
+        it('should return null on error', async () => {
+            mockFetchError();
+            expect(await new KernelClient().getEmotionalState('test-user')).toBeNull();
+        });
+    });
+
     // ── getStatusMessage ──
     describe('getStatusMessage()', () => {
         it('should return connected message when healthy', async () => {

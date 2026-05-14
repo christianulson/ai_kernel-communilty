@@ -37,8 +37,18 @@ export class ChatPanel {
             });
         }
         if (msg.type === 'checkHealth') {
-            const status = await this._client.getStatusMessage();
-            this._panel.webview.postMessage({ type: 'health', status });
+            const [status, emotional] = await Promise.all([
+                this._client.getStatusMessage(),
+                this._client.getEmotionalState()
+            ]);
+            const mood = emotional
+                ? (emotional.valence > 0.3
+                    ? (emotional.arousal < 0.4 ? '😌 Tranquilo' : '⚡ Animado')
+                    : emotional.valence < -0.3
+                        ? (emotional.arousal < 0.4 ? '😮‍💨 Cansado' : '😰 Tenso')
+                        : emotional.arousal >= 0.4 ? '🧐 Atento' : '😐 Neutro')
+                : '';
+            this._panel.webview.postMessage({ type: 'health', status, mood });
         }
     }
 
@@ -61,7 +71,7 @@ export class ChatPanel {
 const vscode=acquireVsCodeApi(),msgDiv=document.getElementById('messages')!,input=document.getElementById('input')as HTMLInputElement,status=document.getElementById('status')!;
 vscode.postMessage({type:'checkHealth'});
 window.addEventListener('message',e=>{const m=e.data;
-if(m.type==='health')status.textContent=m.status;
+if(m.type==='health')status.textContent=m.mood?m.status+' · '+m.mood:m.status;
 if(m.type==='response'){addMsg(m.data,'assistant',m.error?'error':'');if(m.error)status.textContent='$(error) '+m.error;}
 });
 document.getElementById('send')!.onclick=send;input.onkeydown=e=>{if(e.key==='Enter')send();};

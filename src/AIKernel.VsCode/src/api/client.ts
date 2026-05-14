@@ -8,6 +8,7 @@ export interface EpisodeInfo { id: string; goalId: string; status: string; creat
 export interface EpisodeDetail { id: string; goalId: string; status: string; createdAt: string; durationMs?: number; steps?: { label: string; detail: string; ok: boolean }[]; }
 export interface MemoryHit { id: string; content: string; source: string; score: number; }
 export interface MemoryMetrics { totalChunks?: number; totalDocuments?: number; totalSizeBytes?: number; }
+export interface EmotionalState { valence: number; arousal: number; motivation: number; updatedAt: string; }
 
 export class KernelClient {
     private getBaseUrl(): string {
@@ -71,9 +72,21 @@ export class KernelClient {
     }
     async getMemoryMetrics(): Promise<MemoryMetrics | null> { return this.fetchJson('/memory/metrics'); }
 
+    async getEmotionalState(userId = 'dev-user'): Promise<EmotionalState | null> {
+        return this.fetchJson(`/profile/emotional?userId=${encodeURIComponent(userId)}`);
+    }
+
+    private _describeMood(v: number, a: number): string {
+        if (v > 0.3) return a < 0.4 ? '😌 Tranquilo' : '⚡ Animado';
+        if (v < -0.3) return a < 0.4 ? '😮‍💨 Cansado' : '😰 Tenso';
+        return a >= 0.4 ? '🧐 Atento' : '😐 Neutro';
+    }
+
     async getStatusMessage(): Promise<string> {
         const health = await this.health();
         if (!health) return '$(circle-slash) Indisponível';
-        return `$(pass-filled) ${health.version || 'Conectado'}`;
+        const emotional = await this.getEmotionalState();
+        const mood = emotional ? this._describeMood(emotional.valence, emotional.arousal) : '';
+        return mood ? `$(pass-filled) ${health.version || 'Conectado'} · ${mood}` : `$(pass-filled) ${health.version || 'Conectado'}`;
     }
 }
