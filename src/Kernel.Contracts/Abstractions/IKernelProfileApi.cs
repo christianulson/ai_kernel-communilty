@@ -16,4 +16,4 @@ public interface IKernelProfileApi
 
 public sealed record UserProfileDto(string UserId, string? DisplayName, string? PreferencesJson);
 public sealed record UpsertProfileRequest(string UserId, string? DisplayName, string? PreferencesJson);
-public sealed record EmotionalStateDto(string DominantEmotion, double Intensity, double Valence, DateTimeOffset Timestamp);
+public sealed record EmotionalStateDto(double Valence, double Arousal, double Motivation, DateTimeOffset UpdatedAt);
