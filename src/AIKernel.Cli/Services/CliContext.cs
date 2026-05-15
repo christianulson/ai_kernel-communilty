@@ -1,6 +1,8 @@
+using AIKernel.LLMGateway.Core.Abstractions;
 using Kernel.Core.Abstractions;
 using Kernel.Core.Services.Anticipation;
 using Kernel.Core.Services.Memory;
+using Kernel.Core.Services.Safety;
 using Kernel.Core.Services.TemporalDepth;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -16,6 +18,9 @@ public sealed class CliContext
     public IProspectiveMemoryService ProspectiveMemory { get; }
     public IExecutiveController ExecutiveController { get; }
     public ICognitiveHomeostasis Homeostasis { get; }
+    public IGoalStore GoalStore { get; }
+    public ISafetyCaseStore SafetyCaseStore { get; }
+    public FundamentalRulesEngine RulesEngine { get; }
 
     public CliContext(IServiceProvider sp)
     {
@@ -27,5 +32,8 @@ public sealed class CliContext
         ProspectiveMemory = sp.GetRequiredService<IProspectiveMemoryService>();
         ExecutiveController = sp.GetRequiredService<IExecutiveController>();
         Homeostasis = sp.GetRequiredService<ICognitiveHomeostasis>();
+        GoalStore = sp.GetRequiredService<IGoalStore>();
+        SafetyCaseStore = sp.GetRequiredService<ISafetyCaseStore>();
+        RulesEngine = sp.GetRequiredService<FundamentalRulesEngine>();
     }
 }

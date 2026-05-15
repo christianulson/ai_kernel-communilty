@@ -1,8 +1,14 @@
+using AIKernel.LLMGateway.Core.Abstractions;
+using AIKernel.LLMGateway.Core.Services.Goals;
+using AIKernel.LLMGateway.Core.Services.Governance;
 using Kernel.Core.Abstractions;
 using Kernel.Core.Services.Anticipation;
 using Kernel.Core.Services.Memory;
+using Kernel.Core.Services.Safety;
 using Kernel.Core.Services.TemporalDepth;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace AIKernel.Cli.Services;
 
@@ -29,6 +35,13 @@ public static class CliServiceExtensions
                 Enumerable.Empty<IProjectionSource>(),
                 sp.GetRequiredService<IAnticipationStore>(),
                 logger: null));
+        services.AddSingleton<IGoalStore, InMemoryGoalStore>();
+        services.AddSingleton<ISafetyCaseStore, InMemorySafetyCaseStore>();
+        services.AddSingleton<FundamentalRulesEngine>(sp =>
+        {
+            var logger = sp.GetService<ILogger<FundamentalRulesEngine>>();
+            return new FundamentalRulesEngine(logger ?? NullLogger<FundamentalRulesEngine>.Instance);
+        });
         return services;
     }
 }
