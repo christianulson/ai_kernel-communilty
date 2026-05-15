@@ -23,19 +23,21 @@ public sealed class MomentsCommand(CliContext ctx, ConsoleRenderer renderer)
         {
             var takeVal = r.GetValue(take);
             var moments = await ctx.MomentStore.ListRecentAsync(takeVal, ct);
-            var rows = new List<object>();
-            foreach (var m in moments)
+            var classifications = await ctx.MomentClassifierStore.GetBatchAsync(
+                moments.Select(m => m.MomentId).ToList(), ct);
+            var classLookup = classifications.ToDictionary(c => c.MomentId, c => c);
+            var rows = moments.Select(m =>
             {
-                var c = await ctx.MomentClassifierStore.GetAsync(m.MomentId, ct);
-                rows.Add(new
+                classLookup.TryGetValue(m.MomentId, out var c);
+                return new
                 {
                     m.MomentId,
                     Sequence = m.Sequence.ToString(),
                     Domain = m.FocusDomain?.ToString() ?? "",
                     Category = c?.Category.ToString() ?? "",
                     Importance = m.CognitiveLoad.ToString("F2")
-                });
-            }
+                };
+            }).ToList();
             renderer.RenderTable(rows, "MomentId", "Sequence", "Domain", "Category", "Importance");
             return 0;
         });
