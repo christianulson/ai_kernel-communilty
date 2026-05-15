@@ -56,10 +56,11 @@ public sealed record MemoryQueryContract(
     MemoryScope Scopes,
     int TopK,
     double MinScore,
-    DateTimeOffset? AsOf,
     IReadOnlyList<string> RequiredEvidenceIds,
     IReadOnlyDictionary<string, string> Metadata,
-    bool IncludeGraveyard = false);
+    DateTimeOffset? AsOf = null,
+    bool IncludeGraveyard = false,
+    TemporalQueryHints? TemporalHints = null);
 
 /// <summary>
 /// Canonical memory retrieval hit with provenance.
