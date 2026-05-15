@@ -6,10 +6,13 @@ public sealed class HealthEndpointTests(SidecarWebAppFactory factory) : IClassFi
 {
     private readonly HttpClient _http = factory.CreateClient();
 
-    [Fact]
-    public async Task GetHealth_ShouldReturn200()
+    [Theory]
+    [InlineData("/health")]
+    [InlineData("/health/ready")]
+    [InlineData("/health/live")]
+    public async Task HealthEndpoint_ShouldReturn200(string url)
     {
-        var res = await _http.GetAsync("/health", TestContext.Current.CancellationToken);
+        var res = await _http.GetAsync(url, TestContext.Current.CancellationToken);
         res.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
     }
 
@@ -29,19 +32,5 @@ public sealed class HealthEndpointTests(SidecarWebAppFactory factory) : IClassFi
         var res = await _http.GetAsync("/health", TestContext.Current.CancellationToken);
         var body = await res.Content.ReadFromJsonAsync<Dictionary<string, object>>(cancellationToken: TestContext.Current.CancellationToken);
         body!["version"].ToString().Should().Be("AIKernel.Sidecar/1.0.0");
-    }
-
-    [Fact]
-    public async Task HealthReady_ShouldReturn200()
-    {
-        var res = await _http.GetAsync("/health/ready", TestContext.Current.CancellationToken);
-        res.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
-    }
-
-    [Fact]
-    public async Task HealthLive_ShouldReturn200()
-    {
-        var res = await _http.GetAsync("/health/live", TestContext.Current.CancellationToken);
-        res.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
     }
 }
