@@ -110,18 +110,18 @@ public static class EndpointRouteExtensions
             });
         }).RequireRateLimiting("agent-run");
 
-        app.MapGet("/policy/list", async (KernelApiProxy kernel, ILogger<Program> logger) =>
+        app.MapGet("/policy/list", async (HttpContext ctx, KernelApiProxy kernel, ILogger<Program> logger) =>
         {
-            var proxyResult = await kernel.ProxyGetAsync<object>("/policy/list", CancellationToken.None);
+            var proxyResult = await kernel.ProxyGetAsync<object>("/policy/list", ctx.RequestAborted);
             if (proxyResult != null) return Results.Ok(proxyResult);
 
             logger.LogInformation("Policy list returned locally (no Kernel API)");
             return Results.Ok(new { policies = Array.Empty<object>(), totalCount = 0 });
         });
 
-        app.MapGet("/agent/metrics/scorecard", async (KernelApiProxy kernel, ILogger<Program> logger) =>
+        app.MapGet("/agent/metrics/scorecard", async (HttpContext ctx, KernelApiProxy kernel, ILogger<Program> logger) =>
         {
-            var proxyResult = await kernel.ProxyGetAsync<object>("/agent/metrics/scorecard", CancellationToken.None);
+            var proxyResult = await kernel.ProxyGetAsync<object>("/agent/metrics/scorecard", ctx.RequestAborted);
             if (proxyResult != null) return Results.Ok(proxyResult);
 
             logger.LogInformation("Scorecard returned locally (no Kernel API)");
@@ -153,18 +153,18 @@ public static class EndpointRouteExtensions
             return Results.Ok(new { totalChunks = 0, totalDocuments = 0, totalSizeBytes = 0 });
         }).RequireRateLimiting("memory-read");
 
-        app.MapGet("/episodes/search", async (KernelApiProxy kernel, ILogger<Program> logger) =>
+        app.MapGet("/episodes/search", async (HttpContext ctx, KernelApiProxy kernel, ILogger<Program> logger) =>
         {
-            var proxyResult = await kernel.ProxyGetAsync<object>("/episodes/search", CancellationToken.None);
+            var proxyResult = await kernel.ProxyGetAsync<object>("/episodes/search", ctx.RequestAborted);
             if (proxyResult != null) return Results.Ok(proxyResult);
 
             logger.LogInformation("Episodes search returned locally (no Kernel API)");
             return Results.Ok(new { episodes = Array.Empty<object>(), totalCount = 0 });
         });
 
-        app.MapGet("/episodes/{id}", async (string id, KernelApiProxy kernel, ILogger<Program> logger) =>
+        app.MapGet("/episodes/{id}", async (string id, HttpContext ctx, KernelApiProxy kernel, ILogger<Program> logger) =>
         {
-            var proxyResult = await kernel.ProxyGetAsync<object>($"/episodes/{id}", CancellationToken.None);
+            var proxyResult = await kernel.ProxyGetAsync<object>($"/episodes/{id}", ctx.RequestAborted);
             if (proxyResult != null) return Results.Ok(proxyResult);
 
             logger.LogInformation("Episode {Id} returned locally (no Kernel API)", id);

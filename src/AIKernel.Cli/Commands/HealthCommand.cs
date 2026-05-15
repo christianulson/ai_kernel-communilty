@@ -10,30 +10,29 @@ public sealed class HealthCommand(CliContext ctx, ConsoleRenderer renderer)
     public Command Build()
     {
         var cmd = new Command("health", "Check module health");
-        cmd.SetAction((ParseResult _, CancellationToken ct) =>
+        cmd.SetAction(async (ParseResult parseResult, CancellationToken ct) =>
         {
-            var modules = new[]
-            {
-                Check("MomentStore", () => { ctx.MomentStore.ListRecentAsync(1, ct).GetAwaiter().GetResult(); }),
-                Check("SnapshotService", () => { ctx.SnapshotService.ListSnapshotsAsync(null, ct).GetAwaiter().GetResult(); }),
-                Check("Anticipation", () => { ctx.AnticipationService.GetActiveProjectionsAsync(null, ct).GetAwaiter().GetResult(); }),
-                Check("ProspectiveMemory", () => { ctx.ProspectiveMemory.GetPendingIntentionsAsync(ct).GetAwaiter().GetResult(); }),
-                Check("ExecutiveController", () => { var s = ctx.ExecutiveController.CurrentState; }),
-            };
+            var modules = await Task.WhenAll(
+                CheckAsync("MomentStore", async () => { await ctx.MomentStore.ListRecentAsync(1, ct); }),
+                CheckAsync("SnapshotService", async () => { await ctx.SnapshotService.ListSnapshotsAsync(null, ct); }),
+                CheckAsync("Anticipation", async () => { await ctx.AnticipationService.GetActiveProjectionsAsync(null, ct); }),
+                CheckAsync("ProspectiveMemory", async () => { await ctx.ProspectiveMemory.GetPendingIntentionsAsync(ct); }),
+                CheckAsync("ExecutiveController", async () => { var s = ctx.ExecutiveController.CurrentState; await Task.CompletedTask; })
+            );
             var failures = modules.Count(m => m.Status != "ok");
             var overall = failures == 0 ? "OK" : $"DEGRADED ({failures} failure(s))";
             renderer.RenderHealth([.. modules], overall);
-            return Task.FromResult(failures > 0 ? 1 : 0);
+            return failures > 0 ? 1 : 0;
         });
         return cmd;
     }
 
-    private static ModuleHealth Check(string name, Action check)
+    private static async Task<ModuleHealth> CheckAsync(string name, Func<Task> check)
     {
         var sw = System.Diagnostics.Stopwatch.StartNew();
         try
         {
-            check();
+            await check();
             sw.Stop();
             return new ModuleHealth(name, "ok", $"{sw.ElapsedMilliseconds}ms");
         }
