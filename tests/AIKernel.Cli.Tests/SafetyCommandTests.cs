@@ -14,7 +14,7 @@ using Spectre.Console.Testing;
 
 namespace AIKernel.Cli.Tests;
 
-public sealed class HealthCommandTests
+public sealed class SafetyCommandTests
 {
     private static (ConsoleRenderer Renderer, TestConsole Console, CliContext Ctx) Setup()
     {
@@ -33,9 +33,7 @@ public sealed class HealthCommandTests
         services.AddSingleton<IProspectiveMemoryService>(sp =>
             new ProspectiveMemoryService(sp.GetRequiredService<IProspectiveMemoryStore>()));
         services.AddSingleton<IAnticipationService>(sp =>
-            new AnticipationService(
-                Enumerable.Empty<Kernel.Core.Abstractions.IProjectionSource>(),
-                sp.GetRequiredService<IAnticipationStore>()));
+            new AnticipationService(Enumerable.Empty<IProjectionSource>(), sp.GetRequiredService<IAnticipationStore>()));
         services.AddSingleton<IGoalStore, InMemoryGoalStore>();
         services.AddSingleton<ISafetyCaseStore, InMemorySafetyCaseStore>();
         services.AddSingleton<FundamentalRulesEngine>();
@@ -45,29 +43,32 @@ public sealed class HealthCommandTests
     }
 
     [Fact]
-    public async Task HealthCommand_AllModulesOk_ShouldReturnZero()
+    public async Task SafetyCommand_Rules_ShouldListAll20Rules()
     {
         var (renderer, console, ctx) = Setup();
-        var cmd = new HealthCommand(ctx, renderer).Build();
+        var cmd = new SafetyCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("health").InvokeAsync();
+        var result = await root.Parse("safety rules").InvokeAsync();
 
         result.Should().Be(0);
         var output = console.Output;
-        output.Should().Contain("Overall: OK");
+        output.Should().Contain("R01");
+        output.Should().Contain("R20");
+        output.Should().Contain("Self-Preservation");
+        output.Should().Contain("Full Action Reporting");
     }
 
     [Fact]
-    public async Task HealthCommand_WithFailure_ShouldReturnNonZero()
+    public async Task SafetyCommand_Audit_WhenEmpty_ShouldShowNoRecords()
     {
         var (renderer, console, ctx) = Setup();
-        var cmd = new HealthCommand(ctx, renderer).Build();
+        var cmd = new SafetyCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        // Still expect 0 because all in-memory services should work
-        var result = await root.Parse("health").InvokeAsync();
+        var result = await root.Parse("safety audit").InvokeAsync();
 
         result.Should().Be(0);
+        console.Output.Should().Contain("No safety audit records");
     }
 }

@@ -14,7 +14,7 @@ using Spectre.Console.Testing;
 
 namespace AIKernel.Cli.Tests;
 
-public sealed class HealthCommandTests
+public sealed class MemoryCommandTests
 {
     private static (ConsoleRenderer Renderer, TestConsole Console, CliContext Ctx) Setup()
     {
@@ -33,9 +33,7 @@ public sealed class HealthCommandTests
         services.AddSingleton<IProspectiveMemoryService>(sp =>
             new ProspectiveMemoryService(sp.GetRequiredService<IProspectiveMemoryStore>()));
         services.AddSingleton<IAnticipationService>(sp =>
-            new AnticipationService(
-                Enumerable.Empty<Kernel.Core.Abstractions.IProjectionSource>(),
-                sp.GetRequiredService<IAnticipationStore>()));
+            new AnticipationService(Enumerable.Empty<IProjectionSource>(), sp.GetRequiredService<IAnticipationStore>()));
         services.AddSingleton<IGoalStore, InMemoryGoalStore>();
         services.AddSingleton<ISafetyCaseStore, InMemorySafetyCaseStore>();
         services.AddSingleton<FundamentalRulesEngine>();
@@ -45,29 +43,33 @@ public sealed class HealthCommandTests
     }
 
     [Fact]
-    public async Task HealthCommand_AllModulesOk_ShouldReturnZero()
+    public async Task MemoryCommand_Search_ShouldReturnMoments()
     {
         var (renderer, console, ctx) = Setup();
-        var cmd = new HealthCommand(ctx, renderer).Build();
+        var seeder = new CliSeeder(ctx.MomentStore, ctx.MomentClassifierStore);
+        await seeder.SeedAsync();
+        var cmd = new MemoryCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("health").InvokeAsync();
+        var result = await root.Parse("memory search mom").InvokeAsync();
 
         result.Should().Be(0);
         var output = console.Output;
-        output.Should().Contain("Overall: OK");
+        output.Should().Contain("mom-0001");
     }
 
     [Fact]
-    public async Task HealthCommand_WithFailure_ShouldReturnNonZero()
+    public async Task MemoryCommand_Working_ShouldShowCognitiveState()
     {
         var (renderer, console, ctx) = Setup();
-        var cmd = new HealthCommand(ctx, renderer).Build();
+        var cmd = new MemoryCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        // Still expect 0 because all in-memory services should work
-        var result = await root.Parse("health").InvokeAsync();
+        var result = await root.Parse("memory working").InvokeAsync();
 
         result.Should().Be(0);
+        var output = console.Output;
+        output.Should().Contain("Status:");
+        output.Should().Contain("Health Score");
     }
 }

@@ -4,6 +4,7 @@ using AIKernel.Cli.Services;
 using AIKernel.LLMGateway.Core.Abstractions;
 using AIKernel.LLMGateway.Core.Services.Goals;
 using AIKernel.LLMGateway.Core.Services.Governance;
+using Kernel.Contracts;
 using Kernel.Core.Abstractions;
 using Kernel.Core.Services.Anticipation;
 using Kernel.Core.Services.Memory;
@@ -14,7 +15,7 @@ using Spectre.Console.Testing;
 
 namespace AIKernel.Cli.Tests;
 
-public sealed class HealthCommandTests
+public sealed class GoalsCommandTests
 {
     private static (ConsoleRenderer Renderer, TestConsole Console, CliContext Ctx) Setup()
     {
@@ -33,10 +34,16 @@ public sealed class HealthCommandTests
         services.AddSingleton<IProspectiveMemoryService>(sp =>
             new ProspectiveMemoryService(sp.GetRequiredService<IProspectiveMemoryStore>()));
         services.AddSingleton<IAnticipationService>(sp =>
-            new AnticipationService(
-                Enumerable.Empty<Kernel.Core.Abstractions.IProjectionSource>(),
-                sp.GetRequiredService<IAnticipationStore>()));
-        services.AddSingleton<IGoalStore, InMemoryGoalStore>();
+            new AnticipationService(Enumerable.Empty<IProjectionSource>(), sp.GetRequiredService<IAnticipationStore>()));
+        services.AddSingleton<IGoalStore>(_ =>
+        {
+            var store = new InMemoryGoalStore();
+            store.UpsertAsync(new PersistentGoal(
+                "goal-001", null, "Test goal", "active", 0.5, 0.8,
+                DateTimeOffset.UtcNow, null, [], [], new Dictionary<string, string>()),
+                CancellationToken.None).GetAwaiter().GetResult();
+            return store;
+        });
         services.AddSingleton<ISafetyCaseStore, InMemorySafetyCaseStore>();
         services.AddSingleton<FundamentalRulesEngine>();
         var sp = services.BuildServiceProvider();
@@ -45,29 +52,47 @@ public sealed class HealthCommandTests
     }
 
     [Fact]
-    public async Task HealthCommand_AllModulesOk_ShouldReturnZero()
+    public async Task GoalsCommand_List_ShouldShowActiveGoals()
     {
         var (renderer, console, ctx) = Setup();
-        var cmd = new HealthCommand(ctx, renderer).Build();
+        var cmd = new GoalsCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("health").InvokeAsync();
+        var result = await root.Parse("goals list").InvokeAsync();
 
         result.Should().Be(0);
         var output = console.Output;
-        output.Should().Contain("Overall: OK");
+        output.Should().Contain("goal-001");
+        output.Should().Contain("Test goal");
     }
 
     [Fact]
-    public async Task HealthCommand_WithFailure_ShouldReturnNonZero()
+    public async Task GoalsCommand_Get_ById_ShouldShowDetails()
     {
         var (renderer, console, ctx) = Setup();
-        var cmd = new HealthCommand(ctx, renderer).Build();
+        var cmd = new GoalsCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        // Still expect 0 because all in-memory services should work
-        var result = await root.Parse("health").InvokeAsync();
+        var result = await root.Parse("goals get goal-001").InvokeAsync();
 
         result.Should().Be(0);
+        var output = console.Output;
+        output.Should().Contain("GoalId:");
+        output.Should().Contain("goal-001");
+        output.Should().Contain("Status:");
+        output.Should().Contain("active");
+    }
+
+    [Fact]
+    public async Task GoalsCommand_Get_WithUnknownId_ShouldReturnError()
+    {
+        var (renderer, console, ctx) = Setup();
+        var cmd = new GoalsCommand(ctx, renderer).Build();
+        var root = new RootCommand { cmd };
+
+        var result = await root.Parse("goals get unknown-id").InvokeAsync();
+
+        result.Should().Be(1);
+        console.Output.Should().Contain("not found");
     }
 }

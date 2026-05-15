@@ -14,7 +14,7 @@ using Spectre.Console.Testing;
 
 namespace AIKernel.Cli.Tests;
 
-public sealed class HealthCommandTests
+public sealed class DebugCommandTests
 {
     private static (ConsoleRenderer Renderer, TestConsole Console, CliContext Ctx) Setup()
     {
@@ -33,9 +33,7 @@ public sealed class HealthCommandTests
         services.AddSingleton<IProspectiveMemoryService>(sp =>
             new ProspectiveMemoryService(sp.GetRequiredService<IProspectiveMemoryStore>()));
         services.AddSingleton<IAnticipationService>(sp =>
-            new AnticipationService(
-                Enumerable.Empty<Kernel.Core.Abstractions.IProjectionSource>(),
-                sp.GetRequiredService<IAnticipationStore>()));
+            new AnticipationService(Enumerable.Empty<IProjectionSource>(), sp.GetRequiredService<IAnticipationStore>()));
         services.AddSingleton<IGoalStore, InMemoryGoalStore>();
         services.AddSingleton<ISafetyCaseStore, InMemorySafetyCaseStore>();
         services.AddSingleton<FundamentalRulesEngine>();
@@ -45,29 +43,20 @@ public sealed class HealthCommandTests
     }
 
     [Fact]
-    public async Task HealthCommand_AllModulesOk_ShouldReturnZero()
+    public async Task DebugCommand_AllServicesHealthy_ShouldReturnZero()
     {
         var (renderer, console, ctx) = Setup();
-        var cmd = new HealthCommand(ctx, renderer).Build();
+        var cmd = new DebugCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("health").InvokeAsync();
+        var result = await root.Parse("debug").InvokeAsync();
 
         result.Should().Be(0);
         var output = console.Output;
-        output.Should().Contain("Overall: OK");
-    }
-
-    [Fact]
-    public async Task HealthCommand_WithFailure_ShouldReturnNonZero()
-    {
-        var (renderer, console, ctx) = Setup();
-        var cmd = new HealthCommand(ctx, renderer).Build();
-        var root = new RootCommand { cmd };
-
-        // Still expect 0 because all in-memory services should work
-        var result = await root.Parse("health").InvokeAsync();
-
-        result.Should().Be(0);
+        output.Should().Contain("All");
+        output.Should().Contain("healthy");
+        output.Should().Contain("CognitiveHomeostasis");
+        output.Should().Contain("FundamentalRulesEngine");
+        output.Should().Contain("MomentStore");
     }
 }

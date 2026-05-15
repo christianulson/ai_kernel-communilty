@@ -14,7 +14,7 @@ using Spectre.Console.Testing;
 
 namespace AIKernel.Cli.Tests;
 
-public sealed class HealthCommandTests
+public sealed class IntentionsCommandTests
 {
     private static (ConsoleRenderer Renderer, TestConsole Console, CliContext Ctx) Setup()
     {
@@ -29,13 +29,20 @@ public sealed class HealthCommandTests
         services.AddSingleton<ICognitiveHomeostasis>(_ => new CognitiveHomeostasisService());
         services.AddSingleton<IExecutiveController, ExecutiveController>();
         services.AddSingleton<IAnticipationStore, InMemoryAnticipationStore>();
-        services.AddSingleton<IProspectiveMemoryStore, InMemoryProspectiveMemoryStore>();
+        services.AddSingleton<IProspectiveMemoryStore>(_ =>
+        {
+            var store = new InMemoryProspectiveMemoryStore();
+            store.StoreAsync(new Intention(
+                "int-001", "Test intention",
+                new IntentionTrigger(IntentionTriggerType.AfterDelay, null, TimeSpan.FromMinutes(5), null),
+                "{}", "test", 0.7, DateTimeOffset.UtcNow, null, IntentionStatus.Pending),
+                CancellationToken.None).GetAwaiter().GetResult();
+            return store;
+        });
         services.AddSingleton<IProspectiveMemoryService>(sp =>
             new ProspectiveMemoryService(sp.GetRequiredService<IProspectiveMemoryStore>()));
         services.AddSingleton<IAnticipationService>(sp =>
-            new AnticipationService(
-                Enumerable.Empty<Kernel.Core.Abstractions.IProjectionSource>(),
-                sp.GetRequiredService<IAnticipationStore>()));
+            new AnticipationService(Enumerable.Empty<IProjectionSource>(), sp.GetRequiredService<IAnticipationStore>()));
         services.AddSingleton<IGoalStore, InMemoryGoalStore>();
         services.AddSingleton<ISafetyCaseStore, InMemorySafetyCaseStore>();
         services.AddSingleton<FundamentalRulesEngine>();
@@ -45,29 +52,30 @@ public sealed class HealthCommandTests
     }
 
     [Fact]
-    public async Task HealthCommand_AllModulesOk_ShouldReturnZero()
+    public async Task IntentionsCommand_ShouldShowPendingIntentions()
     {
         var (renderer, console, ctx) = Setup();
-        var cmd = new HealthCommand(ctx, renderer).Build();
+        var cmd = new IntentionsCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("health").InvokeAsync();
+        var result = await root.Parse("intentions").InvokeAsync();
 
         result.Should().Be(0);
         var output = console.Output;
-        output.Should().Contain("Overall: OK");
+        output.Should().Contain("int-001");
+        output.Should().Contain("Test");
     }
 
     [Fact]
-    public async Task HealthCommand_WithFailure_ShouldReturnNonZero()
+    public async Task IntentionsCommand_WithDomainFilter_ShouldFilter()
     {
         var (renderer, console, ctx) = Setup();
-        var cmd = new HealthCommand(ctx, renderer).Build();
+        var cmd = new IntentionsCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        // Still expect 0 because all in-memory services should work
-        var result = await root.Parse("health").InvokeAsync();
+        var result = await root.Parse("intentions --domain nonexistent").InvokeAsync();
 
         result.Should().Be(0);
+        console.Output.Should().Contain("No pending intentions");
     }
 }

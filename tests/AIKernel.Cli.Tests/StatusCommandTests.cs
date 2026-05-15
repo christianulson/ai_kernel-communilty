@@ -1,9 +1,13 @@
 using System.CommandLine;
 using AIKernel.Cli.Commands;
 using AIKernel.Cli.Services;
+using AIKernel.LLMGateway.Core.Abstractions;
+using AIKernel.LLMGateway.Core.Services.Goals;
+using AIKernel.LLMGateway.Core.Services.Governance;
 using Kernel.Core.Abstractions;
 using Kernel.Core.Services.Anticipation;
 using Kernel.Core.Services.Memory;
+using Kernel.Core.Services.Safety;
 using Kernel.Core.Services.TemporalDepth;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console.Testing;
@@ -17,6 +21,7 @@ public sealed class StatusCommandTests
         var console = new TestConsole();
         var renderer = new ConsoleRenderer(console);
         var services = new ServiceCollection();
+        services.AddLogging();
         services.AddSingleton<IMomentStore, InMemoryMomentStore>();
         services.AddSingleton<IMomentClassifierStore, InMemoryMomentClassifierStore>();
         services.AddSingleton<IArchiveStore>(_ => new InMemoryArchiveStore<object>("test-archive"));
@@ -31,6 +36,9 @@ public sealed class StatusCommandTests
             new AnticipationService(
                 Enumerable.Empty<Kernel.Core.Abstractions.IProjectionSource>(),
                 sp.GetRequiredService<IAnticipationStore>()));
+        services.AddSingleton<IGoalStore, InMemoryGoalStore>();
+        services.AddSingleton<ISafetyCaseStore, InMemorySafetyCaseStore>();
+        services.AddSingleton<FundamentalRulesEngine>();
         var sp = services.BuildServiceProvider();
         var ctx = new CliContext(sp);
         return (renderer, console, ctx);
