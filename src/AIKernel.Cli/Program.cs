@@ -46,6 +46,9 @@ var console = host.Services.GetRequiredService<IAnsiConsole>();
 root.Add(new NewCommand(templateEngine, console).Build());
 root.Add(new InitCommand(templateEngine, console).Build());
 
+// Config command (Plano 14 - YAML Config)
+root.Add(new ConfigCommand(console).Build());
+
 // Safety evaluation (Plano 4)
 var benchRunner = host.Services.GetRequiredService<SafetyBenchRunner>();
 root.Add(new SecurityCommand(benchRunner, console).Build());
