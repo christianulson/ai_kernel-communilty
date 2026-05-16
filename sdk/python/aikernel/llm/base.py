@@ -30,8 +30,8 @@ class ILLMProvider(ABC):
     async def stream_complete(self, messages: List[LLMMessage], **kwargs: Any) -> AsyncGenerator[str, None]:
         ...
 
-    @abstractmethod
     @property
+    @abstractmethod
     def model_name(self) -> str:
         ...
 

@@ -4,8 +4,6 @@ import asyncio
 import sys
 
 from rich.console import Console
-from rich.panel import Panel
-from rich.prompt import Prompt
 from rich.table import Table
 
 from aikernel.core.cycle import CognitiveCycleRunner, CycleConfig
@@ -13,34 +11,17 @@ from aikernel.core.cycle import CognitiveCycleRunner, CycleConfig
 console = Console()
 
 
-async def _run_once(agent: CognitiveCycleRunner, text: str) -> None:
-    with console.status("[bold green]Processing...[bold green]"):
-        result = await agent.run(text)
-    if result.error:
-        console.print(f"[red]Error:[/red] {result.error}")
-    else:
-        console.print(Panel(result.output, title="Response"))
-
-
-async def _run_interactive(agent: CognitiveCycleRunner) -> None:
-    console.print("[bold cyan]AI Kernel Interactive Mode[/bold cyan]")
-    console.print("Type 'exit' to quit, 'help' for commands\n")
-    while True:
-        text = Prompt.ask("[bold green]>[/bold green]")
-        if text.lower() in ("exit", "quit"):
-            break
-        if text.lower() == "help":
-            console.print("Commands: exit, help, debug, status")
-            continue
-        if text.lower() == "debug":
-            _run_debug_cycle(agent)
-            continue
-        if text.lower() == "status":
-            console.print(f"Safety level: {agent.config.safety_level}")
-            console.print(f"Max iterations: {agent.config.max_iterations}")
-            console.print(f"Emotions: {'enabled' if agent.config.enable_emotions else 'disabled'}")
-            continue
-        await _run_once(agent, text)
+def _create_agent(
+    safety_level: str = "strict",
+    max_iterations: int = 10,
+    enable_emotions: bool = True,
+) -> CognitiveCycleRunner:
+    config = CycleConfig(
+        safety_level=safety_level,
+        max_iterations=max_iterations,
+        enable_emotions=enable_emotions,
+    )
+    return CognitiveCycleRunner(config=config)
 
 
 def _run_debug_cycle(agent: CognitiveCycleRunner) -> None:
@@ -66,51 +47,6 @@ def _run_debug_cycle(agent: CognitiveCycleRunner) -> None:
     console.print(table)
 
 
-def _create_agent(
-    safety_level: str = "strict",
-    max_iterations: int = 10,
-    enable_emotions: bool = True,
-) -> CognitiveCycleRunner:
-    config = CycleConfig(
-        safety_level=safety_level,
-        max_iterations=max_iterations,
-        enable_emotions=enable_emotions,
-    )
-    return CognitiveCycleRunner(config=config)
-
-
-async def _cmd_init(args: list) -> None:
-    name = args[0] if args else "my-agent"
-    import os
-    os.makedirs(name, exist_ok=True)
-    with open(f"{name}/agent.py", "w") as f:
-        f.write('from aikernel import CognitiveAgent\n\nagent = CognitiveAgent(safety_level="strict")\n')
-    with open(f"{name}/.env", "w") as f:
-        f.write("# Add your API keys here\n# OPENAI_API_KEY=sk-...\n")
-    console.print(f"[green]Created agent project: {name}/[/green]")
-
-
-async def _cmd_run(args: list) -> None:
-    interactive = "--interactive" in args or "-i" in args
-    text = " ".join(a for a in args if not a.startswith("-"))
-
-    agent = _create_agent()
-    if interactive:
-        await _run_interactive(agent)
-    elif text:
-        await _run_once(agent, text)
-    else:
-        console.print("[yellow]Usage: aikernel run [--interactive/-i] [text][/yellow]")
-
-
-async def _cmd_debug(args: list) -> None:
-    text = " ".join(args) if args else "test"
-    agent = _create_agent()
-    agent.config.step_timeout_ms = 10000
-    _run_debug_cycle(agent)
-    await _run_once(agent, text)
-
-
 def app() -> None:
     args = sys.argv[1:]
     if not args:
@@ -120,6 +56,8 @@ def app() -> None:
         console.print("  aikernel run [text]          Run agent once")
         console.print("  aikernel run --interactive   Interactive mode")
         console.print("  aikernel debug [text]        Debug cognitive cycle")
+        console.print("  aikernel security <command>  Security audit, benchmark, report")
+        console.print("  aikernel deploy <target>     Generate Docker/K8s files")
         return
 
     cmd = args[0]
@@ -127,11 +65,21 @@ def app() -> None:
 
     try:
         if cmd == "init":
-            asyncio.run(_cmd_init(cmd_args))
+            from aikernel.cli.commands.init import init_project
+            name = cmd_args[0] if cmd_args else "my-agent"
+            init_project(name)
         elif cmd == "run":
-            asyncio.run(_cmd_run(cmd_args))
+            from aikernel.cli.commands.run import cmd_run
+            asyncio.run(cmd_run(cmd_args))
         elif cmd == "debug":
-            asyncio.run(_cmd_debug(cmd_args))
+            from aikernel.cli.commands.debug import cmd_debug
+            asyncio.run(cmd_debug(cmd_args))
+        elif cmd == "security":
+            from aikernel.cli.commands.security import cmd_security
+            asyncio.run(cmd_security(cmd_args))
+        elif cmd == "deploy":
+            from aikernel.cli.commands.deploy import cmd_deploy
+            asyncio.run(cmd_deploy(cmd_args))
         else:
             console.print(f"[red]Unknown command: {cmd}[/red]")
     except KeyboardInterrupt:

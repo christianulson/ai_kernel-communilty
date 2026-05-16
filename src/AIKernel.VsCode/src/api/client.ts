@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { StreamingHandler } from '../chat/StreamingHandler';
 
 export interface AgentRunResponse { narration?: string; error?: string; transportSteps?: { label: string; detail: string; ok: boolean }[]; activeStages?: string[]; }
 export interface HealthResponse { status: string; ts: string; version: string; }
@@ -9,6 +10,7 @@ export interface EpisodeDetail { id: string; goalId: string; status: string; cre
 export interface MemoryHit { id: string; content: string; source: string; score: number; }
 export interface MemoryMetrics { totalChunks?: number; totalDocuments?: number; totalSizeBytes?: number; }
 export interface EmotionalState { valence: number; arousal: number; motivation: number; updatedAt: string; }
+export interface PendingApprovalDTO { id: string; action: string; details: string[]; createdAt: string; }
 
 export class KernelClient {
     private getBaseUrl(): string {
@@ -88,5 +90,79 @@ export class KernelClient {
         const emotional = await this.getEmotionalState();
         const mood = emotional ? this._describeMood(emotional.valence, emotional.arousal) : '';
         return mood ? `$(pass-filled) ${health.version || 'Conectado'} · ${mood}` : `$(pass-filled) ${health.version || 'Conectado'}`;
+    }
+
+    private async _codingRequest(endpoint: string, body: any): Promise<AgentRunResponse> {
+        try {
+            const res = await fetch(`${this.getBaseUrl()}${endpoint}`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            if (!res.headers.get('content-type')?.includes('application/json')) {
+                return { narration: undefined, error: 'Resposta inválida do servidor' };
+            }
+            return await res.json();
+        } catch (ex: any) { return { narration: undefined, error: `Erro de conexão: ${ex.message}` }; }
+    }
+
+    async codingExplain(code: string, language?: string): Promise<AgentRunResponse> {
+        return this._codingRequest('/api/coding/explain', { code, language });
+    }
+
+    async codingFix(code: string, diagnostics: string[], language?: string): Promise<AgentRunResponse> {
+        return this._codingRequest('/api/coding/fix', { code, diagnostics, language });
+    }
+
+    async codingTest(code: string, language?: string): Promise<AgentRunResponse> {
+        return this._codingRequest('/api/coding/test', { code, language });
+    }
+
+    async codingReview(filePath: string, content: string, language?: string): Promise<AgentRunResponse> {
+        return this._codingRequest('/api/coding/review', { filePath, content, language });
+    }
+
+    async codingStreamExplain(
+        code: string,
+        language: string | undefined,
+        onChunk: (chunk: string) => void,
+        onComplete: (full: string) => void,
+        onError: (err: Error) => void
+    ): Promise<void> {
+        const handler = new StreamingHandler();
+        await handler.streamFromUrl(
+            `${this.getBaseUrl()}/api/coding/explain`,
+            { code, language },
+            onChunk, onComplete, onError
+        );
+    }
+
+    async streamRunAgent(
+        prompt: string,
+        mode: string,
+        onChunk: (chunk: string) => void,
+        onComplete: (full: string) => void,
+        onError: (err: Error) => void
+    ): Promise<void> {
+        const handler = new StreamingHandler();
+        await handler.streamFromUrl(
+            `${this.getBaseUrl()}/agent/run`,
+            { prompt, mode },
+            onChunk, onComplete, onError
+        );
+    }
+
+    async getPendingApprovals(): Promise<PendingApprovalDTO[]> {
+        const r = await this.fetchJson<{ approvals: PendingApprovalDTO[] }>('/api/coding/approvals/pending');
+        return r?.approvals || [];
+    }
+
+    async respondApproval(id: string, decision: 'allowed' | 'rejected'): Promise<boolean> {
+        try {
+            const res = await fetch(`${this.getBaseUrl()}/api/coding/approvals/${id}/respond`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ decision })
+            });
+            return res.ok;
+        } catch { return false; }
     }
 }

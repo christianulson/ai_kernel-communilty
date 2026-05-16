@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import pytest
-
 from aikernel.core.risk.scorer import RiskScorer
 
 

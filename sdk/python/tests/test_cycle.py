@@ -3,8 +3,8 @@ from __future__ import annotations
 import pytest
 
 from aikernel.core.cycle import CognitiveCycleRunner, CycleConfig
-from aikernel.core.models.envelope import CommandEnvelope, ResultStatus
 from aikernel.core.models.cognitive import CycleStep
+from aikernel.core.models.envelope import CommandEnvelope, ResultStatus
 
 
 class TestCognitiveCycleRunner:

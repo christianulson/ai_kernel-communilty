@@ -5,6 +5,9 @@ from typing import Dict, Optional
 
 from aikernel.llm.anthropic import AnthropicProvider
 from aikernel.llm.base import ILLMProvider
+from aikernel.llm.deepseek import DeepSeekProvider
+from aikernel.llm.google import GoogleProvider
+from aikernel.llm.groq import GroqProvider
 from aikernel.llm.ollama import OllamaProvider
 from aikernel.llm.openai import OpenAIProvider
 from aikernel.llm.openrouter import OpenRouterProvider
@@ -27,6 +30,15 @@ class ProviderRegistry:
         if os.getenv("ANTHROPIC_API_KEY"):
             self.register("anthropic", AnthropicProvider())
             return "anthropic"
+        if os.getenv("GOOGLE_API_KEY"):
+            self.register("google", GoogleProvider())
+            return "google"
+        if os.getenv("GROQ_API_KEY"):
+            self.register("groq", GroqProvider())
+            return "groq"
+        if os.getenv("DEEPSEEK_API_KEY"):
+            self.register("deepseek", DeepSeekProvider())
+            return "deepseek"
         if os.getenv("OPENROUTER_API_KEY"):
             self.register("openrouter", OpenRouterProvider())
             return "openrouter"
@@ -45,6 +57,7 @@ class ProviderRegistry:
             return self._providers[detected]
         raise ValueError(
             "No LLM provider available. Set OPENAI_API_KEY, ANTHROPIC_API_KEY, "
+            "GOOGLE_API_KEY, GROQ_API_KEY, DEEPSEEK_API_KEY, "
             "or OLLAMA_BASE_URL environment variables."
         )
 

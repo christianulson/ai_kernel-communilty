@@ -5,10 +5,10 @@ from uuid import UUID
 import pytest
 from pydantic import ValidationError
 
-from aikernel.core.models.cognitive import CognitiveState, CycleEvent, CycleStep
+from aikernel.core.models.cognitive import CognitiveState, CycleStep
 from aikernel.core.models.emotion import EmotionalEvent, VADState
 from aikernel.core.models.envelope import CommandEnvelope, ResultEnvelope, ResultStatus
-from aikernel.core.models.safety import RuleVerdict, SafetyVerdict, RiskLevel
+from aikernel.core.models.safety import RiskLevel, RuleVerdict, SafetyVerdict
 
 
 class TestCommandEnvelope:

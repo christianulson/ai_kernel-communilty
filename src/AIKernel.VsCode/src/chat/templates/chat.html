@@ -1,0 +1,27 @@
+<!--
+  chat.html — Template do Webview do Coding Agent Chat
+  Este HTML é embutido em ChatViewProvider.ts via template string.
+  Mantido como arquivo separado para documentação e referência de estilo.
+-->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'nonce-${nonce}'; script-src 'nonce-${nonce}';">
+<title>AI Kernel Coding Agent</title>
+</head>
+<body>
+<div id="context-bar"><span id="ctx-file">Nenhum arquivo ativo</span></div>
+<div id="messages"></div>
+<div id="context-area"></div>
+<div id="input-area">
+<div id="input-wrapper">
+<input id="input" type="text" placeholder="Digite / para comandos, ou envie uma mensagem..." autofocus />
+<div id="autocomplete"></div>
+</div>
+<button id="send">Enviar</button>
+</div>
+<div id="status-area"><span class="dot idle" id="status-dot"></span><span id="status-text">Conectando...</span></div>
+</body>
+</html>

@@ -9,9 +9,17 @@ import { PoliciesPanel } from './panels/policiesPanel';
 import { EpisodesPanel } from './panels/episodesPanel';
 import { MemoryPanel } from './panels/memoryPanel';
 import { SettingsPanel } from './panels/settingsPanel';
+import { ChatViewProvider } from './chat/ChatViewProvider';
+import { EditorContextProvider } from './codingAgent/EditorContextProvider';
+import { SlashCommandManager } from './codingAgent/SlashCommandManager';
+import { CodeLensProvider } from './codingAgent/CodeLensProvider';
+import { CodeActionProvider } from './codingAgent/CodeActionProvider';
+import { ApprovalManager, ApprovalMode } from './codingAgent/ApprovalManager';
 
 let sidecarProcess: any = undefined;
 let statusBarItem: vscode.StatusBarItem;
+let codingAgentDisposables: vscode.Disposable[] = [];
+let slashMgr: SlashCommandManager | undefined;
 
 export function activate(context: vscode.ExtensionContext) {
     statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
@@ -68,7 +76,7 @@ export function activate(context: vscode.ExtensionContext) {
         if (sidecarProcess) { sidecarProcess.kill(); sidecarProcess = undefined; vscode.window.showInformationMessage('Sidecar parado'); updateHealth(); }
     }));
 
-    // Panels
+    // Panels (existing)
     context.subscriptions.push(vscode.commands.registerCommand('aikernel.chat', () => ChatPanel.createOrShow()));
     context.subscriptions.push(vscode.commands.registerCommand('aikernel.dashboard', () => DashboardPanel.createOrShow()));
     context.subscriptions.push(vscode.commands.registerCommand('aikernel.policies', () => PoliciesPanel.createOrShow()));
@@ -80,10 +88,109 @@ export function activate(context: vscode.ExtensionContext) {
     const treeProvider = new NavTreeProvider();
     vscode.window.registerTreeDataProvider('aikernel.nav', treeProvider);
     context.subscriptions.push(vscode.commands.registerCommand('aikernel.navigate', (id: string) => vscode.commands.executeCommand(`aikernel.${id}`)));
+
+    // Coding Agent mode (feature flag: aikernel.codingAgent.enabled)
+    const config = vscode.workspace.getConfiguration('aikernel');
+    const codingAgentEnabled = config.get<boolean>('codingAgent.enabled', false);
+
+    if (codingAgentEnabled) {
+        registerCodingAgentFeatures(context, client);
+    }
+
+    // Watch for config changes to enable/disable coding agent dynamically
+    context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(e => {
+        if (e.affectsConfiguration('aikernel.codingAgent.enabled')) {
+            const enabled = vscode.workspace.getConfiguration('aikernel').get<boolean>('codingAgent.enabled', false);
+            if (enabled && codingAgentDisposables.length === 0) {
+                registerCodingAgentFeatures(context, client);
+            } else if (!enabled && codingAgentDisposables.length > 0) {
+                unregisterCodingAgentFeatures();
+            }
+        }
+    }));
+}
+
+function unregisterCodingAgentFeatures() {
+    for (const d of codingAgentDisposables) d.dispose();
+    codingAgentDisposables = [];
+    slashMgr = undefined;
+}
+
+function registerCodingAgentFeatures(context: vscode.ExtensionContext, client: KernelClient) {
+    if (codingAgentDisposables.length > 0) return;
+
+    const ctxProvider = new EditorContextProvider();
+    const approvalManager = new ApprovalManager();
+    slashMgr = new SlashCommandManager(client);
+
+    function pushSub(d: vscode.Disposable) {
+        codingAgentDisposables.push(d);
+        context.subscriptions.push(d);
+    }
+
+    async function withApproval(action: string, details: string[], fn: () => Promise<void>) {
+        const decision = await approvalManager.requestApproval(action, details);
+        if (decision === 'rejected') {
+            vscode.window.showInformationMessage(`Ação rejeitada: ${action}`);
+            return;
+        }
+        await fn();
+    }
+
+    async function runSlashCommand(cmd: string, content: string, lang?: string) {
+        if (!content) {
+            vscode.window.showInformationMessage('Abra um arquivo ou selecione código primeiro');
+            return;
+        }
+        const shouldApprove = approvalManager.getMode() !== ApprovalMode.Chat;
+        if (shouldApprove) {
+            const decision = await approvalManager.requestApproval(
+                `executar ${cmd}`,
+                [`Comando: ${cmd}`, `Contexto: ${content.substring(0, 100)}...`]
+            );
+            if (decision === 'rejected') return;
+        }
+        const ctx = await ctxProvider.getFullContext();
+        const result = await slashMgr!.execute(`${cmd} ${content}`, ctx);
+        const doc = await vscode.workspace.openTextDocument({ content: result, language: lang || 'markdown' });
+        vscode.window.showTextDocument(doc, { preview: true, viewColumn: vscode.ViewColumn.Beside });
+    }
+
+    pushSub(vscode.commands.registerCommand('aikernel.coding.chat', () => ChatViewProvider.createOrShow(client, approvalManager)));
+
+    pushSub(vscode.commands.registerCommand('aikernel.coding.explain', () =>
+        runSlashCommand('/explain', ctxProvider.getSelection() || ctxProvider.getActiveEditorContent()?.substring(0, 1000) || '')));
+    pushSub(vscode.commands.registerCommand('aikernel.coding.fix', () =>
+        runSlashCommand('/fix', ctxProvider.getSelection() || ctxProvider.getActiveEditorContent()?.substring(0, 1000) || '')));
+    pushSub(vscode.commands.registerCommand('aikernel.coding.test', () => {
+        const ctx = ctxProvider;
+        return runSlashCommand('/test', ctx.getSelection() || ctx.getActiveEditorContent()?.substring(0, 1000) || '', ctx.getCurrentLanguage());
+    }));
+    pushSub(vscode.commands.registerCommand('aikernel.coding.refactor', () => {
+        const ctx = ctxProvider;
+        return runSlashCommand('/refactor', ctx.getSelection() || ctx.getActiveEditorContent()?.substring(0, 1000) || '', ctx.getCurrentLanguage());
+    }));
+    pushSub(vscode.commands.registerCommand('aikernel.coding.review', () => {
+        const ctx = ctxProvider;
+        return runSlashCommand('/review', ctx.getActiveEditorContent()?.substring(0, 2000) || '');
+    }));
+
+    pushSub(vscode.languages.registerCodeLensProvider({ scheme: 'file' }, new CodeLensProvider()));
+
+    pushSub(vscode.languages.registerCodeActionsProvider({ scheme: 'file' }, new CodeActionProvider()));
+
+    pushSub(vscode.commands.registerCommand('aikernel.coding.setMode', (mode: string) => {
+        const m = mode as ApprovalMode;
+        if (Object.values(ApprovalMode).includes(m)) {
+            approvalManager.setMode(m);
+            vscode.window.showInformationMessage(`Modo de aprovação: ${m}`);
+        }
+    }));
 }
 
 export function deactivate() {
     if (sidecarProcess) { sidecarProcess.kill(); sidecarProcess = undefined; }
+    unregisterCodingAgentFeatures();
 }
 
 class NavTreeProvider implements vscode.TreeDataProvider<NavItem> {

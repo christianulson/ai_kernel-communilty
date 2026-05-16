@@ -53,4 +53,10 @@ root.Add(new ConfigCommand(console).Build());
 var benchRunner = host.Services.GetRequiredService<SafetyBenchRunner>();
 root.Add(new SecurityCommand(benchRunner, console).Build());
 
+// Integration management (Plano 02 - Ecosystem)
+root.Add(new IntegrationCommand(console).Build());
+
+// Plugin management (Plano 37 - Plugin Ecosystem)
+root.Add(new PluginCommand(console).Build());
+
 return await root.Parse(args).InvokeAsync();

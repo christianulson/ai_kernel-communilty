@@ -2,13 +2,16 @@
  * Extension activation tests
  * Mocks vscode API to verify commands and tree view registration
  */
+let mockConfigValues: Record<string, any> = {};
+
 jest.mock('vscode', () => ({
     window: {
         createStatusBarItem: jest.fn(() => ({
             text: '',
             command: '',
             tooltip: '',
-            show: jest.fn()
+            show: jest.fn(),
+            dispose: jest.fn()
         })),
         createWebviewPanel: jest.fn(() => ({
             webview: { html: '', onDidReceiveMessage: jest.fn(), postMessage: jest.fn() },
@@ -18,8 +21,29 @@ jest.mock('vscode', () => ({
         })),
         registerTreeDataProvider: jest.fn(),
         showInformationMessage: jest.fn(),
-        showErrorMessage: jest.fn()
+        showErrorMessage: jest.fn(),
+        showTextDocument: jest.fn(),
+        visibleTextEditors: [],
+        activeTextEditor: undefined
     },
+    workspace: {
+        getConfiguration: jest.fn(() => ({
+            get: jest.fn((key: string, defaultVal?: any) => {
+                return key in mockConfigValues ? mockConfigValues[key] : defaultVal;
+            }),
+            has: jest.fn(() => true),
+            inspect: jest.fn(),
+            update: jest.fn()
+        })),
+        onDidChangeConfiguration: jest.fn(() => ({ dispose: jest.fn() })),
+        openTextDocument: jest.fn()
+    },
+    languages: {
+        getDiagnostics: jest.fn(() => []),
+        registerCodeLensProvider: jest.fn(() => ({ dispose: jest.fn() })),
+        registerCodeActionsProvider: jest.fn(() => ({ dispose: jest.fn() }))
+    },
+    // Note: mockConfigValues is used by coding tests below
     commands: {
         registerCommand: jest.fn()
     },
@@ -29,7 +53,15 @@ jest.mock('vscode', () => ({
     TreeItem: jest.fn(),
     TreeItemCollapsibleState: { None: 0 },
     Disposable: jest.fn(() => ({ dispose: jest.fn() })),
-    StatusBarAlignment: { Right: 1 }
+    StatusBarAlignment: { Right: 1 },
+    CodeLens: jest.fn(),
+    CodeLensProvider: jest.fn(),
+    CompletionItem: jest.fn(),
+    CompletionItemKind: { Snippet: 27 },
+    RelativePattern: jest.fn(),
+    Range: jest.fn(),
+    Position: jest.fn(),
+    DiagnosticSeverity: { Error: 0, Warning: 1, Information: 2, Hint: 3 }
 }), { virtual: true });
 
 import * as vscode from 'vscode';
@@ -150,5 +182,88 @@ describe('Extension', () => {
         const { activate } = require('../extension');
         await activate(context);
         expect(context.subscriptions.length).toBeGreaterThanOrEqual(9);
+    });
+});
+
+describe('Extension with Coding Agent Enabled', () => {
+    let context: vscode.ExtensionContext;
+
+    beforeEach(() => {
+        mockConfigValues = { 'codingAgent.enabled': true };
+        context = {
+            subscriptions: [],
+            extensionPath: '',
+            extensionUri: null as any,
+            extensionMode: 1,
+            globalState: null as any,
+            workspaceState: null as any,
+            secrets: null as any,
+            globalStorageUri: null as any,
+            logUri: null as any,
+            storageUri: null as any,
+            asAbsolutePath: jest.fn(),
+            extension: null as any,
+            environmentVariableCollection: null as any,
+            globalStoragePath: '',
+            logPath: '',
+            storagePath: ''
+        } as any;
+    });
+
+    afterEach(() => {
+        mockConfigValues = {};
+    });
+
+    it('ShouldRegisterCodingAgentCommands_WhenEnabled', async () => {
+        const { activate } = require('../extension');
+        await activate(context);
+        const calls = (vscode.commands.registerCommand as jest.Mock).mock.calls;
+        const ids = calls.map(c => c[0]);
+        expect(ids).toContain('aikernel.coding.chat');
+        expect(ids).toContain('aikernel.coding.explain');
+        expect(ids).toContain('aikernel.coding.fix');
+        expect(ids).toContain('aikernel.coding.test');
+        expect(ids).toContain('aikernel.coding.refactor');
+        expect(ids).toContain('aikernel.coding.review');
+    });
+
+    it('ShouldRegisterCodeLensProvider_WhenEnabled', async () => {
+        const { activate } = require('../extension');
+        await activate(context);
+        expect(vscode.languages.registerCodeLensProvider).toHaveBeenCalledWith(
+            { scheme: 'file' },
+            expect.any(Object)
+        );
+    });
+
+    it('ShouldNotDuplicateCodingCommands_WhenActivatedTwice', async () => {
+        const mod = require('../extension');
+        await mod.activate(context);
+        const calls1 = (vscode.commands.registerCommand as jest.Mock).mock.calls;
+        const codingIds1 = calls1.filter(c => c[0].startsWith('aikernel.coding')).map(c => c[0]);
+
+        const ctx2 = {
+            subscriptions: [],
+            extensionPath: '',
+            extensionUri: null as any,
+            extensionMode: 1,
+            globalState: null as any,
+            workspaceState: null as any,
+            secrets: null as any,
+            globalStorageUri: null as any,
+            logUri: null as any,
+            storageUri: null as any,
+            asAbsolutePath: jest.fn(),
+            extension: null as any,
+            environmentVariableCollection: null as any,
+            globalStoragePath: '',
+            logPath: '',
+            storagePath: ''
+        } as any;
+        await mod.activate(ctx2);
+        const calls2 = (vscode.commands.registerCommand as jest.Mock).mock.calls;
+        const codingIds2 = calls2.filter(c => c[0].startsWith('aikernel.coding')).map(c => c[0]);
+
+        expect(codingIds2.length).toBe(codingIds1.length);
     });
 });

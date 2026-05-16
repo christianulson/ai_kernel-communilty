@@ -1,9 +1,6 @@
 import * as vscode from 'vscode';
 import { KernelClient } from '../api/client';
-
-function escapeHtml(s: string): string {
-    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
-}
+import { escapeHtml } from '../utils/escapeHtml';
 
 export class ChatPanel {
     public static currentPanel: ChatPanel | undefined;

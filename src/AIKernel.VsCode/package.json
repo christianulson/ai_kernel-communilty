@@ -14,6 +14,7 @@
   "activationEvents": [
     "onCommand:aikernel.start",
     "onCommand:aikernel.chat",
+    "onCommand:aikernel.coding.chat",
     "onView:aikernel.nav"
   ],
   "main": "./out/extension.js",
@@ -50,8 +51,97 @@
       {
         "command": "aikernel.settings",
         "title": "AI Kernel: Configurações"
+      },
+      {
+        "command": "aikernel.coding.chat",
+        "title": "AI Kernel: Chat com Contexto do Editor"
+      },
+      {
+        "command": "aikernel.coding.explain",
+        "title": "AI Kernel: Explicar Código"
+      },
+      {
+        "command": "aikernel.coding.fix",
+        "title": "AI Kernel: Corrigir Código"
+      },
+      {
+        "command": "aikernel.coding.test",
+        "title": "AI Kernel: Gerar Teste"
+      },
+      {
+        "command": "aikernel.coding.refactor",
+        "title": "AI Kernel: Refatorar Código"
+      },
+      {
+        "command": "aikernel.coding.review",
+        "title": "AI Kernel: Revisar Código"
       }
     ],
+    "keybindings": [
+      {
+        "command": "aikernel.coding.explain",
+        "key": "ctrl+shift+e",
+        "when": "config.aikernel.codingAgent.enabled && editorTextFocus"
+      },
+      {
+        "command": "aikernel.coding.fix",
+        "key": "ctrl+shift+f",
+        "when": "config.aikernel.codingAgent.enabled && editorTextFocus"
+      },
+      {
+        "command": "aikernel.coding.test",
+        "key": "ctrl+shift+t",
+        "when": "config.aikernel.codingAgent.enabled && editorTextFocus"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "aikernel.start",
+          "when": "view == aikernel.nav",
+          "group": "navigation"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "aikernel.coding.explain",
+          "group": "AI Kernel",
+          "when": "config.aikernel.codingAgent.enabled && editorHasSelection"
+        },
+        {
+          "command": "aikernel.coding.fix",
+          "group": "AI Kernel",
+          "when": "config.aikernel.codingAgent.enabled && editorHasSelection"
+        },
+        {
+          "command": "aikernel.coding.test",
+          "group": "AI Kernel",
+          "when": "config.aikernel.codingAgent.enabled && editorHasSelection"
+        },
+        {
+          "command": "aikernel.coding.refactor",
+          "group": "AI Kernel",
+          "when": "config.aikernel.codingAgent.enabled && editorHasSelection"
+        }
+      ],
+      "editor/codeAction": [
+        {
+          "command": "aikernel.coding.fix",
+          "group": "AI Kernel",
+          "when": "config.aikernel.codingAgent.enabled"
+        },
+        {
+          "command": "aikernel.coding.explain",
+          "group": "AI Kernel",
+          "when": "config.aikernel.codingAgent.enabled"
+        },
+        {
+          "command": "aikernel.coding.test",
+          "group": "AI Kernel",
+          "when": "config.aikernel.codingAgent.enabled"
+        }
+      ]
+    },
     "viewsContainers": {
       "activitybar": [
         {
@@ -66,15 +156,6 @@
         {
           "id": "aikernel.nav",
           "name": "Navegação"
-        }
-      ]
-    },
-    "menus": {
-      "view/title": [
-        {
-          "command": "aikernel.start",
-          "when": "view == aikernel.nav",
-          "group": "navigation"
         }
       ]
     },
@@ -95,6 +176,11 @@
           "type": "number",
           "default": 5001,
           "description": "Porta do Sidecar local"
+        },
+        "aikernel.codingAgent.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Habilitar modo Coding Agent (comandos de código, chat com contexto do editor)"
         }
       }
     }

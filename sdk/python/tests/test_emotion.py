@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-import pytest
-
-from aikernel.core.emotion.vad import VADState, VADModel
-from aikernel.core.emotion.pain_reward import PainRewardSignal, PainRewardModel
+from aikernel.core.emotion.pain_reward import PainRewardModel, PainRewardSignal
+from aikernel.core.emotion.vad import VADModel, VADState
 
 
 class TestVADState:

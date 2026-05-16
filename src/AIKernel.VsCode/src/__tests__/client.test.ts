@@ -240,4 +240,78 @@ describe('KernelClient', () => {
             expect((client as any).getBaseUrl()).toBe('http://localhost:5001');
         });
     });
+
+    describe('coding endpoints', () => {
+        it('codingExplain should POST to /api/coding/explain', async () => {
+            mockGetConfiguration();
+            mockFetch({ narration: 'explanation' });
+            const client = new KernelClient();
+            const result = await client.codingExplain('const x = 1;', 'typescript');
+            expect(result.narration).toBe('explanation');
+            expect(global.fetch).toHaveBeenCalledWith(
+                expect.stringContaining('/api/coding/explain'),
+                expect.objectContaining({
+                    method: 'POST',
+                    body: expect.stringContaining('const x = 1;')
+                })
+            );
+        });
+
+        it('codingFix should POST with diagnostics', async () => {
+            mockGetConfiguration();
+            mockFetch({ narration: 'fix' });
+            const client = new KernelClient();
+            const result = await client.codingFix('const x = 1;', ['error: unused var'], 'typescript');
+            expect(result.narration).toBe('fix');
+        });
+
+        it('codingTest should POST to /api/coding/test', async () => {
+            mockGetConfiguration();
+            mockFetch({ narration: 'test' });
+            const client = new KernelClient();
+            const result = await client.codingTest('function foo() {}', 'typescript');
+            expect(result.narration).toBe('test');
+        });
+
+        it('codingReview should POST to /api/coding/review', async () => {
+            mockGetConfiguration();
+            mockFetch({ narration: 'review' });
+            const client = new KernelClient();
+            const result = await client.codingReview('/test.ts', 'content', 'typescript');
+            expect(result.narration).toBe('review');
+        });
+
+        it('codingExplain should handle HTTP error', async () => {
+            mockGetConfiguration();
+            mockFetchError();
+            const client = new KernelClient();
+            const result = await client.codingExplain('code', 'ts');
+            expect(result.error).toContain('Erro de conexão');
+        });
+
+        it('getPendingApprovals should fetch pending list', async () => {
+            mockGetConfiguration();
+            mockFetch({ approvals: [{ id: '1', action: 'test', details: [], createdAt: '' }] });
+            const client = new KernelClient();
+            const result = await client.getPendingApprovals();
+            expect(result).toHaveLength(1);
+            expect(result[0].id).toBe('1');
+        });
+
+        it('respondApproval should POST decision', async () => {
+            mockGetConfiguration();
+            (global as any).fetch = jest.fn().mockResolvedValue({ ok: true });
+            const client = new KernelClient();
+            const result = await client.respondApproval('1', 'allowed');
+            expect(result).toBe(true);
+        });
+
+        it('respondApproval should return false on error', async () => {
+            mockGetConfiguration();
+            (global as any).fetch = jest.fn().mockRejectedValue(new Error('fail'));
+            const client = new KernelClient();
+            const result = await client.respondApproval('1', 'rejected');
+            expect(result).toBe(false);
+        });
+    });
 });

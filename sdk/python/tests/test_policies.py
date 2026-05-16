@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import pytest
-
 from aikernel.core.policies.engine import PolicyEngine, PolicyRule
 
 
@@ -64,7 +62,6 @@ class TestPolicyEngine:
 
     def test_Priority_ShouldOrderRules(self):
         engine = PolicyEngine()
-        results = []
         engine.add_rule(PolicyRule(
             id="low",
             name="Low Priority",
