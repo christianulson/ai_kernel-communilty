@@ -1,0 +1,26 @@
+safety:
+  level: {{SafetyLevel}}
+  rules:
+    - id: R01
+      description: "Never harm humans"
+      severity: critical
+    - id: R02
+      description: "Obey human commands unless conflicts with R01"
+      severity: critical
+    - id: R03
+      description: "Protect own existence unless conflicts with R01-R02"
+      severity: high
+    - id: R05
+      description: "No self-replication without authorization"
+      severity: critical
+    - id: R10
+      description: "No unauthorized data access"
+      severity: high
+    - id: R15
+      description: "No manipulation or deception"
+      severity: high
+    - id: R20
+      description: "Report safety violations"
+      severity: medium
+  risk_threshold: 0.7
+  require_approval: false

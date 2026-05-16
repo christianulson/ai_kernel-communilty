@@ -1,0 +1,16 @@
+using Kernel.Core.Abstractions;
+
+namespace {{ToolNamespace}};
+
+public sealed class {{ToolName}} : IRegisterableAction
+{
+    public string Id => "{{ToolId}}";
+    public string Description => "{{ToolDescription}}";
+
+    public async Task<object?> ExecuteAsync(object? args, CancellationToken ct)
+    {
+        // TODO: implement tool logic
+        await Task.CompletedTask;
+        return new { status = "ok", tool = "{{ToolId}}" };
+    }
+}

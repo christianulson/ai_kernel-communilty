@@ -1,0 +1,20 @@
+using Kernel.Core.Abstractions;
+using Kernel.Core.Model;
+
+namespace {{PolicyNamespace}};
+
+public sealed class {{PolicyName}} : ISafetyGate
+{
+    public string Id => "{{PolicyId}}";
+    public string Description => "{{PolicyDescription}}";
+
+    public Task<SafetyVerdict> EvaluateAsync(object context, CancellationToken ct)
+    {
+        // TODO: implement policy evaluation
+        var verdict = new SafetyVerdict(
+            Allowed: true,
+            RiskScore: 0.0,
+            Reason: "Policy {{PolicyName}} passed");
+        return Task.FromResult(verdict);
+    }
+}

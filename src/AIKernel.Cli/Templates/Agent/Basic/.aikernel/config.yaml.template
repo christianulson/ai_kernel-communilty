@@ -1,0 +1,31 @@
+apiVersion: aikernel.io/v1
+kind: AgentConfig
+metadata:
+  name: {{AgentName}}
+  version: 1.0.0
+runtime:
+  cognitive_cycle:
+    steps:
+      - sensor
+      - attention
+      - memory
+      - evaluation
+      - metacognition
+      - planning
+      - governance
+      - execution
+      - outcome
+      - learning
+    timeout: 30s
+safety:
+  level: {{SafetyLevel}}
+  rules: [R01, R02, R03, R05, R10, R15, R20]
+llm:
+  provider: {{LlmProvider}}
+  model: {{LlmModel}}
+memory:
+  enabled: {{MemoryEnabled}}
+  semantic:
+    store: in_memory
+  working:
+    slots: 7

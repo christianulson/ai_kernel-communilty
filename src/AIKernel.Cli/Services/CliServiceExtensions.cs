@@ -42,6 +42,12 @@ public static class CliServiceExtensions
             var logger = sp.GetService<ILogger<FundamentalRulesEngine>>();
             return new FundamentalRulesEngine(logger ?? NullLogger<FundamentalRulesEngine>.Instance);
         });
+        services.AddSingleton<SafetyBenchRunner>(sp =>
+        {
+            var rules = sp.GetRequiredService<FundamentalRulesEngine>();
+            var logger = sp.GetService<ILogger<SafetyBenchRunner>>();
+            return new SafetyBenchRunner(rules, hybridEngine: null, logger: logger);
+        });
         return services;
     }
 }

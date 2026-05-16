@@ -1,0 +1,14 @@
+using Microsoft.Extensions.Hosting;
+
+var host = Host.CreateDefaultBuilder(args)
+    .ConfigureServices((ctx, services) =>
+    {
+        // Register agent services here
+    })
+    .Build();
+
+Console.WriteLine("{{AgentName}} agent started!");
+Console.WriteLine("Safety level: {{SafetyLevel}}");
+
+// Run cognitive cycle
+await host.RunAsync();

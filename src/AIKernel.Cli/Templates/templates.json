@@ -1,0 +1,32 @@
+{
+  "templates": [
+    {
+      "name": "basic",
+      "description": "Minimal functional agent with safety, memory, and LLM configuration",
+      "type": "Agent",
+      "version": "1.0.0",
+      "dependencies": ["AIKernel.Cli"]
+    },
+    {
+      "name": "default",
+      "description": "Default tool scaffold implementing IRegisterableAction",
+      "type": "Tool",
+      "version": "1.0.0",
+      "dependencies": ["Kernel.Core"]
+    },
+    {
+      "name": "default",
+      "description": "Default policy scaffold implementing ISafetyGate",
+      "type": "Policy",
+      "version": "1.0.0",
+      "dependencies": ["Kernel.Core"]
+    },
+    {
+      "name": "default",
+      "description": "Custom cognitive cycle scaffold",
+      "type": "CognitiveCycle",
+      "version": "1.0.0",
+      "dependencies": ["Kernel.Cognition"]
+    }
+  ]
+}

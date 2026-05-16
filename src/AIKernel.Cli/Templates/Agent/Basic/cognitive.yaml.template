@@ -1,0 +1,15 @@
+cognitive_cycle:
+  mode: fixed
+  steps:
+    - sensor_ingestion
+    - attention_filter
+    - memory_retrieval
+    - evaluation
+    - meta_cognition
+    - planning
+    - governance
+    - execution
+    - outcome_measurement
+    - learning
+  step_timeout_ms: 30000
+  max_iterations: 10

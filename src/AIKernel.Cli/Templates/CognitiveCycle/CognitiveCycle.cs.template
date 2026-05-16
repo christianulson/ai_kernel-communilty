@@ -1,0 +1,19 @@
+using Kernel.Cognition.Runtime;
+using Kernel.Cognition.Contracts;
+
+namespace {{CycleNamespace}};
+
+public sealed class CustomCognitiveCycle
+{
+    private readonly CognitiveCycleRunner _runner;
+
+    public CustomCognitiveCycle(CognitiveCycleRunner runner)
+    {
+        _runner = runner;
+    }
+
+    public async Task<CognitiveCycleOutcome> RunAsync(CognitiveCycleContext context, CancellationToken ct)
+    {
+        return await _runner.RunAsync(context, ct);
+    }
+}

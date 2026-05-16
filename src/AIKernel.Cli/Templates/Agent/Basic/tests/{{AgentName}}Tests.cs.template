@@ -1,0 +1,20 @@
+using Xunit;
+using FluentAssertions;
+
+namespace {{AgentNamespace}}.Tests;
+
+public sealed class {{AgentName}}Tests
+{
+    [Fact]
+    public void Agent_ShouldInitialize()
+    {
+        // Arrange
+        var name = "{{AgentName}}";
+
+        // Act
+        var initialized = !string.IsNullOrWhiteSpace(name);
+
+        // Assert
+        initialized.Should().BeTrue();
+    }
+}
