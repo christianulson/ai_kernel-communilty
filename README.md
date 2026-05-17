@@ -1,51 +1,56 @@
 # AI Kernel Community
 
-O motor cognitivo do AI Kernel para uso local — memória persistente, busca vetorial,
-skills que evoluem, e segurança em camadas. Tudo rodando na sua máquina, sem servidor.
+AI Kernel Community is the local-first edition of AI Kernel: a cognitive runtime for
+agents with persistent memory, safety checks, evolving skills, and a developer CLI.
+It is designed to run on your machine without requiring hosted infrastructure.
 
 ```bash
 dotnet tool install -g AIKernel.Cli
 aikernel chat --local
 ```
 
-## O que você pode fazer
+## What You Can Build
 
-- **Agente local com LLM de sua escolha** — OpenAI, Anthropic, Ollama (grátis) ou qualquer provedor compatível
-- **Memória persistente em SQLite** — conversas, estado, preferências sobrevivem a restart
-- **Busca semântica local** — vector store embutido (BLOB + cosine similarity em RAM)
-- **Skills que evoluem sozinhos** — o LLM cria, refina e melhora skills baseado no uso
-- **Segurança em camadas** — 20 regras fundamentais (R01-R20), safety checker, meta-critic
-- **Zero dependências** — sem Docker, sem MySQL, sem Redis
+- Local agents that work with your preferred LLM provider
+- Persistent memory backed by SQLite
+- Semantic search over local memory
+- Skills that can be created, refined, exported, and installed
+- Safety-aware execution with policy checks before actions
+- Local sidecar APIs for editors and tools
 
-## Componentes
+## Packages
 
-| Projeto | Descrição | Licença |
-|---|---|---|
-| `Kernel.Contracts` | DTOs e interfaces públicas | MIT |
-| `AIKernel.Cli` | CLI interativa (`aikernel chat --local`) | MIT |
-| `AIKernel.Sidecar` | Servidor HTTP local para integração com VSCode | MIT |
-| `AIKernel.VsCode` | Extensão para Visual Studio Code | MIT |
+| Package | Purpose | License |
+| --- | --- | --- |
+| `Kernel.Contracts` | Public DTOs and interfaces | MIT |
+| `AIKernel.Cli` | Local CLI and interactive TUI | MIT |
+| `AIKernel.Sidecar` | Local HTTP sidecar for tools | MIT |
+| `AIKernel.Embedded` | In-process kernel for community apps | MIT |
 
-## Quick start
+## Quick Start
 
 ```bash
-# 1. Instalar
 dotnet tool install -g AIKernel.Cli
-
-# 2. Configurar token do seu LLM
 aikernel config set provider openai
 aikernel config set api_key sk-...
-
-# 3. Usar
 aikernel chat --local
 ```
 
-## Documentação
+For offline or local-model workflows, configure an OpenAI-compatible endpoint such
+as Ollama or another local gateway.
 
-- [Guia de início rápido](doc/GETTING_STARTED.md)
-- [Análises e planos](doc/analises/)
-- [Roadmap](doc/backlog/todo/)
+## Documentation
 
-## Licença
+- [Quickstart](docs/quickstart.md)
+- [Architecture](docs/architecture.md)
+- [CLI guide](docs/getting-started-cli.md)
+- [Contributing](CONTRIBUTING.md)
 
-MIT — veja [LICENSE](LICENSE).
+## Community
+
+Use GitHub Issues for bug reports and feature requests. GitHub Discussions should
+be used for Q&A, ideas, and showcase posts once enabled in the public repository.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
