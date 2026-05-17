@@ -1,9 +1,8 @@
 using System.Threading.RateLimiting;
-using Kernel.Abstractions;
+using Kernel.Core.Abstractions;
 using Kernel.Core.Services.Safety;
 using Kernel.Infrastructure.InMemory;
-using Kernel.Services;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Kernel.Core.Services;
 using Microsoft.Extensions.Options;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;

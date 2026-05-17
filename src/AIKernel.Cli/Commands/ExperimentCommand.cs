@@ -1,5 +1,4 @@
 using System.CommandLine;
-using System.CommandLine.Parsing;
 using AIKernel.Cli.Services;
 using Kernel.Core.Services.ExperimentTracking;
 using Spectre.Console;

@@ -1,6 +1,5 @@
 using System.CommandLine;
 using AIKernel.Cli.Services;
-using Kernel.Core.Services.Safety;
 using Spectre.Console;
 
 namespace AIKernel.Cli.Commands;

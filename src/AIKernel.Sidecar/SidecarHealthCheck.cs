@@ -1,4 +1,4 @@
-using Kernel.Abstractions;
+using Kernel.Core.Abstractions;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace AIKernel.Sidecar;

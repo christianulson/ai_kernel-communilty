@@ -1,7 +1,6 @@
-using Kernel.Abstractions;
+using Kernel.Core.Abstractions;
 using Kernel.Core.Services.Safety;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.AspNetCore.RateLimiting;
 
 namespace AIKernel.Sidecar;
 

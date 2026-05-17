@@ -1,14 +1,16 @@
 using AIKernel.LLMGateway.Core.Abstractions;
 using AIKernel.LLMGateway.Core.Services.Goals;
 using AIKernel.LLMGateway.Core.Services.Governance;
+using Kernel.Anticipation;
 using Kernel.Core.Abstractions;
 using Kernel.Core.Abstractions.Mcp;
-using Kernel.Core.Services.Anticipation;
 using Kernel.Core.Services.ExperimentTracking;
 using Kernel.Core.Services.Memory;
 using Kernel.Core.Services.ModelRegistry;
 using Kernel.Core.Services.Safety;
-using Kernel.Core.Services.TemporalDepth;
+using Kernel.Executive;
+using Kernel.Memory;
+using Kernel.Snapshot;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -58,6 +60,20 @@ public static class CliServiceExtensions
         services.AddSingleton<IModelRegistry>(new InMemoryModelRegistry());
         services.AddSingleton<IExperimentTracker>(new InMemoryExperimentTracker());
         services.AddSingleton<InMemorySessionStore>();
+
+        // Plugin local mode services
+        services.AddSingleton<IAssemblyPluginLoader>(new Kernel.Infrastructure.Plugin.AssemblyPluginLoader());
+        services.AddSingleton<IPluginDiscovery>(new Kernel.Infrastructure.Plugin.DirectoryPluginDiscovery());
+        services.AddSingleton<IPluginSandbox, Kernel.Infrastructure.InMemory.InMemoryPluginSandbox>();
+        services.AddSingleton<Kernel.Core.Services.Plugin.PluginHookManager>();
+        services.AddSingleton(sp =>
+        {
+            var loader = sp.GetRequiredService<IAssemblyPluginLoader>();
+            var discovery = sp.GetRequiredService<IPluginDiscovery>();
+            var sandbox = sp.GetRequiredService<IPluginSandbox>();
+            return new Kernel.Infrastructure.Plugin.PluginHost(discovery, loader, sandbox);
+        });
+
         return services;
     }
 }

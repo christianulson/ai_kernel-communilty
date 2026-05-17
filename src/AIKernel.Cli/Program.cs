@@ -57,7 +57,8 @@ root.Add(new SecurityCommand(benchRunner, console).Build());
 root.Add(new IntegrationCommand(console).Build());
 
 // Plugin management (Plano 37 - Plugin Ecosystem)
-root.Add(new PluginCommand(console).Build());
+var pluginLoader = host.Services.GetService<Kernel.Core.Abstractions.IAssemblyPluginLoader>();
+root.Add(new PluginCommand(console, pluginLoader).Build());
 
 // MCP management (Track B2)
 root.Add(new McpCommand(cliCtx, renderer).Build());

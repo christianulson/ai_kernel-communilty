@@ -1,5 +1,4 @@
 using System.CommandLine;
-using System.CommandLine.Parsing;
 using Kernel.Core.Config;
 using Spectre.Console;
 
