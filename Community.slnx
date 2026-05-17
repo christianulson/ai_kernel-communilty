@@ -7,5 +7,6 @@
   <Folder Name="/tests/">
     <Project Path="tests/AIKernel.Cli.Tests/AIKernel.Cli.Tests.csproj" />
     <Project Path="tests/AIKernel.Sidecar.Tests/AIKernel.Sidecar.Tests.csproj" />
+    <Project Path="tests/Kernel.Tests/Kernel.Tests.csproj" />
   </Folder>
 </Solution>
