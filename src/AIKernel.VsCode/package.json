@@ -9,8 +9,17 @@
     "vscode": "^1.118.0"
   },
   "categories": [
-    "Other"
+    "AI",
+    "Programming Languages",
+    "Development",
+    "Machine Learning"
   ],
+  "galleryBanner": {
+    "color": "#1e1e1e",
+    "theme": "dark"
+  },
+  "icon": "icon.png",
+  "pricing": "Free",
   "activationEvents": [
     "onCommand:aikernel.start",
     "onCommand:aikernel.chat",
@@ -75,6 +84,10 @@
       {
         "command": "aikernel.coding.review",
         "title": "AI Kernel: Revisar Código"
+      },
+      {
+        "command": "aikernel.coding.run",
+        "title": "AI Kernel: Executar Prompt..."
       }
     ],
     "keybindings": [
@@ -91,6 +104,11 @@
       {
         "command": "aikernel.coding.test",
         "key": "ctrl+shift+t",
+        "when": "config.aikernel.codingAgent.enabled && editorTextFocus"
+      },
+      {
+        "command": "aikernel.coding.run",
+        "key": "ctrl+shift+r",
         "when": "config.aikernel.codingAgent.enabled && editorTextFocus"
       }
     ],

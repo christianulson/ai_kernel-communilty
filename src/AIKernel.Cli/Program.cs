@@ -82,6 +82,9 @@ root.Add(new ExportCommand().Build());
 // Stats (Plano 11)
 root.Add(new CliStatsCommand().Build());
 
+// Non-interactive / Pipe mode (Claude Code)
+root.Add(new RunCommand().Build());
+
 // Experiment management (Track B4)
 root.Add(new ExperimentCommand(cliCtx, renderer).Build());
 
