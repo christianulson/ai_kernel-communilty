@@ -7,6 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Spectre.Console;
 
+var apiBaseUrl = args.Contains("--endpoint") ? args[Array.IndexOf(args, "--endpoint") + 1] : "http://localhost:5000";
+
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((ctx, services) =>
     {
@@ -15,6 +17,8 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddCliServices();
         services.AddSingleton<CliSeeder>();
         services.AddSingleton<ITemplateEngine, TemplateEngine>();
+        services.AddHttpClient("KernelApi", c => c.BaseAddress = new Uri(apiBaseUrl));
+        services.AddSingleton(s => s.GetRequiredService<IHttpClientFactory>().CreateClient("KernelApi"));
     })
     .Build();
 
@@ -38,6 +42,7 @@ root.Add(new SafetyCommand(cliCtx, renderer, host.Services).Build());
 root.Add(new AnticipateCommand(cliCtx, renderer).Build());
 root.Add(new IntentionsCommand(cliCtx, renderer).Build());
 root.Add(new DebugCommand(cliCtx, renderer).Build());
+root.Add(new DocumentCommand(cliCtx, renderer).Build());
 root.Add(new ServeCommand().Build());
 
 // DX commands (Plano 3)

@@ -25,6 +25,7 @@ public sealed class CliContext
     public IMcpServerRegistry McpRegistry { get; }
     public IModelRegistry ModelRegistry { get; }
     public IExperimentTracker ExperimentTracker { get; }
+    public HttpClient HttpClient { get; }
 
     public CliContext(IServiceProvider sp)
     {
@@ -42,5 +43,6 @@ public sealed class CliContext
         McpRegistry = sp.GetRequiredService<IMcpServerRegistry>();
         ModelRegistry = sp.GetRequiredService<IModelRegistry>();
         ExperimentTracker = sp.GetRequiredService<IExperimentTracker>();
+        HttpClient = sp.GetRequiredService<HttpClient>();
     }
 }
