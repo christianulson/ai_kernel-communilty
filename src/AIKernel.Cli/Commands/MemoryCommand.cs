@@ -12,7 +12,7 @@ public sealed class MemoryCommand(CliContext ctx, ConsoleRenderer renderer)
         var cmd = new Command("memory", "Search cognitive memory");
 
         var search = new Command("search", "Search memory by query");
-        var queryArg = new Argument<string>("query") { Description = "Search query (optional)", Arity = ArgumentArity.ZeroOrMore };
+        var queryArg = new Argument<string[]>("query") { Description = "Search query (optional)", Arity = ArgumentArity.ZeroOrMore };
         var takeOpt = new Option<int>("--take")
         {
             Description = "Max results", DefaultValueFactory = _ => 10
@@ -33,7 +33,7 @@ public sealed class MemoryCommand(CliContext ctx, ConsoleRenderer renderer)
 
         search.SetAction(async (ParseResult r, CancellationToken ct) =>
         {
-            var query = string.Join(" ", r.GetValue(queryArg) ?? "");
+            var query = r.GetValue(queryArg) is { Length: > 0 } q ? string.Join(" ", q) : string.Empty;
             var take = r.GetValue(takeOpt);
             var category = r.GetValue(categoryOpt);
             var domain = r.GetValue(domainOpt);

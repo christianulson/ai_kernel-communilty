@@ -112,7 +112,7 @@ public sealed class PluginCommand(IAnsiConsole console, IAssemblyPluginLoader? l
             }
 
             var endpoint = r.GetValue(endpointOpt)!;
-            return await RemoveRemoteAsync(pluginId, endpoint, ct);
+            return await RemoveRemoteAsync(pluginId, endpoint, console, ct);
         });
 
         return cmd;
@@ -286,11 +286,11 @@ public sealed class PluginCommand(IAnsiConsole console, IAssemblyPluginLoader? l
         }
     }
 
-    private static async Task<int> RemoveRemoteAsync(string pluginId, string endpoint, CancellationToken ct)
+    private static async Task<int> RemoveRemoteAsync(string pluginId, string endpoint, IAnsiConsole console, CancellationToken ct)
     {
         using var client = new HttpClient { BaseAddress = new Uri(endpoint.TrimEnd('/')) };
 
-        AnsiConsole.MarkupLine($"[yellow]Removing plugin:[/] {pluginId}");
+        console.MarkupLine($"[yellow]Removing plugin:[/] {pluginId}");
 
         try
         {
@@ -298,18 +298,18 @@ public sealed class PluginCommand(IAnsiConsole console, IAssemblyPluginLoader? l
 
             if (response.IsSuccessStatusCode)
             {
-                AnsiConsole.MarkupLine($"[green]Plugin '{pluginId}' removed successfully![/]");
+                console.MarkupLine($"[green]Plugin '{pluginId}' removed successfully![/]");
             }
             else
             {
                 var error = await response.Content.ReadAsStringAsync(ct);
-                AnsiConsole.MarkupLine($"[red]Failed to remove plugin:[/] {error}");
+                console.MarkupLine($"[red]Failed to remove plugin:[/] {error}");
                 return 1;
             }
         }
         catch (Exception ex)
         {
-            AnsiConsole.MarkupLine($"[red]Error:[/] {ex.Message}");
+            console.MarkupLine($"[red]Error:[/] {ex.Message}");
             return 1;
         }
 
