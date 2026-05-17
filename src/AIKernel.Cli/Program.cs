@@ -69,6 +69,12 @@ root.Add(new ModelCommand(cliCtx, renderer).Build());
 // TUI Interactive mode (Plano 6)
 root.Add(new InteractiveCommand().Build());
 
+// Upgrade (Plano 12)
+root.Add(new UpgradeCommand().Build());
+
+// Provider management (Plano 12)
+root.Add(new ProviderCommand().Build());
+
 // Experiment management (Track B4)
 root.Add(new ExperimentCommand(cliCtx, renderer).Build());
 

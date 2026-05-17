@@ -201,6 +201,16 @@
           "type": "boolean",
           "default": false,
           "description": "Habilitar loop agente multi-passo (/task). Requer terminal habilitado."
+        },
+        "aikernel.codingAgent.chatParticipant": {
+          "type": "boolean",
+          "default": false,
+          "description": "Habilitar ChatParticipant API nativa do VS Code (experimental, VS Code 1.82+)"
+        },
+        "aikernel.codingAgent.hover": {
+          "type": "boolean",
+          "default": false,
+          "description": "Habilitar explicações on-hover de código"
         }
       }
     }

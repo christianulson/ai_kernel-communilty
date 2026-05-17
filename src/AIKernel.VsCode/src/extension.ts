@@ -15,11 +15,15 @@ import { SlashCommandManager } from './codingAgent/SlashCommandManager';
 import { CodeLensProvider } from './codingAgent/CodeLensProvider';
 import { CodeActionProvider } from './codingAgent/CodeActionProvider';
 import { ApprovalManager, ApprovalMode } from './codingAgent/ApprovalManager';
+import { CodingHoverProvider } from './codingAgent/CodingHoverProvider';
 import { InlineCompletionProvider } from './codingAgent/InlineCompletionProvider';
 import { ApplyEditManager, FileChange } from './codingAgent/ApplyEditManager';
 import { TerminalManager } from './codingAgent/TerminalManager';
 import { GitManager } from './codingAgent/GitManager';
 import { AgenticLoopManager } from './codingAgent/AgenticLoopManager';
+import { SessionManager } from './services/SessionManager';
+import { UsageTracker } from './services/UsageTracker';
+import { registerKernelChatParticipant } from './chat/KernelChatParticipant';
 
 let sidecarProcess: any = undefined;
 let statusBarItem: vscode.StatusBarItem;
@@ -187,7 +191,14 @@ function registerCodingAgentFeatures(context: vscode.ExtensionContext, client: K
         vscode.window.showTextDocument(doc, { preview: true, viewColumn: vscode.ViewColumn.Beside });
     }
 
-    pushSub(vscode.commands.registerCommand('aikernel.coding.chat', () => ChatViewProvider.createOrShow(client, approvalManager)));
+    const sessionManager = new SessionManager(context);
+    const usageTracker = new UsageTracker(context);
+    pushSub(vscode.commands.registerCommand('aikernel.coding.chat', () => ChatViewProvider.createOrShow(client, approvalManager, sessionManager, usageTracker)));
+
+    const chatParticipantEnabled = vscode.workspace.getConfiguration('aikernel').get<boolean>('codingAgent.chatParticipant', false);
+    if (chatParticipantEnabled) {
+        pushSub(registerKernelChatParticipant(context, client, approvalManager, sessionManager));
+    }
 
     pushSub(vscode.commands.registerCommand('aikernel.coding.explain', () =>
         runSlashCommand('/explain', ctxProvider.getSelection() || ctxProvider.getActiveEditorContent()?.substring(0, 1000) || '')));
@@ -223,6 +234,13 @@ function registerCodingAgentFeatures(context: vscode.ExtensionContext, client: K
     if (inlineCompletionEnabled) {
         const inlineProvider = new InlineCompletionProvider(() => client.getBaseUrl());
         pushSub(vscode.languages.registerInlineCompletionItemProvider({ pattern: '**' }, inlineProvider));
+    }
+
+    // Hover Provider (feature flag: aikernel.codingAgent.hover)
+    const hoverEnabled = vscode.workspace.getConfiguration('aikernel').get<boolean>('codingAgent.hover', false);
+    if (hoverEnabled) {
+        const hoverProvider = new CodingHoverProvider(() => client.getBaseUrl());
+        pushSub(vscode.languages.registerHoverProvider({ pattern: '**' }, hoverProvider));
     }
 }
 

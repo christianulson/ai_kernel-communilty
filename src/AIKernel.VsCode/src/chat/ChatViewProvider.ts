@@ -6,6 +6,8 @@ import { SlashCommandManager } from '../codingAgent/SlashCommandManager';
 import { ApprovalManager, ApprovalMode } from '../codingAgent/ApprovalManager';
 import { ChatMessage, createMessage } from './ChatMessage';
 import { escapeHtml } from '../utils/escapeHtml';
+import { SessionManager } from '../services/SessionManager';
+import { UsageTracker } from '../services/UsageTracker';
 
 const MAX_MESSAGES = 50;
 
@@ -14,17 +16,22 @@ export class ChatViewProvider {
     private readonly _panel: vscode.WebviewPanel;
     private readonly _client: KernelClient;
     private readonly _approvalManager: ApprovalManager;
+    private readonly _sessionManager?: SessionManager;
+    private readonly _usageTracker?: UsageTracker;
     private _context: EditorContextProvider | null = null;
     private readonly _slashCommands: SlashCommandManager;
     private readonly _nonce: string;
     private _messages: ChatMessage[] = [];
     private _disposables: vscode.Disposable[] = [];
     private _editorSubscriptions: vscode.Disposable[] = [];
+    private _currentSessionId: string | undefined;
 
-    private constructor(panel: vscode.WebviewPanel, client: KernelClient, approvalManager: ApprovalManager) {
+    private constructor(panel: vscode.WebviewPanel, client: KernelClient, approvalManager: ApprovalManager, sessionManager?: SessionManager, usageTracker?: UsageTracker) {
         this._panel = panel;
         this._client = client;
         this._approvalManager = approvalManager;
+        this._sessionManager = sessionManager;
+        this._usageTracker = usageTracker;
         this._slashCommands = new SlashCommandManager(client);
         this._nonce = Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10);
         this._panel.webview.html = this._getHtml();
@@ -49,9 +56,11 @@ export class ChatViewProvider {
                 remaining: Math.max(0, approval.deadline - Date.now())
             });
         });
+
+        this._loadLastSession();
     }
 
-    static createOrShow(client?: KernelClient, approvalManager?: ApprovalManager) {
+    static createOrShow(client?: KernelClient, approvalManager?: ApprovalManager, sessionManager?: SessionManager, usageTracker?: UsageTracker) {
         if (ChatViewProvider.currentPanel) {
             ChatViewProvider.currentPanel._panel.reveal(vscode.ViewColumn.Beside);
             return;
@@ -62,7 +71,7 @@ export class ChatViewProvider {
             vscode.ViewColumn.Beside,
             { enableScripts: true, retainContextWhenHidden: true }
         );
-        ChatViewProvider.currentPanel = new ChatViewProvider(panel, client || new KernelClient(), approvalManager || new ApprovalManager());
+        ChatViewProvider.currentPanel = new ChatViewProvider(panel, client || new KernelClient(), approvalManager || new ApprovalManager(), sessionManager, usageTracker);
     }
 
     private _ensureContext(): EditorContextProvider {
@@ -103,10 +112,15 @@ export class ChatViewProvider {
             let responseContent: string;
 
             if (parsed.command) {
-                try {
-                    responseContent = await this._slashCommands.execute(input, ctx);
-                } catch (err: any) {
-                    responseContent = `Erro: ${err.message}`;
+                if (parsed.command === '/sessions' || parsed.command === '/session' || parsed.command === '/export' || parsed.command === '/import' || parsed.command === '/stats') {
+                    responseContent = await this._handleSessionCommand(parsed.command, parsed.args);
+                } else {
+                    try {
+                        responseContent = await this._slashCommands.execute(input, ctx);
+                        this._usageTracker?.trackCommand(parsed.command);
+                    } catch (err: any) {
+                        responseContent = `Erro: ${err.message}`;
+                    }
                 }
             } else {
                 const contextPrefix = ctx.activeFile
@@ -130,6 +144,7 @@ export class ChatViewProvider {
                 message: assistantMsg
             });
             this._panel.webview.postMessage({ type: 'done' });
+            this._autoSave();
             return;
         }
 
@@ -394,5 +409,88 @@ vscode.postMessage({type:'send',text:t});}
         this._panel.dispose();
         while (this._disposables.length) this._disposables.pop()!.dispose();
         while (this._editorSubscriptions.length) this._editorSubscriptions.pop()!.dispose();
+    }
+
+    private async _autoSave(): Promise<void> {
+        if (!this._sessionManager) return;
+        const label = `Chat ${new Date().toLocaleDateString()}`;
+        this._currentSessionId = await this._sessionManager.autoSave(
+            label, this._messages, this._currentSessionId
+        );
+    }
+
+    private async _loadLastSession(): Promise<void> {
+        if (!this._sessionManager) return;
+        const sessions = await this._sessionManager.listSessions();
+        if (sessions.length === 0) return;
+
+        const last = sessions[0];
+        this._currentSessionId = last.id;
+        this._messages = last.messages.slice();
+
+        for (const msg of this._messages) {
+            this._panel.webview.postMessage({ type: 'message', message: msg });
+        }
+        this._panel.webview.postMessage({ type: 'done' });
+    }
+
+    private async _handleSessionCommand(command: string, args: string): Promise<string> {
+        switch (command) {
+            case '/sessions':
+            case '/session':
+            case '/export':
+            case '/import': {
+                if (!this._sessionManager) return 'Gerenciador de sessões não disponível';
+
+                switch (command) {
+                    case '/sessions': {
+                        const sessions = await this._sessionManager.listSessions();
+                        if (sessions.length === 0) return 'Nenhuma sessão salva.';
+                        return sessions.map((s, i) =>
+                            `${i + 1}. ${s.label} (${s.messageCount} msgs) - ${new Date(s.updatedAt).toLocaleString()}`
+                        ).join('\n');
+                    }
+
+                    case '/session': {
+                        const idx = parseInt(args) - 1;
+                        const sessions = await this._sessionManager.listSessions();
+                        if (isNaN(idx) || idx < 0 || idx >= sessions.length)
+                            return 'Use /session <número>. Execute /sessions para listar.';
+                        const session = sessions[idx];
+                        this._currentSessionId = session.id;
+                        this._messages = session.messages.slice();
+                        return `✅ Sessão "${session.label}" carregada (${session.messageCount} mensagens).`;
+                    }
+
+                    case '/export': {
+                        if (this._currentSessionId) {
+                            const json = await this._sessionManager.exportSession(this._currentSessionId);
+                            if (json) return `📤 Sessão exportada:\n\`\`\`json\n${json.substring(0, 1500)}\n\`\`\``;
+                        }
+                        return 'Nenhuma sessão ativa para exportar. Salve mensagens primeiro.';
+                    }
+
+                    case '/import': {
+                        if (!args.startsWith('{')) return 'Cole o JSON da sessão após /import.';
+                        const session = await this._sessionManager.importSession(args);
+                        if (session) {
+                            this._currentSessionId = session.id;
+                            this._messages = session.messages.slice();
+                            return `✅ Sessão "${session.label}" importada (${session.messageCount} mensagens).`;
+                        }
+                        return '❌ JSON inválido. Use o formato exportado por /export.';
+                    }
+                }
+                return '';
+            }
+
+            case '/stats': {
+                if (!this._usageTracker) return 'UsageTracker não disponível';
+                return this._usageTracker.formatStats();
+            }
+
+            default:
+                return '';
+        }
     }
 }
