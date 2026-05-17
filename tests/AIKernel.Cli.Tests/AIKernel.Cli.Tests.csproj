@@ -18,9 +18,9 @@
     <PackageReference Include="FluentAssertions" Version="8.10.0" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Kernel.Core" Version="1.0.0" />
+    <PackageReference Include="Kernel.Infrastructure" Version="1.0.0" />
     <ProjectReference Include="..\..\src\AIKernel.Cli\AIKernel.Cli.csproj" />
-    <ProjectReference Include="..\..\src\Kernel.Core\Kernel.Core.csproj" />
-    <ProjectReference Include="..\..\src\Kernel.Infrastructure\Kernel.Infrastructure.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="Xunit" />

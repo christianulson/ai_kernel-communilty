@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Kernel.Contracts/Kernel.Contracts.csproj" />
+    <Project Path="src/AIKernel.Cli/AIKernel.Cli.csproj" />
+    <Project Path="src/AIKernel.Sidecar/AIKernel.Sidecar.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/AIKernel.Cli.Tests/AIKernel.Cli.Tests.csproj" />
+    <Project Path="tests/AIKernel.Sidecar.Tests/AIKernel.Sidecar.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,9 @@
+bin/
+obj/
+*.user
+*.suo
+*.nupkg
+TestResults/
+node_modules/
+dist/
+coverage/
