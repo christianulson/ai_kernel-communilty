@@ -1,7 +1,7 @@
 {
   "name": "aikernel-vscode",
   "displayName": "AI Kernel",
-  "description": "AI Kernel - Agente cognitivo no VsCode",
+  "description": "AI Kernel - Cognitive agent for VS Code with coding assistance, memory, safety, and adaptive planning",
   "version": "1.0.0",
   "publisher": "aikernel",
   "license": "MIT",

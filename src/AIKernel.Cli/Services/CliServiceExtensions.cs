@@ -2,8 +2,11 @@ using AIKernel.LLMGateway.Core.Abstractions;
 using AIKernel.LLMGateway.Core.Services.Goals;
 using AIKernel.LLMGateway.Core.Services.Governance;
 using Kernel.Core.Abstractions;
+using Kernel.Core.Abstractions.Mcp;
 using Kernel.Core.Services.Anticipation;
+using Kernel.Core.Services.ExperimentTracking;
 using Kernel.Core.Services.Memory;
+using Kernel.Core.Services.ModelRegistry;
 using Kernel.Core.Services.Safety;
 using Kernel.Core.Services.TemporalDepth;
 using Microsoft.Extensions.DependencyInjection;
@@ -48,6 +51,13 @@ public static class CliServiceExtensions
             var logger = sp.GetService<ILogger<SafetyBenchRunner>>();
             return new SafetyBenchRunner(rules, hybridEngine: null, logger: logger);
         });
+        services.AddSingleton<IMcpServerRegistry>(new Kernel.Infrastructure.Mcp.McpServerRegistry(
+            httpClientFactory: null,
+            oauthHandler: null,
+            logger: null));
+        services.AddSingleton<IModelRegistry>(new InMemoryModelRegistry());
+        services.AddSingleton<IExperimentTracker>(new InMemoryExperimentTracker());
+        services.AddSingleton<InMemorySessionStore>();
         return services;
     }
 }

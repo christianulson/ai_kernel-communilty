@@ -59,4 +59,17 @@ root.Add(new IntegrationCommand(console).Build());
 // Plugin management (Plano 37 - Plugin Ecosystem)
 root.Add(new PluginCommand(console).Build());
 
+// MCP management (Track B2)
+root.Add(new McpCommand(cliCtx, renderer).Build());
+
+// Model management (Track B3)
+root.Add(new ModelCommand(cliCtx, renderer).Build());
+
+// Experiment management (Track B4)
+root.Add(new ExperimentCommand(cliCtx, renderer).Build());
+
+// Session management (Track B5)
+var sessionStore = host.Services.GetRequiredService<InMemorySessionStore>();
+root.Add(new SessionCommand(console, sessionStore).Build());
+
 return await root.Parse(args).InvokeAsync();

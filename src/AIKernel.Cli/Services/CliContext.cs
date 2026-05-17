@@ -1,7 +1,10 @@
 using AIKernel.LLMGateway.Core.Abstractions;
 using Kernel.Core.Abstractions;
+using Kernel.Core.Abstractions.Mcp;
 using Kernel.Core.Services.Anticipation;
+using Kernel.Core.Services.ExperimentTracking;
 using Kernel.Core.Services.Memory;
+using Kernel.Core.Services.ModelRegistry;
 using Kernel.Core.Services.Safety;
 using Kernel.Core.Services.TemporalDepth;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +24,9 @@ public sealed class CliContext
     public IGoalStore GoalStore { get; }
     public ISafetyCaseStore SafetyCaseStore { get; }
     public FundamentalRulesEngine RulesEngine { get; }
+    public IMcpServerRegistry McpRegistry { get; }
+    public IModelRegistry ModelRegistry { get; }
+    public IExperimentTracker ExperimentTracker { get; }
 
     public CliContext(IServiceProvider sp)
     {
@@ -35,5 +41,8 @@ public sealed class CliContext
         GoalStore = sp.GetRequiredService<IGoalStore>();
         SafetyCaseStore = sp.GetRequiredService<ISafetyCaseStore>();
         RulesEngine = sp.GetRequiredService<FundamentalRulesEngine>();
+        McpRegistry = sp.GetRequiredService<IMcpServerRegistry>();
+        ModelRegistry = sp.GetRequiredService<IModelRegistry>();
+        ExperimentTracker = sp.GetRequiredService<IExperimentTracker>();
     }
 }
