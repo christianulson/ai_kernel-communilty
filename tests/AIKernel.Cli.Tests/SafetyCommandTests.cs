@@ -51,7 +51,8 @@ public sealed class SafetyCommandTests
     public async Task SafetyCommand_Rules_ShouldListAll20Rules()
     {
         var (renderer, console, ctx) = Setup();
-        var cmd = new SafetyCommand(ctx, renderer).Build();
+        var sp = new ServiceCollection().BuildServiceProvider();
+        var cmd = new SafetyCommand(ctx, renderer, sp).Build();
         var root = new RootCommand { cmd };
 
         var result = await root.Parse("safety rules").InvokeAsync();
@@ -68,7 +69,8 @@ public sealed class SafetyCommandTests
     public async Task SafetyCommand_Audit_WhenEmpty_ShouldShowNoRecords()
     {
         var (renderer, console, ctx) = Setup();
-        var cmd = new SafetyCommand(ctx, renderer).Build();
+        var sp = new ServiceCollection().BuildServiceProvider();
+        var cmd = new SafetyCommand(ctx, renderer, sp).Build();
         var root = new RootCommand { cmd };
 
         var result = await root.Parse("safety audit").InvokeAsync();
