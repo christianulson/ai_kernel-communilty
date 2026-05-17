@@ -21,4 +21,12 @@ public sealed class ServeCommandTests
         cmd.Should().NotBeNull();
         cmd.Name.Should().Be("serve");
     }
+
+    [Fact]
+    public void ServeCommand_ShouldHaveModelOption()
+    {
+        var cmd = new ServeCommand().Build();
+
+        cmd.Options.Select(o => o.Name).Should().Contain("--model");
+    }
 }

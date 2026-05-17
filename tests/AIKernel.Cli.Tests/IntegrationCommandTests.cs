@@ -51,9 +51,9 @@ public sealed class IntegrationCommandTests
     {
         var tmpDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
         Directory.CreateDirectory(tmpDir);
+        var originalDir = Environment.CurrentDirectory;
         try
         {
-            var originalDir = Environment.CurrentDirectory;
             Environment.CurrentDirectory = tmpDir;
 
             var console = new TestConsole();
@@ -66,11 +66,10 @@ public sealed class IntegrationCommandTests
             File.Exists(envFile).Should().BeTrue();
             var content = File.ReadAllText(envFile);
             content.Should().Contain("OPENAI_API_KEY");
-
-            Environment.CurrentDirectory = originalDir;
         }
         finally
         {
+            Environment.CurrentDirectory = originalDir;
             Directory.Delete(tmpDir, true);
         }
     }
