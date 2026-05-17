@@ -54,6 +54,10 @@ root.Add(new ConfigCommand(console).Build());
 var benchRunner = host.Services.GetRequiredService<SafetyBenchRunner>();
 root.Add(new SecurityCommand(benchRunner, console).Build());
 
+// Benchmark (Plano 08 - Safety Benchmark)
+var reportGen = host.Services.GetRequiredService<Kernel.Core.Abstractions.Safety.ISafetyReportGenerator>();
+root.Add(new BenchmarkCommand(benchRunner, reportGen, console).Build());
+
 // Integration management (Plano 02 - Ecosystem)
 root.Add(new IntegrationCommand(console).Build());
 

@@ -74,6 +74,10 @@ public static class CliServiceExtensions
             return new Kernel.Infrastructure.Plugin.PluginHost(discovery, loader, sandbox);
         });
 
+        // Report generator for benchmark command
+        services.AddSingleton<Kernel.Core.Abstractions.Safety.ISafetyReportGenerator>(
+            new Kernel.Infrastructure.Reports.SafetyHtmlReportGenerator());
+
         return services;
     }
 }
