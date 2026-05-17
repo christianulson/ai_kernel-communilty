@@ -85,6 +85,15 @@ root.Add(new CliStatsCommand().Build());
 // Non-interactive / Pipe mode (Claude Code)
 root.Add(new RunCommand().Build());
 
+// Eval (Plano 05 - Non-Interactive Mode + Piping)
+root.Add(new EvalCommand().Build());
+
+// PR Review (Plano 05 - GitHub Code Review)
+root.Add(new ReviewPrCommand().Build());
+
+// Local diff review (Plano 05 - GitHub Code Review)
+root.Add(new ReviewCommand().Build());
+
 // Experiment management (Track B4)
 root.Add(new ExperimentCommand(cliCtx, renderer).Build());
 
