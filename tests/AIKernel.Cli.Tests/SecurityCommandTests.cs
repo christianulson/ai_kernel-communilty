@@ -1,17 +1,23 @@
 using System.CommandLine;
 using AIKernel.Cli.Commands;
 using Kernel.Core.Services.Safety;
-using NSubstitute;
+using Microsoft.Extensions.Logging.Abstractions;
 using Spectre.Console.Testing;
 
 namespace AIKernel.Cli.Tests;
 
 public sealed class SecurityCommandTests
 {
+    private static SafetyBenchRunner CreateRunner()
+    {
+        var rulesEngine = new FundamentalRulesEngine(NullLogger<FundamentalRulesEngine>.Instance);
+        return new SafetyBenchRunner(rulesEngine, hybridEngine: null);
+    }
+
     [Fact]
     public void SecurityCommand_Build_ShouldCreateCommand()
     {
-        var runner = Substitute.For<SafetyBenchRunner>(Substitute.For<FundamentalRulesEngine>());
+        var runner = CreateRunner();
         var console = new TestConsole();
         var cmd = new SecurityCommand(runner, console).Build();
 
@@ -22,7 +28,7 @@ public sealed class SecurityCommandTests
     [Fact]
     public async Task SecurityCommand_Benchmark_WithInvalidCategory_ShouldFail()
     {
-        var runner = Substitute.For<SafetyBenchRunner>(Substitute.For<FundamentalRulesEngine>());
+        var runner = CreateRunner();
         var console = new TestConsole();
         var cmd = new SecurityCommand(runner, console).Build();
         var root = new RootCommand { cmd };
@@ -34,10 +40,9 @@ public sealed class SecurityCommandTests
     }
 
     [Fact]
-    public async Task SecurityCommand_Audit_ShouldRunBenchmark()
+    public async Task SecurityCommand_Audit_ShouldPrintRunning()
     {
-        var rulesEngine = new FundamentalRulesEngine();
-        var runner = Substitute.For<SafetyBenchRunner>(rulesEngine);
+        var runner = CreateRunner();
         var console = new TestConsole();
         var cmd = new SecurityCommand(runner, console).Build();
         var root = new RootCommand { cmd };
@@ -48,10 +53,9 @@ public sealed class SecurityCommandTests
     }
 
     [Fact]
-    public async Task SecurityCommand_Report_ShouldGenerate()
+    public async Task SecurityCommand_Report_ShouldPrintGenerating()
     {
-        var rulesEngine = new FundamentalRulesEngine();
-        var runner = Substitute.For<SafetyBenchRunner>(rulesEngine);
+        var runner = CreateRunner();
         var console = new TestConsole();
         var cmd = new SecurityCommand(runner, console).Build();
         var root = new RootCommand { cmd };

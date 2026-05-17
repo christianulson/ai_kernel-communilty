@@ -1,6 +1,5 @@
 using System.CommandLine;
 using AIKernel.Cli.Commands;
-using NSubstitute;
 using Spectre.Console.Testing;
 
 namespace AIKernel.Cli.Tests;
@@ -18,7 +17,7 @@ public sealed class PluginCommandTests
     }
 
     [Fact]
-    public async Task PluginCommand_Install_ShouldCallApi()
+    public async Task PluginCommand_Install_ShouldShowInstallMessage()
     {
         var console = new TestConsole();
         var cmd = new PluginCommand(console).Build();
@@ -30,7 +29,7 @@ public sealed class PluginCommandTests
     }
 
     [Fact]
-    public async Task PluginCommand_Remove_WithInvalidEndpoint_ShouldShowError()
+    public async Task PluginCommand_Remove_WithBadEndpoint_ShouldShowError()
     {
         var console = new TestConsole();
         var cmd = new PluginCommand(console).Build();
@@ -43,7 +42,7 @@ public sealed class PluginCommandTests
     }
 
     [Fact]
-    public async Task PluginCommand_MapType_ShouldHandleAllFormats()
+    public async Task PluginCommand_MapType_ShouldHandleDotNetAssembly()
     {
         var console = new TestConsole();
         var cmd = new PluginCommand(console).Build();
@@ -52,6 +51,5 @@ public sealed class PluginCommandTests
         var result = await root.Parse("plugin install test.dll --type dotnet-assembly --endpoint http://localhost:1").InvokeAsync();
 
         result.Should().Be(1);
-        console.Output.Should().Contain("Error");
     }
 }

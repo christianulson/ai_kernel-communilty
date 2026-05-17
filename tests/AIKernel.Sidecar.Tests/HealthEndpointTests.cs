@@ -1,5 +1,3 @@
-using System.Net.Http.Json;
-
 namespace AIKernel.Sidecar.Tests;
 
 public sealed class HealthEndpointTests(SidecarWebAppFactory factory) : IClassFixture<SidecarWebAppFactory>

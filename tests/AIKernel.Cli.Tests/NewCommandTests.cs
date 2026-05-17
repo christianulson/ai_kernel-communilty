@@ -1,4 +1,3 @@
-using System.CommandLine;
 using AIKernel.Cli.Abstractions;
 using AIKernel.Cli.Commands;
 using Spectre.Console.Testing;

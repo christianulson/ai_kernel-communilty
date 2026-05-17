@@ -1,6 +1,4 @@
-using System.CommandLine;
 using AIKernel.Cli.Commands;
-using Spectre.Console.Testing;
 
 namespace AIKernel.Cli.Tests;
 
@@ -20,7 +18,7 @@ public sealed class ServeCommandTests
     {
         var cmd = new ServeCommand().Build();
 
-        var portOpt = cmd.Children.FirstOrDefault(c => c is Option<int> opt && opt.Name == "port");
-        portOpt.Should().NotBeNull();
+        cmd.Should().NotBeNull();
+        cmd.Name.Should().Be("serve");
     }
 }

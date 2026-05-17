@@ -1,6 +1,3 @@
-using System.Net.Http.Json;
-using FluentAssertions;
-
 namespace AIKernel.Sidecar.Tests;
 
 public sealed class PolicyAndMetricsEndpointTests(SidecarWebAppFactory factory) : IClassFixture<SidecarWebAppFactory>

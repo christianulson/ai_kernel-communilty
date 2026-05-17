@@ -5,15 +5,14 @@ using AIKernel.LLMGateway.Core.Abstractions;
 using AIKernel.LLMGateway.Core.Services.Goals;
 using AIKernel.LLMGateway.Core.Services.Governance;
 using Kernel.Core.Abstractions;
-using Kernel.Core.Abstractions.Mcp;
-using Kernel.Core.Services.Anticipation;
-using Kernel.Core.Services.ExperimentTracking;
-using Kernel.Core.Services.ModelRegistry;
 using Kernel.Core.Services.Memory;
 using Kernel.Core.Services.Safety;
-using Kernel.Core.Services.TemporalDepth;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console.Testing;
+using Kernel.Anticipation;
+using Kernel.Executive;
+using Kernel.Memory;
+using Kernel.Snapshot;
 
 namespace AIKernel.Cli.Tests;
 
@@ -77,5 +76,54 @@ public sealed class MemoryCommandTests
         var output = console.Output;
         output.Should().Contain("Status:");
         output.Should().Contain("Health Score");
+    }
+
+    [Fact]
+    public async Task MemoryCommand_Search_WithCategoryFilter_ShouldFilterByCategory()
+    {
+        var (renderer, console, ctx) = Setup();
+        var seeder = new CliSeeder(ctx.MomentStore, ctx.MomentClassifierStore);
+        await seeder.SeedAsync();
+        var cmd = new MemoryCommand(ctx, renderer).Build();
+        var root = new RootCommand { cmd };
+
+        var result = await root.Parse("memory search --category Anomaly").InvokeAsync();
+
+        result.Should().Be(0);
+        var output = console.Output;
+        output.Should().Contain("mom-0003");
+    }
+
+    [Fact]
+    public async Task MemoryCommand_Search_WithCategoryFilter_ShouldExcludeOtherCategories()
+    {
+        var (renderer, console, ctx) = Setup();
+        var seeder = new CliSeeder(ctx.MomentStore, ctx.MomentClassifierStore);
+        await seeder.SeedAsync();
+        var cmd = new MemoryCommand(ctx, renderer).Build();
+        var root = new RootCommand { cmd };
+
+        var result = await root.Parse("memory search --category Anomaly").InvokeAsync();
+
+        result.Should().Be(0);
+        var output = console.Output;
+        output.Should().NotContain("mom-0001");
+        output.Should().NotContain("mom-0002");
+    }
+
+    [Fact]
+    public async Task MemoryCommand_Search_WithQuery_ShouldFilterByText()
+    {
+        var (renderer, console, ctx) = Setup();
+        var seeder = new CliSeeder(ctx.MomentStore, ctx.MomentClassifierStore);
+        await seeder.SeedAsync();
+        var cmd = new MemoryCommand(ctx, renderer).Build();
+        var root = new RootCommand { cmd };
+
+        var result = await root.Parse("memory search mom-0002").InvokeAsync();
+
+        result.Should().Be(0);
+        var output = console.Output;
+        output.Should().Contain("mom-0002");
     }
 }

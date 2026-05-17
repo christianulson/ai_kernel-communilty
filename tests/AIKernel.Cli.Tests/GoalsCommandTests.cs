@@ -6,15 +6,14 @@ using AIKernel.LLMGateway.Core.Services.Goals;
 using AIKernel.LLMGateway.Core.Services.Governance;
 using Kernel.Contracts;
 using Kernel.Core.Abstractions;
-using Kernel.Core.Abstractions.Mcp;
-using Kernel.Core.Services.Anticipation;
-using Kernel.Core.Services.ExperimentTracking;
-using Kernel.Core.Services.ModelRegistry;
 using Kernel.Core.Services.Memory;
 using Kernel.Core.Services.Safety;
-using Kernel.Core.Services.TemporalDepth;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console.Testing;
+using Kernel.Anticipation;
+using Kernel.Executive;
+using Kernel.Memory;
+using Kernel.Snapshot;
 
 namespace AIKernel.Cli.Tests;
 

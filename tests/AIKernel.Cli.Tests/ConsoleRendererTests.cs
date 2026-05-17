@@ -1,6 +1,5 @@
 using AIKernel.Cli.Services;
 using Kernel.Core.Services.Memory;
-using Spectre.Console;
 using Spectre.Console.Testing;
 
 namespace AIKernel.Cli.Tests;
