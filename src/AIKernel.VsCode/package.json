@@ -196,6 +196,11 @@
           "type": "boolean",
           "default": false,
           "description": "Habilitar comandos git (/commit, /diff, /branch, /status, /log, /review-pr)"
+        },
+        "aikernel.codingAgent.agenticLoops": {
+          "type": "boolean",
+          "default": false,
+          "description": "Habilitar loop agente multi-passo (/task). Requer terminal habilitado."
         }
       }
     }

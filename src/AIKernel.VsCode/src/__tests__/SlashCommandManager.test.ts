@@ -18,6 +18,7 @@ import { KernelClient } from '../api/client';
 import { EditorContext } from '../codingAgent/EditorContextProvider';
 import { TerminalManager } from '../codingAgent/TerminalManager';
 import { GitManager } from '../codingAgent/GitManager';
+import { AgenticLoopManager } from '../codingAgent/AgenticLoopManager';
 
 jest.mock('../api/client');
 
@@ -27,6 +28,7 @@ describe('SlashCommandManager', () => {
     let mockContext: EditorContext;
     let terminalManager: TerminalManager;
     let gitManager: GitManager;
+    let loopManager: AgenticLoopManager;
 
     beforeEach(() => {
         jest.clearAllMocks();
@@ -35,7 +37,8 @@ describe('SlashCommandManager', () => {
 
         terminalManager = new TerminalManager();
         gitManager = new GitManager();
-        manager = new SlashCommandManager(mockClient, terminalManager, gitManager);
+        loopManager = new AgenticLoopManager(mockClient, undefined, terminalManager, gitManager);
+        manager = new SlashCommandManager(mockClient, terminalManager, gitManager, loopManager);
 
         mockContext = {
             activeFile: '/test/file.ts',
@@ -50,7 +53,7 @@ describe('SlashCommandManager', () => {
     describe('initial state', () => {
         it('ShouldHaveDefaultCommandsRegistered', () => {
             const commands = manager.getAll();
-            expect(commands.length).toBeGreaterThanOrEqual(15);
+            expect(commands.length).toBeGreaterThanOrEqual(16);
             const ids = commands.map(c => c.id);
             expect(ids).toContain('/explain');
             expect(ids).toContain('/fix');
@@ -67,6 +70,7 @@ describe('SlashCommandManager', () => {
             expect(ids).toContain('/status');
             expect(ids).toContain('/log');
             expect(ids).toContain('/review-pr');
+            expect(ids).toContain('/task');
         });
     });
 

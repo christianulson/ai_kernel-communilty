@@ -66,6 +66,9 @@ root.Add(new McpCommand(cliCtx, renderer).Build());
 // Model management (Track B3)
 root.Add(new ModelCommand(cliCtx, renderer).Build());
 
+// TUI Interactive mode (Plano 6)
+root.Add(new InteractiveCommand().Build());
+
 // Experiment management (Track B4)
 root.Add(new ExperimentCommand(cliCtx, renderer).Build());
 

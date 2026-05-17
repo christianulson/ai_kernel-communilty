@@ -19,6 +19,7 @@ import { InlineCompletionProvider } from './codingAgent/InlineCompletionProvider
 import { ApplyEditManager, FileChange } from './codingAgent/ApplyEditManager';
 import { TerminalManager } from './codingAgent/TerminalManager';
 import { GitManager } from './codingAgent/GitManager';
+import { AgenticLoopManager } from './codingAgent/AgenticLoopManager';
 
 let sidecarProcess: any = undefined;
 let statusBarItem: vscode.StatusBarItem;
@@ -129,7 +130,11 @@ function registerCodingAgentFeatures(context: vscode.ExtensionContext, client: K
     const terminalManager = terminalEnabled ? new TerminalManager() : undefined;
     const gitEnabled = vscode.workspace.getConfiguration('aikernel').get<boolean>('codingAgent.git', false);
     const gitManager = gitEnabled ? new GitManager() : undefined;
-    slashMgr = new SlashCommandManager(client, terminalManager, gitManager);
+    const agenticLoopsEnabled = vscode.workspace.getConfiguration('aikernel').get<boolean>('codingAgent.agenticLoops', false);
+    const loopManager = agenticLoopsEnabled && terminalManager
+        ? new AgenticLoopManager(client, undefined, terminalManager, gitManager, approvalManager.getMode() !== ApprovalMode.Chat ? approvalManager : undefined)
+        : undefined;
+    slashMgr = new SlashCommandManager(client, terminalManager, gitManager, loopManager);
 
     function pushSub(d: vscode.Disposable) {
         codingAgentDisposables.push(d);

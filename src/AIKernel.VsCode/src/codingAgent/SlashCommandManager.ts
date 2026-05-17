@@ -3,6 +3,7 @@ import { EditorContext } from './EditorContextProvider';
 import { KernelClient } from '../api/client';
 import { TerminalManager } from './TerminalManager';
 import { GitManager } from './GitManager';
+import { AgenticLoopManager } from './AgenticLoopManager';
 
 export type SlashCommandHandler = (args: string, context: EditorContext, client: KernelClient) => Promise<string>;
 
@@ -17,11 +18,13 @@ export class SlashCommandManager {
     private _client: KernelClient;
     private _terminalManager?: TerminalManager;
     private _gitManager?: GitManager;
+    private _loopManager?: AgenticLoopManager;
 
-    constructor(client: KernelClient, terminalManager?: TerminalManager, gitManager?: GitManager) {
+    constructor(client: KernelClient, terminalManager?: TerminalManager, gitManager?: GitManager, loopManager?: AgenticLoopManager) {
         this._client = client;
         this._terminalManager = terminalManager;
         this._gitManager = gitManager;
+        this._loopManager = loopManager;
         this.registerDefaults();
     }
 
@@ -235,6 +238,18 @@ export class SlashCommandManager {
                 const prNumber = parseInt(args);
                 if (isNaN(prNumber)) return 'Uso: /review-pr <número>. Exemplo: /review-pr 123';
                 return await this._gitManager.reviewPR(prNumber);
+            }
+        });
+
+        // Agentic Loop
+        this.register({
+            id: '/task',
+            description: 'Executa tarefa multi-passo com loop agente (ex: /task adicione testes para auth)',
+            handler: async (args, ctx, client) => {
+                if (!this._loopManager) return 'AgenticLoopManager não disponível (requer codingAgent.agenticLoops=true)';
+                if (!args) return 'Uso: /task <descrição da tarefa>. Exemplo: /task adicione testes para o módulo de autenticação';
+                const result = await this._loopManager.executeTask(args, ctx);
+                return this._loopManager.formatResult(result);
             }
         });
     }
