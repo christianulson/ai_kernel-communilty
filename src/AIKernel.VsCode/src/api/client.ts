@@ -13,7 +13,7 @@ export interface EmotionalState { valence: number; arousal: number; motivation: 
 export interface PendingApprovalDTO { id: string; action: string; details: string[]; createdAt: string; }
 
 export class KernelClient {
-    private getBaseUrl(): string {
+    getBaseUrl(): string {
         const config = vscode.workspace.getConfiguration('aikernel');
         if (config.get<boolean>('standalone', false)) {
             return `http://localhost:${config.get<number>('sidecarPort', 5001)}`;

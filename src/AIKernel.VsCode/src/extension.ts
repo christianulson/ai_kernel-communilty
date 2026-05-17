@@ -15,6 +15,10 @@ import { SlashCommandManager } from './codingAgent/SlashCommandManager';
 import { CodeLensProvider } from './codingAgent/CodeLensProvider';
 import { CodeActionProvider } from './codingAgent/CodeActionProvider';
 import { ApprovalManager, ApprovalMode } from './codingAgent/ApprovalManager';
+import { InlineCompletionProvider } from './codingAgent/InlineCompletionProvider';
+import { ApplyEditManager, FileChange } from './codingAgent/ApplyEditManager';
+import { TerminalManager } from './codingAgent/TerminalManager';
+import { GitManager } from './codingAgent/GitManager';
 
 let sidecarProcess: any = undefined;
 let statusBarItem: vscode.StatusBarItem;
@@ -121,7 +125,11 @@ function registerCodingAgentFeatures(context: vscode.ExtensionContext, client: K
 
     const ctxProvider = new EditorContextProvider();
     const approvalManager = new ApprovalManager();
-    slashMgr = new SlashCommandManager(client);
+    const terminalEnabled = vscode.workspace.getConfiguration('aikernel').get<boolean>('codingAgent.terminal', false);
+    const terminalManager = terminalEnabled ? new TerminalManager() : undefined;
+    const gitEnabled = vscode.workspace.getConfiguration('aikernel').get<boolean>('codingAgent.git', false);
+    const gitManager = gitEnabled ? new GitManager() : undefined;
+    slashMgr = new SlashCommandManager(client, terminalManager, gitManager);
 
     function pushSub(d: vscode.Disposable) {
         codingAgentDisposables.push(d);
@@ -152,6 +160,24 @@ function registerCodingAgentFeatures(context: vscode.ExtensionContext, client: K
         }
         const ctx = await ctxProvider.getFullContext();
         const result = await slashMgr!.execute(`${cmd} ${content}`, ctx);
+
+        if ((cmd === '/fix' || cmd === '/refactor') && ctx.activeFile) {
+            const editManager = new ApplyEditManager();
+            const codeMatch = result.match(/```(?:\w+)?\n([\s\S]*?)```/);
+            const newCode = codeMatch ? codeMatch[1].trim() : result.trim();
+            if (newCode && newCode !== content.trim()) {
+                await editManager.applyWithDiff(
+                    {
+                        filePath: ctx.activeFile,
+                        originalContent: content,
+                        newContent: newCode,
+                        label: cmd === '/fix' ? 'Correção' : 'Refatoração'
+                    },
+                    shouldApprove ? approvalManager : undefined
+                );
+                return;
+            }
+        }
         const doc = await vscode.workspace.openTextDocument({ content: result, language: lang || 'markdown' });
         vscode.window.showTextDocument(doc, { preview: true, viewColumn: vscode.ViewColumn.Beside });
     }
@@ -186,6 +212,13 @@ function registerCodingAgentFeatures(context: vscode.ExtensionContext, client: K
             vscode.window.showInformationMessage(`Modo de aprovação: ${m}`);
         }
     }));
+
+    // Inline Completion (feature flag: aikernel.codingAgent.inlineCompletion)
+    const inlineCompletionEnabled = vscode.workspace.getConfiguration('aikernel').get<boolean>('codingAgent.inlineCompletion', false);
+    if (inlineCompletionEnabled) {
+        const inlineProvider = new InlineCompletionProvider(() => client.getBaseUrl());
+        pushSub(vscode.languages.registerInlineCompletionItemProvider({ pattern: '**' }, inlineProvider));
+    }
 }
 
 export function deactivate() {

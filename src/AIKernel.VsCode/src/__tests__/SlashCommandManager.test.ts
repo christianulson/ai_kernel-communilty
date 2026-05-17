@@ -1,11 +1,23 @@
 jest.mock('vscode', () => ({
     CompletionItem: jest.fn(),
-    CompletionItemKind: { Snippet: 27 }
+    CompletionItemKind: { Snippet: 27 },
+    window: {
+        createTerminal: jest.fn().mockReturnValue({
+            show: jest.fn(),
+            sendText: jest.fn(),
+            dispose: jest.fn(),
+        }),
+    },
+    workspace: {
+        workspaceFolders: [{ uri: { fsPath: '/workspace' } }],
+    },
 }), { virtual: true });
 
 import { SlashCommandManager } from '../codingAgent/SlashCommandManager';
 import { KernelClient } from '../api/client';
 import { EditorContext } from '../codingAgent/EditorContextProvider';
+import { TerminalManager } from '../codingAgent/TerminalManager';
+import { GitManager } from '../codingAgent/GitManager';
 
 jest.mock('../api/client');
 
@@ -13,13 +25,17 @@ describe('SlashCommandManager', () => {
     let manager: SlashCommandManager;
     let mockClient: jest.Mocked<KernelClient>;
     let mockContext: EditorContext;
+    let terminalManager: TerminalManager;
+    let gitManager: GitManager;
 
     beforeEach(() => {
         jest.clearAllMocks();
         mockClient = new KernelClient() as jest.Mocked<KernelClient>;
         mockClient.runAgent = jest.fn().mockResolvedValue({ narration: 'Resposta do agente' });
 
-        manager = new SlashCommandManager(mockClient);
+        terminalManager = new TerminalManager();
+        gitManager = new GitManager();
+        manager = new SlashCommandManager(mockClient, terminalManager, gitManager);
 
         mockContext = {
             activeFile: '/test/file.ts',
@@ -34,7 +50,7 @@ describe('SlashCommandManager', () => {
     describe('initial state', () => {
         it('ShouldHaveDefaultCommandsRegistered', () => {
             const commands = manager.getAll();
-            expect(commands.length).toBeGreaterThanOrEqual(6);
+            expect(commands.length).toBeGreaterThanOrEqual(15);
             const ids = commands.map(c => c.id);
             expect(ids).toContain('/explain');
             expect(ids).toContain('/fix');
@@ -42,6 +58,15 @@ describe('SlashCommandManager', () => {
             expect(ids).toContain('/refactor');
             expect(ids).toContain('/review');
             expect(ids).toContain('/doc');
+            expect(ids).toContain('/run');
+            expect(ids).toContain('/build');
+            expect(ids).toContain('/test-cmd');
+            expect(ids).toContain('/commit');
+            expect(ids).toContain('/diff');
+            expect(ids).toContain('/branch');
+            expect(ids).toContain('/status');
+            expect(ids).toContain('/log');
+            expect(ids).toContain('/review-pr');
         });
     });
 
@@ -142,7 +167,7 @@ describe('SlashCommandManager', () => {
             const items = manager.getCompletionItems();
             expect(items.length).toBe(manager.getAll().length);
             items.forEach(item => {
-                expect(item.insertText).toMatch(/^\/\w+ /);
+                expect(item.insertText).toMatch(/^\/[\w-]+ /);
                 expect(item.detail).toBeTruthy();
             });
         });

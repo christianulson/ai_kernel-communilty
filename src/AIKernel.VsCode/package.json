@@ -181,6 +181,21 @@
           "type": "boolean",
           "default": false,
           "description": "Habilitar modo Coding Agent (comandos de código, chat com contexto do editor)"
+        },
+        "aikernel.codingAgent.inlineCompletion": {
+          "type": "boolean",
+          "default": false,
+          "description": "Habilitar autocomplete inline de código enquanto digita (requer codingAgent.enabled = true)"
+        },
+        "aikernel.codingAgent.terminal": {
+          "type": "boolean",
+          "default": false,
+          "description": "Habilitar execução de comandos no terminal (/run, /build, /test-cmd)"
+        },
+        "aikernel.codingAgent.git": {
+          "type": "boolean",
+          "default": false,
+          "description": "Habilitar comandos git (/commit, /diff, /branch, /status, /log, /review-pr)"
         }
       }
     }
