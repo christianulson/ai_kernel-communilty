@@ -1,4 +1,5 @@
 using System.CommandLine;
+using System.Diagnostics;
 using System.Text.Json;
 using AIKernel.Cli.Tui;
 using Spectre.Console;
@@ -78,7 +79,10 @@ public sealed class ExportCommand
                         var content = File.ReadAllText(file);
                         config[Path.GetFileName(file)] = content;
                     }
-                    catch { }
+                    catch (Exception ex)
+                    {
+                        Trace.TraceWarning("Failed to read configuration file '{0}': {1}", file, ex.Message);
+                    }
                 }
             }
 

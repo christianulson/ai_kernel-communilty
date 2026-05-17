@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Diagnostics;
 
 namespace AIKernel.Cli.Tui;
 
@@ -63,7 +64,10 @@ public sealed class TuiSessionStore
                 if (session != null)
                     sessions.Add(session);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Trace.TraceWarning("Failed to read TUI session file '{0}': {1}", file, ex.Message);
+            }
         }
         return sessions;
     }
@@ -91,7 +95,10 @@ public sealed class TuiSessionStore
                     return true;
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Trace.TraceWarning("Failed to inspect TUI session file '{0}': {1}", file, ex.Message);
+            }
         }
         return false;
     }
@@ -121,8 +128,9 @@ public sealed class TuiSessionStore
             TrimOldSessions();
             return session;
         }
-        catch
+        catch (Exception ex)
         {
+            Trace.TraceWarning("Failed to import TUI session: {0}", ex.Message);
             return null;
         }
     }
@@ -139,7 +147,14 @@ public sealed class TuiSessionStore
 
         foreach (var file in files.Skip(MaxSessions))
         {
-            try { File.Delete(file); } catch { }
+            try
+            {
+                File.Delete(file);
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceWarning("Failed to delete old TUI session file '{0}': {1}", file, ex.Message);
+            }
         }
     }
 

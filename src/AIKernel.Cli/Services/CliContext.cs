@@ -20,6 +20,7 @@ public sealed class CliContext
     public IExecutiveController ExecutiveController { get; }
     public ICognitiveHomeostasis Homeostasis { get; }
     public IGoalStore GoalStore { get; }
+    public ISchedulerService Scheduler { get; }
     public ISafetyCaseStore SafetyCaseStore { get; }
     public FundamentalRulesEngine RulesEngine { get; }
     public IMcpServerRegistry McpRegistry { get; }
@@ -38,11 +39,12 @@ public sealed class CliContext
         ExecutiveController = sp.GetRequiredService<IExecutiveController>();
         Homeostasis = sp.GetRequiredService<ICognitiveHomeostasis>();
         GoalStore = sp.GetRequiredService<IGoalStore>();
+        Scheduler = sp.GetService<ISchedulerService>() ?? new Kernel.Infrastructure.Scheduling.InMemorySchedulerStore();
         SafetyCaseStore = sp.GetRequiredService<ISafetyCaseStore>();
         RulesEngine = sp.GetRequiredService<FundamentalRulesEngine>();
         McpRegistry = sp.GetRequiredService<IMcpServerRegistry>();
         ModelRegistry = sp.GetRequiredService<IModelRegistry>();
         ExperimentTracker = sp.GetRequiredService<IExperimentTracker>();
-        HttpClient = sp.GetRequiredService<HttpClient>();
+        HttpClient = sp.GetService<HttpClient>() ?? new HttpClient();
     }
 }

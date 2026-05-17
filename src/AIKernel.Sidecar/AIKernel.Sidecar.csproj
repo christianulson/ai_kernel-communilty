@@ -23,6 +23,7 @@
     <ProjectReference Include="..\Kernel.Core\Kernel.Core.csproj" />
     <ProjectReference Include="..\Kernel.Contracts\Kernel.Contracts.csproj" />
     <ProjectReference Include="..\Kernel.Infrastructure\Kernel.Infrastructure.csproj" />
+    <ProjectReference Include="..\AIKernel.Embedded\AIKernel.Embedded.csproj" />
   </ItemGroup>
 
 </Project>

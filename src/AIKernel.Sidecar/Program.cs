@@ -3,11 +3,22 @@ using AIKernel.Sidecar;
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseKestrel(o => o.Limits.MaxRequestBodySize = 1024 * 1024);
 
-builder.Services.AddSidecarServices(builder.Configuration, builder.Environment);
+var sidecarMode = builder.Configuration.GetValue<string>("Sidecar:Mode", "Legacy");
+var communityMode = string.Equals(sidecarMode, "Community", StringComparison.OrdinalIgnoreCase);
+
+if (communityMode)
+    builder.Services.AddSidecarCommunityServices(builder.Configuration);
+else
+    builder.Services.AddSidecarServices(builder.Configuration, builder.Environment);
 
 var app = builder.Build();
-app.ConfigureSidecarPipeline();
-app.MapSidecarEndpoints();
+if (communityMode)
+    app.MapCommunityEndpoints();
+else
+{
+    app.ConfigureSidecarPipeline();
+    app.MapSidecarEndpoints();
+}
 
 var port = "5001";
 for (var i = 0; i < args.Length; i++)

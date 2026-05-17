@@ -266,7 +266,11 @@ public sealed class UpgradeCommand
                     var existing = File.ReadAllText(_versionLogPath);
                     log = JsonSerializer.Deserialize<List<VersionLogEntry>>(existing) ?? [];
                 }
-                catch { log = []; }
+                catch (Exception ex)
+                {
+                    Trace.TraceWarning("Failed to read CLI version log '{0}': {1}", _versionLogPath, ex.Message);
+                    log = [];
+                }
             }
 
             log.Add(new VersionLogEntry
@@ -279,7 +283,10 @@ public sealed class UpgradeCommand
             var json = JsonSerializer.Serialize(log, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(_versionLogPath, json);
         }
-        catch { }
+        catch (Exception ex)
+        {
+            Trace.TraceWarning("Failed to write CLI version log '{0}': {1}", _versionLogPath, ex.Message);
+        }
     }
 
     private sealed class VersionLogEntry

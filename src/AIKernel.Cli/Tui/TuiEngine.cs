@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using AIKernel.Embedded;
 using Spectre.Console;
 
 namespace AIKernel.Cli.Tui;
@@ -10,8 +11,10 @@ public sealed class TuiEngine
     private readonly TuiSplitView _splitView = new();
     private readonly TuiSessionStore _sessionStore = new();
     private readonly TuiInputHandler _inputHandler;
-    private readonly HttpClient _http;
+    private readonly HttpClient? _http;
+    private readonly EmbeddedKernel? _kernel;
     private readonly string _baseUrl;
+    private readonly bool _isLocal;
     private bool _running;
 
     public TuiEngine(string baseUrl = "http://localhost:5000")
@@ -29,6 +32,22 @@ public sealed class TuiEngine
             ["/sessions"] = "Lista sessões salvas",
             ["/session"] = "Carrega sessão: /session <id>",
             ["/connect"] = "Conecta ao backend (URL opcional)",
+            ["/exit"] = "Sai do modo interativo",
+            ["/quit"] = "Sai do modo interativo",
+        };
+        _inputHandler = new TuiInputHandler(commands);
+    }
+
+    public TuiEngine(EmbeddedKernel kernel)
+    {
+        _baseUrl = "embedded://local";
+        _kernel = kernel;
+        _isLocal = true;
+        var commands = new Dictionary<string, string>
+        {
+            ["/help"] = "Mostra esta ajuda",
+            ["/status"] = "Mostra status detalhado do kernel",
+            ["/clear"] = "Limpa o chat",
             ["/exit"] = "Sai do modo interativo",
             ["/quit"] = "Sai do modo interativo",
         };
@@ -114,9 +133,15 @@ public sealed class TuiEngine
                 break;
 
             case "/connect":
+                if (_isLocal)
+                {
+                    _chat.AddMessage("system", "Modo local ativo; /connect não altera o EmbeddedKernel.");
+                    await CheckHealthAsync(ct);
+                    break;
+                }
                 if (!string.IsNullOrWhiteSpace(args))
                 {
-                    _http.BaseAddress = new Uri(args);
+                    _http!.BaseAddress = new Uri(args);
                     _chat.AddMessage("system", $"Tentando conectar em: {args}");
                 }
                 await CheckHealthAsync(ct);
@@ -154,7 +179,15 @@ public sealed class TuiEngine
 
         try
         {
-            var response = await _http.PostAsJsonAsync("/agent/run",
+            if (_isLocal)
+            {
+                var result = await _kernel!.RunAsync(message, ct);
+                _chat.AddMessage(result.Error is null ? "assistant" : "error", result.Error ?? result.Narration);
+                _status.Status = "Local";
+                return;
+            }
+
+            var response = await _http!.PostAsJsonAsync("/agent/run",
                 new { prompt = message, mode = "gateway" }, ct);
 
             if (response.IsSuccessStatusCode)
@@ -188,7 +221,14 @@ public sealed class TuiEngine
                 _ => "/agent/run"
             };
 
-            var response = await _http.PostAsJsonAsync(endpoint,
+            if (_isLocal)
+            {
+                var result = await _kernel!.RunAsync($"{command}\n{code}", ct);
+                _chat.AddMessage(result.Error is null ? "assistant" : "error", result.Error ?? result.Narration);
+                return;
+            }
+
+            var response = await _http!.PostAsJsonAsync(endpoint,
                 new { code, language = "unknown" }, ct);
 
             if (response.IsSuccessStatusCode)
@@ -212,7 +252,15 @@ public sealed class TuiEngine
     {
         try
         {
-            var response = await _http.GetAsync("/health", ct);
+            if (_isLocal)
+            {
+                _status.Status = "Local";
+                _status.RiskLevel = "0.0";
+                _status.Mode = "community";
+                return;
+            }
+
+            var response = await _http!.GetAsync("/health", ct);
             if (response.IsSuccessStatusCode)
             {
                 _status.Status = "Conectado";
@@ -277,7 +325,8 @@ public sealed class TuiEngine
 
     public void Dispose()
     {
-        _http.Dispose();
+        _http?.Dispose();
+        _kernel?.DisposeAsync().AsTask().GetAwaiter().GetResult();
         GC.SuppressFinalize(this);
     }
 

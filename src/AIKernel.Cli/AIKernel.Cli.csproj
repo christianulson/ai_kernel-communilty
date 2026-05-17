@@ -14,6 +14,7 @@
     <ProjectReference Include="..\Kernel.Core\Kernel.Core.csproj" />
     <ProjectReference Include="..\Kernel.Infrastructure\Kernel.Infrastructure.csproj" />
     <ProjectReference Include="..\LLMGateway.Core\LLMGateway.Core.csproj" />
+    <ProjectReference Include="..\AIKernel.Embedded\AIKernel.Embedded.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.CommandLine" Version="2.0.8" />

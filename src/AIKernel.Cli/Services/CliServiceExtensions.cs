@@ -41,6 +41,7 @@ public static class CliServiceExtensions
                 sp.GetRequiredService<IAnticipationStore>(),
                 logger: null));
         services.AddSingleton<IGoalStore, InMemoryGoalStore>();
+        services.AddSingleton<ISchedulerService, Kernel.Infrastructure.Scheduling.InMemorySchedulerStore>();
         services.AddSingleton<ISafetyCaseStore, InMemorySafetyCaseStore>();
         services.AddSingleton<FundamentalRulesEngine>(sp =>
         {
