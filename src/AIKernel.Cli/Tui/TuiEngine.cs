@@ -7,26 +7,32 @@ public sealed class TuiEngine
 {
     private readonly TuiChatPanel _chat = new();
     private readonly TuiStatusPanel _status = new();
+    private readonly TuiSplitView _splitView = new();
+    private readonly TuiSessionStore _sessionStore = new();
+    private readonly TuiInputHandler _inputHandler;
     private readonly HttpClient _http;
     private readonly string _baseUrl;
     private bool _running;
-
-    private static readonly Dictionary<string, string> SlashCommands = new()
-    {
-        ["/help"] = "Mostra esta ajuda",
-        ["/explain"] = "Explica código (cole o código após o comando)",
-        ["/fix"] = "Tenta corrigir código com problemas",
-        ["/status"] = "Mostra status detalhado do kernel",
-        ["/clear"] = "Limpa o chat",
-        ["/connect"] = "Conecta ao backend (URL opcional)",
-        ["/exit"] = "Sai do modo interativo",
-        ["/quit"] = "Sai do modo interativo",
-    };
 
     public TuiEngine(string baseUrl = "http://localhost:5000")
     {
         _baseUrl = baseUrl;
         _http = new HttpClient { BaseAddress = new Uri(baseUrl), Timeout = TimeSpan.FromSeconds(30) };
+
+        var commands = new Dictionary<string, string>
+        {
+            ["/help"] = "Mostra esta ajuda",
+            ["/explain"] = "Explica código (cole o código após o comando)",
+            ["/fix"] = "Tenta corrigir código com problemas",
+            ["/status"] = "Mostra status detalhado do kernel",
+            ["/clear"] = "Limpa o chat",
+            ["/sessions"] = "Lista sessões salvas",
+            ["/session"] = "Carrega sessão: /session <id>",
+            ["/connect"] = "Conecta ao backend (URL opcional)",
+            ["/exit"] = "Sai do modo interativo",
+            ["/quit"] = "Sai do modo interativo",
+        };
+        _inputHandler = new TuiInputHandler(commands);
     }
 
     public async Task RunAsync(CancellationToken ct)
@@ -35,19 +41,26 @@ public sealed class TuiEngine
         _chat.AddMessage("system", "AI Kernel TUI iniciado. Digite /help para comandos.");
 
         await CheckHealthAsync(ct);
+        await LoadLastSessionAsync();
 
         while (_running && !ct.IsCancellationRequested)
         {
             RenderLayout();
 
-            var input = Console.ReadLine() ?? "";
+            var input = _inputHandler.ReadInputWithAutocomplete();
 
             if (ct.IsCancellationRequested) break;
+            if (string.IsNullOrWhiteSpace(input)) continue;
 
-            if (string.IsNullOrWhiteSpace(input))
-                continue;
+            var (cmd, args) = _inputHandler.Parse(input);
 
-            await ProcessInputAsync(input, ct);
+            if (!string.IsNullOrEmpty(cmd))
+                await HandleSlashCommandAsync(cmd, args, ct);
+            else
+                await SendMessageAsync(input, ct);
+
+            await AutoSaveSessionAsync();
+            await CheckHealthAsync(ct);
         }
 
         _chat.AddMessage("system", "TUI encerrado.");
@@ -57,49 +70,20 @@ public sealed class TuiEngine
     private void RenderLayout()
     {
         AnsiConsole.Clear();
-
-        var chatPanel = _chat.Render();
-        var statusPanel = _status.Render();
-
-        var layout = new Grid()
-            .AddColumn(new GridColumn().PadRight(2))
-            .AddColumn();
-
-        layout.AddRow(chatPanel, statusPanel);
-
-        AnsiConsole.Write(layout);
-
-        AnsiConsole.MarkupLine("[grey]─[/]" .PadRight(110, '─'));
-        AnsiConsole.Markup("[bold cyan]> [/]");
-    }
-
-    private async Task ProcessInputAsync(string input, CancellationToken ct)
-    {
-        var trimmed = input.Trim();
-
-        if (trimmed.StartsWith('/'))
-        {
-            var spaceIdx = trimmed.IndexOf(' ');
-            var command = spaceIdx > 0 ? trimmed[..spaceIdx] : trimmed;
-            var args = spaceIdx > 0 ? trimmed[(spaceIdx + 1)..] : "";
-
-            await HandleSlashCommandAsync(command, args, ct);
-        }
-        else
-        {
-            await SendMessageAsync(trimmed, ct);
-        }
-
-        await CheckHealthAsync(ct);
+        _splitView.Clear();
+        _splitView.AddPanel(() => _chat.Render());
+        _splitView.AddPanel(() => _status.Render());
+        _splitView.Render();
+        AnsiConsole.MarkupLine(new string('-', Console.WindowWidth));
     }
 
     private async Task HandleSlashCommandAsync(string command, string args, CancellationToken ct)
     {
-        switch (command.ToLowerInvariant())
+        switch (command)
         {
             case "/help":
                 _chat.AddMessage("system", "Comandos disponíveis:");
-                foreach (var (cmd, desc) in SlashCommands)
+                foreach (var (cmd, desc) in _inputHandler.GetCommandDescriptions())
                     _chat.AddMessage("system", $"  {cmd,-20} {desc}");
                 break;
 
@@ -114,6 +98,21 @@ public sealed class TuiEngine
                 _chat.AddMessage("system", "Chat limpo.");
                 break;
 
+            case "/sessions":
+                await ListSessionsAsync();
+                break;
+
+            case "/session":
+                if (string.IsNullOrWhiteSpace(args))
+                {
+                    _chat.AddMessage("error", "Uso: /session <id>. Execute /sessions para listar.");
+                }
+                else
+                {
+                    await LoadSessionAsync(args);
+                }
+                break;
+
             case "/connect":
                 if (!string.IsNullOrWhiteSpace(args))
                 {
@@ -125,6 +124,7 @@ public sealed class TuiEngine
 
             case "/exit":
             case "/quit":
+                await AutoSaveSessionAsync();
                 _running = false;
                 break;
 
@@ -227,6 +227,52 @@ public sealed class TuiEngine
         {
             _status.Status = "Desconectado";
         }
+    }
+
+    private async Task AutoSaveSessionAsync()
+    {
+        if (_chat.MessageCount == 0) return;
+        var messages = _chat.Messages.ToList();
+        if (messages.Count == 0) return;
+        var label = $"Chat {DateTimeOffset.Now:yyyy-MM-dd HH:mm}";
+        await _sessionStore.SaveAsync(label, messages);
+    }
+
+    private async Task LoadLastSessionAsync()
+    {
+        var sessions = await _sessionStore.ListAsync();
+        if (sessions.Count == 0) return;
+        var last = sessions[0];
+        foreach (var msg in last.Messages)
+            _chat.AddMessage(msg.Role, msg.Content, msg.IsError);
+        _chat.AddMessage("system", $"Sessão anterior carregada: {last.Label} ({last.MessageCount} mensagens)");
+    }
+
+    private async Task ListSessionsAsync()
+    {
+        var sessions = await _sessionStore.ListAsync();
+        if (sessions.Count == 0)
+        {
+            _chat.AddMessage("system", "Nenhuma sessão salva.");
+            return;
+        }
+        _chat.AddMessage("system", $"Sessões salvas ({sessions.Count}):");
+        foreach (var s in sessions.Take(10))
+            _chat.AddMessage("system", $"  {s.Id,-12} {s.Label} ({s.MessageCount} msgs)");
+    }
+
+    private async Task LoadSessionAsync(string sessionId)
+    {
+        var session = await _sessionStore.LoadAsync(sessionId);
+        if (session == null)
+        {
+            _chat.AddMessage("error", $"Sessão não encontrada: {sessionId}");
+            return;
+        }
+        _chat.Clear();
+        foreach (var msg in session.Messages)
+            _chat.AddMessage(msg.Role, msg.Content, msg.IsError);
+        _chat.AddMessage("system", $"Sessão carregada: {session.Label} ({session.MessageCount} mensagens)");
     }
 
     public void Dispose()

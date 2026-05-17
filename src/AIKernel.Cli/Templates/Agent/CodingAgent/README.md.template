@@ -1,0 +1,27 @@
+# {{AgentName}} - AI Kernel Agent
+
+Created with `aikernel new agent --template coding-agent`
+
+## Configuration
+
+- **Safety Level:** {{SafetyLevel}}
+- **LLM Provider:** {{LlmProvider}}
+- **Memory:** {{MemoryEnabled}}
+
+## Quick Start
+
+```bash
+dotnet restore
+dotnet run
+```
+
+## Commands
+
+- `exit` or `quit` - Stop the agent
+
+## Next Steps
+
+1. Add your business logic in `Program.cs`
+2. Configure safety rules in `.aikernel/config.yaml`
+3. Add tools and policies with `aikernel new tool` and `aikernel new policy`
+4. Run cognitive cycle: `aikernel debug cycle`

@@ -1,0 +1,35 @@
+using Microsoft.Extensions.Hosting;
+using Spectre.Console;
+
+var host = Host.CreateDefaultBuilder(args)
+    .ConfigureServices((ctx, services) =>
+    {
+        // Register agent components here
+        // See https://opencode.ai for full API documentation
+
+        // Example: services.AddSingleton<MyAgent>();
+    })
+    .Build();
+
+var ct = CancellationToken.None;
+
+AnsiConsole.MarkupLine($"[bold green]{{{{AgentName}}}} agent started![/]");
+AnsiConsole.MarkupLine($"[grey]Safety: {{{{SafetyLevel}}}} | LLM: {{{{LlmProvider}}}} | Memory: {{{{MemoryEnabled}}}}[/]");
+AnsiConsole.MarkupLine("");
+
+AnsiConsole.MarkupLine("[yellow]Cognitive Cycle:[/]");
+
+while (!ct.IsCancellationRequested)
+{
+    AnsiConsole.Markup("[cyan]> [/]");
+    var input = Console.ReadLine() ?? "";
+
+    if (string.IsNullOrWhiteSpace(input)) continue;
+    if (input == "exit" || input == "quit") break;
+
+    AnsiConsole.MarkupLine($"[dim]{DateTime.Now:HH:mm:ss} Processing...[/]");
+    await Task.Delay(500, ct);
+    AnsiConsole.MarkupLine($"[green]Echo:[/] {input.EscapeMarkup()}");
+}
+
+AnsiConsole.MarkupLine("[grey]Agent stopped.[/]");

@@ -45,6 +45,7 @@ var templateEngine = host.Services.GetRequiredService<ITemplateEngine>();
 var console = host.Services.GetRequiredService<IAnsiConsole>();
 root.Add(new NewCommand(templateEngine, console).Build());
 root.Add(new InitCommand(templateEngine, console).Build());
+root.Add(new TemplatesCommand(templateEngine).Build());
 
 // Config command (Plano 14 - YAML Config)
 root.Add(new ConfigCommand(console).Build());
@@ -74,6 +75,12 @@ root.Add(new UpgradeCommand().Build());
 
 // Provider management (Plano 12)
 root.Add(new ProviderCommand().Build());
+
+// Export (Plano 11)
+root.Add(new ExportCommand().Build());
+
+// Stats (Plano 11)
+root.Add(new CliStatsCommand().Build());
 
 // Experiment management (Track B4)
 root.Add(new ExperimentCommand(cliCtx, renderer).Build());

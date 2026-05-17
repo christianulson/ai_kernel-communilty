@@ -41,10 +41,15 @@ public sealed class NewCommand(ITemplateEngine templateEngine, IAnsiConsole cons
             Description = "Enable memory",
             DefaultValueFactory = _ => true
         };
+        var templateOpt = new Option<string>("--template")
+        {
+            Description = "Template variant (basic|coding-agent)",
+            DefaultValueFactory = _ => "basic"
+        };
 
         var cmd = new Command("agent", "Scaffold a new agent project")
         {
-            nameArg, outputOpt, safetyOpt, llmOpt, memoryOpt
+            nameArg, outputOpt, safetyOpt, llmOpt, memoryOpt, templateOpt
         };
 
         cmd.SetAction(async (ParseResult r, CancellationToken ct) =>
@@ -54,6 +59,7 @@ public sealed class NewCommand(ITemplateEngine templateEngine, IAnsiConsole cons
             var safety = r.GetValue(safetyOpt)!;
             var llm = r.GetValue(llmOpt)!;
             var memory = r.GetValue(memoryOpt);
+            var template = r.GetValue(templateOpt) ?? "basic";
 
             var targetDir = Path.Combine(output, name);
 
@@ -67,13 +73,17 @@ public sealed class NewCommand(ITemplateEngine templateEngine, IAnsiConsole cons
             {
                 ["SafetyLevel"] = safety,
                 ["LlmProvider"] = llm,
-                ["MemoryEnabled"] = memory ? "true" : "false"
+                ["MemoryEnabled"] = memory ? "true" : "false",
+                ["TemplateVersion"] = "1.0.0",
+                ["AgentGoal"] = "Accomplish tasks autonomously",
+                ["TemplateName"] = template,
             };
 
-            console.MarkupLine($"[green]Scaffolding agent '{name}'...[/]");
+            console.MarkupLine($"[green]Scaffolding agent '{name}' with template '{template}'...[/]");
             await templateEngine.ScaffoldAsync(TemplateType.Agent, name, targetDir, vars);
 
             console.MarkupLine($"[bold green]✅ Created {name}/[/]");
+            console.MarkupLine($"[green]   Template: {template}[/]");
             console.MarkupLine($"[green]   Safety level: {safety}[/]");
             console.MarkupLine($"[green]   LLM provider: {llm}[/]");
             console.MarkupLine($"[green]   Memory: {(memory ? "enabled" : "disabled")}[/]");
@@ -82,6 +92,9 @@ public sealed class NewCommand(ITemplateEngine templateEngine, IAnsiConsole cons
             console.MarkupLine($"  [cyan]cd {name}[/]");
             console.MarkupLine("  [cyan]dotnet restore[/]");
             console.MarkupLine("  [cyan]dotnet run[/]");
+            console.MarkupLine("  [cyan]aikernel templates[/]");
+            if (template == "coding-agent")
+                console.MarkupLine("  [cyan]aikernel debug cycle[/]");
 
             return 0;
         });

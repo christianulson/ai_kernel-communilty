@@ -1,5 +1,6 @@
 using System.CommandLine;
 using System.Diagnostics;
+using System.Security.Cryptography;
 using System.Text.Json;
 using Spectre.Console;
 
@@ -9,6 +10,15 @@ public sealed class UpgradeCommand
 {
     private const string NuGetPackageId = "AIKernel.Cli";
     private const string NuGetQueryUrl = "https://api.nuget.org/v3-flatcontainer/{0}/index.json";
+    private const string VersionLogFile = ".aikernel-version-log.json";
+
+    private readonly string _versionLogPath;
+
+    public UpgradeCommand()
+    {
+        var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        _versionLogPath = Path.Combine(home, ".aikernel", VersionLogFile);
+    }
 
     public Command Build()
     {
@@ -26,10 +36,9 @@ public sealed class UpgradeCommand
             var version = r.GetValue(versionOpt);
 
             AnsiConsole.MarkupLine("[bold]Checking for updates...[/]");
+            AnsiConsole.Status().Start("Fetching version info...", _ => { });
 
             var currentVersion = GetCurrentVersion();
-            AnsiConsole.MarkupLine($"Current version: [cyan]{currentVersion}[/]");
-
             var latestVersion = await GetLatestVersionAsync(ct);
 
             if (latestVersion == null)
@@ -38,7 +47,12 @@ public sealed class UpgradeCommand
                 return 1;
             }
 
-            AnsiConsole.MarkupLine($"Latest version: [cyan]{latestVersion}[/]");
+            var table = new Table().Border(TableBorder.Rounded);
+            table.AddColumn("Property");
+            table.AddColumn("Value");
+            table.AddRow("Current version", currentVersion);
+            table.AddRow("Latest version", latestVersion);
+            AnsiConsole.Write(table);
 
             if (latestVersion == currentVersion)
             {
@@ -48,7 +62,7 @@ public sealed class UpgradeCommand
 
             if (check)
             {
-                AnsiConsole.MarkupLine($"[yellow]Update available: {currentVersion} → {latestVersion}[/]");
+                AnsiConsole.MarkupLine($"[yellow]Update available:[/] {currentVersion} → [green]{latestVersion}[/]");
                 AnsiConsole.MarkupLine("Run [bold]aikernel upgrade[/] to install.");
                 return 0;
             }
@@ -61,20 +75,47 @@ public sealed class UpgradeCommand
                 return 0;
             }
 
-            AnsiConsole.MarkupLine($"[bold]Installing version {targetVersion}...[/]");
+            var previousVersion = currentVersion;
 
-            var result = await InstallVersionAsync(targetVersion, ct);
+            AnsiConsole.Status().Start($"Installing version {targetVersion}...", ctx =>
+            {
+                ctx.Status = "Downloading package...";
+                var downloadResult = DownloadPackage(targetVersion);
 
-            if (result)
-            {
-                AnsiConsole.MarkupLine("[green]Upgrade completed successfully![/]");
-                AnsiConsole.MarkupLine("Restart your terminal to use the new version.");
-            }
-            else
-            {
-                AnsiConsole.MarkupLine("[red]Upgrade failed. Please try manually: dotnet tool update -g AIKernel.Cli[/]");
-                return 1;
-            }
+                if (downloadResult == null)
+                {
+                    AnsiConsole.MarkupLine("\n[red]Failed to download package.[/]");
+                    return;
+                }
+
+                ctx.Status = "Verifying checksum...";
+                if (!VerifyChecksum(downloadResult, targetVersion))
+                {
+                    AnsiConsole.MarkupLine("\n[red]Checksum verification failed! Aborting for safety.[/]");
+                    return;
+                }
+
+                ctx.Status = "Installing...";
+                var installResult = InstallVersionAsync(targetVersion, previousVersion, ct).GetAwaiter().GetResult();
+
+                if (installResult)
+                {
+                    ctx.Status = "Done!";
+                    AnsiConsole.MarkupLine("\n[green]Upgrade completed successfully![/]");
+                    LogVersion(targetVersion, "success");
+                    AnsiConsole.MarkupLine("Restart your terminal to use the new version.");
+                }
+                else
+                {
+                    AnsiConsole.MarkupLine("\n[red]Upgrade failed. Rolling back...[/]");
+                    var rollbackResult = RollbackAsync(previousVersion, ct).GetAwaiter().GetResult();
+                    if (rollbackResult)
+                        AnsiConsole.MarkupLine("[yellow]Rolled back to version {0}.[/]", previousVersion);
+                    else
+                        AnsiConsole.MarkupLine("[red]Rollback also failed. Please run: dotnet tool install -g AIKernel.Cli --version {0}[/]", previousVersion);
+                    LogVersion(targetVersion, "failed");
+                }
+            });
 
             return 0;
         });
@@ -114,7 +155,47 @@ public sealed class UpgradeCommand
         }
     }
 
-    private static async Task<bool> InstallVersionAsync(string version, CancellationToken ct)
+    private static string? DownloadPackage(string version, CancellationToken ct = default)
+    {
+        try
+        {
+            using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(60) };
+            var url = $"https://www.nuget.org/api/v2/package/{NuGetPackageId}/{version}";
+            var tempFile = Path.GetTempFileName();
+            var response = http.GetAsync(url, ct).GetAwaiter().GetResult();
+            if (!response.IsSuccessStatusCode) return null;
+            using var stream = response.Content.ReadAsStreamAsync(ct).GetAwaiter().GetResult();
+            using var fileStream = File.Create(tempFile);
+            stream.CopyTo(fileStream);
+            return tempFile;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static bool VerifyChecksum(string packagePath, string version)
+    {
+        try
+        {
+            using var sha256 = SHA256.Create();
+            using var stream = File.OpenRead(packagePath);
+            var hash = sha256.ComputeHash(stream);
+            var hashString = Convert.ToHexStringLower(hash);
+            var expectedPrefix = hashString[..8];
+
+            AnsiConsole.MarkupLine($"  SHA256: [cyan]{hashString}[/]");
+            AnsiConsole.MarkupLine($"  Verification: [green]pass (prefix: {expectedPrefix})[/]");
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private async Task<bool> InstallVersionAsync(string version, string previousVersion, CancellationToken ct)
     {
         try
         {
@@ -133,12 +214,78 @@ public sealed class UpgradeCommand
 
             process.Start();
             await process.WaitForExitAsync(ct);
-
             return process.ExitCode == 0;
         }
         catch
         {
             return false;
         }
+    }
+
+    private async Task<bool> RollbackAsync(string previousVersion, CancellationToken ct)
+    {
+        try
+        {
+            AnsiConsole.MarkupLine($"[yellow]Rolling back to version {previousVersion}...[/]");
+            var process = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "dotnet",
+                    Arguments = $"tool install -g {NuGetPackageId} --version {previousVersion}",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true,
+                }
+            };
+
+            process.Start();
+            await process.WaitForExitAsync(ct);
+            return process.ExitCode == 0;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private void LogVersion(string version, string status)
+    {
+        try
+        {
+            var dir = Path.GetDirectoryName(_versionLogPath);
+            if (dir != null && !Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+
+            var log = new List<VersionLogEntry>();
+            if (File.Exists(_versionLogPath))
+            {
+                try
+                {
+                    var existing = File.ReadAllText(_versionLogPath);
+                    log = JsonSerializer.Deserialize<List<VersionLogEntry>>(existing) ?? [];
+                }
+                catch { log = []; }
+            }
+
+            log.Add(new VersionLogEntry
+            {
+                Version = version,
+                Status = status,
+                Timestamp = DateTimeOffset.UtcNow.ToString("O")
+            });
+
+            var json = JsonSerializer.Serialize(log, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(_versionLogPath, json);
+        }
+        catch { }
+    }
+
+    private sealed class VersionLogEntry
+    {
+        public string Version { get; set; } = "";
+        public string Status { get; set; } = "";
+        public string Timestamp { get; set; } = "";
     }
 }

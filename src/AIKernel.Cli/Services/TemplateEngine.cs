@@ -24,20 +24,6 @@ public sealed partial class TemplateEngine : ITemplateEngine
         _logger = logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<TemplateEngine>.Instance;
     }
 
-    public async Task ScaffoldAsync(TemplateType type, string name, string outputDir, IReadOnlyDictionary<string, string>? variables = null)
-    {
-        var templateDir = GetTemplateDirectory(type);
-        if (!Directory.Exists(templateDir))
-            throw new DirectoryNotFoundException($"Template directory not found: {templateDir}");
-
-        var vars = BuildVariables(type, name, variables);
-        EnsureDirectoryExists(outputDir);
-
-        await CopyTemplateRecursiveAsync(templateDir, outputDir, vars);
-
-        _logger.LogInformation("Scaffolded {Type} '{Name}' at {Output}", type, name, outputDir);
-    }
-
     public Task<IReadOnlyList<TemplateInfo>> ListTemplatesAsync()
     {
         var manifest = LoadManifest();
@@ -51,17 +37,44 @@ public sealed partial class TemplateEngine : ITemplateEngine
         return Task.FromResult<IReadOnlyList<TemplateInfo>>(templates);
     }
 
-    private static string GetTemplateDirectory(TemplateType type)
+    private string GetTemplateDirectory(TemplateType type, string templateName = "default")
     {
-        var subDir = type switch
+        var typeDir = type switch
         {
-            TemplateType.Agent => Path.Combine("Agent", "Basic"),
+            TemplateType.Agent => "Agent",
             TemplateType.Tool => "Tool",
             TemplateType.Policy => "Policy",
             TemplateType.CognitiveCycle => "CognitiveCycle",
             _ => throw new ArgumentOutOfRangeException(nameof(type))
         };
-        return Path.Combine(TemplatesRoot, subDir);
+
+        if (type == TemplateType.Agent && !string.IsNullOrEmpty(templateName) && templateName != "default")
+        {
+            var namedDir = Path.Combine(TemplatesRoot, typeDir, templateName);
+            if (Directory.Exists(namedDir))
+                return namedDir;
+        }
+
+        var defaultDir = Path.Combine(TemplatesRoot, typeDir, "Basic");
+        if (Directory.Exists(defaultDir))
+            return defaultDir;
+
+        return Path.Combine(TemplatesRoot, typeDir);
+    }
+
+    public async Task ScaffoldAsync(TemplateType type, string name, string outputDir, IReadOnlyDictionary<string, string>? variables = null)
+    {
+        var templateName = variables?.TryGetValue("TemplateName", out var tn) == true ? tn : "default";
+        var templateDir = GetTemplateDirectory(type, templateName);
+        if (!Directory.Exists(templateDir))
+            throw new DirectoryNotFoundException($"Template directory not found: {templateDir} (type={type}, template={templateName})");
+
+        var vars = BuildVariables(type, name, variables);
+        EnsureDirectoryExists(outputDir);
+
+        await CopyTemplateRecursiveAsync(templateDir, outputDir, vars);
+
+        _logger.LogInformation("Scaffolded {Type} '{Name}' at {Output}", type, name, outputDir);
     }
 
     private static Dictionary<string, string> BuildVariables(TemplateType type, string name, IReadOnlyDictionary<string, string>? custom)

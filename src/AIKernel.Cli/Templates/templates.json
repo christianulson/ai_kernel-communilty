@@ -8,6 +8,13 @@
       "dependencies": ["AIKernel.Cli"]
     },
     {
+      "name": "coding-agent",
+      "description": "Interactive coding agent with CLI chat loop, tests, and configuration",
+      "type": "Agent",
+      "version": "1.0.0",
+      "dependencies": ["Microsoft.Extensions.Hosting", "Spectre.Console"]
+    },
+    {
       "name": "default",
       "description": "Default tool scaffold implementing IRegisterableAction",
       "type": "Tool",

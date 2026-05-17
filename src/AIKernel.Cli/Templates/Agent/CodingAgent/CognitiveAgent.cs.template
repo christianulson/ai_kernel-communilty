@@ -1,0 +1,45 @@
+using Kernel.Core.Abstractions;
+using Kernel.Core.Services.Safety;
+
+public sealed class CognitiveAgent
+{
+    private readonly FundamentalRulesEngine _safety;
+    private readonly ILLMClientFactory _llmFactory;
+
+    public CognitiveAgent(FundamentalRulesEngine safety, ILLMClientFactory llmFactory)
+    {
+        _safety = safety;
+        _llmFactory = llmFactory;
+    }
+
+    public async Task RunAsync(IServiceProvider services, CancellationToken ct)
+    {
+        var llm = _llmFactory.GetClient();
+
+        while (!ct.IsCancellationRequested)
+        {
+            // Cognitive cycle: Sense -> Think -> Act -> Learn
+            Console.Write("> ");
+            var input = Console.ReadLine() ?? "";
+            if (string.IsNullOrWhiteSpace(input)) continue;
+            if (input == "exit") break;
+
+            // Think
+            var response = await llm.ChatAsync(
+                system: "You are a helpful AI agent. Be concise and accurate.",
+                user: input,
+                ct: ct);
+
+            // Safety check
+            var safe = _safety.Validate(response);
+            if (!safe.IsAllowed)
+            {
+                Console.WriteLine($"[SAFETY] Blocked: {safe.Reason}");
+                continue;
+            }
+
+            // Act
+            Console.WriteLine(response);
+        }
+    }
+}

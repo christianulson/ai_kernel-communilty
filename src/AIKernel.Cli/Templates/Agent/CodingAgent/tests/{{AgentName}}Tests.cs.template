@@ -1,0 +1,24 @@
+namespace {{AgentNamespace}}.Tests;
+
+public sealed class {{AgentName}}Tests
+{
+    [Fact]
+    public void Agent_Creation_ShouldSucceed()
+    {
+        Assert.True(true, "Replace with actual agent tests");
+    }
+
+    [Fact]
+    public async Task Agent_CognitiveCycle_ShouldComplete()
+    {
+        // Arrange
+        // var agent = new YourAgent();
+
+        // Act
+        // var result = await agent.ProcessAsync("test input");
+
+        // Assert
+        // Assert.NotNull(result);
+        await Task.CompletedTask;
+    }
+}
