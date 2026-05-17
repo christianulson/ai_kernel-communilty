@@ -34,7 +34,7 @@ root.Add(new MemoryCommand(cliCtx, renderer).Build());
 root.Add(new SnapshotCommand(cliCtx, renderer).Build());
 root.Add(new ArchiveCommand(cliCtx, renderer).Build());
 root.Add(new GoalsCommand(cliCtx, renderer).Build());
-root.Add(new SafetyCommand(cliCtx, renderer).Build());
+root.Add(new SafetyCommand(cliCtx, renderer, host.Services).Build());
 root.Add(new AnticipateCommand(cliCtx, renderer).Build());
 root.Add(new IntentionsCommand(cliCtx, renderer).Build());
 root.Add(new DebugCommand(cliCtx, renderer).Build());
