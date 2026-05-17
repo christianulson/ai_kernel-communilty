@@ -1,21 +1,56 @@
+using System.CommandLine;
 using AIKernel.Cli.Commands;
+using Spectre.Console.Testing;
 
 namespace AIKernel.Cli.Tests;
 
 public sealed class RunCommandTests
 {
     [Fact]
-    public void RunCommand_Build_ShouldReturnCommand()
+    public void RunCommand_Build_ShouldCreateCommand()
     {
         var cmd = new RunCommand().Build();
-        Assert.NotNull(cmd);
-        Assert.Equal("run", cmd.Name);
+
+        cmd.Name.Should().Be("run");
+        cmd.Description.Should().Contain("pipe");
     }
 
     [Fact]
-    public void RunCommand_HasOptions()
+    public void RunCommand_ShouldHavePipeOption()
     {
         var cmd = new RunCommand().Build();
-        Assert.True(cmd.Options.Count > 0, "Should have at least one option");
+        var root = new RootCommand { cmd };
+        var result = root.Parse("run \"test\" --pipe");
+        Assert.Empty(result.Errors);
+    }
+
+    [Fact]
+    public void RunCommand_ShouldHaveJsonOption()
+    {
+        var cmd = new RunCommand().Build();
+        var root = new RootCommand { cmd };
+        var result = root.Parse("run \"test\" --json");
+        Assert.Empty(result.Errors);
+    }
+
+    [Fact]
+    public void RunCommand_WithNoInput_ShouldBeParseable()
+    {
+        var cmd = new RunCommand().Build();
+        var root = new RootCommand { cmd };
+
+        var parseResult = root.Parse("run");
+
+        parseResult.Errors.Should().BeEmpty();
+        parseResult.CommandResult.Command.Name.Should().Be("run");
+    }
+
+    [Fact]
+    public void RunCommand_ShouldHaveOutputOption()
+    {
+        var cmd = new RunCommand().Build();
+        var root = new RootCommand { cmd };
+        var result = root.Parse("run \"test\" --output out.txt");
+        Assert.Empty(result.Errors);
     }
 }
