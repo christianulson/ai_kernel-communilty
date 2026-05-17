@@ -1,11 +1,18 @@
 using System.CommandLine;
 using System.Net.Http.Json;
+using System.Text.Json;
 using Spectre.Console;
 
 namespace AIKernel.Cli.Commands;
 
 public sealed class RunCommand
 {
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        WriteIndented = true
+    };
+
     public Command Build()
     {
         var promptArg = new Argument<string[]>("prompt")
@@ -27,10 +34,18 @@ public sealed class RunCommand
         {
             Description = "Output file path (writes result to file)"
         };
+        var pipeOpt = new Option<bool>("--pipe")
+        {
+            Description = "Force pipe mode (read from stdin)"
+        };
+        var jsonOpt = new Option<bool>("--json")
+        {
+            Description = "Output as structured JSON"
+        };
 
         var cmd = new Command("run", "Execute a single prompt (non-interactive / pipe mode)")
         {
-            promptArg, endpointOpt, timeoutOpt, outputOpt
+            promptArg, endpointOpt, timeoutOpt, outputOpt, pipeOpt, jsonOpt
         };
 
         cmd.SetAction(async (ParseResult r, CancellationToken ct) =>
@@ -39,29 +54,31 @@ public sealed class RunCommand
             var endpoint = r.GetValue(endpointOpt) ?? "http://localhost:5000";
             var timeout = r.GetValue(timeoutOpt);
             var output = r.GetValue(outputOpt);
+            var pipe = r.GetValue(pipeOpt);
+            var json = r.GetValue(jsonOpt);
 
             string input;
 
-            if (prompts is { Length: > 0 })
+            if (prompts is { Length: > 0 } && !pipe)
             {
                 input = string.Join(" ", prompts);
-                AnsiConsole.MarkupLine($"[grey]Prompt:[/] {input.EscapeMarkup()}");
+                if (!json)
+                    AnsiConsole.MarkupLine($"[grey]Prompt:[/] {input.EscapeMarkup()}");
+            }
+            else if (pipe || Console.IsInputRedirected)
+            {
+                using var reader = new StreamReader(Console.OpenStandardInput());
+                input = await reader.ReadToEndAsync(ct);
+                if (!json)
+                    AnsiConsole.MarkupLine($"[grey]Read {input.Length} chars from stdin[/]");
             }
             else
             {
-                if (Console.IsInputRedirected)
-                {
-                    using var reader = new StreamReader(Console.OpenStandardInput());
-                    input = await reader.ReadToEndAsync(ct);
-                    AnsiConsole.MarkupLine($"[grey]Read {input.Length} chars from stdin[/]");
-                }
-                else
-                {
-                    AnsiConsole.MarkupLine("[red]No input provided. Usage:[/]");
-                    AnsiConsole.MarkupLine("  [cyan]aikernel run \"your prompt\"[/]");
-                    AnsiConsole.MarkupLine("  [cyan]cat file.cs | aikernel run[/]");
-                    return 1;
-                }
+                AnsiConsole.MarkupLine("[red]No input provided. Usage:[/]");
+                AnsiConsole.MarkupLine("  [cyan]aikernel run \"your prompt\"[/]");
+                AnsiConsole.MarkupLine("  [cyan]cat file.cs | aikernel run[/]");
+                AnsiConsole.MarkupLine("  [cyan]cat data.json | aikernel run --json \"Validate\"[/]");
+                return 1;
             }
 
             if (string.IsNullOrWhiteSpace(input))
@@ -78,7 +95,8 @@ public sealed class RunCommand
 
             try
             {
-                AnsiConsole.MarkupLine("[grey]Sending to backend...[/]");
+                if (!json)
+                    AnsiConsole.MarkupLine("[grey]Sending to backend...[/]");
 
                 var response = await http.PostAsJsonAsync("/agent/run",
                     new { prompt = input.Trim(), mode = "gateway" }, ct);
@@ -88,7 +106,18 @@ public sealed class RunCommand
                     var result = await response.Content.ReadFromJsonAsync<RunResult>(ct);
                     var text = result?.Narration ?? result?.Error ?? "Sem resposta";
 
-                    if (!string.IsNullOrWhiteSpace(output))
+                    if (json)
+                    {
+                        var jsonResult = JsonSerializer.Serialize(new
+                        {
+                            success = true,
+                            result?.Narration,
+                            result?.Error,
+                            prompt = input.Trim()
+                        }, JsonOptions);
+                        Console.WriteLine(jsonResult);
+                    }
+                    else if (!string.IsNullOrWhiteSpace(output))
                     {
                         await File.WriteAllTextAsync(output, text, ct);
                         AnsiConsole.MarkupLine($"[green]Result written to: {output}[/]");
@@ -101,19 +130,57 @@ public sealed class RunCommand
                     return 0;
                 }
 
-                var error = await response.Content.ReadAsStringAsync(ct);
-                Console.Error.WriteLine($"Error {response.StatusCode}: {error}");
+                var errorBody = await response.Content.ReadAsStringAsync(ct);
+
+                if (json)
+                {
+                    var jsonError = JsonSerializer.Serialize(new
+                    {
+                        success = false,
+                        error = $"HTTP {response.StatusCode}: {errorBody}",
+                        prompt = input.Trim()
+                    }, JsonOptions);
+                    Console.WriteLine(jsonError);
+                }
+                else
+                {
+                    Console.Error.WriteLine($"Error {response.StatusCode}: {errorBody}");
+                }
                 return 1;
             }
             catch (HttpRequestException ex)
             {
-                Console.Error.WriteLine($"Connection error: {ex.Message}");
-                AnsiConsole.MarkupLine($"[yellow]Tip: Ensure the backend is running at {endpoint}[/]");
+                if (json)
+                {
+                    var jsonError = JsonSerializer.Serialize(new
+                    {
+                        success = false,
+                        error = $"Connection error: {ex.Message}"
+                    }, JsonOptions);
+                    Console.WriteLine(jsonError);
+                }
+                else
+                {
+                    Console.Error.WriteLine($"Connection error: {ex.Message}");
+                    AnsiConsole.MarkupLine($"[yellow]Tip: Ensure the backend is running at {endpoint}[/]");
+                }
                 return 1;
             }
             catch (TaskCanceledException)
             {
-                Console.Error.WriteLine($"Timeout after {timeout}s");
+                if (json)
+                {
+                    var jsonError = JsonSerializer.Serialize(new
+                    {
+                        success = false,
+                        error = $"Timeout after {timeout}s"
+                    }, JsonOptions);
+                    Console.WriteLine(jsonError);
+                }
+                else
+                {
+                    Console.Error.WriteLine($"Timeout after {timeout}s");
+                }
                 return 1;
             }
         });

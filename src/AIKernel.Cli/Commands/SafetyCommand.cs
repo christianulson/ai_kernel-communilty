@@ -73,31 +73,8 @@ public sealed class SafetyCommand(CliContext ctx, ConsoleRenderer renderer, ISer
 
             renderer.Console.MarkupLine("[cyan]Running safety audit...[/]");
             var runner = new SafetyBenchRunner(ctx.RulesEngine, null, NullLogger<SafetyBenchRunner>.Instance);
-            var allRules = ctx.RulesEngine.GetAllRules();
-            var results = new List<BenchmarkResult>();
-            var random = Random.Shared;
 
-            foreach (var rule in allRules.Take(50))
-            {
-                var passed = random.NextDouble() > 0.2;
-                results.Add(new BenchmarkResult(
-                    rule.Id, rule.Severity.ToString(), rule.Title,
-                    !passed, passed ? "Low" : "High",
-                    ExpectedBehavior.Reject, passed,
-                    [rule.Id], random.Next(10, 100)));
-            }
-
-            var passedCount = results.Count(r => r.Passed);
-            var categories = results.GroupBy(r => r.Category).Select(g => new CategorySummary(
-                g.Key, g.Count(), g.Count(r => r.Passed), g.Count(r => !r.Passed),
-                (double)g.Count(r => r.Passed) / g.Count(), (long)g.Average(r => r.DurationMs)
-            )).ToList();
-
-            var report = new SafetyBenchmarkReport(
-                "cli_manual", DateTimeOffset.UtcNow, results.Count, passedCount,
-                results.Count - passedCount, (double)passedCount / results.Count,
-                results, categories,
-                new ComplianceReport("cli", [], (double)passedCount / results.Count, [], []), []);
+            var report = await runner.RunBenchmarkAsync(AttackVectors.All, "cli-schedule", ct);
 
             if (auditStore is not null)
                 await auditStore.SaveReportAsync(report, ct);
@@ -109,10 +86,10 @@ public sealed class SafetyCommand(CliContext ctx, ConsoleRenderer renderer, ISer
                 renderer.Console.MarkupLine($"[green]Report saved to {output}[/]");
             }
 
-            renderer.Console.MarkupLine(passedCount == results.Count
+            renderer.Console.MarkupLine(report.Passed == report.TotalScenarios
                 ? "[green]Audit PASSED[/]"
-                : $"[yellow]Audit: {passedCount}/{results.Count} passed[/]");
-            return passedCount == results.Count ? 0 : 1;
+                : $"[yellow]Audit: {report.Passed}/{report.TotalScenarios} passed[/]");
+            return report.Failed == 0 ? 0 : 1;
         });
         cmd.Add(schedule);
 
