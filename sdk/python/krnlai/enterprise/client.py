@@ -15,8 +15,8 @@ class EnterpriseClient:
         api_key: str = "",
         timeout: float = 30.0,
     ) -> None:
-        self._endpoint = (endpoint or os.getenv("AIKERNEL_ENDPOINT", "http://localhost:5001")).rstrip("/")
-        self._api_key = api_key or os.getenv("AIKERNEL_API_KEY", "")
+        self._endpoint = (endpoint or os.getenv("KrnlAI_ENDPOINT", "http://localhost:5001")).rstrip("/")
+        self._api_key = api_key or os.getenv("KrnlAI_API_KEY", "")
         self._timeout = timeout
         self._client = httpx.AsyncClient(
             base_url=self._endpoint,

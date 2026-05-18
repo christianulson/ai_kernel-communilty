@@ -59,7 +59,7 @@ public static class ServiceCollectionExtensions
             });
         });
 
-        // Kernel API proxy (optional — for proxying to remote Kernel API)
+        // KrnlAI API proxy (optional — for proxying to remote KrnlAI API)
         services.AddHttpClient("kernel")
             .ConfigureHttpClient((sp, client) =>
             {

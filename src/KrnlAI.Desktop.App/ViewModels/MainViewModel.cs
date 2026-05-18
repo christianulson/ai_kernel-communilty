@@ -180,7 +180,7 @@ public class MainViewModel : ViewModelBase
         SessionsVM = new SessionsViewModel();
 
         Agents.Add(new AgentInfo("gateway", "Gateway", "Modo Gateway - acesso completo"));
-        Agents.Add(new AgentInfo("kernel", "Kernel", "Modo Kernel - decisões locais"));
+        Agents.Add(new AgentInfo("kernel", "KrnlAI", "Modo KrnlAI - decisões locais"));
         SelectedAgent = Agents[0];
         Sessions.Add(new ConversationSession("default", "Conversa 1", DateTime.Now));
         ActiveSession = Sessions[0];

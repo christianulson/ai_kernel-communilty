@@ -48,12 +48,12 @@ class CognitiveAgent:
 
     def _create_enterprise(self) -> EnterpriseClient:
         return EnterpriseClient(
-            endpoint=self._endpoint or os.getenv("AIKERNEL_ENDPOINT", "http://localhost:5001"),
-            api_key=self._api_key or os.getenv("AIKERNEL_API_KEY", ""),
+            endpoint=self._endpoint or os.getenv("KrnlAI_ENDPOINT", "http://localhost:5001"),
+            api_key=self._api_key or os.getenv("KrnlAI_API_KEY", ""),
         )
 
     def _detect_endpoint(self) -> bool:
-        endpoint = self._endpoint or os.getenv("AIKERNEL_ENDPOINT", "")
+        endpoint = self._endpoint or os.getenv("KrnlAI_ENDPOINT", "")
         if not endpoint:
             return False
         try:

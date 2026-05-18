@@ -86,7 +86,7 @@ public static class EndpointRouteExtensions
             }
             transportSteps.Add(new TransportStepDto { Label = "EthicalEnforcer", Detail = "OK", Ok = true });
 
-            // Try proxy to Kernel API first
+            // Try proxy to KrnlAI API first
             var proxyResult = await kernel.ProxyPostAsync<AgentRunRequest, AgentRunResponse>("/v1/agent/run", body, ctx.RequestAborted);
             if (proxyResult != null)
             {
@@ -114,7 +114,7 @@ public static class EndpointRouteExtensions
             var proxyResult = await kernel.ProxyGetAsync<object>("/policy/list", ctx.RequestAborted);
             if (proxyResult != null) return Results.Ok(proxyResult);
 
-            logger.LogInformation("Policy list returned locally (no Kernel API)");
+            logger.LogInformation("Policy list returned locally (no KrnlAI API)");
             return Results.Ok(new { policies = Array.Empty<object>(), totalCount = 0 });
         });
 
@@ -123,7 +123,7 @@ public static class EndpointRouteExtensions
             var proxyResult = await kernel.ProxyGetAsync<object>("/agent/metrics/scorecard", ctx.RequestAborted);
             if (proxyResult != null) return Results.Ok(proxyResult);
 
-            logger.LogInformation("Scorecard returned locally (no Kernel API)");
+            logger.LogInformation("Scorecard returned locally (no KrnlAI API)");
             return Results.Ok(new { reliability = 0.0, efficiency = 0.0, safety = 0.0, antiLoop = 0.0, governance = 0.0, overall = 0.0, source = "local_fallback" });
         });
 
@@ -139,7 +139,7 @@ public static class EndpointRouteExtensions
             var proxyResult = await kernel.ProxyPostAsync<Dictionary<string, object>, object>("/memory/search", body, ctx.RequestAborted);
             if (proxyResult != null) return Results.Ok(proxyResult);
 
-            logger.LogInformation("Memory search returned locally (no Kernel API)");
+            logger.LogInformation("Memory search returned locally (no KrnlAI API)");
             return Results.Ok(new { hits = Array.Empty<object>(), totalCount = 0 });
         }).RequireRateLimiting("memory-read");
 
@@ -148,7 +148,7 @@ public static class EndpointRouteExtensions
             var proxyResult = await kernel.ProxyGetAsync<object>("/memory/metrics", CancellationToken.None);
             if (proxyResult != null) return Results.Ok(proxyResult);
 
-            logger.LogInformation("Memory metrics returned locally (no Kernel API)");
+            logger.LogInformation("Memory metrics returned locally (no KrnlAI API)");
             return Results.Ok(new { totalChunks = 0, totalDocuments = 0, totalSizeBytes = 0 });
         }).RequireRateLimiting("memory-read");
 
@@ -157,7 +157,7 @@ public static class EndpointRouteExtensions
             var proxyResult = await kernel.ProxyGetAsync<object>("/episodes/search", ctx.RequestAborted);
             if (proxyResult != null) return Results.Ok(proxyResult);
 
-            logger.LogInformation("Episodes search returned locally (no Kernel API)");
+            logger.LogInformation("Episodes search returned locally (no KrnlAI API)");
             return Results.Ok(new { episodes = Array.Empty<object>(), totalCount = 0 });
         });
 
@@ -166,7 +166,7 @@ public static class EndpointRouteExtensions
             var proxyResult = await kernel.ProxyGetAsync<object>($"/episodes/{id}", ctx.RequestAborted);
             if (proxyResult != null) return Results.Ok(proxyResult);
 
-            logger.LogInformation("Episode {Id} returned locally (no Kernel API)", id);
+            logger.LogInformation("Episode {Id} returned locally (no KrnlAI API)", id);
             return Results.Ok(new { id, goalId = "standalone", status = "idle", createdAt = DateTime.UtcNow });
         });
 

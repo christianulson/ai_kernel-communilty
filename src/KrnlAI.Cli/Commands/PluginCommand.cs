@@ -26,7 +26,7 @@ public sealed class PluginCommand(IAnsiConsole console, IAssemblyPluginLoader? l
         var pathArg = new Argument<string>("path") { Description = "Plugin path or spec URL" };
         var endpointOpt = new Option<string>("--endpoint")
         {
-            Description = "Kernel API endpoint (remote mode)",
+            Description = "KrnlAI API endpoint (remote mode)",
             DefaultValueFactory = _ => "http://localhost:5000"
         };
         var typeOpt = new Option<string>("--type")
@@ -64,7 +64,7 @@ public sealed class PluginCommand(IAnsiConsole console, IAssemblyPluginLoader? l
     {
         var endpointOpt = new Option<string>("--endpoint")
         {
-            Description = "Kernel API endpoint (remote mode)",
+            Description = "KrnlAI API endpoint (remote mode)",
             DefaultValueFactory = _ => "http://localhost:5000"
         };
         var localOpt = new Option<bool>("--local")
@@ -92,7 +92,7 @@ public sealed class PluginCommand(IAnsiConsole console, IAssemblyPluginLoader? l
         var pluginIdArg = new Argument<string>("plugin-id") { Description = "Plugin ID to remove" };
         var endpointOpt = new Option<string>("--endpoint")
         {
-            Description = "Kernel API endpoint (remote mode)",
+            Description = "KrnlAI API endpoint (remote mode)",
             DefaultValueFactory = _ => "http://localhost:5000"
         };
         var localOpt = new Option<bool>("--local")

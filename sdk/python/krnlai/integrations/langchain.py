@@ -5,7 +5,7 @@ from typing import Any, Dict
 from krnlai.core.cycle import CognitiveCycleRunner
 
 
-class AikernelTool:
+class KrnlAITool:
     def __init__(self, runner: CognitiveCycleRunner, name: str = "krnlai") -> None:
         self._runner = runner
         self.name = name
@@ -27,7 +27,7 @@ class AikernelTool:
         try:
             from langchain.tools import BaseTool
 
-            class _AikernelLangChainTool(BaseTool):
+            class _KrnlAILangChainTool(BaseTool):
                 name: str = self.name
                 description: str = self.description
                 _runner: CognitiveCycleRunner = self._runner
@@ -41,12 +41,12 @@ class AikernelTool:
                     result = await self._runner.run(query)
                     return result.output
 
-            return _AikernelLangChainTool()
+            return _KrnlAILangChainTool()
         except ImportError:
             raise ImportError("langchain package required: pip install krnlai[langchain]")
 
 
-class AikernelMemory:
+class KrnlAIMemory:
     def __init__(self, runner: CognitiveCycleRunner) -> None:
         self._runner = runner
 

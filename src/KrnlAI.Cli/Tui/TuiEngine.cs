@@ -38,7 +38,7 @@ public sealed class TuiEngine
         _inputHandler = new TuiInputHandler(commands);
     }
 
-    public TuiEngine(EmbeddedKernel kernel)
+    public TuiEngine(EmbeddedKrnlAI kernel)
     {
         _baseUrl = "embedded://local";
         _kernel = kernel;

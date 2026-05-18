@@ -5,7 +5,7 @@ from typing import Any
 from krnlai.core.cycle import CognitiveCycleRunner, CycleConfig
 
 
-class AikernelAgent:
+class KrnlAIAgent:
     def __init__(
         self,
         name: str = "Krnl-AI Agent",

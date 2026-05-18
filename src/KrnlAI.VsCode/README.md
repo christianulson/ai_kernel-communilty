@@ -43,7 +43,7 @@ A extensão funciona em **2 modos**:
 
 | Modo | Configuração | Requer |
 |------|-------------|--------|
-| **API Remota** (padrão) | `krnlai.endpoint: "http://localhost:5000"` | Backend Gateway/Kernel rodando |
+| **API Remota** (padrão) | `krnlai.endpoint: "http://localhost:5000"` | Backend Gateway/KrnlAI rodando |
 | **Standalone Local** | `krnlai.standalone: true` | .NET 10 SDK + Sidecar |
 
 Para ativar o modo standalone:
@@ -113,7 +113,7 @@ Configure endpoint, modo standalone/remoto e porta do Sidecar.
 VsCode Extension (TypeScript)
 │
 ├── Modo API Remota ── HTTP ──> Backend Gateway (:5000)
-│                                 └── Kernel API
+│                                 └── KrnlAI API
 │
 └── Modo Standalone ── spawn ──> KrnlAI.Sidecar.exe (:5001)
                                    └── KrnlAI.Core (in-process)

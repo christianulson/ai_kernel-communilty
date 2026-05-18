@@ -13,7 +13,7 @@ public sealed class InteractiveCommand
             Description = "URL do backend Krnl-AI",
             DefaultValueFactory = _ => "http://localhost:5000"
         };
-        var local = new Option<bool>("--local") { Description = "Use EmbeddedKernel in-process" };
+        var local = new Option<bool>("--local") { Description = "Use EmbeddedKrnlAI in-process" };
         var model = new Option<string>("--model") { Description = "LLM provider for local mode", DefaultValueFactory = _ => "ollama" };
         var cmd = new Command("chat", "Modo interativo (TUI) no terminal")
         {

@@ -1,12 +1,12 @@
-from krnlai.integrations.autogen import AikernelAssistantAgent
-from krnlai.integrations.crewai import AikernelAgent
-from krnlai.integrations.fastapi import AikernelMiddleware
-from krnlai.integrations.langchain import AikernelMemory, AikernelTool
+from krnlai.integrations.autogen import KrnlAIAssistantAgent
+from krnlai.integrations.crewai import KrnlAIAgent
+from krnlai.integrations.fastapi import KrnlAIMiddleware
+from krnlai.integrations.langchain import KrnlAIMemory, KrnlAITool
 
 __all__ = [
-    "AikernelAgent",
-    "AikernelAssistantAgent",
-    "AikernelMemory",
-    "AikernelMiddleware",
-    "AikernelTool",
+    "KrnlAIAgent",
+    "KrnlAIAssistantAgent",
+    "KrnlAIMemory",
+    "KrnlAIMiddleware",
+    "KrnlAITool",
 ]

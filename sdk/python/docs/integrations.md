@@ -3,33 +3,33 @@
 ## LangChain
 
 ```python
-from krnlai.integrations.langchain import AikernelTool
+from krnlai.integrations.langchain import KrnlAITool
 
-tool = AikernelTool(safety_level="strict")
+tool = KrnlAITool(safety_level="strict")
 ```
 
 ## CrewAI
 
 ```python
-from krnlai.integrations.crewai import AikernelAgent
+from krnlai.integrations.crewai import KrnlAIAgent
 
-agent = AikernelAgent(safety_level="strict")
+agent = KrnlAIAgent(safety_level="strict")
 ```
 
 ## AutoGen
 
 ```python
-from krnlai.integrations.autogen import AikernelAssistantAgent
+from krnlai.integrations.autogen import KrnlAIAssistantAgent
 
-agent = AikernelAssistantAgent(name="krnlai", safety_level="strict")
+agent = KrnlAIAssistantAgent(name="krnlai", safety_level="strict")
 ```
 
 ## FastAPI
 
 ```python
 from fastapi import FastAPI
-from krnlai.integrations.fastapi import AikernelMiddleware
+from krnlai.integrations.fastapi import KrnlAIMiddleware
 
 app = FastAPI()
-app.add_middleware(AikernelMiddleware)
+app.add_middleware(KrnlAIMiddleware)
 ```

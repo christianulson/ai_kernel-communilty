@@ -9,7 +9,7 @@ from starlette.responses import Response
 from krnlai.core.cycle import CognitiveCycleRunner
 
 
-class AikernelMiddleware(BaseHTTPMiddleware):
+class KrnlAIMiddleware(BaseHTTPMiddleware):
     def __init__(
         self,
         app: Any,

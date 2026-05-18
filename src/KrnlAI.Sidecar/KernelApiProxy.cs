@@ -1,7 +1,7 @@
 namespace KrnlAI.Sidecar;
 
 /// <summary>
-/// Proxies requests to the Kernel API when configured. Falls back gracefully when unreachable.
+/// Proxies requests to the KrnlAI API when configured. Falls back gracefully when unreachable.
 /// Registered as singleton — safe for concurrent use.
 /// </summary>
 public sealed class KernelApiProxy(IHttpClientFactory httpClientFactory, IConfiguration configuration, ILogger<KernelApiProxy> logger)
@@ -22,7 +22,7 @@ public sealed class KernelApiProxy(IHttpClientFactory httpClientFactory, IConfig
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex, "Kernel API proxy GET {Path} failed, falling back to local", path);
+            logger.LogWarning(ex, "KrnlAI API proxy GET {Path} failed, falling back to local", path);
             return null;
         }
     }
@@ -40,7 +40,7 @@ public sealed class KernelApiProxy(IHttpClientFactory httpClientFactory, IConfig
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex, "Kernel API proxy POST {Path} failed, falling back to local", path);
+            logger.LogWarning(ex, "KrnlAI API proxy POST {Path} failed, falling back to local", path);
             return null;
         }
     }

@@ -11,7 +11,7 @@ public sealed class DebugCommand(CliContext ctx, ConsoleRenderer renderer)
         var cmd = new Command("debug", "Diagnose kernel components");
         cmd.SetAction(async (ParseResult _, CancellationToken ct) =>
         {
-            renderer.Console.MarkupLine("[underline]Kernel Diagnostics[/]\n");
+            renderer.Console.MarkupLine("[underline]KrnlAI Diagnostics[/]\n");
 
             var checks = new List<(string Name, bool Ok, string Detail)>();
 

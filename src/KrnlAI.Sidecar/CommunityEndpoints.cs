@@ -9,25 +9,25 @@ public static class CommunityEndpoints
     {
         app.UseRateLimiter();
 
-        app.MapPost("/agent/run", async (AgentRunRequest request, EmbeddedKernel kernel, CancellationToken ct) =>
+        app.MapPost("/agent/run", async (AgentRunRequest request, EmbeddedKrnlAI kernel, CancellationToken ct) =>
         {
             var result = await kernel.RunAsync(request.Prompt ?? string.Empty, ct);
             return Results.Ok(new AgentRunResponse
             {
                 Narration = result.Narration,
                 Error = result.Error,
-                TransportSteps = [new TransportStepDto { Label = "EmbeddedKernel", Detail = result.Mode, Ok = result.Error is null }],
+                TransportSteps = [new TransportStepDto { Label = "EmbeddedKrnlAI", Detail = result.Mode, Ok = result.Error is null }],
                 ActiveStages = ["community"]
             });
         }).RequireRateLimiting("agent-run");
 
-        app.MapPost("/memory/search", async (MemorySearchRequest request, EmbeddedKernel kernel, CancellationToken ct) =>
+        app.MapPost("/memory/search", async (MemorySearchRequest request, EmbeddedKrnlAI kernel, CancellationToken ct) =>
         {
             var hits = await kernel.SearchMemoryAsync(request.Query, ct);
             return Results.Ok(new { hits, totalCount = hits.Count, mode = "community" });
         });
 
-        app.MapGet("/health", (EmbeddedKernel kernel) => Results.Ok(new
+        app.MapGet("/health", (EmbeddedKrnlAI kernel) => Results.Ok(new
         {
             status = "healthy",
             mode = "community",

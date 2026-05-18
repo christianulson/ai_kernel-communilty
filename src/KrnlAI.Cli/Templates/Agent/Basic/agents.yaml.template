@@ -2,6 +2,6 @@ agents:
   - name: {{AgentName}}
     role: "AI Agent"
     goal: "{{AgentGoal}}"
-    backstory: "An AI agent scaffolded by AI Kernel CLI"
+    backstory: "An AI agent scaffolded by Krnl-AI CLI"
     allow_delegation: false
     verbose: true
