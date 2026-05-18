@@ -3,11 +3,11 @@
 **Cognitive agent framework with built-in safety. Zero external dependencies.**
 
 ```bash
-pip install aikernel
+pip install krnlai
 ```
 
 ```python
-from aikernel import CognitiveAgent
+from krnlai import CognitiveAgent
 
 agent = CognitiveAgent(safety_level="strict")
 response = await agent.run("analyze this dataset")
@@ -26,10 +26,10 @@ response = await agent.run("analyze this dataset")
 ## Quick Start
 
 ```bash
-pip install aikernel
-aikernel init my-agent
+pip install krnlai
+krnlai init my-agent
 cd my-agent
-aikernel run --interactive
+krnlai run --interactive
 ```
 
 ## Documentation

@@ -1,9 +1,9 @@
 {
-  "name": "aikernel-vscode",
+  "name": "krnlai-vscode",
   "displayName": "AI Kernel",
   "description": "AI Kernel - Cognitive agent for VS Code with coding assistance, memory, safety, and adaptive planning",
   "version": "1.0.0",
-  "publisher": "aikernel",
+  "publisher": "krnlai",
   "license": "MIT",
   "engines": {
     "vscode": "^1.118.0"
@@ -21,158 +21,158 @@
   "icon": "icon.png",
   "pricing": "Free",
   "activationEvents": [
-    "onCommand:aikernel.start",
-    "onCommand:aikernel.chat",
-    "onCommand:aikernel.coding.chat",
-    "onView:aikernel.nav"
+    "onCommand:krnlai.start",
+    "onCommand:krnlai.chat",
+    "onCommand:krnlai.coding.chat",
+    "onView:krnlai.nav"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "aikernel.start",
+        "command": "krnlai.start",
         "title": "AI Kernel: Iniciar Sidecar"
       },
       {
-        "command": "aikernel.stop",
+        "command": "krnlai.stop",
         "title": "AI Kernel: Parar Sidecar"
       },
       {
-        "command": "aikernel.chat",
+        "command": "krnlai.chat",
         "title": "AI Kernel: Chat"
       },
       {
-        "command": "aikernel.dashboard",
+        "command": "krnlai.dashboard",
         "title": "AI Kernel: Dashboard"
       },
       {
-        "command": "aikernel.policies",
+        "command": "krnlai.policies",
         "title": "AI Kernel: Políticas"
       },
       {
-        "command": "aikernel.episodes",
+        "command": "krnlai.episodes",
         "title": "AI Kernel: Episódios"
       },
       {
-        "command": "aikernel.memory",
+        "command": "krnlai.memory",
         "title": "AI Kernel: Memória"
       },
       {
-        "command": "aikernel.settings",
+        "command": "krnlai.settings",
         "title": "AI Kernel: Configurações"
       },
       {
-        "command": "aikernel.coding.chat",
+        "command": "krnlai.coding.chat",
         "title": "AI Kernel: Chat com Contexto do Editor"
       },
       {
-        "command": "aikernel.coding.explain",
+        "command": "krnlai.coding.explain",
         "title": "AI Kernel: Explicar Código"
       },
       {
-        "command": "aikernel.coding.fix",
+        "command": "krnlai.coding.fix",
         "title": "AI Kernel: Corrigir Código"
       },
       {
-        "command": "aikernel.coding.test",
+        "command": "krnlai.coding.test",
         "title": "AI Kernel: Gerar Teste"
       },
       {
-        "command": "aikernel.coding.refactor",
+        "command": "krnlai.coding.refactor",
         "title": "AI Kernel: Refatorar Código"
       },
       {
-        "command": "aikernel.coding.review",
+        "command": "krnlai.coding.review",
         "title": "AI Kernel: Revisar Código"
       },
       {
-        "command": "aikernel.coding.run",
+        "command": "krnlai.coding.run",
         "title": "AI Kernel: Executar Prompt..."
       }
     ],
     "keybindings": [
       {
-        "command": "aikernel.coding.explain",
+        "command": "krnlai.coding.explain",
         "key": "ctrl+shift+e",
-        "when": "config.aikernel.codingAgent.enabled && editorTextFocus"
+        "when": "config.krnlai.codingAgent.enabled && editorTextFocus"
       },
       {
-        "command": "aikernel.coding.fix",
+        "command": "krnlai.coding.fix",
         "key": "ctrl+shift+f",
-        "when": "config.aikernel.codingAgent.enabled && editorTextFocus"
+        "when": "config.krnlai.codingAgent.enabled && editorTextFocus"
       },
       {
-        "command": "aikernel.coding.test",
+        "command": "krnlai.coding.test",
         "key": "ctrl+shift+t",
-        "when": "config.aikernel.codingAgent.enabled && editorTextFocus"
+        "when": "config.krnlai.codingAgent.enabled && editorTextFocus"
       },
       {
-        "command": "aikernel.coding.run",
+        "command": "krnlai.coding.run",
         "key": "ctrl+shift+r",
-        "when": "config.aikernel.codingAgent.enabled && editorTextFocus"
+        "when": "config.krnlai.codingAgent.enabled && editorTextFocus"
       }
     ],
     "menus": {
       "view/title": [
         {
-          "command": "aikernel.start",
-          "when": "view == aikernel.nav",
+          "command": "krnlai.start",
+          "when": "view == krnlai.nav",
           "group": "navigation"
         }
       ],
       "editor/context": [
         {
-          "command": "aikernel.coding.explain",
+          "command": "krnlai.coding.explain",
           "group": "AI Kernel",
-          "when": "config.aikernel.codingAgent.enabled && editorHasSelection"
+          "when": "config.krnlai.codingAgent.enabled && editorHasSelection"
         },
         {
-          "command": "aikernel.coding.fix",
+          "command": "krnlai.coding.fix",
           "group": "AI Kernel",
-          "when": "config.aikernel.codingAgent.enabled && editorHasSelection"
+          "when": "config.krnlai.codingAgent.enabled && editorHasSelection"
         },
         {
-          "command": "aikernel.coding.test",
+          "command": "krnlai.coding.test",
           "group": "AI Kernel",
-          "when": "config.aikernel.codingAgent.enabled && editorHasSelection"
+          "when": "config.krnlai.codingAgent.enabled && editorHasSelection"
         },
         {
-          "command": "aikernel.coding.refactor",
+          "command": "krnlai.coding.refactor",
           "group": "AI Kernel",
-          "when": "config.aikernel.codingAgent.enabled && editorHasSelection"
+          "when": "config.krnlai.codingAgent.enabled && editorHasSelection"
         }
       ],
       "editor/codeAction": [
         {
-          "command": "aikernel.coding.fix",
+          "command": "krnlai.coding.fix",
           "group": "AI Kernel",
-          "when": "config.aikernel.codingAgent.enabled"
+          "when": "config.krnlai.codingAgent.enabled"
         },
         {
-          "command": "aikernel.coding.explain",
+          "command": "krnlai.coding.explain",
           "group": "AI Kernel",
-          "when": "config.aikernel.codingAgent.enabled"
+          "when": "config.krnlai.codingAgent.enabled"
         },
         {
-          "command": "aikernel.coding.test",
+          "command": "krnlai.coding.test",
           "group": "AI Kernel",
-          "when": "config.aikernel.codingAgent.enabled"
+          "when": "config.krnlai.codingAgent.enabled"
         }
       ]
     },
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "aikernel",
+          "id": "krnlai",
           "title": "AI Kernel",
           "icon": "$(hubot)"
         }
       ]
     },
     "views": {
-      "aikernel": [
+      "krnlai": [
         {
-          "id": "aikernel.nav",
+          "id": "krnlai.nav",
           "name": "Navegação"
         }
       ]
@@ -180,52 +180,52 @@
     "configuration": {
       "title": "AI Kernel",
       "properties": {
-        "aikernel.endpoint": {
+        "krnlai.endpoint": {
           "type": "string",
           "default": "http://localhost:5000",
           "description": "Endpoint do backend AI Kernel"
         },
-        "aikernel.standalone": {
+        "krnlai.standalone": {
           "type": "boolean",
           "default": false,
           "description": "Usar Sidecar local em vez da API remota"
         },
-        "aikernel.sidecarPort": {
+        "krnlai.sidecarPort": {
           "type": "number",
           "default": 5001,
           "description": "Porta do Sidecar local"
         },
-        "aikernel.codingAgent.enabled": {
+        "krnlai.codingAgent.enabled": {
           "type": "boolean",
           "default": false,
           "description": "Habilitar modo Coding Agent (comandos de código, chat com contexto do editor)"
         },
-        "aikernel.codingAgent.inlineCompletion": {
+        "krnlai.codingAgent.inlineCompletion": {
           "type": "boolean",
           "default": false,
           "description": "Habilitar autocomplete inline de código enquanto digita (requer codingAgent.enabled = true)"
         },
-        "aikernel.codingAgent.terminal": {
+        "krnlai.codingAgent.terminal": {
           "type": "boolean",
           "default": false,
           "description": "Habilitar execução de comandos no terminal (/run, /build, /test-cmd)"
         },
-        "aikernel.codingAgent.git": {
+        "krnlai.codingAgent.git": {
           "type": "boolean",
           "default": false,
           "description": "Habilitar comandos git (/commit, /diff, /branch, /status, /log, /review-pr)"
         },
-        "aikernel.codingAgent.agenticLoops": {
+        "krnlai.codingAgent.agenticLoops": {
           "type": "boolean",
           "default": false,
           "description": "Habilitar loop agente multi-passo (/task). Requer terminal habilitado."
         },
-        "aikernel.codingAgent.chatParticipant": {
+        "krnlai.codingAgent.chatParticipant": {
           "type": "boolean",
           "default": false,
           "description": "Habilitar ChatParticipant API nativa do VS Code (experimental, VS Code 1.82+)"
         },
-        "aikernel.codingAgent.hover": {
+        "krnlai.codingAgent.hover": {
           "type": "boolean",
           "default": false,
           "description": "Habilitar explicações on-hover de código"

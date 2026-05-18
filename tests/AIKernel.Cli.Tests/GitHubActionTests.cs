@@ -1,4 +1,4 @@
-namespace AIKernel.Cli.Tests;
+namespace KrnlAI.Cli.Tests;
 
 public sealed class GitHubActionTests
 {
@@ -8,7 +8,7 @@ public sealed class GitHubActionTests
     {
         _actionPath = Path.Combine(
             AppContext.BaseDirectory, "..", "..", "..", "..", "..",
-            ".github", "actions", "aikernel", "action.yml");
+            ".github", "actions", "krnlai", "action.yml");
     }
 
     [Fact]

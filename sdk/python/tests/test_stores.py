@@ -5,8 +5,8 @@ from uuid import uuid4
 
 import pytest
 
-from aikernel.core.stores.exceptions import ItemNotFoundError
-from aikernel.core.stores.inmemory import InMemoryStore
+from krnlai.core.stores.exceptions import ItemNotFoundError
+from krnlai.core.stores.inmemory import InMemoryStore
 
 
 class TestInMemoryStore:

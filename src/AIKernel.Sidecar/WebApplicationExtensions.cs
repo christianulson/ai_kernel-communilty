@@ -2,7 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.Options;
 
-namespace AIKernel.Sidecar;
+namespace KrnlAI.Sidecar;
 
 public static class WebApplicationExtensions
 {

@@ -2,7 +2,7 @@ using System.CommandLine;
 using System.Net.Http.Json;
 using Spectre.Console;
 
-namespace AIKernel.Cli.Commands;
+namespace KrnlAI.Cli.Commands;
 
 public sealed class EvalCommand
 {

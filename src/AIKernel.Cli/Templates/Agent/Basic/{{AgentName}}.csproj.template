@@ -6,6 +6,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="AIKernel.Cli" Version="1.0.0" />
+    <PackageReference Include="KrnlAI.Cli" Version="1.0.0" />
   </ItemGroup>
 </Project>

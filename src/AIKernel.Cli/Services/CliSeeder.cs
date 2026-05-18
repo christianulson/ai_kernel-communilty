@@ -1,7 +1,7 @@
 using Kernel.Core.Abstractions;
 using Kernel.Core.Services.Memory;
 
-namespace AIKernel.Cli.Services;
+namespace KrnlAI.Cli.Services;
 
 public sealed class CliSeeder(IMomentStore momentStore, IMomentClassifierStore classifierStore)
 {

@@ -20,13 +20,13 @@ Guia passo-a-passo para depurar a extensão VsCode e o Sidecar .NET.
 ### Passo 1: Abrir o projeto
 
 ```bash
-code src/AIKernel.VsCode
+code src/KrnlAI.VsCode
 ```
 
 ### Passo 2: Compilar TypeScript
 
 ```bash
-cd src/AIKernel.VsCode
+cd src/KrnlAI.VsCode
 npm install
 npx tsc
 ```
@@ -61,7 +61,7 @@ No VsCode **original** (janela do projeto):
 VsCode Extension (F5)
     │ fetch("http://localhost:5001/agent/run")
     ▼
-AIKernel.Sidecar (Kestrel)
+KrnlAI.Sidecar (Kestrel)
     │ AdversarialGuard.ValidateAsync()
     │ SimpleRiskScorer.ScoreRisk()
     ▼
@@ -72,14 +72,14 @@ Kernel.Core (in-process)
 
 ```bash
 # Terminal 1: Sidecar com debugger
-cd src/AIKernel.Sidecar
+cd src/KrnlAI.Sidecar
 dotnet run
 # Saída: "Now listening on http://localhost:5001"
 ```
 
 Ou use o **VsCode Task Runner** para depurar o Sidecar ao mesmo tempo:
 
-1. `Ctrl+Shift+P` → `Debug: Add Configuration` → escolha `.NET` → selecione `AIKernel.Sidecar`
+1. `Ctrl+Shift+P` → `Debug: Add Configuration` → escolha `.NET` → selecione `KrnlAI.Sidecar`
 2. Isso cria `.vscode/launch.json`:
 
 ```json
@@ -91,9 +91,9 @@ Ou use o **VsCode Task Runner** para depurar o Sidecar ao mesmo tempo:
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/src/AIKernel.Sidecar/bin/Debug/net10.0/AIKernel.Sidecar.dll",
+            "program": "${workspaceFolder}/src/KrnlAI.Sidecar/bin/Debug/net10.0/KrnlAI.Sidecar.dll",
             "args": ["--port", "5001"],
-            "cwd": "${workspaceFolder}/src/AIKernel.Sidecar",
+            "cwd": "${workspaceFolder}/src/KrnlAI.Sidecar",
             "console": "internalConsole"
         },
         {
@@ -101,9 +101,9 @@ Ou use o **VsCode Task Runner** para depurar o Sidecar ao mesmo tempo:
             "type": "extensionHost",
             "request": "launch",
             "args": [
-                "--extensionDevelopmentPath=${workspaceFolder}/src/AIKernel.VsCode"
+                "--extensionDevelopmentPath=${workspaceFolder}/src/KrnlAI.VsCode"
             ],
-            "outFiles": ["${workspaceFolder}/src/AIKernel.VsCode/out/**/*.js"]
+            "outFiles": ["${workspaceFolder}/src/KrnlAI.VsCode/out/**/*.js"]
         }
     ],
     "compounds": [
@@ -152,7 +152,7 @@ As WebViews são HTML puro e podem ser testadas no navegador:
 
 ```bash
 # Servir HTML localmente
-npx serve src/AIKernel.VsCode/media
+npx serve src/KrnlAI.VsCode/media
 ```
 
 Abra `http://localhost:3000/chat.html` no navegador. As chamadas `acquireVsCodeApi()` falharão, mas o layout e o CSS podem ser validados.
@@ -173,7 +173,7 @@ Abra `http://localhost:3000/chat.html` no navegador. As chamadas `acquireVsCodeA
 
 ```bash
 # Rodar com verbose
-dotnet run --project src/AIKernel.Sidecar -- --port 5001 --verbose
+dotnet run --project src/KrnlAI.Sidecar -- --port 5001 --verbose
 ```
 
 ### Health Check
@@ -181,7 +181,7 @@ dotnet run --project src/AIKernel.Sidecar -- --port 5001 --verbose
 ```bash
 # Testar Sidecar
 curl http://localhost:5001/health
-# → {"status":"ok","ts":"2026-05-08T...","version":"AIKernel.Sidecar/1.0.0"}
+# → {"status":"ok","ts":"2026-05-08T...","version":"KrnlAI.Sidecar/1.0.0"}
 
 # Testar API remota
 curl http://localhost:5000/health
@@ -207,7 +207,7 @@ curl http://localhost:5000/health
 ## 💻 Estrutura de Debug Completa
 
 ```
-src/AIKernel.VsCode/
+src/KrnlAI.VsCode/
 ├── src/
 │   ├── extension.ts          ← Breakpoints aqui
 │   ├── api/client.ts         ← Breakpoints nas chamadas HTTP
@@ -221,7 +221,7 @@ src/AIKernel.VsCode/
 ├── out/                      ← JS compilado (editar aqui se quiser hotfix)
 └── media/                    ← HTML/CSS (recarregar WebView com F5 nela)
 
-src/AIKernel.Sidecar/
+src/KrnlAI.Sidecar/
 └── Program.cs                ← Breakpoints nos endpoints /agent/run, /health
 ```
 
@@ -231,9 +231,9 @@ src/AIKernel.Sidecar/
 
 ```json
 {
-    "aikernel.endpoint": "http://localhost:5000",
-    "aikernel.standalone": true,
-    "aikernel.sidecarPort": 5001,
+    "krnlai.endpoint": "http://localhost:5000",
+    "krnlai.standalone": true,
+    "krnlai.sidecarPort": 5001,
     "debug.javascript.autoAttachFilter": "always"
 }
 ```

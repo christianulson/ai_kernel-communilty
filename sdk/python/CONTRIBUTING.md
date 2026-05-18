@@ -26,7 +26,7 @@ pytest tests/test_safety.py -v  # specific module
 
 ```bash
 ruff check .
-mypy aikernel/
+mypy krnlai/
 ```
 
 ## Naming Convention

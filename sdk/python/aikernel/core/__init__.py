@@ -1,3 +1,3 @@
-from aikernel.core.cycle import CognitiveCycleRunner
+from krnlai.core.cycle import CognitiveCycleRunner
 
 __all__ = ["CognitiveCycleRunner"]

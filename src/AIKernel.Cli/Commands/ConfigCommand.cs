@@ -2,7 +2,7 @@ using System.CommandLine;
 using Kernel.Core.Config;
 using Spectre.Console;
 
-namespace AIKernel.Cli.Commands;
+namespace KrnlAI.Cli.Commands;
 
 public sealed class ConfigCommand
 {
@@ -95,15 +95,15 @@ public sealed class ConfigCommand
     private Task<int> ShowAsync(CancellationToken ct)
     {
         _console.MarkupLine("[yellow]Current configuration:[/]");
-        _console.MarkupLine("  Use [bold]aikernel config validate <file>[/] to validate a YAML file.");
-        _console.MarkupLine("  Use [bold]aikernel run --config <file>[/] to run with a specific config.");
+        _console.MarkupLine("  Use [bold]krnlai config validate <file>[/] to validate a YAML file.");
+        _console.MarkupLine("  Use [bold]krnlai run --config <file>[/] to run with a specific config.");
         return Task.FromResult(0);
     }
 
     private async Task<int> ExportAsync(string name, CancellationToken ct)
     {
         var yaml = $"""
-            apiVersion: aikernel.io/v1
+            apiVersion: krnlai.io/v1
             kind: CognitiveSystem
             metadata:
               name: {name}

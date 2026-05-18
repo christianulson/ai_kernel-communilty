@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from aikernel.core.models.cognitive import CognitiveState
-from aikernel.core.models.envelope import CommandEnvelope
+from krnlai.core.models.cognitive import CognitiveState
+from krnlai.core.models.envelope import CommandEnvelope
 
 
 class ExecutionStep:

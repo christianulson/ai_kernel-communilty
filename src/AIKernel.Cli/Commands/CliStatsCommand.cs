@@ -1,8 +1,8 @@
 using System.CommandLine;
-using AIKernel.Cli.Tui;
+using KrnlAI.Cli.Tui;
 using Spectre.Console;
 
-namespace AIKernel.Cli.Commands;
+namespace KrnlAI.Cli.Commands;
 
 public sealed class CliStatsCommand
 {

@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace AIKernel.Sidecar;
+namespace KrnlAI.Sidecar;
 
 public sealed class SidecarOptions
 {

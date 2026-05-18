@@ -1,13 +1,13 @@
-from aikernel.core.steps.attention import AttentionStep
-from aikernel.core.steps.evaluation import EvaluationStep
-from aikernel.core.steps.execution import ExecutionStep
-from aikernel.core.steps.governance import GovernanceStep
-from aikernel.core.steps.learning import LearningStep
-from aikernel.core.steps.memory import MemoryStep
-from aikernel.core.steps.metacognition import MetacognitionStep
-from aikernel.core.steps.outcome import OutcomeStep
-from aikernel.core.steps.planning import PlanningStep
-from aikernel.core.steps.sensor import SensorStep
+from krnlai.core.steps.attention import AttentionStep
+from krnlai.core.steps.evaluation import EvaluationStep
+from krnlai.core.steps.execution import ExecutionStep
+from krnlai.core.steps.governance import GovernanceStep
+from krnlai.core.steps.learning import LearningStep
+from krnlai.core.steps.memory import MemoryStep
+from krnlai.core.steps.metacognition import MetacognitionStep
+from krnlai.core.steps.outcome import OutcomeStep
+from krnlai.core.steps.planning import PlanningStep
+from krnlai.core.steps.sensor import SensorStep
 
 __all__ = [
     "AttentionStep",

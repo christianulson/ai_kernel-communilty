@@ -1,8 +1,8 @@
 using System.CommandLine;
-using AIKernel.Cli.Abstractions;
+using KrnlAI.Cli.Abstractions;
 using Spectre.Console;
 
-namespace AIKernel.Cli.Commands;
+namespace KrnlAI.Cli.Commands;
 
 public sealed class TemplatesCommand(ITemplateEngine templateEngine)
 {
@@ -38,8 +38,8 @@ public sealed class TemplatesCommand(ITemplateEngine templateEngine)
 
             AnsiConsole.Write(table);
 
-            AnsiConsole.MarkupLine("\n[grey]Usage: aikernel new <type> <name> [--template <name>][/]");
-            AnsiConsole.MarkupLine("[grey]  e.g.: aikernel new agent my-agent --template coding-agent[/]");
+            AnsiConsole.MarkupLine("\n[grey]Usage: krnlai new <type> <name> [--template <name>][/]");
+            AnsiConsole.MarkupLine("[grey]  e.g.: krnlai new agent my-agent --template coding-agent[/]");
             return 0;
         });
 

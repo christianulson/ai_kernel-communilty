@@ -3,7 +3,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import Dict, List
 
-from aikernel.core.safety.rules import RuleResult, RuleSeverity
+from krnlai.core.safety.rules import RuleResult, RuleSeverity
 
 
 class HarmCategory(str, Enum):

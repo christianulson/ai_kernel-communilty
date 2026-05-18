@@ -1,4 +1,4 @@
-namespace AIKernel.Sidecar.Tests;
+namespace KrnlAI.Sidecar.Tests;
 
 public sealed class AgentRunEndpointTests(SidecarWebAppFactory factory) : IClassFixture<SidecarWebAppFactory>
 {

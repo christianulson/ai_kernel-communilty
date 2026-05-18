@@ -4,7 +4,7 @@ using System.Text.Json;
 using Kernel.Core.Abstractions;
 using Spectre.Console;
 
-namespace AIKernel.Cli.Commands;
+namespace KrnlAI.Cli.Commands;
 
 public sealed class PluginCommand(IAnsiConsole console, IAssemblyPluginLoader? localLoader = null)
 {

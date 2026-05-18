@@ -20,7 +20,7 @@ export class ChatPanel {
 
     static createOrShow() {
         if (ChatPanel.currentPanel) { ChatPanel.currentPanel._panel.reveal(vscode.ViewColumn.Beside); return; }
-        const panel = vscode.window.createWebviewPanel('aikernel.chat', 'AI Kernel - Chat', vscode.ViewColumn.Beside, { enableScripts: true, retainContextWhenHidden: true });
+        const panel = vscode.window.createWebviewPanel('krnlai.chat', 'AI Kernel - Chat', vscode.ViewColumn.Beside, { enableScripts: true, retainContextWhenHidden: true });
         ChatPanel.currentPanel = new ChatPanel(panel);
     }
 

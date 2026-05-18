@@ -1,13 +1,13 @@
 using System.CommandLine;
-using AIKernel.Cli.Commands;
-using AIKernel.Cli.Services;
+using KrnlAI.Cli.Commands;
+using KrnlAI.Cli.Services;
 using Kernel.Core.Abstractions.Safety;
 using Kernel.Core.Services.Safety;
 using Kernel.Infrastructure.Reports;
 using Microsoft.Extensions.Logging.Abstractions;
 using Spectre.Console.Testing;
 
-namespace AIKernel.Cli.Tests;
+namespace KrnlAI.Cli.Tests;
 
 public sealed class BenchmarkCommandTests
 {

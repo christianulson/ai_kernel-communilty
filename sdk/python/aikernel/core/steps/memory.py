@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from aikernel.core.memory.episodic_memory import EpisodicMemory
-from aikernel.core.memory.semantic_memory import SemanticMemory
-from aikernel.core.memory.working_memory import WorkingMemory
-from aikernel.core.models.cognitive import CognitiveState
-from aikernel.core.models.envelope import CommandEnvelope
+from krnlai.core.memory.episodic_memory import EpisodicMemory
+from krnlai.core.memory.semantic_memory import SemanticMemory
+from krnlai.core.memory.working_memory import WorkingMemory
+from krnlai.core.models.cognitive import CognitiveState
+from krnlai.core.models.envelope import CommandEnvelope
 
 
 class MemoryStep:

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
-from aikernel.core.safety.rules import RuleResult, RuleSeverity
+from krnlai.core.safety.rules import RuleResult, RuleSeverity
 
 
 class EthicalEnforcer:

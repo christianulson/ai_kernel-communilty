@@ -20,7 +20,7 @@
   <ItemGroup>
     <PackageReference Include="Kernel.Core" Version="1.0.0" />
     <PackageReference Include="Kernel.Infrastructure" Version="1.0.0" />
-    <ProjectReference Include="..\..\src\AIKernel.Cli\AIKernel.Cli.csproj" />
+    <ProjectReference Include="..\..\src\KrnlAI.Cli\KrnlAI.Cli.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="Xunit" />

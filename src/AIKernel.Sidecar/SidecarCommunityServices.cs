@@ -1,7 +1,7 @@
-using AIKernel.Embedded;
+using KrnlAI.Embedded;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace AIKernel.Sidecar;
+namespace KrnlAI.Sidecar;
 
 public static class SidecarCommunityServices
 {

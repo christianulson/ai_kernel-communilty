@@ -1,6 +1,6 @@
 using System.CommandLine;
 using System.Text.Json;
-using AIKernel.Cli.Services;
+using KrnlAI.Cli.Services;
 using Kernel.Core.Abstractions.Safety;
 using Kernel.Core.Model;
 using Kernel.Core.Services.Safety;
@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Spectre.Console;
 
-namespace AIKernel.Cli.Commands;
+namespace KrnlAI.Cli.Commands;
 
 public sealed class SafetyCommand(CliContext ctx, ConsoleRenderer renderer, IServiceProvider serviceProvider)
 {

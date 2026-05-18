@@ -1,6 +1,6 @@
 # {{AgentName}} - AI Kernel Agent
 
-Created with `aikernel new agent --template coding-agent`
+Created with `krnlai new agent --template coding-agent`
 
 ## Configuration
 
@@ -22,6 +22,6 @@ dotnet run
 ## Next Steps
 
 1. Add your business logic in `Program.cs`
-2. Configure safety rules in `.aikernel/config.yaml`
-3. Add tools and policies with `aikernel new tool` and `aikernel new policy`
-4. Run cognitive cycle: `aikernel debug cycle`
+2. Configure safety rules in `.krnlai/config.yaml`
+3. Add tools and policies with `krnlai new tool` and `krnlai new policy`
+4. Run cognitive cycle: `krnlai debug cycle`

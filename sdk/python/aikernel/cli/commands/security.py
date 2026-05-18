@@ -6,14 +6,14 @@ from typing import List
 from rich.console import Console
 from rich.table import Table
 
-from aikernel.core.safety.rules import RULES_REGISTRY, SafetyChecker
+from krnlai.core.safety.rules import RULES_REGISTRY, SafetyChecker
 
 console = Console()
 
 
 async def cmd_security(args: list) -> None:
     if not args:
-        console.print("[yellow]Usage: aikernel security <audit|benchmark|report>[/yellow]")
+        console.print("[yellow]Usage: krnlai security <audit|benchmark|report>[/yellow]")
         return
 
     subcmd = args[0]

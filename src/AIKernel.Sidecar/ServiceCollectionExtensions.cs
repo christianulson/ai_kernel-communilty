@@ -8,7 +8,7 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
-namespace AIKernel.Sidecar;
+namespace KrnlAI.Sidecar;
 
 public static class ServiceCollectionExtensions
 {
@@ -32,7 +32,7 @@ public static class ServiceCollectionExtensions
 
         // OpenTelemetry
         services.AddOpenTelemetry()
-            .ConfigureResource(r => r.AddService("AIKernel.Sidecar", "1.0.0"))
+            .ConfigureResource(r => r.AddService("KrnlAI.Sidecar", "1.0.0"))
             .WithTracing(t => t
                 .AddAspNetCoreInstrumentation()
                 .AddHttpClientInstrumentation()

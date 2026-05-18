@@ -2,7 +2,7 @@
 
 import asyncio
 
-from aikernel import CognitiveAgent
+from krnlai import CognitiveAgent
 
 
 async def main() -> None:

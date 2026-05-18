@@ -48,7 +48,7 @@ describe('KernelChatParticipant', () => {
     it('registerKernelChatParticipant_ShouldCreateParticipant', () => {
         const result = registerKernelChatParticipant(mockContext, mockClient, approvalManager, sessionManager);
         const { chat } = require('vscode');
-        expect(chat.createChatParticipant).toHaveBeenCalledWith('aikernel.coding', expect.any(Function));
+        expect(chat.createChatParticipant).toHaveBeenCalledWith('krnlai.coding', expect.any(Function));
         expect(result).toBeDefined();
     });
 

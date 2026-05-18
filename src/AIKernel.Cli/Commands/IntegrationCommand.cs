@@ -3,7 +3,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using Spectre.Console;
 
-namespace AIKernel.Cli.Commands;
+namespace KrnlAI.Cli.Commands;
 
 public sealed class IntegrationCommand(IAnsiConsole console)
 {

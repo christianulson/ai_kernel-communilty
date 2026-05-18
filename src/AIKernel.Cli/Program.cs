@@ -1,7 +1,7 @@
 using System.CommandLine;
-using AIKernel.Cli.Abstractions;
-using AIKernel.Cli.Commands;
-using AIKernel.Cli.Services;
+using KrnlAI.Cli.Abstractions;
+using KrnlAI.Cli.Commands;
+using KrnlAI.Cli.Services;
 using Kernel.Core.Services.Safety;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

@@ -1,4 +1,4 @@
-namespace AIKernel.Cli.Tests;
+namespace KrnlAI.Cli.Tests;
 
 public sealed class InstallScriptTests
 {
@@ -25,7 +25,7 @@ public sealed class InstallScriptTests
         var content = File.ReadAllText(path);
         Assert.StartsWith("#!/bin/bash", content);
         Assert.Contains("dotnet tool install", content);
-        Assert.Contains("aikernel --help", content);
+        Assert.Contains("krnlai --help", content);
     }
 
     [Fact]
@@ -41,7 +41,7 @@ public sealed class InstallScriptTests
         var path = Path.GetFullPath(Path.Combine(_scriptsDir, "install.ps1"));
         var content = File.ReadAllText(path);
         Assert.Contains("dotnet tool install", content);
-        Assert.Contains("AIKernel.Cli", content);
+        Assert.Contains("KrnlAI.Cli", content);
     }
 
     [Fact]

@@ -4,7 +4,7 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Prompt
 
-from aikernel.cli.main import _create_agent, _run_debug_cycle
+from krnlai.cli.main import _create_agent, _run_debug_cycle
 
 console = Console()
 
@@ -19,7 +19,7 @@ async def cmd_run(args: list) -> None:
     elif text:
         await _run_once(agent, text)
     else:
-        console.print("[yellow]Usage: aikernel run [--interactive/-i] [text][/yellow]")
+        console.print("[yellow]Usage: krnlai run [--interactive/-i] [text][/yellow]")
 
 
 async def _run_once(agent, text: str) -> None:

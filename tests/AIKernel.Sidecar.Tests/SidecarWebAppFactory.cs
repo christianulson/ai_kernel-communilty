@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc.Testing;
 
-namespace AIKernel.Sidecar.Tests;
+namespace KrnlAI.Sidecar.Tests;
 
 public class SidecarWebAppFactory : WebApplicationFactory<Program>
 {

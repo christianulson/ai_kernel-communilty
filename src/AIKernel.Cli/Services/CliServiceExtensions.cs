@@ -1,6 +1,6 @@
-using AIKernel.LLMGateway.Core.Abstractions;
-using AIKernel.LLMGateway.Core.Services.Goals;
-using AIKernel.LLMGateway.Core.Services.Governance;
+using KrnlAI.LLMGateway.Core.Abstractions;
+using KrnlAI.LLMGateway.Core.Services.Goals;
+using KrnlAI.LLMGateway.Core.Services.Governance;
 using Kernel.Anticipation;
 using Kernel.Core.Abstractions;
 using Kernel.Core.Abstractions.Mcp;
@@ -15,7 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace AIKernel.Cli.Services;
+namespace KrnlAI.Cli.Services;
 
 public static class CliServiceExtensions
 {

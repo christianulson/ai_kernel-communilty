@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from aikernel.core.memory.episodic_memory import EpisodicMemory
-from aikernel.core.models.cognitive import CognitiveState
-from aikernel.core.models.envelope import CommandEnvelope
+from krnlai.core.memory.episodic_memory import EpisodicMemory
+from krnlai.core.models.cognitive import CognitiveState
+from krnlai.core.models.envelope import CommandEnvelope
 
 
 class OutcomeStep:

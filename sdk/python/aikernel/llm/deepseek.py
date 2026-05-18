@@ -6,7 +6,7 @@ from typing import Any, AsyncGenerator, List, Optional
 
 import httpx
 
-from aikernel.llm.base import ILLMProvider, LLMMessage, LLMResponse
+from krnlai.llm.base import ILLMProvider, LLMMessage, LLMResponse
 
 
 class DeepSeekProvider(ILLMProvider):

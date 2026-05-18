@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from aikernel.core.safety.allowlist_check import AllowlistCheck
+from krnlai.core.safety.allowlist_check import AllowlistCheck
 
 
 class TestAllowlistCheck:

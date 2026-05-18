@@ -6,26 +6,26 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, AsyncGenerator, Callable, Dict, List, Optional
 
-from aikernel.core.emotion.pain_reward import PainRewardModel
-from aikernel.core.emotion.vad import VADModel
-from aikernel.core.memory.episodic_memory import EpisodicMemory
-from aikernel.core.memory.semantic_memory import SemanticMemory
-from aikernel.core.memory.working_memory import WorkingMemory
-from aikernel.core.models.cognitive import (
+from krnlai.core.emotion.pain_reward import PainRewardModel
+from krnlai.core.emotion.vad import VADModel
+from krnlai.core.memory.episodic_memory import EpisodicMemory
+from krnlai.core.memory.semantic_memory import SemanticMemory
+from krnlai.core.memory.working_memory import WorkingMemory
+from krnlai.core.models.cognitive import (
     CognitiveState,
     CycleEvent,
     CyclePhase,
     CycleStep,
 )
-from aikernel.core.models.envelope import (
+from krnlai.core.models.envelope import (
     CommandEnvelope,
     CommandType,
     ResultEnvelope,
     ResultStatus,
 )
-from aikernel.core.policies.engine import PolicyEngine
-from aikernel.core.risk.scorer import RiskScorer
-from aikernel.core.safety.rules import SafetyChecker
+from krnlai.core.policies.engine import PolicyEngine
+from krnlai.core.risk.scorer import RiskScorer
+from krnlai.core.safety.rules import SafetyChecker
 
 
 @dataclass

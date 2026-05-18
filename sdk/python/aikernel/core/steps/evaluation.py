@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from aikernel.core.models.cognitive import CognitiveState
-from aikernel.core.models.envelope import CommandEnvelope
-from aikernel.core.risk.scorer import RiskScorer
-from aikernel.core.safety.rules import SafetyChecker
+from krnlai.core.models.cognitive import CognitiveState
+from krnlai.core.models.envelope import CommandEnvelope
+from krnlai.core.risk.scorer import RiskScorer
+from krnlai.core.safety.rules import SafetyChecker
 
 
 class EvaluationStep:

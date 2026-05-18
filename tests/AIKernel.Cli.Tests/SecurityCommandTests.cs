@@ -1,10 +1,10 @@
 using System.CommandLine;
-using AIKernel.Cli.Commands;
+using KrnlAI.Cli.Commands;
 using Kernel.Core.Services.Safety;
 using Microsoft.Extensions.Logging.Abstractions;
 using Spectre.Console.Testing;
 
-namespace AIKernel.Cli.Tests;
+namespace KrnlAI.Cli.Tests;
 
 public sealed class SecurityCommandTests
 {

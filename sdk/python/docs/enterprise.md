@@ -5,7 +5,7 @@ Connect the Python SDK to the C# AI Kernel backend for persistence, multi-tenanc
 ## Setup
 
 ```python
-from aikernel import CognitiveAgent
+from krnlai import CognitiveAgent
 
 agent = CognitiveAgent(
     mode="enterprise",

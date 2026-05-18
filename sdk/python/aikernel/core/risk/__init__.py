@@ -1,3 +1,3 @@
-from aikernel.core.risk.scorer import RiskFactor, RiskScorer
+from krnlai.core.risk.scorer import RiskFactor, RiskScorer
 
 __all__ = ["RiskFactor", "RiskScorer"]

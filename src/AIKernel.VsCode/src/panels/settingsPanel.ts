@@ -16,13 +16,13 @@ export class SettingsPanel {
 
     static createOrShow() {
         if (SettingsPanel.currentPanel) { SettingsPanel.currentPanel._panel.reveal(); return; }
-        const panel = vscode.window.createWebviewPanel('aikernel.settings', 'AI Kernel - Configurações', vscode.ViewColumn.Beside, { enableScripts: true, retainContextWhenHidden: true });
+        const panel = vscode.window.createWebviewPanel('krnlai.settings', 'AI Kernel - Configurações', vscode.ViewColumn.Beside, { enableScripts: true, retainContextWhenHidden: true });
         SettingsPanel.currentPanel = new SettingsPanel(panel);
     }
 
     private async _handle(msg: any) {
         if (msg.type === 'load') {
-            const config = vscode.workspace.getConfiguration('aikernel');
+            const config = vscode.workspace.getConfiguration('krnlai');
             this._panel.webview.postMessage({
                 type: 'config',
                 endpoint: config.get('endpoint'),
@@ -47,7 +47,7 @@ export class SettingsPanel {
                 vscode.window.showErrorMessage('Porta inválida. Use 1-65535');
                 return;
             }
-            const config = vscode.workspace.getConfiguration('aikernel');
+            const config = vscode.workspace.getConfiguration('krnlai');
             const currentEndpoint = config.inspect('endpoint');
             if (currentEndpoint?.workspaceValue) {
                 const action = await vscode.window.showWarningMessage(

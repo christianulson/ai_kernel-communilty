@@ -1,7 +1,7 @@
 using System.Net.Http.Json;
 using System.Text.Json.Serialization;
 
-namespace AIKernel.Cli.Services;
+namespace KrnlAI.Cli.Services;
 
 public sealed record RegistryPlugin(
     string Id,

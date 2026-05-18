@@ -1,6 +1,6 @@
-using AIKernel.Cli.Tui;
+using KrnlAI.Cli.Tui;
 
-namespace AIKernel.Cli.Tests;
+namespace KrnlAI.Cli.Tests;
 
 public sealed class TuiChatPanelTests
 {

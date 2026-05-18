@@ -1,7 +1,7 @@
-using AIKernel.Embedded;
+using KrnlAI.Embedded;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
-namespace AIKernel.Sidecar;
+namespace KrnlAI.Sidecar;
 
 public static class CommunityEndpoints
 {

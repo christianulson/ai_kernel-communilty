@@ -1,7 +1,7 @@
 using Kernel.Core.Services.Memory;
 using Spectre.Console;
 
-namespace AIKernel.Cli.Services;
+namespace KrnlAI.Cli.Services;
 
 public sealed class ConsoleRenderer
 {

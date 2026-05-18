@@ -1,4 +1,4 @@
-namespace AIKernel.Sidecar.Tests;
+namespace KrnlAI.Sidecar.Tests;
 
 public sealed class AuthTests_WithoutToken(SidecarWebAppFactory factory) : IClassFixture<SidecarWebAppFactory>
 {

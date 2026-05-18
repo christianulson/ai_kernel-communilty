@@ -1,4 +1,4 @@
-using AIKernel.Embedded;
+using KrnlAI.Embedded;
 using Kernel.Infrastructure.Storage.Dialect;
 
 namespace Kernel.Tests.Community;

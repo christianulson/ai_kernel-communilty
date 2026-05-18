@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
-from aikernel.core.cycle import CognitiveCycleRunner, CycleConfig
+from krnlai.core.cycle import CognitiveCycleRunner, CycleConfig
 
 
 class AikernelAssistantAgent:
     def __init__(
         self,
-        name: str = "AIKernelAgent",
+        name: str = "KrnlAIAgent",
         system_message: Optional[str] = None,
         safety_level: str = "strict",
         human_input_mode: str = "NEVER",
@@ -40,4 +40,4 @@ class AikernelAssistantAgent:
                 max_consecutive_auto_reply=self.max_consecutive_auto_reply,
             )
         except ImportError:
-            raise ImportError("pyautogen package required: pip install aikernel[autogen]")
+            raise ImportError("pyautogen package required: pip install krnlai[autogen]")

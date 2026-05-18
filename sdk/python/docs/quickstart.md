@@ -3,13 +3,13 @@
 ## Installation
 
 ```bash
-pip install aikernel
+pip install krnlai
 ```
 
 ## Basic Usage
 
 ```python
-from aikernel import CognitiveAgent
+from krnlai import CognitiveAgent
 
 agent = CognitiveAgent(safety_level="strict")
 response = await agent.run("analyze this dataset")
@@ -19,9 +19,9 @@ print(response.output)
 ## Interactive Mode
 
 ```bash
-aikernel init my-agent
+krnlai init my-agent
 cd my-agent
-aikernel run --interactive
+krnlai run --interactive
 ```
 
 ## With LLM
@@ -30,7 +30,7 @@ Set your API key and the agent will auto-detect:
 
 ```bash
 export OPENAI_API_KEY=sk-...
-aikernel run "What is the capital of France?"
+krnlai run "What is the capital of France?"
 ```
 
 ## Next Steps

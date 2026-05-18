@@ -41,7 +41,7 @@ describe('CodeLensProvider', () => {
         mockDocument.getText.mockReturnValue('class MyClass { }');
         const lenses = provider.provideCodeLenses(mockDocument);
         expect(lenses.length).toBeGreaterThanOrEqual(3);
-        expect(lenses[0].command?.command).toBe('aikernel.coding.explain');
+        expect(lenses[0].command?.command).toBe('krnlai.coding.explain');
     });
 
     it('ShouldReturnLenses_ForArrowFunction', () => {

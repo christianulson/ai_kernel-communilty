@@ -1,5 +1,5 @@
 [project]
-name = "aikernel"
+name = "krnlai"
 version = "0.1.0"
 description = "AI Kernel Python SDK — Cognitive agent framework with built-in safety"
 readme = "README.md"
@@ -34,22 +34,22 @@ crewai = ["crewai>=0.1.0"]
 autogen = ["pyautogen>=0.2.0"]
 fastapi = ["fastapi>=0.100.0"]
 all = [
-    "aikernel[openai]",
-    "aikernel[anthropic]",
-    "aikernel[ollama]",
-    "aikernel[langchain]",
-    "aikernel[crewai]",
-    "aikernel[autogen]",
-    "aikernel[fastapi]",
+    "krnlai[openai]",
+    "krnlai[anthropic]",
+    "krnlai[ollama]",
+    "krnlai[langchain]",
+    "krnlai[crewai]",
+    "krnlai[autogen]",
+    "krnlai[fastapi]",
 ]
 
 [project.urls]
-homepage = "https://github.com/ai-kernel/aikernel-py"
-repository = "https://github.com/ai-kernel/aikernel-py"
-documentation = "https://docs.aikernel.ai"
+homepage = "https://github.com/krnlai/krnlai-py"
+repository = "https://github.com/krnlai/krnlai-py"
+documentation = "https://docs.krnlai.ai"
 
 [project.scripts]
-aikernel = "aikernel.cli.main:app"
+krnlai = "krnlai.cli.main:app"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -101,7 +101,7 @@ describe('Extension', () => {
         const { activate } = require('../extension');
         await activate(context);
         expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
-            'aikernel.chat', expect.any(Function)
+            'krnlai.chat', expect.any(Function)
         );
     });
 
@@ -109,7 +109,7 @@ describe('Extension', () => {
         const { activate } = require('../extension');
         await activate(context);
         expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
-            'aikernel.dashboard', expect.any(Function)
+            'krnlai.dashboard', expect.any(Function)
         );
     });
 
@@ -117,7 +117,7 @@ describe('Extension', () => {
         const { activate } = require('../extension');
         await activate(context);
         expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
-            'aikernel.policies', expect.any(Function)
+            'krnlai.policies', expect.any(Function)
         );
     });
 
@@ -125,7 +125,7 @@ describe('Extension', () => {
         const { activate } = require('../extension');
         await activate(context);
         expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
-            'aikernel.episodes', expect.any(Function)
+            'krnlai.episodes', expect.any(Function)
         );
     });
 
@@ -133,7 +133,7 @@ describe('Extension', () => {
         const { activate } = require('../extension');
         await activate(context);
         expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
-            'aikernel.memory', expect.any(Function)
+            'krnlai.memory', expect.any(Function)
         );
     });
 
@@ -141,7 +141,7 @@ describe('Extension', () => {
         const { activate } = require('../extension');
         await activate(context);
         expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
-            'aikernel.settings', expect.any(Function)
+            'krnlai.settings', expect.any(Function)
         );
     });
 
@@ -149,10 +149,10 @@ describe('Extension', () => {
         const { activate } = require('../extension');
         await activate(context);
         expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
-            'aikernel.start', expect.any(Function)
+            'krnlai.start', expect.any(Function)
         );
         expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
-            'aikernel.stop', expect.any(Function)
+            'krnlai.stop', expect.any(Function)
         );
     });
 
@@ -166,7 +166,7 @@ describe('Extension', () => {
         const { activate } = require('../extension');
         await activate(context);
         expect(vscode.window.registerTreeDataProvider).toHaveBeenCalledWith(
-            'aikernel.nav', expect.any(Object)
+            'krnlai.nav', expect.any(Object)
         );
     });
 
@@ -174,7 +174,7 @@ describe('Extension', () => {
         const { activate } = require('../extension');
         await activate(context);
         expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
-            'aikernel.navigate', expect.any(Function)
+            'krnlai.navigate', expect.any(Function)
         );
     });
 
@@ -219,12 +219,12 @@ describe('Extension with Coding Agent Enabled', () => {
         await activate(context);
         const calls = (vscode.commands.registerCommand as jest.Mock).mock.calls;
         const ids = calls.map(c => c[0]);
-        expect(ids).toContain('aikernel.coding.chat');
-        expect(ids).toContain('aikernel.coding.explain');
-        expect(ids).toContain('aikernel.coding.fix');
-        expect(ids).toContain('aikernel.coding.test');
-        expect(ids).toContain('aikernel.coding.refactor');
-        expect(ids).toContain('aikernel.coding.review');
+        expect(ids).toContain('krnlai.coding.chat');
+        expect(ids).toContain('krnlai.coding.explain');
+        expect(ids).toContain('krnlai.coding.fix');
+        expect(ids).toContain('krnlai.coding.test');
+        expect(ids).toContain('krnlai.coding.refactor');
+        expect(ids).toContain('krnlai.coding.review');
     });
 
     it('ShouldRegisterCodeLensProvider_WhenEnabled', async () => {
@@ -240,7 +240,7 @@ describe('Extension with Coding Agent Enabled', () => {
         const mod = require('../extension');
         await mod.activate(context);
         const calls1 = (vscode.commands.registerCommand as jest.Mock).mock.calls;
-        const codingIds1 = calls1.filter(c => c[0].startsWith('aikernel.coding')).map(c => c[0]);
+        const codingIds1 = calls1.filter(c => c[0].startsWith('krnlai.coding')).map(c => c[0]);
 
         const ctx2 = {
             subscriptions: [],
@@ -262,7 +262,7 @@ describe('Extension with Coding Agent Enabled', () => {
         } as any;
         await mod.activate(ctx2);
         const calls2 = (vscode.commands.registerCommand as jest.Mock).mock.calls;
-        const codingIds2 = calls2.filter(c => c[0].startsWith('aikernel.coding')).map(c => c[0]);
+        const codingIds2 = calls2.filter(c => c[0].startsWith('krnlai.coding')).map(c => c[0]);
 
         expect(codingIds2.length).toBe(codingIds1.length);
     });

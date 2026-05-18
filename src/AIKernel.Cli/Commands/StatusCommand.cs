@@ -1,7 +1,7 @@
 using System.CommandLine;
-using AIKernel.Cli.Services;
+using KrnlAI.Cli.Services;
 
-namespace AIKernel.Cli.Commands;
+namespace KrnlAI.Cli.Commands;
 
 public sealed class StatusCommand(CliContext ctx, ConsoleRenderer renderer)
 {

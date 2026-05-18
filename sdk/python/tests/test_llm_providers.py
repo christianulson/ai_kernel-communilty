@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import pytest
 
-from aikernel.llm.base import ILLMProvider, LLMMessage, LLMResponse
-from aikernel.llm.deepseek import DeepSeekProvider
-from aikernel.llm.google import GoogleProvider
-from aikernel.llm.groq import GroqProvider
-from aikernel.llm.registry import ProviderRegistry
+from krnlai.llm.base import ILLMProvider, LLMMessage, LLMResponse
+from krnlai.llm.deepseek import DeepSeekProvider
+from krnlai.llm.google import GoogleProvider
+from krnlai.llm.groq import GroqProvider
+from krnlai.llm.registry import ProviderRegistry
 
 
 class MockProvider(ILLMProvider):

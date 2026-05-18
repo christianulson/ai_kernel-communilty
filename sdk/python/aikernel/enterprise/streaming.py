@@ -6,7 +6,7 @@ from typing import AsyncGenerator, Dict
 
 import httpx
 
-from aikernel.core.models.cognitive import CycleEvent
+from krnlai.core.models.cognitive import CycleEvent
 
 
 class EnterpriseStreamingClient:

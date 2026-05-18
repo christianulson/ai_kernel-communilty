@@ -4,20 +4,20 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using Spectre.Console;
 
-namespace AIKernel.Cli.Commands;
+namespace KrnlAI.Cli.Commands;
 
 public sealed class UpgradeCommand
 {
-    private const string NuGetPackageId = "AIKernel.Cli";
+    private const string NuGetPackageId = "KrnlAI.Cli";
     private const string NuGetQueryUrl = "https://api.nuget.org/v3-flatcontainer/{0}/index.json";
-    private const string VersionLogFile = ".aikernel-version-log.json";
+    private const string VersionLogFile = ".krnlai-version-log.json";
 
     private readonly string _versionLogPath;
 
     public UpgradeCommand()
     {
         var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        _versionLogPath = Path.Combine(home, ".aikernel", VersionLogFile);
+        _versionLogPath = Path.Combine(home, ".krnlai", VersionLogFile);
     }
 
     public Command Build()
@@ -63,7 +63,7 @@ public sealed class UpgradeCommand
             if (check)
             {
                 AnsiConsole.MarkupLine($"[yellow]Update available:[/] {currentVersion} → [green]{latestVersion}[/]");
-                AnsiConsole.MarkupLine("Run [bold]aikernel upgrade[/] to install.");
+                AnsiConsole.MarkupLine("Run [bold]krnlai upgrade[/] to install.");
                 return 0;
             }
 
@@ -112,7 +112,7 @@ public sealed class UpgradeCommand
                     if (rollbackResult)
                         AnsiConsole.MarkupLine("[yellow]Rolled back to version {0}.[/]", previousVersion);
                     else
-                        AnsiConsole.MarkupLine("[red]Rollback also failed. Please run: dotnet tool install -g AIKernel.Cli --version {0}[/]", previousVersion);
+                        AnsiConsole.MarkupLine("[red]Rollback also failed. Please run: dotnet tool install -g KrnlAI.Cli --version {0}[/]", previousVersion);
                     LogVersion(targetVersion, "failed");
                 }
             });

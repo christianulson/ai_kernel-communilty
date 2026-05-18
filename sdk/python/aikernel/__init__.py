@@ -1,11 +1,11 @@
-from aikernel.core.cycle import CognitiveCycleRunner
-from aikernel.core.emotion.vad import VADState
-from aikernel.core.memory.working_memory import WorkingMemory
-from aikernel.core.models.cognitive import CognitiveState
-from aikernel.core.models.envelope import CommandEnvelope, ResultEnvelope
-from aikernel.core.models.safety import RiskLevel, SafetyVerdict
-from aikernel.core.safety.rules import SafetyChecker
-from aikernel.enterprise.merge import CognitiveAgent
+from krnlai.core.cycle import CognitiveCycleRunner
+from krnlai.core.emotion.vad import VADState
+from krnlai.core.memory.working_memory import WorkingMemory
+from krnlai.core.models.cognitive import CognitiveState
+from krnlai.core.models.envelope import CommandEnvelope, ResultEnvelope
+from krnlai.core.models.safety import RiskLevel, SafetyVerdict
+from krnlai.core.safety.rules import SafetyChecker
+from krnlai.enterprise.merge import CognitiveAgent
 
 __all__ = [
     "CognitiveAgent",

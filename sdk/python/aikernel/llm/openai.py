@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 from typing import Any, AsyncGenerator, List, Optional
 
-from aikernel.llm.base import ILLMProvider, LLMMessage, LLMResponse
+from krnlai.llm.base import ILLMProvider, LLMMessage, LLMResponse
 
 
 class OpenAIProvider(ILLMProvider):
@@ -18,7 +18,7 @@ class OpenAIProvider(ILLMProvider):
                 from openai import AsyncOpenAI
                 self._client = AsyncOpenAI(api_key=self._api_key)
             except ImportError:
-                raise ImportError("openai package required: pip install aikernel[openai]")
+                raise ImportError("openai package required: pip install krnlai[openai]")
 
     async def complete(self, messages: List[LLMMessage], **kwargs: Any) -> LLMResponse:
         self._ensure_client()

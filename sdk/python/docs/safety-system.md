@@ -30,7 +30,7 @@ The AI Kernel enforces 20 fundamental rules (R01-R20) that cannot be overridden.
 ## CLI Audit
 
 ```bash
-aikernel security audit
-aikernel security benchmark
-aikernel security report report.html
+krnlai security audit
+krnlai security benchmark
+krnlai security report report.html
 ```

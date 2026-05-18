@@ -3,7 +3,7 @@ let mockConfig: any = {};
 function resetMockConfig() {
     mockConfig = {
         enabled: true,
-        endpoint: 'https://cloud.aikernel.dev',
+        endpoint: 'https://cloud.krnlai.dev',
         apiKey: 'test-key',
         maxExecutionTime: 300,
     };

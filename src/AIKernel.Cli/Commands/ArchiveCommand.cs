@@ -1,8 +1,8 @@
 using System.CommandLine;
-using AIKernel.Cli.Services;
+using KrnlAI.Cli.Services;
 using Spectre.Console;
 
-namespace AIKernel.Cli.Commands;
+namespace KrnlAI.Cli.Commands;
 
 public sealed class ArchiveCommand(CliContext ctx, ConsoleRenderer renderer)
 {

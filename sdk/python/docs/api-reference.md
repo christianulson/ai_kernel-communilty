@@ -33,11 +33,11 @@ verdict = checker.evaluate_all(context)
 ## LLM Providers
 
 ```python
-from aikernel.llm.openai import OpenAIProvider
-from aikernel.llm.anthropic import AnthropicProvider
-from aikernel.llm.google import GoogleProvider
-from aikernel.llm.groq import GroqProvider
-from aikernel.llm.deepseek import DeepSeekProvider
-from aikernel.llm.ollama import OllamaProvider
-from aikernel.llm.openrouter import OpenRouterProvider
+from krnlai.llm.openai import OpenAIProvider
+from krnlai.llm.anthropic import AnthropicProvider
+from krnlai.llm.google import GoogleProvider
+from krnlai.llm.groq import GroqProvider
+from krnlai.llm.deepseek import DeepSeekProvider
+from krnlai.llm.ollama import OllamaProvider
+from krnlai.llm.openrouter import OpenRouterProvider
 ```

@@ -19,7 +19,7 @@ export class MemoryPanel {
 
     static createOrShow() {
         if (MemoryPanel.currentPanel) { MemoryPanel.currentPanel._panel.reveal(); return; }
-        const panel = vscode.window.createWebviewPanel('aikernel.memory', 'AI Kernel - Memória', vscode.ViewColumn.Beside, { enableScripts: true, retainContextWhenHidden: true });
+        const panel = vscode.window.createWebviewPanel('krnlai.memory', 'AI Kernel - Memória', vscode.ViewColumn.Beside, { enableScripts: true, retainContextWhenHidden: true });
         MemoryPanel.currentPanel = new MemoryPanel(panel);
     }
 

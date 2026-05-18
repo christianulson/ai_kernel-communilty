@@ -4,7 +4,7 @@ using Kernel.Core.Model;
 using Kernel.Core.Services.Safety;
 using Spectre.Console;
 
-namespace AIKernel.Cli.Commands;
+namespace KrnlAI.Cli.Commands;
 
 public sealed class SecurityCommand(SafetyBenchRunner benchRunner, IAnsiConsole console)
 {

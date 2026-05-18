@@ -13,7 +13,7 @@ Key packages:
 - `Kernel.Contracts`: public contracts and DTOs
 - `Kernel.Core`: domain models, abstractions, policies, and core services
 - `Kernel.Infrastructure`: local storage, scheduling, and persistence
-- `AIKernel.Embedded`: in-process kernel composition for local applications
+- `KrnlAI.Embedded`: in-process kernel composition for local applications
 
 ## Gateway
 

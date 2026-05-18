@@ -1,9 +1,9 @@
 using System.Diagnostics;
 using System.Net.Http.Json;
 using System.Text.Json;
-using AIKernel.Cli.Abstractions;
+using KrnlAI.Cli.Abstractions;
 
-namespace AIKernel.Cli.Services;
+namespace KrnlAI.Cli.Services;
 
 public sealed class OpenAiSafetyEvaluator : IExternalSafetyEvaluator
 {

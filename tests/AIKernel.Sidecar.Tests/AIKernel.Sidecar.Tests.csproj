@@ -20,13 +20,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\AIKernel.Sidecar\AIKernel.Sidecar.csproj" />
+    <ProjectReference Include="..\..\src\KrnlAI.Sidecar\KrnlAI.Sidecar.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Using Include="Xunit" />
     <Using Include="FluentAssertions" />
-    <Using Include="AIKernel.Sidecar" />
+    <Using Include="KrnlAI.Sidecar" />
   </ItemGroup>
 
 </Project>

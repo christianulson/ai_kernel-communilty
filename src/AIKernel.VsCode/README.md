@@ -10,7 +10,7 @@ Extensão VsCode para interagir com o AI Kernel, um agente cognitivo que pode ro
 
 ```bash
 # 1. Compilar a extensão
-cd src/AIKernel.VsCode
+cd src/KrnlAI.VsCode
 npm install
 npx tsc
 
@@ -18,7 +18,7 @@ npx tsc
 npx @vscode/vsce package
 
 # 3. Instalar no VsCode
-code --install-extension aikernel-vscode-1.0.0.vsix
+code --install-extension krnlai-vscode-1.0.0.vsix
 ```
 
 ### Via código fonte (desenvolvimento)
@@ -43,8 +43,8 @@ A extensão funciona em **2 modos**:
 
 | Modo | Configuração | Requer |
 |------|-------------|--------|
-| **API Remota** (padrão) | `aikernel.endpoint: "http://localhost:5000"` | Backend Gateway/Kernel rodando |
-| **Standalone Local** | `aikernel.standalone: true` | .NET 10 SDK + Sidecar |
+| **API Remota** (padrão) | `krnlai.endpoint: "http://localhost:5000"` | Backend Gateway/Kernel rodando |
+| **Standalone Local** | `krnlai.standalone: true` | .NET 10 SDK + Sidecar |
 
 Para ativar o modo standalone:
 
@@ -53,7 +53,7 @@ Para ativar o modo standalone:
 Ctrl+Shift+P → "AI Kernel: Iniciar Sidecar"
 
 # Ou manualmente:
-dotnet run --project src/AIKernel.Sidecar -- --port 5001
+dotnet run --project src/KrnlAI.Sidecar -- --port 5001
 ```
 
 ### 3. Configurar
@@ -62,9 +62,9 @@ dotnet run --project src/AIKernel.Sidecar -- --port 5001
 
 | Opção | Padrão | Descrição |
 |-------|--------|-----------|
-| `aikernel.endpoint` | `http://localhost:5000` | URL do backend |
-| `aikernel.standalone` | `false` | Usar Sidecar local |
-| `aikernel.sidecarPort` | `5001` | Porta do Sidecar |
+| `krnlai.endpoint` | `http://localhost:5000` | URL do backend |
+| `krnlai.standalone` | `false` | Usar Sidecar local |
+| `krnlai.sidecarPort` | `5001` | Porta do Sidecar |
 
 ---
 
@@ -115,7 +115,7 @@ VsCode Extension (TypeScript)
 ├── Modo API Remota ── HTTP ──> Backend Gateway (:5000)
 │                                 └── Kernel API
 │
-└── Modo Standalone ── spawn ──> AIKernel.Sidecar.exe (:5001)
+└── Modo Standalone ── spawn ──> KrnlAI.Sidecar.exe (:5001)
                                    └── Kernel.Core (in-process)
                                        ├── AdversarialGuard
                                        ├── SimpleRiskScorer

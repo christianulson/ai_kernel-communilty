@@ -1,4 +1,4 @@
-namespace AIKernel.Sidecar;
+namespace KrnlAI.Sidecar;
 
 /// <summary>
 /// Solicitação de execução de um agente no modo standalone.

@@ -1,4 +1,4 @@
-from aikernel.core.emotion.pain_reward import PainRewardSignal
-from aikernel.core.emotion.vad import EmotionalTransition, VADModel, VADState
+from krnlai.core.emotion.pain_reward import PainRewardSignal
+from krnlai.core.emotion.vad import EmotionalTransition, VADModel, VADState
 
 __all__ = ["EmotionalTransition", "PainRewardSignal", "VADModel", "VADState"]

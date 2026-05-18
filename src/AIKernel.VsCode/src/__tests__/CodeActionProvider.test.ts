@@ -38,7 +38,7 @@ describe('CodeActionProvider', () => {
         const actions = provider.provideCodeActions(mockDocument, mockRange, emptyContext, mockToken);
         const explain = actions.find(a => a.title.includes('Explain'));
         expect(explain).toBeDefined();
-        expect(explain!.command?.command).toBe('aikernel.coding.explain');
+        expect(explain!.command?.command).toBe('krnlai.coding.explain');
     });
 
     it('ShouldProvideFix_WhenDiagnosticsExist', () => {
@@ -47,7 +47,7 @@ describe('CodeActionProvider', () => {
         const actions = provider.provideCodeActions(mockDocument, mockRange, context, mockToken);
         const fix = actions.find(a => a.title.includes('Fix'));
         expect(fix).toBeDefined();
-        expect(fix!.command?.command).toBe('aikernel.coding.fix');
+        expect(fix!.command?.command).toBe('krnlai.coding.fix');
     });
 
     it('ShouldProvideTest_WhenClassExists', () => {
@@ -55,7 +55,7 @@ describe('CodeActionProvider', () => {
         const actions = provider.provideCodeActions(mockDocument, { isEmpty: true } as any, emptyContext, mockToken);
         const test = actions.find(a => a.title.includes('Test'));
         expect(test).toBeDefined();
-        expect(test!.command?.command).toBe('aikernel.coding.test');
+        expect(test!.command?.command).toBe('krnlai.coding.test');
     });
 
     it('ShouldReturnEmpty_WhenNoContext', () => {

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from aikernel.core.risk.scorer import RiskScorer
+from krnlai.core.risk.scorer import RiskScorer
 
 
 class TestRiskScorer:

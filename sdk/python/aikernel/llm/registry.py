@@ -3,14 +3,14 @@ from __future__ import annotations
 import os
 from typing import Dict, Optional
 
-from aikernel.llm.anthropic import AnthropicProvider
-from aikernel.llm.base import ILLMProvider
-from aikernel.llm.deepseek import DeepSeekProvider
-from aikernel.llm.google import GoogleProvider
-from aikernel.llm.groq import GroqProvider
-from aikernel.llm.ollama import OllamaProvider
-from aikernel.llm.openai import OpenAIProvider
-from aikernel.llm.openrouter import OpenRouterProvider
+from krnlai.llm.anthropic import AnthropicProvider
+from krnlai.llm.base import ILLMProvider
+from krnlai.llm.deepseek import DeepSeekProvider
+from krnlai.llm.google import GoogleProvider
+from krnlai.llm.groq import GroqProvider
+from krnlai.llm.ollama import OllamaProvider
+from krnlai.llm.openai import OpenAIProvider
+from krnlai.llm.openrouter import OpenRouterProvider
 
 
 class ProviderRegistry:

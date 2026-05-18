@@ -1,4 +1,4 @@
-namespace AIKernel.Sidecar.Tests;
+namespace KrnlAI.Sidecar.Tests;
 
 public sealed class PolicyAndMetricsEndpointTests(SidecarWebAppFactory factory) : IClassFixture<SidecarWebAppFactory>
 {

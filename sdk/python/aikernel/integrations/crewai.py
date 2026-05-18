@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from aikernel.core.cycle import CognitiveCycleRunner, CycleConfig
+from krnlai.core.cycle import CognitiveCycleRunner, CycleConfig
 
 
 class AikernelAgent:
@@ -50,4 +50,4 @@ class AikernelAgent:
                 verbose=self.verbose,
             )
         except ImportError:
-            raise ImportError("crewai package required: pip install aikernel[crewai]")
+            raise ImportError("crewai package required: pip install krnlai[crewai]")

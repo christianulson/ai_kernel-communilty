@@ -3,8 +3,8 @@
 This sample shows the smallest local workflow:
 
 ```bash
-dotnet tool install -g AIKernel.Cli
-aikernel chat --local
+dotnet tool install -g KrnlAI.Cli
+krnlai chat --local
 ```
 
 Try:

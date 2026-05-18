@@ -1,7 +1,7 @@
 using Kernel.Core.Abstractions;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-namespace AIKernel.Sidecar;
+namespace KrnlAI.Sidecar;
 
 public sealed class SidecarHealthCheck(IAdversarialGuard guard) : IHealthCheck
 {

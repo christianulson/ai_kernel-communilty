@@ -1,8 +1,8 @@
 using System.CommandLine;
-using AIKernel.Cli.Abstractions;
+using KrnlAI.Cli.Abstractions;
 using Spectre.Console;
 
-namespace AIKernel.Cli.Commands;
+namespace KrnlAI.Cli.Commands;
 
 public sealed class InitCommand(ITemplateEngine templateEngine, IAnsiConsole console)
 {
@@ -53,7 +53,7 @@ public sealed class InitCommand(ITemplateEngine templateEngine, IAnsiConsole con
             console.MarkupLine($"  [cyan]cd {name}[/]");
             console.MarkupLine("  [cyan]dotnet restore[/]");
             console.MarkupLine("  [cyan]dotnet run[/]");
-            console.MarkupLine("  [cyan]aikernel debug cycle[/]");
+            console.MarkupLine("  [cyan]krnlai debug cycle[/]");
 
             return 0;
         });

@@ -1,4 +1,4 @@
-namespace AIKernel.Sidecar.Tests;
+namespace KrnlAI.Sidecar.Tests;
 
 public sealed class HealthEndpointTests(SidecarWebAppFactory factory) : IClassFixture<SidecarWebAppFactory>
 {
@@ -29,6 +29,6 @@ public sealed class HealthEndpointTests(SidecarWebAppFactory factory) : IClassFi
     {
         var res = await _http.GetAsync("/health", TestContext.Current.CancellationToken);
         var body = await res.Content.ReadFromJsonAsync<Dictionary<string, object>>(cancellationToken: TestContext.Current.CancellationToken);
-        body!["version"].ToString().Should().Be("AIKernel.Sidecar/1.0.0");
+        body!["version"].ToString().Should().Be("KrnlAI.Sidecar/1.0.0");
     }
 }

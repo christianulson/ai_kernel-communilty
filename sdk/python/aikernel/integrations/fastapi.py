@@ -6,7 +6,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
 
-from aikernel.core.cycle import CognitiveCycleRunner
+from krnlai.core.cycle import CognitiveCycleRunner
 
 
 class AikernelMiddleware(BaseHTTPMiddleware):

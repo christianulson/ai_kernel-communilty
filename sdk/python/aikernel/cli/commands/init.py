@@ -6,7 +6,7 @@ from rich.console import Console
 
 console = Console()
 
-TEMPLATE_AGENT_PY = '''from aikernel import CognitiveAgent
+TEMPLATE_AGENT_PY = '''from krnlai import CognitiveAgent
 
 agent = CognitiveAgent(safety_level="strict")
 
@@ -32,7 +32,7 @@ TEMPLATE_ENV = '''# AI Kernel Configuration
 # OLLAMA_BASE_URL=http://localhost:11434
 '''
 
-TEMPLATE_REQUIREMENTS = '''aikernel>=0.1.0
+TEMPLATE_REQUIREMENTS = '''krnlai>=0.1.0
 python-dotenv>=1.0.0
 '''
 
@@ -52,4 +52,4 @@ def init_project(name: str) -> None:
     console.print("\nNext steps:")
     console.print(f"  cd {name}")
     console.print("  pip install -r requirements.txt")
-    console.print("  aikernel run --interactive")
+    console.print("  krnlai run --interactive")

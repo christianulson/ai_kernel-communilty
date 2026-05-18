@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace AiKernel.Sdk.Models;
+namespace KrnlAi.Sdk.Models;
 
 public sealed record EpisodeListItem(
     [property: JsonPropertyName("episodeId")] string EpisodeId,

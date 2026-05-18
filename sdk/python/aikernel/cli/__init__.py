@@ -1,3 +1,3 @@
-from aikernel.cli.main import app
+from krnlai.cli.main import app
 
 __all__ = ["app"]

@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from typing import List, Optional
 
-from aikernel.core.safety.rules import RuleResult, RuleSeverity
+from krnlai.core.safety.rules import RuleResult, RuleSeverity
 
 
 class AdversarialGuard:

@@ -1,11 +1,11 @@
 using System.CommandLine;
-using AIKernel.Cli.Abstractions;
-using AIKernel.Cli.Commands;
-using AIKernel.Cli.Services;
+using KrnlAI.Cli.Abstractions;
+using KrnlAI.Cli.Commands;
+using KrnlAI.Cli.Services;
 using Microsoft.Extensions.Logging.Abstractions;
 using Spectre.Console;
 
-namespace AIKernel.Cli.Tests;
+namespace KrnlAI.Cli.Tests;
 
 public sealed class TemplatesCommandTests
 {

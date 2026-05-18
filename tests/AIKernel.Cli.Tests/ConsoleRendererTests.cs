@@ -1,8 +1,8 @@
-using AIKernel.Cli.Services;
+using KrnlAI.Cli.Services;
 using Kernel.Core.Services.Memory;
 using Spectre.Console.Testing;
 
-namespace AIKernel.Cli.Tests;
+namespace KrnlAI.Cli.Tests;
 
 public sealed class ConsoleRendererTests
 {

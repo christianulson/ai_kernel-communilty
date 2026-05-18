@@ -1,9 +1,9 @@
 using System.CommandLine;
-using AIKernel.Cli.Services;
+using KrnlAI.Cli.Services;
 using Kernel.Core.Services.ExperimentTracking;
 using Spectre.Console;
 
-namespace AIKernel.Cli.Commands;
+namespace KrnlAI.Cli.Commands;
 
 public sealed class ExperimentCommand(CliContext ctx, ConsoleRenderer renderer)
 {

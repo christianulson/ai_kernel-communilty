@@ -1,4 +1,4 @@
-from aikernel.enterprise.client import EnterpriseClient
-from aikernel.enterprise.streaming import EnterpriseStreamingClient
+from krnlai.enterprise.client import EnterpriseClient
+from krnlai.enterprise.streaming import EnterpriseStreamingClient
 
 __all__ = ["EnterpriseClient", "EnterpriseStreamingClient"]

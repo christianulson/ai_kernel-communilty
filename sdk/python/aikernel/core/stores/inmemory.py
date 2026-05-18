@@ -4,7 +4,7 @@ import threading
 from typing import Callable, Dict, Generic, List, TypeVar
 from uuid import UUID
 
-from aikernel.core.stores.exceptions import ItemNotFoundError
+from krnlai.core.stores.exceptions import ItemNotFoundError
 
 T = TypeVar("T")
 

@@ -6,7 +6,7 @@ import sys
 from rich.console import Console
 from rich.table import Table
 
-from aikernel.core.cycle import CognitiveCycleRunner, CycleConfig
+from krnlai.core.cycle import CognitiveCycleRunner, CycleConfig
 
 console = Console()
 
@@ -52,12 +52,12 @@ def app() -> None:
     if not args:
         console.print("[bold]AI Kernel CLI[/bold]")
         console.print("Usage:")
-        console.print("  aikernel init <name>         Create a new agent project")
-        console.print("  aikernel run [text]          Run agent once")
-        console.print("  aikernel run --interactive   Interactive mode")
-        console.print("  aikernel debug [text]        Debug cognitive cycle")
-        console.print("  aikernel security <command>  Security audit, benchmark, report")
-        console.print("  aikernel deploy <target>     Generate Docker/K8s files")
+        console.print("  krnlai init <name>         Create a new agent project")
+        console.print("  krnlai run [text]          Run agent once")
+        console.print("  krnlai run --interactive   Interactive mode")
+        console.print("  krnlai debug [text]        Debug cognitive cycle")
+        console.print("  krnlai security <command>  Security audit, benchmark, report")
+        console.print("  krnlai deploy <target>     Generate Docker/K8s files")
         return
 
     cmd = args[0]
@@ -65,20 +65,20 @@ def app() -> None:
 
     try:
         if cmd == "init":
-            from aikernel.cli.commands.init import init_project
+            from krnlai.cli.commands.init import init_project
             name = cmd_args[0] if cmd_args else "my-agent"
             init_project(name)
         elif cmd == "run":
-            from aikernel.cli.commands.run import cmd_run
+            from krnlai.cli.commands.run import cmd_run
             asyncio.run(cmd_run(cmd_args))
         elif cmd == "debug":
-            from aikernel.cli.commands.debug import cmd_debug
+            from krnlai.cli.commands.debug import cmd_debug
             asyncio.run(cmd_debug(cmd_args))
         elif cmd == "security":
-            from aikernel.cli.commands.security import cmd_security
+            from krnlai.cli.commands.security import cmd_security
             asyncio.run(cmd_security(cmd_args))
         elif cmd == "deploy":
-            from aikernel.cli.commands.deploy import cmd_deploy
+            from krnlai.cli.commands.deploy import cmd_deploy
             asyncio.run(cmd_deploy(cmd_args))
         else:
             console.print(f"[red]Unknown command: {cmd}[/red]")

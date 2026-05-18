@@ -66,7 +66,7 @@ export class ChatViewProvider {
             return;
         }
         const panel = vscode.window.createWebviewPanel(
-            'aikernel.coding.chat',
+            'krnlai.coding.chat',
             'AI Kernel - Coding Agent',
             vscode.ViewColumn.Beside,
             { enableScripts: true, retainContextWhenHidden: true }

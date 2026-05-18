@@ -22,7 +22,7 @@ export class CloudDelegationManager {
     private _pending = new Map<string, DelegationResult>();
 
     get config() {
-        return vscode.workspace.getConfiguration('aikernel.cloudDelegation');
+        return vscode.workspace.getConfiguration('krnlai.cloudDelegation');
     }
 
     get enabled(): boolean {
@@ -30,7 +30,7 @@ export class CloudDelegationManager {
     }
 
     get endpoint(): string {
-        return this.config.get<string>('endpoint', 'https://cloud.aikernel.dev');
+        return this.config.get<string>('endpoint', 'https://cloud.krnlai.dev');
     }
 
     get maxExecutionTime(): number {
@@ -42,7 +42,7 @@ export class CloudDelegationManager {
             return {
                 id: '',
                 status: DelegationStatus.Failed,
-                error: 'Cloud delegation not enabled. Set aikernel.cloudDelegation.enabled = true.',
+                error: 'Cloud delegation not enabled. Set krnlai.cloudDelegation.enabled = true.',
                 createdAt: Date.now(),
             };
         }

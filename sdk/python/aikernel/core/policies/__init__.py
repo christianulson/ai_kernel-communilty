@@ -1,3 +1,3 @@
-from aikernel.core.policies.engine import PolicyEngine, PolicyRule
+from krnlai.core.policies.engine import PolicyEngine, PolicyRule
 
 __all__ = ["PolicyEngine", "PolicyRule"]

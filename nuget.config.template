@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <configuration>
   <packageSources>
-    <add key="ai-kernel-private" value="https://nuget.pkg.github.com/ai-kernel/index.json" />
+    <add key="krnlai-private" value="https://nuget.pkg.github.com/krnlai/index.json" />
     <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
   </packageSources>
   <packageSourceCredentials>
-    <ai-kernel-private>
+    <krnlai-private>
       <add key="Username" value="%GITHUB_ACTOR%" />
       <add key="ClearTextPassword" value="%GITHUB_TOKEN%" />
-    </ai-kernel-private>
+    </krnlai-private>
   </packageSourceCredentials>
 </configuration>

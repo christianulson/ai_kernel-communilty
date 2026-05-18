@@ -2,7 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Diagnostics;
 
-namespace AIKernel.Cli.Tui;
+namespace KrnlAI.Cli.Tui;
 
 internal static class SessionJson
 {
@@ -23,7 +23,7 @@ public sealed class TuiSessionStore
     public TuiSessionStore()
     {
         var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        _sessionsDir = Path.Combine(home, ".aikernel", "tui-sessions");
+        _sessionsDir = Path.Combine(home, ".krnlai", "tui-sessions");
         if (!Directory.Exists(_sessionsDir))
             Directory.CreateDirectory(_sessionsDir);
     }

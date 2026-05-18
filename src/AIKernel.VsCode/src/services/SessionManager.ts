@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import type { ChatMessage } from '../chat/ChatMessage';
 
-const STORAGE_KEY = 'aikernel.sessions';
+const STORAGE_KEY = 'krnlai.sessions';
 const MAX_SESSIONS = 10;
 
 export interface ChatSession {

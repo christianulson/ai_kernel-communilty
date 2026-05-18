@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-const STORAGE_KEY = 'aikernel.usage';
+const STORAGE_KEY = 'krnlai.usage';
 
 export interface UsageRecord {
     timestamp: number;

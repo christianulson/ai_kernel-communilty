@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Any, Dict, List
 
-from aikernel.core.models.safety import RiskLevel
-from aikernel.core.safety.rules import (
+from krnlai.core.models.safety import RiskLevel
+from krnlai.core.safety.rules import (
     RULES_REGISTRY,
     FundamentalRule,
     RuleResult,

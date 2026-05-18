@@ -1,7 +1,7 @@
 using System.Net;
-using AIKernel.Cli.Services;
+using KrnlAI.Cli.Services;
 
-namespace AIKernel.Cli.Tests;
+namespace KrnlAI.Cli.Tests;
 
 public sealed class PluginDiscoveryServiceTests
 {
@@ -28,9 +28,9 @@ public sealed class PluginDiscoveryServiceTests
               "id": "mcp-filesystem",
               "name": "MCP Filesystem",
               "description": "Access local filesystem via MCP",
-              "author": "aikernel",
+              "author": "krnlai",
               "type": "mcp",
-              "url": "https://github.com/aikernel/mcp-filesystem",
+              "url": "https://github.com/krnlai/mcp-filesystem",
               "risk": "low",
               "verified": true,
               "version": "1.0.0"
@@ -70,9 +70,9 @@ public sealed class PluginDiscoveryServiceTests
               "id": "github-tools",
               "name": "GitHub Tools",
               "description": "GitHub API integration",
-              "author": "aikernel",
+              "author": "krnlai",
               "type": "openapi",
-              "url": "https://github.com/aikernel/github-tools",
+              "url": "https://github.com/krnlai/github-tools",
               "risk": "low",
               "verified": true,
               "version": "0.9.0"

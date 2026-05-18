@@ -1,6 +1,6 @@
-using AIKernel.Cli.Commands;
+using KrnlAI.Cli.Commands;
 
-namespace AIKernel.Cli.Tests;
+namespace KrnlAI.Cli.Tests;
 
 public sealed class ServeCommandTests
 {

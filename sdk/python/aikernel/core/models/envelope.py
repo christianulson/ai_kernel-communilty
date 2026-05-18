@@ -55,4 +55,4 @@ class ResultEnvelope(BaseModel):
         return self.model_dump_json()
 
 
-from aikernel.core.models.safety import SafetyVerdict
+from krnlai.core.models.safety import SafetyVerdict

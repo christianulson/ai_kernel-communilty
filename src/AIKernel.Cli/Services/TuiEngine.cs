@@ -2,7 +2,7 @@ using Spectre.Console;
 using Kernel.Core.Abstractions;
 using Kernel.Core.Services.Neural;
 
-namespace AIKernel.Cli.Services;
+namespace KrnlAI.Cli.Services;
 
 public sealed class TuiEngine : IDisposable
 {

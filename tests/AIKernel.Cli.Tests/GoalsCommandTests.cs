@@ -1,9 +1,9 @@
 using System.CommandLine;
-using AIKernel.Cli.Commands;
-using AIKernel.Cli.Services;
-using AIKernel.LLMGateway.Core.Abstractions;
-using AIKernel.LLMGateway.Core.Services.Goals;
-using AIKernel.LLMGateway.Core.Services.Governance;
+using KrnlAI.Cli.Commands;
+using KrnlAI.Cli.Services;
+using KrnlAI.LLMGateway.Core.Abstractions;
+using KrnlAI.LLMGateway.Core.Services.Goals;
+using KrnlAI.LLMGateway.Core.Services.Governance;
 using Kernel.Contracts;
 using Kernel.Core.Abstractions;
 using Kernel.Core.Services.Memory;
@@ -15,7 +15,7 @@ using Kernel.Executive;
 using Kernel.Memory;
 using Kernel.Snapshot;
 
-namespace AIKernel.Cli.Tests;
+namespace KrnlAI.Cli.Tests;
 
 public sealed class GoalsCommandTests
 {

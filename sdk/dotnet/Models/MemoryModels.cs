@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace AiKernel.Sdk.Models;
+namespace KrnlAi.Sdk.Models;
 
 public sealed record MemorySearchRequest(
     [property: JsonPropertyName("query")] string Query,

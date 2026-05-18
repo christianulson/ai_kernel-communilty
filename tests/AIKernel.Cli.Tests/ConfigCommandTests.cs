@@ -1,8 +1,8 @@
 using System.CommandLine;
-using AIKernel.Cli.Commands;
+using KrnlAI.Cli.Commands;
 using Spectre.Console.Testing;
 
-namespace AIKernel.Cli.Tests;
+namespace KrnlAI.Cli.Tests;
 
 public sealed class ConfigCommandTests
 {

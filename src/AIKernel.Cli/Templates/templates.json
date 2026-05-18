@@ -5,7 +5,7 @@
       "description": "Minimal functional agent with safety, memory, and LLM configuration",
       "type": "Agent",
       "version": "1.0.0",
-      "dependencies": ["AIKernel.Cli"]
+      "dependencies": ["KrnlAI.Cli"]
     },
     {
       "name": "coding-agent",

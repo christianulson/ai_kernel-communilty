@@ -1,8 +1,8 @@
 using System.Net.Http.Json;
-using AIKernel.Embedded;
+using KrnlAI.Embedded;
 using Spectre.Console;
 
-namespace AIKernel.Cli.Tui;
+namespace KrnlAI.Cli.Tui;
 
 public sealed class TuiEngine
 {

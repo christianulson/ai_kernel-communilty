@@ -10,13 +10,13 @@ class MySQLStore:
         self,
         host: str = "",
         port: int = 3306,
-        database: str = "aikernel",
+        database: str = "krnlai",
         user: str = "",
         password: str = "",
     ) -> None:
         self._host = host or os.getenv("MYSQL_HOST", "localhost")
         self._port = int(os.getenv("MYSQL_PORT", str(port)))
-        self._database = database or os.getenv("MYSQL_DATABASE", "aikernel")
+        self._database = database or os.getenv("MYSQL_DATABASE", "krnlai")
         self._user = user or os.getenv("MYSQL_USER", "root")
         self._password = password or os.getenv("MYSQL_PASSWORD", "")
         self._pool = None

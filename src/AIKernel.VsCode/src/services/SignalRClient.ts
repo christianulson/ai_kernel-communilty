@@ -21,7 +21,7 @@ export class SignalRClient implements vscode.Disposable {
     private readonly _reconnectDelayMs = 5000;
 
     constructor() {
-        const config = vscode.workspace.getConfiguration('aiKernel');
+        const config = vscode.workspace.getConfiguration('krnlAI');
         this._serverUrl = config.get<string>('signalrUrl', 'http://localhost:5000');
         this._statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 99);
         this._statusBarItem.tooltip = 'AI Kernel SignalR Status';

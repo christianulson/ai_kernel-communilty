@@ -10,7 +10,7 @@ export function registerKernelChatParticipant(
     approvalManager: ApprovalManager,
     sessionManager?: SessionManager
 ): vscode.Disposable {
-    const participant = vscode.chat.createChatParticipant('aikernel.coding', async (request, _ctx, stream, token) => {
+    const participant = vscode.chat.createChatParticipant('krnlai.coding', async (request, _ctx, stream, token) => {
         const sessionMessages: ChatMessage[] = [];
 
         const handleStream = (chunk: string) => {

@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from aikernel.core.emotion.vad import VADState
-from aikernel.core.memory.emotional_memory import EmotionalMemory
-from aikernel.core.memory.episodic_memory import EpisodicMemory
-from aikernel.core.memory.semantic_memory import SemanticMemory
-from aikernel.core.memory.working_memory import WorkingMemory
+from krnlai.core.emotion.vad import VADState
+from krnlai.core.memory.emotional_memory import EmotionalMemory
+from krnlai.core.memory.episodic_memory import EpisodicMemory
+from krnlai.core.memory.semantic_memory import SemanticMemory
+from krnlai.core.memory.working_memory import WorkingMemory
 
 
 class TestWorkingMemory:

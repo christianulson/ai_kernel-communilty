@@ -5,7 +5,7 @@ from typing import Any, Dict, Optional
 
 import httpx
 
-from aikernel.core.models.envelope import CommandEnvelope, ResultEnvelope
+from krnlai.core.models.envelope import CommandEnvelope, ResultEnvelope
 
 
 class EnterpriseClient:

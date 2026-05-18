@@ -23,19 +23,19 @@ export class CodeLensProvider implements vscode.CodeLensProvider {
 
             lenses.push(new vscode.CodeLens(range, {
                 title: '$(light-bulb) Explain',
-                command: 'aikernel.coding.explain',
+                command: 'krnlai.coding.explain',
                 arguments: [name]
             }));
 
             lenses.push(new vscode.CodeLens(range, {
                 title: '$(beaker) Test',
-                command: 'aikernel.coding.test',
+                command: 'krnlai.coding.test',
                 arguments: [name]
             }));
 
             lenses.push(new vscode.CodeLens(range, {
                 title: '$(search) Review',
-                command: 'aikernel.coding.review',
+                command: 'krnlai.coding.review',
                 arguments: [name]
             }));
         }

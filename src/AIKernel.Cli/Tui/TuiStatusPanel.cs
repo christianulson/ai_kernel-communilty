@@ -1,6 +1,6 @@
 using Spectre.Console;
 
-namespace AIKernel.Cli.Tui;
+namespace KrnlAI.Cli.Tui;
 
 public sealed class TuiStatusPanel
 {

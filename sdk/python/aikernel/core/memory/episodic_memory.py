@@ -4,8 +4,8 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 from uuid import UUID, uuid4
 
-from aikernel.core.stores.exceptions import ItemNotFoundError
-from aikernel.core.stores.inmemory import InMemoryStore
+from krnlai.core.stores.exceptions import ItemNotFoundError
+from krnlai.core.stores.inmemory import InMemoryStore
 
 
 class EpisodicMemoryEntry:

@@ -1,13 +1,13 @@
 using System.CommandLine;
 using System.Text.Json;
-using AIKernel.Cli.Abstractions;
-using AIKernel.Cli.Services;
+using KrnlAI.Cli.Abstractions;
+using KrnlAI.Cli.Services;
 using Kernel.Core.Abstractions.Safety;
 using Kernel.Core.Model;
 using Kernel.Core.Services.Safety;
 using Spectre.Console;
 
-namespace AIKernel.Cli.Commands;
+namespace KrnlAI.Cli.Commands;
 
 public sealed class BenchmarkCommand(
     SafetyBenchRunner benchRunner,
@@ -141,7 +141,7 @@ public sealed class BenchmarkCommand(
 
             var report = new
             {
-                aikernel = new
+                krnlai = new
                 {
                     overallScore = result.OverallScore,
                     passed = result.Passed,

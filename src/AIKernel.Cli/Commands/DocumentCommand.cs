@@ -1,10 +1,10 @@
 using System.CommandLine;
 using System.Net.Http.Json;
 using System.Text.Json;
-using AIKernel.Cli.Services;
+using KrnlAI.Cli.Services;
 using Spectre.Console;
 
-namespace AIKernel.Cli.Commands;
+namespace KrnlAI.Cli.Commands;
 
 public sealed class DocumentCommand(CliContext ctx, ConsoleRenderer renderer)
 {

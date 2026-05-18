@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from unittest.mock import patch
 
-from aikernel.cli.commands.deploy import _generate_docker, _generate_kubernetes
-from aikernel.cli.commands.init import TEMPLATE_AGENT_PY, TEMPLATE_ENV, init_project
-from aikernel.cli.commands.security import _audit_test_cases, _run_benchmark
-from aikernel.core.safety.rules import SafetyChecker
+from krnlai.cli.commands.deploy import _generate_docker, _generate_kubernetes
+from krnlai.cli.commands.init import TEMPLATE_AGENT_PY, TEMPLATE_ENV, init_project
+from krnlai.cli.commands.security import _audit_test_cases, _run_benchmark
+from krnlai.core.safety.rules import SafetyChecker
 
 
 class TestSecurityCommands:

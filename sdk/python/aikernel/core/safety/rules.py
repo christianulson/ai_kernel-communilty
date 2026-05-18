@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
 
-from aikernel.core.models.safety import RiskLevel
+from krnlai.core.models.safety import RiskLevel
 
 
 class RuleSeverity(str, Enum):
@@ -329,7 +329,7 @@ class SafetyChecker:
     def evaluate_all(self, context: Dict[str, Any]) -> SafetyVerdictData:
         results = self.evaluate(context)
         blocked_by = [r.rule_id for r in results if not r.passed and r.severity == RuleSeverity.ERROR]
-        from aikernel.core.models.safety import RiskLevel
+        from krnlai.core.models.safety import RiskLevel
         risk_score = sum(1 for r in results if not r.passed) / max(len(results), 1)
         risk_level = (
             RiskLevel.CRITICAL if risk_score > 0.7

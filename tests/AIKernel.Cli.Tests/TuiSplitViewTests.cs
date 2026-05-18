@@ -1,7 +1,7 @@
-using AIKernel.Cli.Tui;
+using KrnlAI.Cli.Tui;
 using Spectre.Console;
 
-namespace AIKernel.Cli.Tests;
+namespace KrnlAI.Cli.Tests;
 
 public sealed class TuiSplitViewTests
 {

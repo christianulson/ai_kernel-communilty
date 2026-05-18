@@ -4,9 +4,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from aikernel.enterprise.client import EnterpriseClient
-from aikernel.enterprise.merge import CognitiveAgent
-from aikernel.enterprise.streaming import EnterpriseStreamingClient
+from krnlai.enterprise.client import EnterpriseClient
+from krnlai.enterprise.merge import CognitiveAgent
+from krnlai.enterprise.streaming import EnterpriseStreamingClient
 
 
 class TestEnterpriseClient:

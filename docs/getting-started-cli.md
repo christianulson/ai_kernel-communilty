@@ -5,19 +5,19 @@ The AI Kernel CLI is the fastest way to use the community runtime locally.
 ## Chat Locally
 
 ```bash
-aikernel chat --local
+krnlai chat --local
 ```
 
 Use `--model` to choose a configured model:
 
 ```bash
-aikernel chat --local --model llama3.1
+krnlai chat --local --model llama3.1
 ```
 
 ## Run the Sidecar
 
 ```bash
-aikernel serve --local --port 5117
+krnlai serve --local --port 5117
 ```
 
 The sidecar is useful for editor integrations, local tools, and scripts.
@@ -25,10 +25,10 @@ The sidecar is useful for editor integrations, local tools, and scripts.
 ## Common Commands
 
 ```bash
-aikernel config list
-aikernel memory search "project decision"
-aikernel skill list
-aikernel safety run
+krnlai config list
+krnlai memory search "project decision"
+krnlai skill list
+krnlai safety run
 ```
 
 ## Troubleshooting

@@ -9,7 +9,7 @@ class QdrantStore:
         self,
         host: str = "",
         port: int = 6333,
-        collection: str = "aikernel",
+        collection: str = "krnlai",
         api_key: Optional[str] = None,
     ) -> None:
         self._host = host or os.getenv("QDRANT_HOST", "localhost")

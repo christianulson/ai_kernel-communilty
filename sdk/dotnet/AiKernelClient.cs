@@ -1,16 +1,16 @@
 using System.Text;
 using System.Text.Json;
-using AiKernel.Sdk.Models;
+using KrnlAi.Sdk.Models;
 
-namespace AiKernel.Sdk;
+namespace KrnlAi.Sdk;
 
-public class AiKernelClient : IDisposable
+public class KrnlAiClient : IDisposable
 {
     private readonly HttpClient _http;
     private readonly string _baseUrl;
     private readonly JsonSerializerOptions _jsonOptions;
 
-    public AiKernelClient(string baseUrl, HttpClient? http = null)
+    public KrnlAiClient(string baseUrl, HttpClient? http = null)
     {
         _baseUrl = baseUrl.TrimEnd('/');
         _http = http ?? new HttpClient();
@@ -39,16 +39,16 @@ public class AiKernelClient : IDisposable
         {
             throw (int)response.StatusCode switch
             {
-                401 => new AiKernelAuthenticationException(),
-                429 => new AiKernelRateLimitException(),
-                >= 400 and < 500 => new AiKernelValidationException($"Request failed: {responseBody}", (int)response.StatusCode),
-                >= 500 => new AiKernelServerException($"Server error: {responseBody}", (int)response.StatusCode),
-                _ => new AiKernelException($"Request failed: {responseBody}", (int)response.StatusCode)
+                401 => new KrnlAiAuthenticationException(),
+                429 => new KrnlAiRateLimitException(),
+                >= 400 and < 500 => new KrnlAiValidationException($"Request failed: {responseBody}", (int)response.StatusCode),
+                >= 500 => new KrnlAiServerException($"Server error: {responseBody}", (int)response.StatusCode),
+                _ => new KrnlAiException($"Request failed: {responseBody}", (int)response.StatusCode)
             };
         }
 
         return JsonSerializer.Deserialize<T>(responseBody, _jsonOptions)
-            ?? throw new AiKernelException("Empty response");
+            ?? throw new KrnlAiException("Empty response");
     }
 
     public Task<AgentRunResponse> AgentRunAsync(AgentRunRequest req, CancellationToken ct = default)

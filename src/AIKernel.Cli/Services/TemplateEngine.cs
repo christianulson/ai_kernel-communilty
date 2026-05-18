@@ -1,10 +1,10 @@
 using System.Collections.Concurrent;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using AIKernel.Cli.Abstractions;
+using KrnlAI.Cli.Abstractions;
 using Microsoft.Extensions.Logging;
 
-namespace AIKernel.Cli.Services;
+namespace KrnlAI.Cli.Services;
 
 public sealed partial class TemplateEngine : ITemplateEngine
 {

@@ -33,7 +33,7 @@ let slashMgr: SlashCommandManager | undefined;
 export function activate(context: vscode.ExtensionContext) {
     statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
     statusBarItem.text = "$(hubot) AI Kernel";
-    statusBarItem.command = "aikernel.chat";
+    statusBarItem.command = "krnlai.chat";
     statusBarItem.tooltip = "Clique para abrir o Chat";
     statusBarItem.show();
     context.subscriptions.push(statusBarItem);
@@ -52,14 +52,14 @@ export function activate(context: vscode.ExtensionContext) {
     }));
 
     // Sidecar
-    context.subscriptions.push(vscode.commands.registerCommand('aikernel.start', async () => {
+    context.subscriptions.push(vscode.commands.registerCommand('krnlai.start', async () => {
         if (sidecarProcess) { vscode.window.showInformationMessage('Sidecar já está rodando'); return; }
         const projectDir = vscode.workspace.workspaceFolders?.[0]?.uri?.fsPath;
         if (!projectDir) {
             vscode.window.showErrorMessage('Abra uma pasta do projeto AI Kernel para iniciar o Sidecar');
             return;
         }
-        const csprojPath = path.join(projectDir, 'src', 'AIKernel.Sidecar', 'AIKernel.Sidecar.csproj');
+        const csprojPath = path.join(projectDir, 'src', 'KrnlAI.Sidecar', 'KrnlAI.Sidecar.csproj');
         if (!fs.existsSync(csprojPath)) {
             vscode.window.showErrorMessage(`Sidecar não encontrado em: ${csprojPath}`);
             return;
@@ -81,25 +81,25 @@ export function activate(context: vscode.ExtensionContext) {
         } catch (ex: any) { vscode.window.showErrorMessage(`Erro: ${ex.message}`); }
     }));
 
-    context.subscriptions.push(vscode.commands.registerCommand('aikernel.stop', () => {
+    context.subscriptions.push(vscode.commands.registerCommand('krnlai.stop', () => {
         if (sidecarProcess) { sidecarProcess.kill(); sidecarProcess = undefined; vscode.window.showInformationMessage('Sidecar parado'); updateHealth(); }
     }));
 
     // Panels (existing)
-    context.subscriptions.push(vscode.commands.registerCommand('aikernel.chat', () => ChatPanel.createOrShow()));
-    context.subscriptions.push(vscode.commands.registerCommand('aikernel.dashboard', () => DashboardPanel.createOrShow()));
-    context.subscriptions.push(vscode.commands.registerCommand('aikernel.policies', () => PoliciesPanel.createOrShow()));
-    context.subscriptions.push(vscode.commands.registerCommand('aikernel.episodes', () => EpisodesPanel.createOrShow()));
-    context.subscriptions.push(vscode.commands.registerCommand('aikernel.memory', () => MemoryPanel.createOrShow()));
-    context.subscriptions.push(vscode.commands.registerCommand('aikernel.settings', () => SettingsPanel.createOrShow()));
+    context.subscriptions.push(vscode.commands.registerCommand('krnlai.chat', () => ChatPanel.createOrShow()));
+    context.subscriptions.push(vscode.commands.registerCommand('krnlai.dashboard', () => DashboardPanel.createOrShow()));
+    context.subscriptions.push(vscode.commands.registerCommand('krnlai.policies', () => PoliciesPanel.createOrShow()));
+    context.subscriptions.push(vscode.commands.registerCommand('krnlai.episodes', () => EpisodesPanel.createOrShow()));
+    context.subscriptions.push(vscode.commands.registerCommand('krnlai.memory', () => MemoryPanel.createOrShow()));
+    context.subscriptions.push(vscode.commands.registerCommand('krnlai.settings', () => SettingsPanel.createOrShow()));
 
     // TreeView
     const treeProvider = new NavTreeProvider();
-    vscode.window.registerTreeDataProvider('aikernel.nav', treeProvider);
-    context.subscriptions.push(vscode.commands.registerCommand('aikernel.navigate', (id: string) => vscode.commands.executeCommand(`aikernel.${id}`)));
+    vscode.window.registerTreeDataProvider('krnlai.nav', treeProvider);
+    context.subscriptions.push(vscode.commands.registerCommand('krnlai.navigate', (id: string) => vscode.commands.executeCommand(`krnlai.${id}`)));
 
-    // Coding Agent mode (feature flag: aikernel.codingAgent.enabled)
-    const config = vscode.workspace.getConfiguration('aikernel');
+    // Coding Agent mode (feature flag: krnlai.codingAgent.enabled)
+    const config = vscode.workspace.getConfiguration('krnlai');
     const codingAgentEnabled = config.get<boolean>('codingAgent.enabled', false);
 
     if (codingAgentEnabled) {
@@ -108,8 +108,8 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Watch for config changes to enable/disable coding agent dynamically
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(e => {
-        if (e.affectsConfiguration('aikernel.codingAgent.enabled')) {
-            const enabled = vscode.workspace.getConfiguration('aikernel').get<boolean>('codingAgent.enabled', false);
+        if (e.affectsConfiguration('krnlai.codingAgent.enabled')) {
+            const enabled = vscode.workspace.getConfiguration('krnlai').get<boolean>('codingAgent.enabled', false);
             if (enabled && codingAgentDisposables.length === 0) {
                 registerCodingAgentFeatures(context, client);
             } else if (!enabled && codingAgentDisposables.length > 0) {
@@ -130,11 +130,11 @@ function registerCodingAgentFeatures(context: vscode.ExtensionContext, client: K
 
     const ctxProvider = new EditorContextProvider();
     const approvalManager = new ApprovalManager();
-    const terminalEnabled = vscode.workspace.getConfiguration('aikernel').get<boolean>('codingAgent.terminal', false);
+    const terminalEnabled = vscode.workspace.getConfiguration('krnlai').get<boolean>('codingAgent.terminal', false);
     const terminalManager = terminalEnabled ? new TerminalManager() : undefined;
-    const gitEnabled = vscode.workspace.getConfiguration('aikernel').get<boolean>('codingAgent.git', false);
+    const gitEnabled = vscode.workspace.getConfiguration('krnlai').get<boolean>('codingAgent.git', false);
     const gitManager = gitEnabled ? new GitManager() : undefined;
-    const agenticLoopsEnabled = vscode.workspace.getConfiguration('aikernel').get<boolean>('codingAgent.agenticLoops', false);
+    const agenticLoopsEnabled = vscode.workspace.getConfiguration('krnlai').get<boolean>('codingAgent.agenticLoops', false);
     const loopManager = agenticLoopsEnabled && terminalManager
         ? new AgenticLoopManager(client, undefined, terminalManager, gitManager, approvalManager.getMode() !== ApprovalMode.Chat ? approvalManager : undefined)
         : undefined;
@@ -193,26 +193,26 @@ function registerCodingAgentFeatures(context: vscode.ExtensionContext, client: K
 
     const sessionManager = new SessionManager(context);
     const usageTracker = new UsageTracker(context);
-    pushSub(vscode.commands.registerCommand('aikernel.coding.chat', () => ChatViewProvider.createOrShow(client, approvalManager, sessionManager, usageTracker)));
+    pushSub(vscode.commands.registerCommand('krnlai.coding.chat', () => ChatViewProvider.createOrShow(client, approvalManager, sessionManager, usageTracker)));
 
-    const chatParticipantEnabled = vscode.workspace.getConfiguration('aikernel').get<boolean>('codingAgent.chatParticipant', false);
+    const chatParticipantEnabled = vscode.workspace.getConfiguration('krnlai').get<boolean>('codingAgent.chatParticipant', false);
     if (chatParticipantEnabled) {
         pushSub(registerKernelChatParticipant(context, client, approvalManager, sessionManager));
     }
 
-    pushSub(vscode.commands.registerCommand('aikernel.coding.explain', () =>
+    pushSub(vscode.commands.registerCommand('krnlai.coding.explain', () =>
         runSlashCommand('/explain', ctxProvider.getSelection() || ctxProvider.getActiveEditorContent()?.substring(0, 1000) || '')));
-    pushSub(vscode.commands.registerCommand('aikernel.coding.fix', () =>
+    pushSub(vscode.commands.registerCommand('krnlai.coding.fix', () =>
         runSlashCommand('/fix', ctxProvider.getSelection() || ctxProvider.getActiveEditorContent()?.substring(0, 1000) || '')));
-    pushSub(vscode.commands.registerCommand('aikernel.coding.test', () => {
+    pushSub(vscode.commands.registerCommand('krnlai.coding.test', () => {
         const ctx = ctxProvider;
         return runSlashCommand('/test', ctx.getSelection() || ctx.getActiveEditorContent()?.substring(0, 1000) || '', ctx.getCurrentLanguage());
     }));
-    pushSub(vscode.commands.registerCommand('aikernel.coding.refactor', () => {
+    pushSub(vscode.commands.registerCommand('krnlai.coding.refactor', () => {
         const ctx = ctxProvider;
         return runSlashCommand('/refactor', ctx.getSelection() || ctx.getActiveEditorContent()?.substring(0, 1000) || '', ctx.getCurrentLanguage());
     }));
-    pushSub(vscode.commands.registerCommand('aikernel.coding.review', () => {
+    pushSub(vscode.commands.registerCommand('krnlai.coding.review', () => {
         const ctx = ctxProvider;
         return runSlashCommand('/review', ctx.getActiveEditorContent()?.substring(0, 2000) || '');
     }));
@@ -221,7 +221,7 @@ function registerCodingAgentFeatures(context: vscode.ExtensionContext, client: K
 
     pushSub(vscode.languages.registerCodeActionsProvider({ scheme: 'file' }, new CodeActionProvider()));
 
-    pushSub(vscode.commands.registerCommand('aikernel.coding.setMode', (mode: string) => {
+    pushSub(vscode.commands.registerCommand('krnlai.coding.setMode', (mode: string) => {
         const m = mode as ApprovalMode;
         if (Object.values(ApprovalMode).includes(m)) {
             approvalManager.setMode(m);
@@ -229,15 +229,15 @@ function registerCodingAgentFeatures(context: vscode.ExtensionContext, client: K
         }
     }));
 
-    // Inline Completion (feature flag: aikernel.codingAgent.inlineCompletion)
-    const inlineCompletionEnabled = vscode.workspace.getConfiguration('aikernel').get<boolean>('codingAgent.inlineCompletion', false);
+    // Inline Completion (feature flag: krnlai.codingAgent.inlineCompletion)
+    const inlineCompletionEnabled = vscode.workspace.getConfiguration('krnlai').get<boolean>('codingAgent.inlineCompletion', false);
     if (inlineCompletionEnabled) {
         const inlineProvider = new InlineCompletionProvider(() => client.getBaseUrl());
         pushSub(vscode.languages.registerInlineCompletionItemProvider({ pattern: '**' }, inlineProvider));
     }
 
-    // Hover Provider (feature flag: aikernel.codingAgent.hover)
-    const hoverEnabled = vscode.workspace.getConfiguration('aikernel').get<boolean>('codingAgent.hover', false);
+    // Hover Provider (feature flag: krnlai.codingAgent.hover)
+    const hoverEnabled = vscode.workspace.getConfiguration('krnlai').get<boolean>('codingAgent.hover', false);
     if (hoverEnabled) {
         const hoverProvider = new CodingHoverProvider(() => client.getBaseUrl());
         pushSub(vscode.languages.registerHoverProvider({ pattern: '**' }, hoverProvider));
@@ -270,6 +270,6 @@ class NavItem extends vscode.TreeItem {
     constructor(label: string, public readonly id: string, tooltip: string) {
         super(label, vscode.TreeItemCollapsibleState.None);
         this.tooltip = tooltip;
-        this.command = { command: 'aikernel.navigate', title: '', arguments: [id] };
+        this.command = { command: 'krnlai.navigate', title: '', arguments: [id] };
     }
 }

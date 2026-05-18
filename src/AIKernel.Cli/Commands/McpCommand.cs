@@ -1,9 +1,9 @@
 using System.CommandLine;
-using AIKernel.Cli.Services;
+using KrnlAI.Cli.Services;
 using Kernel.Core.Abstractions.Mcp;
 using Spectre.Console;
 
-namespace AIKernel.Cli.Commands;
+namespace KrnlAI.Cli.Commands;
 
 public sealed class McpCommand(CliContext ctx, ConsoleRenderer renderer)
 {

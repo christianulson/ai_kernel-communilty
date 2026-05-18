@@ -1,10 +1,10 @@
 using System.CommandLine;
 using System.Diagnostics;
 using System.Text.Json;
-using AIKernel.Cli.Tui;
+using KrnlAI.Cli.Tui;
 using Spectre.Console;
 
-namespace AIKernel.Cli.Commands;
+namespace KrnlAI.Cli.Commands;
 
 public sealed class ExportCommand
 {
@@ -67,7 +67,7 @@ public sealed class ExportCommand
         {
             var output = r.GetValue<string>("--output");
             var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            var configDir = Path.Combine(home, ".aikernel");
+            var configDir = Path.Combine(home, ".krnlai");
 
             var config = new Dictionary<string, object>();
             if (Directory.Exists(configDir))

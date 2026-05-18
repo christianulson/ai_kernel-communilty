@@ -1,4 +1,4 @@
-apiVersion: aikernel.io/v1
+apiVersion: krnlai.io/v1
 kind: AgentConfig
 metadata:
   name: {{AgentName}}

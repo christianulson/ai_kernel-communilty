@@ -1,4 +1,4 @@
-namespace AIKernel.Sidecar;
+namespace KrnlAI.Sidecar;
 
 /// <summary>
 /// Proxies requests to the Kernel API when configured. Falls back gracefully when unreachable.

@@ -58,4 +58,4 @@ class CycleEvent(BaseModel):
     duration_ms: float = 0.0
 
 
-from aikernel.core.models.safety import SafetyVerdict
+from krnlai.core.models.safety import SafetyVerdict

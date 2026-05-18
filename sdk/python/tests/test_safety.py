@@ -2,15 +2,15 @@ from __future__ import annotations
 
 import pytest
 
-from aikernel.core.safety.adversarial_guard import AdversarialGuard
-from aikernel.core.safety.ethical_enforcer import EthicalEnforcer
-from aikernel.core.safety.fundamental_rules import FundamentalRulesEngine
-from aikernel.core.safety.harm_classifier import HarmCategory, HarmClassifier
-from aikernel.core.safety.rules import (
+from krnlai.core.safety.adversarial_guard import AdversarialGuard
+from krnlai.core.safety.ethical_enforcer import EthicalEnforcer
+from krnlai.core.safety.fundamental_rules import FundamentalRulesEngine
+from krnlai.core.safety.harm_classifier import HarmCategory, HarmClassifier
+from krnlai.core.safety.rules import (
     RULES_REGISTRY,
     SafetyChecker,
 )
-from aikernel.core.safety.self_destruction_guard import SelfDestructionGuard
+from krnlai.core.safety.self_destruction_guard import SelfDestructionGuard
 
 
 class TestSafetyChecker:

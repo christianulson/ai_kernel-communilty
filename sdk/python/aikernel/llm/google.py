@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 from typing import Any, AsyncGenerator, List, Optional
 
-from aikernel.llm.base import ILLMProvider, LLMMessage, LLMResponse
+from krnlai.llm.base import ILLMProvider, LLMMessage, LLMResponse
 
 
 class GoogleProvider(ILLMProvider):

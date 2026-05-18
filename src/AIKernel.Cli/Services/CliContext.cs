@@ -1,4 +1,4 @@
-using AIKernel.LLMGateway.Core.Abstractions;
+using KrnlAI.LLMGateway.Core.Abstractions;
 using Kernel.Core.Abstractions;
 using Kernel.Core.Abstractions.Mcp;
 using Kernel.Core.Services.ExperimentTracking;
@@ -7,7 +7,7 @@ using Kernel.Core.Services.ModelRegistry;
 using Kernel.Core.Services.Safety;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AIKernel.Cli.Services;
+namespace KrnlAI.Cli.Services;
 
 public sealed class CliContext
 {

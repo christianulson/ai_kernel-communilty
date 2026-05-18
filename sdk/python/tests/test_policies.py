@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from aikernel.core.policies.engine import PolicyEngine, PolicyRule
+from krnlai.core.policies.engine import PolicyEngine, PolicyRule
 
 
 class TestPolicyEngine:

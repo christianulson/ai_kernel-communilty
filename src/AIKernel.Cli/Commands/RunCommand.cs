@@ -3,7 +3,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using Spectre.Console;
 
-namespace AIKernel.Cli.Commands;
+namespace KrnlAI.Cli.Commands;
 
 public sealed class RunCommand
 {
@@ -75,9 +75,9 @@ public sealed class RunCommand
             else
             {
                 AnsiConsole.MarkupLine("[red]No input provided. Usage:[/]");
-                AnsiConsole.MarkupLine("  [cyan]aikernel run \"your prompt\"[/]");
-                AnsiConsole.MarkupLine("  [cyan]cat file.cs | aikernel run[/]");
-                AnsiConsole.MarkupLine("  [cyan]cat data.json | aikernel run --json \"Validate\"[/]");
+                AnsiConsole.MarkupLine("  [cyan]krnlai run \"your prompt\"[/]");
+                AnsiConsole.MarkupLine("  [cyan]cat file.cs | krnlai run[/]");
+                AnsiConsole.MarkupLine("  [cyan]cat data.json | krnlai run --json \"Validate\"[/]");
                 return 1;
             }
 

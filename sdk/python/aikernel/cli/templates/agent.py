@@ -1,4 +1,4 @@
-from aikernel import CognitiveAgent
+from krnlai import CognitiveAgent
 
 agent = CognitiveAgent(safety_level="strict")
 

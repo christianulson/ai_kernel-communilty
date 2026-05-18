@@ -1,7 +1,7 @@
-using AIKernel.Cli.Abstractions;
-using AIKernel.Cli.Services;
+using KrnlAI.Cli.Abstractions;
+using KrnlAI.Cli.Services;
 
-namespace AIKernel.Cli.Tests;
+namespace KrnlAI.Cli.Tests;
 
 public sealed class ExternalEvaluatorTests
 {

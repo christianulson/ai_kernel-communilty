@@ -17,7 +17,7 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
                 vscode.CodeActionKind.QuickFix
             );
             fix.command = {
-                command: 'aikernel.coding.fix',
+                command: 'krnlai.coding.fix',
                 title: 'Fix with AI Kernel',
                 arguments: [document.uri.fsPath, context.diagnostics.map(d => d.message)]
             };
@@ -31,7 +31,7 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
                 vscode.CodeActionKind.Refactor
             );
             explain.command = {
-                command: 'aikernel.coding.explain',
+                command: 'krnlai.coding.explain',
                 title: 'Explain with AI Kernel',
                 arguments: [document.getText(range)]
             };
@@ -45,7 +45,7 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
                 vscode.CodeActionKind.Refactor
             );
             test.command = {
-                command: 'aikernel.coding.test',
+                command: 'krnlai.coding.test',
                 title: 'Generate Test with AI Kernel',
                 arguments: [document.uri.fsPath]
             };

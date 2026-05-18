@@ -1,8 +1,8 @@
 using System.CommandLine;
-using AIKernel.Embedded;
-using AIKernel.Cli.Tui;
+using KrnlAI.Embedded;
+using KrnlAI.Cli.Tui;
 
-namespace AIKernel.Cli.Commands;
+namespace KrnlAI.Cli.Commands;
 
 public sealed class InteractiveCommand
 {

@@ -3,10 +3,10 @@ from __future__ import annotations
 import os
 from typing import Any, AsyncGenerator, Dict, Optional
 
-from aikernel.core.cycle import CognitiveCycleRunner, CycleConfig
-from aikernel.core.models.cognitive import CycleEvent
-from aikernel.core.models.envelope import CommandEnvelope, ResultEnvelope
-from aikernel.enterprise.client import EnterpriseClient
+from krnlai.core.cycle import CognitiveCycleRunner, CycleConfig
+from krnlai.core.models.cognitive import CycleEvent
+from krnlai.core.models.envelope import CommandEnvelope, ResultEnvelope
+from krnlai.enterprise.client import EnterpriseClient
 
 
 class CognitiveAgent:

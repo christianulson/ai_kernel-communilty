@@ -5,8 +5,8 @@ agents with persistent memory, safety checks, evolving skills, and a developer C
 It is designed to run on your machine without requiring hosted infrastructure.
 
 ```bash
-dotnet tool install -g AIKernel.Cli
-aikernel chat --local
+dotnet tool install -g KrnlAI.Cli
+krnlai chat --local
 ```
 
 ## What You Can Build
@@ -23,17 +23,17 @@ aikernel chat --local
 | Package | Purpose | License |
 | --- | --- | --- |
 | `Kernel.Contracts` | Public DTOs and interfaces | MIT |
-| `AIKernel.Cli` | Local CLI and interactive TUI | MIT |
-| `AIKernel.Sidecar` | Local HTTP sidecar for tools | MIT |
-| `AIKernel.Embedded` | In-process kernel for community apps | MIT |
+| `KrnlAI.Cli` | Local CLI and interactive TUI | MIT |
+| `KrnlAI.Sidecar` | Local HTTP sidecar for tools | MIT |
+| `KrnlAI.Embedded` | In-process kernel for community apps | MIT |
 
 ## Quick Start
 
 ```bash
-dotnet tool install -g AIKernel.Cli
-aikernel config set provider openai
-aikernel config set api_key sk-...
-aikernel chat --local
+dotnet tool install -g KrnlAI.Cli
+krnlai config set provider openai
+krnlai config set api_key sk-...
+krnlai chat --local
 ```
 
 For offline or local-model workflows, configure an OpenAI-compatible endpoint such

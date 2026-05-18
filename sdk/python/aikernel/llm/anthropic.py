@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 from typing import Any, AsyncGenerator, List, Optional
 
-from aikernel.llm.base import ILLMProvider, LLMMessage, LLMResponse
+from krnlai.llm.base import ILLMProvider, LLMMessage, LLMResponse
 
 
 class AnthropicProvider(ILLMProvider):
@@ -18,7 +18,7 @@ class AnthropicProvider(ILLMProvider):
                 from anthropic import AsyncAnthropic
                 self._client = AsyncAnthropic(api_key=self._api_key)
             except ImportError:
-                raise ImportError("anthropic package required: pip install aikernel[anthropic]")
+                raise ImportError("anthropic package required: pip install krnlai[anthropic]")
 
     async def complete(self, messages: List[LLMMessage], **kwargs: Any) -> LLMResponse:
         self._ensure_client()

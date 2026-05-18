@@ -2,7 +2,7 @@ using System.CommandLine;
 using System.Text.Json;
 using Spectre.Console;
 
-namespace AIKernel.Cli.Commands;
+namespace KrnlAI.Cli.Commands;
 
 public sealed class ProviderCommand
 {
@@ -11,7 +11,7 @@ public sealed class ProviderCommand
     public ProviderCommand()
     {
         var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        _configPath = Path.Combine(home, ".aikernel", "providers.json");
+        _configPath = Path.Combine(home, ".krnlai", "providers.json");
     }
 
     public Command Build()
@@ -23,7 +23,7 @@ public sealed class ProviderCommand
             if (providers.Count == 0)
             {
                 AnsiConsole.MarkupLine("[yellow]No providers configured.[/]");
-                AnsiConsole.MarkupLine("Use [bold]aikernel provider add <name>[/] to add one.");
+                AnsiConsole.MarkupLine("Use [bold]krnlai provider add <name>[/] to add one.");
                 return Task.FromResult(0);
             }
 

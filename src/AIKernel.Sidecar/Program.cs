@@ -1,4 +1,4 @@
-using AIKernel.Sidecar;
+using KrnlAI.Sidecar;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseKestrel(o => o.Limits.MaxRequestBodySize = 1024 * 1024);
@@ -29,8 +29,8 @@ for (var i = 0; i < args.Length; i++)
 app.Urls.Clear();
 app.Urls.Add($"http://127.0.0.1:{port}");
 
-app.Lifetime.ApplicationStarted.Register(() => Console.WriteLine($"AIKernel.Sidecar started on http://127.0.0.1:{port}"));
-app.Lifetime.ApplicationStopping.Register(() => Console.WriteLine("AIKernel.Sidecar shutting down..."));
+app.Lifetime.ApplicationStarted.Register(() => Console.WriteLine($"KrnlAI.Sidecar started on http://127.0.0.1:{port}"));
+app.Lifetime.ApplicationStopping.Register(() => Console.WriteLine("KrnlAI.Sidecar shutting down..."));
 
 await app.RunAsync();
 

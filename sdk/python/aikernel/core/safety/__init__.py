@@ -1,10 +1,10 @@
-from aikernel.core.safety.adversarial_guard import AdversarialGuard
-from aikernel.core.safety.allowlist_check import AllowlistCheck
-from aikernel.core.safety.ethical_enforcer import EthicalEnforcer
-from aikernel.core.safety.fundamental_rules import FundamentalRulesEngine
-from aikernel.core.safety.harm_classifier import HarmClassifier
-from aikernel.core.safety.rules import FundamentalRule, RuleResult, SafetyChecker
-from aikernel.core.safety.self_destruction_guard import SelfDestructionGuard
+from krnlai.core.safety.adversarial_guard import AdversarialGuard
+from krnlai.core.safety.allowlist_check import AllowlistCheck
+from krnlai.core.safety.ethical_enforcer import EthicalEnforcer
+from krnlai.core.safety.fundamental_rules import FundamentalRulesEngine
+from krnlai.core.safety.harm_classifier import HarmClassifier
+from krnlai.core.safety.rules import FundamentalRule, RuleResult, SafetyChecker
+from krnlai.core.safety.self_destruction_guard import SelfDestructionGuard
 
 __all__ = [
     "AdversarialGuard",

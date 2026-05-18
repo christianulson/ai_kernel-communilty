@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "AIKernel.Sidecar": {
+    "KrnlAI.Sidecar": {
       "commandName": "Project",
       "launchBrowser": false,
       "environmentVariables": {

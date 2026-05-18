@@ -2,7 +2,7 @@ using Kernel.Core.Abstractions;
 using Kernel.Core.Services.Safety;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
-namespace AIKernel.Sidecar;
+namespace KrnlAI.Sidecar;
 
 public static class EndpointRouteExtensions
 {
@@ -17,7 +17,7 @@ public static class EndpointRouteExtensions
                 {
                     status = report.Status.ToString(),
                     ts = DateTime.UtcNow,
-                    version = "AIKernel.Sidecar/1.0.0",
+                    version = "KrnlAI.Sidecar/1.0.0",
                     checks = report.Entries.Select(e => new { name = e.Key, status = e.Value.Status.ToString() })
                 });
                 await ctx.Response.WriteAsync(json, cancellationToken: ctx.RequestAborted);

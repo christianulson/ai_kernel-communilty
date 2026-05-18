@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="AIKernel.Cli" Version="{{TemplateVersion}}" />
+    <PackageReference Include="KrnlAI.Cli" Version="{{TemplateVersion}}" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.8" />
     <PackageReference Include="Spectre.Console" Version="0.55.2" />
   </ItemGroup>

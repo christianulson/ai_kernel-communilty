@@ -14,7 +14,7 @@ export interface PendingApprovalDTO { id: string; action: string; details: strin
 
 export class KernelClient {
     getBaseUrl(): string {
-        const config = vscode.workspace.getConfiguration('aikernel');
+        const config = vscode.workspace.getConfiguration('krnlai');
         if (config.get<boolean>('standalone', false)) {
             return `http://localhost:${config.get<number>('sidecarPort', 5001)}`;
         }

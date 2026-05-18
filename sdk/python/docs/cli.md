@@ -2,22 +2,22 @@
 
 ## Commands
 
-### `aikernel init <name>`
+### `krnlai init <name>`
 
 Creates a new agent project with template files.
 
-### `aikernel run [text]`
+### `krnlai run [text]`
 
 Runs the agent once with the given text.
 
 Options:
 - `--interactive`, `-i`: Start interactive chat mode
 
-### `aikernel debug [text]`
+### `krnlai debug [text]`
 
 Runs the agent with detailed step-by-step debug output.
 
-### `aikernel security <command>`
+### `krnlai security <command>`
 
 Security tools:
 
@@ -25,7 +25,7 @@ Security tools:
 - `benchmark [count]`: Performance benchmark (default: 1000)
 - `report [file]`: Generate HTML security report
 
-### `aikernel deploy <target> [name]`
+### `krnlai deploy <target> [name]`
 
 Generate deployment files:
 

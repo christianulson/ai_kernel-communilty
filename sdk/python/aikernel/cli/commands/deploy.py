@@ -9,11 +9,11 @@ console = Console()
 
 async def cmd_deploy(args: list) -> None:
     if not args:
-        console.print("[yellow]Usage: aikernel deploy <docker|kubernetes> [name][/yellow]")
+        console.print("[yellow]Usage: krnlai deploy <docker|kubernetes> [name][/yellow]")
         return
 
     target = args[0]
-    name = args[1] if len(args) > 1 else "aikernel-agent"
+    name = args[1] if len(args) > 1 else "krnlai-agent"
 
     if target == "docker":
         _generate_docker(name)
@@ -33,7 +33,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["aikernel", "run", "--interactive"]
+CMD ["krnlai", "run", "--interactive"]
 """
 
     compose = f"""version: '3.8'
@@ -81,7 +81,7 @@ spec:
         - name: OPENAI_API_KEY
           valueFrom:
             secretKeyRef:
-              name: aikernel-secrets
+              name: krnlai-secrets
               key: openai-api-key
 """
 

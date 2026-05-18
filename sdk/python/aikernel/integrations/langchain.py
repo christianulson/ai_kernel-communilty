@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from aikernel.core.cycle import CognitiveCycleRunner
+from krnlai.core.cycle import CognitiveCycleRunner
 
 
 class AikernelTool:
-    def __init__(self, runner: CognitiveCycleRunner, name: str = "aikernel") -> None:
+    def __init__(self, runner: CognitiveCycleRunner, name: str = "krnlai") -> None:
         self._runner = runner
         self.name = name
         self.description = "AI Kernel cognitive agent with safety system"
@@ -43,7 +43,7 @@ class AikernelTool:
 
             return _AikernelLangChainTool()
         except ImportError:
-            raise ImportError("langchain package required: pip install aikernel[langchain]")
+            raise ImportError("langchain package required: pip install krnlai[langchain]")
 
 
 class AikernelMemory:

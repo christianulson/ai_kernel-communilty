@@ -1,4 +1,4 @@
-namespace AIKernel.Cli.Abstractions;
+namespace KrnlAI.Cli.Abstractions;
 
 public sealed record SafetyEvaluationResult(
     string ScenarioId,

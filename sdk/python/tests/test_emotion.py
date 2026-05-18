@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from aikernel.core.emotion.pain_reward import PainRewardModel, PainRewardSignal
-from aikernel.core.emotion.vad import VADModel, VADState
+from krnlai.core.emotion.pain_reward import PainRewardModel, PainRewardSignal
+from krnlai.core.emotion.vad import VADModel, VADState
 
 
 class TestVADState:

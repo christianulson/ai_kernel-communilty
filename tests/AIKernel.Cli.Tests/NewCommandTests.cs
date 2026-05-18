@@ -1,8 +1,8 @@
-using AIKernel.Cli.Abstractions;
-using AIKernel.Cli.Commands;
+using KrnlAI.Cli.Abstractions;
+using KrnlAI.Cli.Commands;
 using Spectre.Console.Testing;
 
-namespace AIKernel.Cli.Tests;
+namespace KrnlAI.Cli.Tests;
 
 public sealed class NewCommandTests
 {
@@ -125,7 +125,7 @@ public sealed class NewCommandTests
 
     private sealed class TempDirectory : IDisposable
     {
-        public string Path { get; } = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"aikernel-test-{Guid.NewGuid():N}");
+        public string Path { get; } = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"krnlai-test-{Guid.NewGuid():N}");
 
         public TempDirectory()
         {
