@@ -1,6 +1,6 @@
-# AI Kernel — Extensão para VsCode
+# Krnl-AI — Extensão para VsCode
 
-Extensão VsCode para interagir com o AI Kernel, um agente cognitivo que pode rodar **via API remota** ou **standalone local** com Sidecar .NET.
+Extensão VsCode para interagir com o Krnl-AI, um agente cognitivo que pode rodar **via API remota** ou **standalone local** com Sidecar .NET.
 
 ---
 
@@ -33,8 +33,8 @@ code --install-extension krnlai-vscode-1.0.0.vsix
 
 ### 1. Abrir o Chat
 
-- Clique no ícone **AI Kernel** na barra lateral (Activity Bar)
-- Ou pressione `Ctrl+Shift+P` → `AI Kernel: Chat`
+- Clique no ícone **Krnl-AI** na barra lateral (Activity Bar)
+- Ou pressione `Ctrl+Shift+P` → `Krnl-AI: Chat`
 - Digite sua mensagem e pressione Enter
 
 ### 2. Escolher o Modo de Operação
@@ -50,7 +50,7 @@ Para ativar o modo standalone:
 
 ```bash
 # No terminal:
-Ctrl+Shift+P → "AI Kernel: Iniciar Sidecar"
+Ctrl+Shift+P → "Krnl-AI: Iniciar Sidecar"
 
 # Ou manualmente:
 dotnet run --project src/KrnlAI.Sidecar -- --port 5001
@@ -58,7 +58,7 @@ dotnet run --project src/KrnlAI.Sidecar -- --port 5001
 
 ### 3. Configurar
 
-`Ctrl+Shift+P` → `AI Kernel: Configurações`
+`Ctrl+Shift+P` → `Krnl-AI: Configurações`
 
 | Opção | Padrão | Descrição |
 |-------|--------|-----------|
@@ -96,14 +96,14 @@ Configure endpoint, modo standalone/remoto e porta do Sidecar.
 
 | Comando | Descrição |
 |---------|-----------|
-| `AI Kernel: Chat` | Abre o chat |
-| `AI Kernel: Dashboard` | Abre o dashboard |
-| `AI Kernel: Políticas` | Abre lista de políticas |
-| `AI Kernel: Episódios` | Abre histórico |
-| `AI Kernel: Memória` | Abre busca semântica |
-| `AI Kernel: Configurações` | Abre configurações |
-| `AI Kernel: Iniciar Sidecar` | Sobe processo Sidecar .NET |
-| `AI Kernel: Parar Sidecar` | Mata processo Sidecar |
+| `Krnl-AI: Chat` | Abre o chat |
+| `Krnl-AI: Dashboard` | Abre o dashboard |
+| `Krnl-AI: Políticas` | Abre lista de políticas |
+| `Krnl-AI: Episódios` | Abre histórico |
+| `Krnl-AI: Memória` | Abre busca semântica |
+| `Krnl-AI: Configurações` | Abre configurações |
+| `Krnl-AI: Iniciar Sidecar` | Sobe processo Sidecar .NET |
+| `Krnl-AI: Parar Sidecar` | Mata processo Sidecar |
 
 ---
 

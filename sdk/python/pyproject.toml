@@ -1,12 +1,12 @@
 [project]
 name = "krnlai"
 version = "0.1.0"
-description = "AI Kernel Python SDK — Cognitive agent framework with built-in safety"
+description = "Krnl-AI Python SDK — Cognitive agent framework with built-in safety"
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.11"
 authors = [
-    { name = "AI Kernel Team" },
+    { name = "Krnl-AI Team" },
 ]
 keywords = ["ai", "agent", "cognitive", "safety", "llm"]
 classifiers = [

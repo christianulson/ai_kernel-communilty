@@ -42,7 +42,7 @@ public sealed class CliStatsCommand
                 .Take(10)
                 .ToDictionary(g => g.Key.ToString("yyyy-MM-dd"), g => g.Count());
 
-            AnsiConsole.Write(new Rule("[bold]AI Kernel Usage Statistics[/]") { Style = Style.Parse("cyan") });
+            AnsiConsole.Write(new Rule("[bold]Krnl-AI Usage Statistics[/]") { Style = Style.Parse("cyan") });
 
             var grid = new Grid()
                 .AddColumn(new GridColumn().NoWrap().PadRight(2))

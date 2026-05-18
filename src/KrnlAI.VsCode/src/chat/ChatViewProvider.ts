@@ -67,7 +67,7 @@ export class ChatViewProvider {
         }
         const panel = vscode.window.createWebviewPanel(
             'krnlai.coding.chat',
-            'AI Kernel - Coding Agent',
+            'Krnl-AI - Coding Agent',
             vscode.ViewColumn.Beside,
             { enableScripts: true, retainContextWhenHidden: true }
         );
@@ -177,7 +177,7 @@ export class ChatViewProvider {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'nonce-${nonce}'; script-src 'nonce-${nonce}';">
-<title>AI Kernel Coding Agent</title>
+<title>Krnl-AI Coding Agent</title>
 <style nonce="${nonce}">
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--vscode-editor-background);color:var(--vscode-editor-foreground);display:flex;flex-direction:column;height:100vh;overflow:hidden}
@@ -331,7 +331,7 @@ function trimMessages(){while(msgDiv.children.length>MAX_MSGS){msgDiv.removeChil
 function addMessage(msg){const div=document.createElement('div');
 div.className='msg '+(msg.isError?'error':msg.role);
 const label=document.createElement('div');label.className='label';
-label.textContent=msg.role==='user'?('Voc\u00ea'+(msg.metadata?.command?' ('+msg.metadata.command+')':'')):'AI Kernel';
+label.textContent=msg.role==='user'?('Voc\u00ea'+(msg.metadata?.command?' ('+msg.metadata.command+')':'')):'Krnl-AI';
 div.appendChild(label);
 const content=document.createElement('div');content.className='content';
 if(msg.role==='assistant'){content.innerHTML=renderMarkdown(escapeHtml(msg.content));}

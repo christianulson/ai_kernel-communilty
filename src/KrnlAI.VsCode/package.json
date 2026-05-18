@@ -1,7 +1,7 @@
 {
   "name": "krnlai-vscode",
-  "displayName": "AI Kernel",
-  "description": "AI Kernel - Cognitive agent for VS Code with coding assistance, memory, safety, and adaptive planning",
+  "displayName": "Krnl-AI",
+  "description": "Krnl-AI - Cognitive agent for VS Code with coding assistance, memory, safety, and adaptive planning",
   "version": "1.0.0",
   "publisher": "krnlai",
   "license": "MIT",
@@ -31,63 +31,63 @@
     "commands": [
       {
         "command": "krnlai.start",
-        "title": "AI Kernel: Iniciar Sidecar"
+        "title": "Krnl-AI: Iniciar Sidecar"
       },
       {
         "command": "krnlai.stop",
-        "title": "AI Kernel: Parar Sidecar"
+        "title": "Krnl-AI: Parar Sidecar"
       },
       {
         "command": "krnlai.chat",
-        "title": "AI Kernel: Chat"
+        "title": "Krnl-AI: Chat"
       },
       {
         "command": "krnlai.dashboard",
-        "title": "AI Kernel: Dashboard"
+        "title": "Krnl-AI: Dashboard"
       },
       {
         "command": "krnlai.policies",
-        "title": "AI Kernel: Políticas"
+        "title": "Krnl-AI: Políticas"
       },
       {
         "command": "krnlai.episodes",
-        "title": "AI Kernel: Episódios"
+        "title": "Krnl-AI: Episódios"
       },
       {
         "command": "krnlai.memory",
-        "title": "AI Kernel: Memória"
+        "title": "Krnl-AI: Memória"
       },
       {
         "command": "krnlai.settings",
-        "title": "AI Kernel: Configurações"
+        "title": "Krnl-AI: Configurações"
       },
       {
         "command": "krnlai.coding.chat",
-        "title": "AI Kernel: Chat com Contexto do Editor"
+        "title": "Krnl-AI: Chat com Contexto do Editor"
       },
       {
         "command": "krnlai.coding.explain",
-        "title": "AI Kernel: Explicar Código"
+        "title": "Krnl-AI: Explicar Código"
       },
       {
         "command": "krnlai.coding.fix",
-        "title": "AI Kernel: Corrigir Código"
+        "title": "Krnl-AI: Corrigir Código"
       },
       {
         "command": "krnlai.coding.test",
-        "title": "AI Kernel: Gerar Teste"
+        "title": "Krnl-AI: Gerar Teste"
       },
       {
         "command": "krnlai.coding.refactor",
-        "title": "AI Kernel: Refatorar Código"
+        "title": "Krnl-AI: Refatorar Código"
       },
       {
         "command": "krnlai.coding.review",
-        "title": "AI Kernel: Revisar Código"
+        "title": "Krnl-AI: Revisar Código"
       },
       {
         "command": "krnlai.coding.run",
-        "title": "AI Kernel: Executar Prompt..."
+        "title": "Krnl-AI: Executar Prompt..."
       }
     ],
     "keybindings": [
@@ -123,39 +123,39 @@
       "editor/context": [
         {
           "command": "krnlai.coding.explain",
-          "group": "AI Kernel",
+          "group": "Krnl-AI",
           "when": "config.krnlai.codingAgent.enabled && editorHasSelection"
         },
         {
           "command": "krnlai.coding.fix",
-          "group": "AI Kernel",
+          "group": "Krnl-AI",
           "when": "config.krnlai.codingAgent.enabled && editorHasSelection"
         },
         {
           "command": "krnlai.coding.test",
-          "group": "AI Kernel",
+          "group": "Krnl-AI",
           "when": "config.krnlai.codingAgent.enabled && editorHasSelection"
         },
         {
           "command": "krnlai.coding.refactor",
-          "group": "AI Kernel",
+          "group": "Krnl-AI",
           "when": "config.krnlai.codingAgent.enabled && editorHasSelection"
         }
       ],
       "editor/codeAction": [
         {
           "command": "krnlai.coding.fix",
-          "group": "AI Kernel",
+          "group": "Krnl-AI",
           "when": "config.krnlai.codingAgent.enabled"
         },
         {
           "command": "krnlai.coding.explain",
-          "group": "AI Kernel",
+          "group": "Krnl-AI",
           "when": "config.krnlai.codingAgent.enabled"
         },
         {
           "command": "krnlai.coding.test",
-          "group": "AI Kernel",
+          "group": "Krnl-AI",
           "when": "config.krnlai.codingAgent.enabled"
         }
       ]
@@ -164,7 +164,7 @@
       "activitybar": [
         {
           "id": "krnlai",
-          "title": "AI Kernel",
+          "title": "Krnl-AI",
           "icon": "$(hubot)"
         }
       ]
@@ -178,12 +178,12 @@
       ]
     },
     "configuration": {
-      "title": "AI Kernel",
+      "title": "Krnl-AI",
       "properties": {
         "krnlai.endpoint": {
           "type": "string",
           "default": "http://localhost:5000",
-          "description": "Endpoint do backend AI Kernel"
+          "description": "Endpoint do backend Krnl-AI"
         },
         "krnlai.standalone": {
           "type": "boolean",

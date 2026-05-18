@@ -23,7 +23,7 @@ public sealed class TuiChatPanel
             var roleLabel = msg.Role switch
             {
                 "user" => "[bold yellow]Você[/]",
-                "assistant" => "[bold green]AI Kernel[/]",
+                "assistant" => "[bold green]Krnl-AI[/]",
                 "system" => "[bold blue]Sistema[/]",
                 "error" => "[bold red]Erro[/]",
                 _ => $"[bold]{msg.Role}[/]"

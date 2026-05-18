@@ -19,7 +19,7 @@ export class EpisodesPanel {
 
     static createOrShow() {
         if (EpisodesPanel.currentPanel) { EpisodesPanel.currentPanel._panel.reveal(); return; }
-        const panel = vscode.window.createWebviewPanel('krnlai.episodes', 'AI Kernel - Episódios', vscode.ViewColumn.Beside, { enableScripts: true, retainContextWhenHidden: true });
+        const panel = vscode.window.createWebviewPanel('krnlai.episodes', 'Krnl-AI - Episódios', vscode.ViewColumn.Beside, { enableScripts: true, retainContextWhenHidden: true });
         EpisodesPanel.currentPanel = new EpisodesPanel(panel);
     }
 

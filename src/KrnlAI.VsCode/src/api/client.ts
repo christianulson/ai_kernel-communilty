@@ -22,11 +22,11 @@ export class KernelClient {
         try {
             const url = new URL(endpoint);
             if (url.hostname !== 'localhost' && url.hostname !== '127.0.0.1' && url.hostname !== '::1') {
-                console.warn(`[AI Kernel] Endpoint rejeitado (não é loopback): ${endpoint}. Usando default.`);
+                console.warn(`[Krnl-AI] Endpoint rejeitado (não é loopback): ${endpoint}. Usando default.`);
                 return 'http://localhost:5000';
             }
         } catch {
-            console.warn(`[AI Kernel] Endpoint inválido: ${endpoint}. Usando default.`);
+            console.warn(`[Krnl-AI] Endpoint inválido: ${endpoint}. Usando default.`);
             return 'http://localhost:5000';
         }
         return endpoint;

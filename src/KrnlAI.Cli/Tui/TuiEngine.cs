@@ -57,7 +57,7 @@ public sealed class TuiEngine
     public async Task RunAsync(CancellationToken ct)
     {
         _running = true;
-        _chat.AddMessage("system", "AI Kernel TUI iniciado. Digite /help para comandos.");
+        _chat.AddMessage("system", "Krnl-AI TUI iniciado. Digite /help para comandos.");
 
         await CheckHealthAsync(ct);
         await LoadLastSessionAsync();

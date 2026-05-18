@@ -32,7 +32,7 @@ class AikernelMiddleware(BaseHTTPMiddleware):
                 return JSONResponse(
                     status_code=403,
                     content={
-                        "error": "Blocked by AI Kernel safety system",
+                        "error": "Blocked by Krnl-AI safety system",
                         "risk_score": result.risk_score,
                         "reason": result.error,
                     },

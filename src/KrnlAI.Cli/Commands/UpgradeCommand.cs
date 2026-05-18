@@ -25,7 +25,7 @@ public sealed class UpgradeCommand
         var checkOnly = new Option<bool>("--check") { Description = "Only check for updates, don't install" };
         var versionOpt = new Option<string>("--version") { Description = "Install specific version" };
 
-        var cmd = new Command("upgrade", "Check for updates and upgrade AI Kernel CLI")
+        var cmd = new Command("upgrade", "Check for updates and upgrade Krnl-AI CLI")
         {
             checkOnly, versionOpt
         };

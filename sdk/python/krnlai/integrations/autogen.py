@@ -16,7 +16,7 @@ class AikernelAssistantAgent:
     ) -> None:
         self.name = name
         self._system_message = system_message or (
-            "You are an AI agent powered by the AI Kernel cognitive cycle. "
+            "You are an AI agent powered by the Krnl-AI cognitive cycle. "
             "You have a built-in safety system with 20 fundamental rules."
         )
         self.human_input_mode = human_input_mode

@@ -10,7 +10,7 @@ public sealed class InteractiveCommand
     {
         var endpoint = new Option<string>("--endpoint")
         {
-            Description = "URL do backend AI Kernel",
+            Description = "URL do backend Krnl-AI",
             DefaultValueFactory = _ => "http://localhost:5000"
         };
         var local = new Option<bool>("--local") { Description = "Use EmbeddedKernel in-process" };

@@ -13,12 +13,12 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
 
         if (context.diagnostics.length > 0) {
             const fix = new vscode.CodeAction(
-                'Fix with AI Kernel',
+                'Fix with Krnl-AI',
                 vscode.CodeActionKind.QuickFix
             );
             fix.command = {
                 command: 'krnlai.coding.fix',
-                title: 'Fix with AI Kernel',
+                title: 'Fix with Krnl-AI',
                 arguments: [document.uri.fsPath, context.diagnostics.map(d => d.message)]
             };
             actions.push(fix);
@@ -27,12 +27,12 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
         const hasSelection = !range.isEmpty;
         if (hasSelection) {
             const explain = new vscode.CodeAction(
-                'Explain with AI Kernel',
+                'Explain with Krnl-AI',
                 vscode.CodeActionKind.Refactor
             );
             explain.command = {
                 command: 'krnlai.coding.explain',
-                title: 'Explain with AI Kernel',
+                title: 'Explain with Krnl-AI',
                 arguments: [document.getText(range)]
             };
             actions.push(explain);
@@ -41,12 +41,12 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
         const text = document.getText();
         if (/class\s+\w+|function\s+\w+/.test(text)) {
             const test = new vscode.CodeAction(
-                'Generate Test with AI Kernel',
+                'Generate Test with Krnl-AI',
                 vscode.CodeActionKind.Refactor
             );
             test.command = {
                 command: 'krnlai.coding.test',
-                title: 'Generate Test with AI Kernel',
+                title: 'Generate Test with Krnl-AI',
                 arguments: [document.uri.fsPath]
             };
             actions.push(test);

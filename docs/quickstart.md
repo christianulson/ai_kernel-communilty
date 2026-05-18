@@ -1,6 +1,6 @@
 # Quickstart
 
-This guide starts a local AI Kernel session from a clean machine.
+This guide starts a local Krnl-AI session from a clean machine.
 
 ## Prerequisites
 

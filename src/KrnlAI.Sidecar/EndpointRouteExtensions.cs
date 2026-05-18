@@ -177,7 +177,7 @@ public static class EndpointRouteExtensions
     {
         var p when p.Contains("olá") || p.Contains("oi") => "Olá! Modo standalone local ativo. Como posso ajudar?",
         var p when p.Contains("ajuda") => "Modo standalone: segurança e risco ativos. Backend completo requer conexão remota.",
-        var p when p.Contains("quem é") => "AI Kernel em modo standalone. Safety ativo.",
+        var p when p.Contains("quem é") => "Krnl-AI em modo standalone. Safety ativo.",
         _ => "Processado em modo standalone."
     };
 }

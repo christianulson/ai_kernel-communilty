@@ -67,7 +67,7 @@ export function registerKernelChatParticipant(
 
     participant.onDidReceiveFeedback((feedback) => {
         const emoji = feedback.kind === vscode.ChatResultFeedbackKind.Helpful ? '👍' : '👎';
-        console.log(`[AI Kernel] Chat feedback: ${emoji} - ${feedback.result?.metadata ?? ''}`);
+        console.log(`[Krnl-AI] Chat feedback: ${emoji} - ${feedback.result?.metadata ?? ''}`);
     });
 
     (participant as any).commandProvider = {
@@ -81,7 +81,7 @@ export function registerKernelChatParticipant(
         ]
     };
 
-    const logger = vscode.window.createOutputChannel('AI Kernel Chat', { log: true });
+    const logger = vscode.window.createOutputChannel('Krnl-AI Chat', { log: true });
 
     context.subscriptions.push(participant);
 

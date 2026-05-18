@@ -1,4 +1,4 @@
-"""Enterprise mode — connects to C# AI Kernel backend."""
+"""Enterprise mode — connects to C# Krnl-AI backend."""
 
 import asyncio
 

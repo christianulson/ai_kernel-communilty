@@ -1,6 +1,6 @@
 # Cognitive Cycle
 
-The AI Kernel implements a 10-step cognitive cycle inspired by human cognition:
+The Krnl-AI implements a 10-step cognitive cycle inspired by human cognition:
 
 ## Steps
 

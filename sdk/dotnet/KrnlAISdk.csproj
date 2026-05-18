@@ -6,8 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <PackageId>KrnlAi.Sdk</PackageId>
     <Version>0.1.0</Version>
-    <Authors>AI Kernel</Authors>
-    <Description>SDK for the AI Kernel API</Description>
+    <Authors>Krnl-AI</Authors>
+    <Description>SDK for the Krnl-AI API</Description>
     <PackageTags>AI;Kernel;Agent;SDK</PackageTags>
   </PropertyGroup>
 

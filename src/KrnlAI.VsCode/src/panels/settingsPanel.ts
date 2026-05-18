@@ -16,7 +16,7 @@ export class SettingsPanel {
 
     static createOrShow() {
         if (SettingsPanel.currentPanel) { SettingsPanel.currentPanel._panel.reveal(); return; }
-        const panel = vscode.window.createWebviewPanel('krnlai.settings', 'AI Kernel - Configurações', vscode.ViewColumn.Beside, { enableScripts: true, retainContextWhenHidden: true });
+        const panel = vscode.window.createWebviewPanel('krnlai.settings', 'Krnl-AI - Configurações', vscode.ViewColumn.Beside, { enableScripts: true, retainContextWhenHidden: true });
         SettingsPanel.currentPanel = new SettingsPanel(panel);
     }
 

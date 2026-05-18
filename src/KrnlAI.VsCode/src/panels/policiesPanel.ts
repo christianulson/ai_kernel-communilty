@@ -19,7 +19,7 @@ export class PoliciesPanel {
 
     static createOrShow() {
         if (PoliciesPanel.currentPanel) { PoliciesPanel.currentPanel._panel.reveal(); return; }
-        const panel = vscode.window.createWebviewPanel('krnlai.policies', 'AI Kernel - Políticas', vscode.ViewColumn.Beside, { enableScripts: true, retainContextWhenHidden: true });
+        const panel = vscode.window.createWebviewPanel('krnlai.policies', 'Krnl-AI - Políticas', vscode.ViewColumn.Beside, { enableScripts: true, retainContextWhenHidden: true });
         PoliciesPanel.currentPanel = new PoliciesPanel(panel);
     }
 

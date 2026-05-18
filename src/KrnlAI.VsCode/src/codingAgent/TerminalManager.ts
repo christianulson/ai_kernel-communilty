@@ -76,7 +76,7 @@ export class TerminalManager {
             };
         }
 
-        const terminalName = `AI Kernel #${++this._executionCount}`;
+        const terminalName = `Krnl-AI #${++this._executionCount}`;
         this._terminal = vscode.window.createTerminal(terminalName);
         this._terminal.show(false);
 

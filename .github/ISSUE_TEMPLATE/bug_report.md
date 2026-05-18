@@ -28,7 +28,7 @@ What happened instead?
 
 - OS:
 - .NET SDK:
-- AI Kernel package or commit:
+- Krnl-AI package or commit:
 - LLM provider:
 
 ## Logs

@@ -1,4 +1,4 @@
-# AI Kernel Python SDK
+# Krnl-AI Python SDK
 
 **Cognitive agent framework with built-in safety. Zero external dependencies.**
 
@@ -21,7 +21,7 @@ response = await agent.run("analyze this dataset")
 - **Zero Dependencies** — Runs fully in-memory, no databases, no Docker
 - **LLM Providers** — OpenAI, Anthropic, Ollama, OpenRouter, Groq
 - **Streaming** — Native `async for` streaming of cognitive cycles
-- **Enterprise Mode** — Connect to the C# AI Kernel backend for persistence, multi-tenancy, and scale
+- **Enterprise Mode** — Connect to the C# Krnl-AI backend for persistence, multi-tenancy, and scale
 
 ## Quick Start
 

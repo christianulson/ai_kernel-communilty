@@ -123,7 +123,7 @@ def _generate_report_html(checker: SafetyChecker) -> str:
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>AI Kernel Security Report</title>
+<title>Krnl-AI Security Report</title>
 <style>
 body {{ font-family: -apple-system, sans-serif; max-width: 960px; margin: 40px auto; padding: 0 20px; }}
 h1 {{ color: #333; }}
@@ -141,7 +141,7 @@ tr:hover {{ background: #f9f9f9; }}
 </style>
 </head>
 <body>
-<h1>AI Kernel Security Report</h1>
+<h1>Krnl-AI Security Report</h1>
 <p>Generated: {time.strftime("%Y-%m-%d %H:%M:%S")}</p>
 
 <div class="summary">

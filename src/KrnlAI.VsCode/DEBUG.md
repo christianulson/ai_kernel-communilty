@@ -1,4 +1,4 @@
-# Debug da Extensão VsCode — AI Kernel
+# Debug da Extensão VsCode — Krnl-AI
 
 Guia passo-a-passo para depurar a extensão VsCode e o Sidecar .NET.
 
@@ -40,8 +40,8 @@ Isso abre um **novo VsCode** (Extension Development Host) com a extensão carreg
 ### Passo 4: Verificar se carregou
 
 No novo VsCode:
-- Barra lateral → ícone 🤖 (AI Kernel)
-- `Ctrl+Shift+P` → digite `AI Kernel` → 8 comandos aparecem
+- Barra lateral → ícone 🤖 (Krnl-AI)
+- `Ctrl+Shift+P` → digite `Krnl-AI` → 8 comandos aparecem
 - Status bar → `$(hubot)` com status de conexão
 
 ### Debug no VsCode Host
@@ -132,7 +132,7 @@ Agora você tem:
 
 Configure a extensão para usar o backend já rodando:
 
-1. `Ctrl+Shift+P` → `AI Kernel: Configurações`
+1. `Ctrl+Shift+P` → `Krnl-AI: Configurações`
 2. Endpoint: `http://localhost:5000`
 3. Modo: `API Remota`
 
@@ -196,7 +196,7 @@ curl http://localhost:5000/health
 |----------|-------|---------|
 | `cannot find module 'vscode'` | `@types/vscode` não instalado | `npm install` |
 | WebView em branco | `out/` desatualizado | `npx tsc` |
-| `connect ECONNREFUSED :5001` | Sidecar não iniciado | `AI Kernel: Iniciar Sidecar` |
+| `connect ECONNREFUSED :5001` | Sidecar não iniciado | `Krnl-AI: Iniciar Sidecar` |
 | `fetch is not defined` | Node.js 18+ necessário | `node --version` |
 | Sidecar trava | Porta ocupada | Mude a porta: `--port 5002` |
 | TreeView vazio | `package.json` views incorreto | Verifique `contributes.views` |

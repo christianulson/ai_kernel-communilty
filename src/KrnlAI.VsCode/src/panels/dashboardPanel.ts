@@ -19,7 +19,7 @@ export class DashboardPanel {
 
     static createOrShow() {
         if (DashboardPanel.currentPanel) { DashboardPanel.currentPanel._panel.reveal(); return; }
-        const panel = vscode.window.createWebviewPanel('krnlai.dashboard', 'AI Kernel - Dashboard', vscode.ViewColumn.Beside, { enableScripts: true, retainContextWhenHidden: true });
+        const panel = vscode.window.createWebviewPanel('krnlai.dashboard', 'Krnl-AI - Dashboard', vscode.ViewColumn.Beside, { enableScripts: true, retainContextWhenHidden: true });
         DashboardPanel.currentPanel = new DashboardPanel(panel);
     }
 

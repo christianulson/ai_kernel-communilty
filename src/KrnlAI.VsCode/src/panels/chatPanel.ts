@@ -20,7 +20,7 @@ export class ChatPanel {
 
     static createOrShow() {
         if (ChatPanel.currentPanel) { ChatPanel.currentPanel._panel.reveal(vscode.ViewColumn.Beside); return; }
-        const panel = vscode.window.createWebviewPanel('krnlai.chat', 'AI Kernel - Chat', vscode.ViewColumn.Beside, { enableScripts: true, retainContextWhenHidden: true });
+        const panel = vscode.window.createWebviewPanel('krnlai.chat', 'Krnl-AI - Chat', vscode.ViewColumn.Beside, { enableScripts: true, retainContextWhenHidden: true });
         ChatPanel.currentPanel = new ChatPanel(panel);
     }
 
@@ -52,7 +52,7 @@ export class ChatPanel {
     private _getHtml(): string { const nonce = this._nonce; return `<!DOCTYPE html>
 <html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'nonce-${nonce}'; script-src 'nonce-${nonce}';">
-<title>AI Kernel Chat</title>
+<title>Krnl-AI Chat</title>
 <style nonce="${nonce}">*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--vscode-editor-background);color:var(--vscode-editor-foreground)}
 #status{padding:8px 16px;font-size:12px;border-bottom:1px solid var(--vscode-panel-border)}#messages{padding:16px;overflow-y:auto;height:calc(100vh - 120px)}
 .msg{margin:0 0 12px;padding:12px;border-radius:8px;max-width:85%}.user{background:var(--vscode-textBlockQuote-background);margin-left:auto}
@@ -74,7 +74,7 @@ if(m.type==='response'){addMsg(m.data,'assistant',m.error?'error':'');if(m.error
 document.getElementById('send')!.onclick=send;input.onkeydown=e=>{if(e.key==='Enter')send();};
 function send(){const t=input.value.trim();if(!t)return;addMsg(t,'user');vscode.postMessage({type:'send',text:t});input.value='';status.textContent='$(sync) Processando...';}
 function addMsg(t,r,e){const d=document.createElement('div');d.className='msg '+r+' '+e;
-const l=document.createElement('div');l.className='msg-label';l.textContent=r==='user'?'Usuário':'AI Kernel';d.appendChild(l);
+const l=document.createElement('div');l.className='msg-label';l.textContent=r==='user'?'Usuário':'Krnl-AI';d.appendChild(l);
 const c=document.createElement('div');c.textContent=t;d.appendChild(c);msgDiv.appendChild(d);d.scrollIntoView({behavior:'smooth'});}
 })();</script></body></html>`; }
 

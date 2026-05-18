@@ -1,6 +1,6 @@
 # Enterprise Mode
 
-Connect the Python SDK to the C# AI Kernel backend for persistence, multi-tenancy, and scale.
+Connect the Python SDK to the C# Krnl-AI backend for persistence, multi-tenancy, and scale.
 
 ## Setup
 

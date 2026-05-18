@@ -24,7 +24,7 @@ if __name__ == "__main__":
     asyncio.run(main())
 '''
 
-TEMPLATE_ENV = '''# AI Kernel Configuration
+TEMPLATE_ENV = '''# Krnl-AI Configuration
 # Uncomment and set your LLM provider API key:
 
 # OPENAI_API_KEY=sk-...

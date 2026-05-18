@@ -58,13 +58,13 @@ public sealed class ServeCommand
 
             app.MapGet("/status", () => Results.Ok(new
             {
-                service = "AI Kernel CLI",
+                service = "Krnl-AI CLI",
                 version = "1.0.0",
                 uptime = Environment.TickCount64 / 1000,
                 mode = "community"
             }));
 
-            AnsiConsole.MarkupLine($"[green]AI Kernel CLI serving on http://localhost:{port} (press Ctrl+C to stop)[/]");
+            AnsiConsole.MarkupLine($"[green]Krnl-AI CLI serving on http://localhost:{port} (press Ctrl+C to stop)[/]");
 
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             Console.CancelKeyPress += (_, e) =>

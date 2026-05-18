@@ -111,7 +111,7 @@ export class UsageTracker {
     formatStats(): string {
         const s = this.getStats();
         return [
-            `📊 **AI Kernel Usage Statistics**`,
+            `📊 **Krnl-AI Usage Statistics**`,
             ``,
             `**General**`,
             `Total actions: ${s.totalActions}`,

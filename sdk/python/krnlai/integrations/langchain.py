@@ -9,7 +9,7 @@ class AikernelTool:
     def __init__(self, runner: CognitiveCycleRunner, name: str = "krnlai") -> None:
         self._runner = runner
         self.name = name
-        self.description = "AI Kernel cognitive agent with safety system"
+        self.description = "Krnl-AI cognitive agent with safety system"
 
     async def _arun(self, query: str) -> str:
         result = await self._runner.run(query)

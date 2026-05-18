@@ -29,7 +29,7 @@ await seeder.SeedAsync();
 var cliCtx = host.Services.GetRequiredService<CliContext>();
 var renderer = host.Services.GetRequiredService<ConsoleRenderer>();
 
-var root = new RootCommand("AI Kernel CLI - Developer Interface");
+var root = new RootCommand("Krnl-AI CLI - Developer Interface");
 
 root.Add(new StatusCommand(cliCtx, renderer).Build());
 root.Add(new HealthCommand(cliCtx, renderer).Build());

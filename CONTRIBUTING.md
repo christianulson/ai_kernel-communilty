@@ -1,7 +1,7 @@
-# Contributing to AI Kernel Community
+# Contributing to Krnl-AI Community
 
-Thanks for helping improve AI Kernel Community. This repository follows the same
-engineering rules as the private AI Kernel codebase: tests first, deterministic
+Thanks for helping improve Krnl-AI Community. This repository follows the same
+engineering rules as the private Krnl-AI codebase: tests first, deterministic
 behavior, and no hidden external-service dependency in tests.
 
 ## Development Setup

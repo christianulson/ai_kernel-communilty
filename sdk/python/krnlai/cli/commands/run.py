@@ -32,7 +32,7 @@ async def _run_once(agent, text: str) -> None:
 
 
 async def _run_interactive(agent) -> None:
-    console.print("[bold cyan]AI Kernel Interactive Mode[/bold cyan]")
+    console.print("[bold cyan]Krnl-AI Interactive Mode[/bold cyan]")
     console.print("Type 'exit' to quit, 'help' for commands\n")
     while True:
         text = Prompt.ask("[bold green]>[/bold green]")

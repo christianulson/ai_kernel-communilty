@@ -1,6 +1,6 @@
 # Getting Started with the CLI
 
-The AI Kernel CLI is the fastest way to use the community runtime locally.
+The Krnl-AI CLI is the fastest way to use the community runtime locally.
 
 ## Chat Locally
 

@@ -1,6 +1,6 @@
 # Architecture
 
-AI Kernel Community is organized around a strict separation between deterministic
+Krnl-AI Community is organized around a strict separation between deterministic
 kernel state and LLM-facing translation.
 
 ## Kernel

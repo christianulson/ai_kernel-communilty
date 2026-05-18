@@ -2,7 +2,7 @@
 
 ## CognitiveAgent
 
-Primary interface for the AI Kernel.
+Primary interface for the Krnl-AI.
 
 ```python
 agent = CognitiveAgent(

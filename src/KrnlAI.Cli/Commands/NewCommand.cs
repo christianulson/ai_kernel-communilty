@@ -8,7 +8,7 @@ public sealed class NewCommand(ITemplateEngine templateEngine, IAnsiConsole cons
 {
     public Command Build()
     {
-        var cmd = new Command("new", "Scaffold new AI Kernel components");
+        var cmd = new Command("new", "Scaffold new Krnl-AI components");
 
         cmd.Add(BuildAgentCommand());
         cmd.Add(BuildToolCommand());

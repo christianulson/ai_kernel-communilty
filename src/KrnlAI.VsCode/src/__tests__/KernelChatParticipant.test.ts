@@ -76,6 +76,6 @@ describe('KernelChatParticipant', () => {
     it('registerKernelChatParticipant_ShouldCreateOutputChannel', () => {
         registerKernelChatParticipant(mockContext, mockClient, approvalManager, sessionManager);
         const { window } = require('vscode');
-        expect(window.createOutputChannel).toHaveBeenCalledWith('AI Kernel Chat', { log: true });
+        expect(window.createOutputChannel).toHaveBeenCalledWith('Krnl-AI Chat', { log: true });
     });
 });

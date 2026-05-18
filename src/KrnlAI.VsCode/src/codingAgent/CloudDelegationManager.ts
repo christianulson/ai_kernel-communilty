@@ -48,7 +48,7 @@ export class CloudDelegationManager {
         }
 
         return withProgress(
-            'Delegating to AI Kernel Cloud...',
+            'Delegating to Krnl-AI Cloud...',
             async (progress, token) => {
                 const id = `delegate_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
 

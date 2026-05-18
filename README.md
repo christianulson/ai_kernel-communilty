@@ -1,6 +1,6 @@
-# AI Kernel Community
+# Krnl-AI Community
 
-AI Kernel Community is the local-first edition of AI Kernel: a cognitive runtime for
+Krnl-AI Community is the local-first edition of Krnl-AI: a cognitive runtime for
 agents with persistent memory, safety checks, evolving skills, and a developer CLI.
 It is designed to run on your machine without requiring hosted infrastructure.
 

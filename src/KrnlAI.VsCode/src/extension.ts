@@ -32,7 +32,7 @@ let slashMgr: SlashCommandManager | undefined;
 
 export function activate(context: vscode.ExtensionContext) {
     statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-    statusBarItem.text = "$(hubot) AI Kernel";
+    statusBarItem.text = "$(hubot) Krnl-AI";
     statusBarItem.command = "krnlai.chat";
     statusBarItem.tooltip = "Clique para abrir o Chat";
     statusBarItem.show();
@@ -56,7 +56,7 @@ export function activate(context: vscode.ExtensionContext) {
         if (sidecarProcess) { vscode.window.showInformationMessage('Sidecar já está rodando'); return; }
         const projectDir = vscode.workspace.workspaceFolders?.[0]?.uri?.fsPath;
         if (!projectDir) {
-            vscode.window.showErrorMessage('Abra uma pasta do projeto AI Kernel para iniciar o Sidecar');
+            vscode.window.showErrorMessage('Abra uma pasta do projeto Krnl-AI para iniciar o Sidecar');
             return;
         }
         const csprojPath = path.join(projectDir, 'src', 'KrnlAI.Sidecar', 'KrnlAI.Sidecar.csproj');
@@ -64,7 +64,7 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.window.showErrorMessage(`Sidecar não encontrado em: ${csprojPath}`);
             return;
         }
-        vscode.window.showInformationMessage('Iniciando AI Kernel Sidecar...');
+        vscode.window.showInformationMessage('Iniciando Krnl-AI Sidecar...');
         try {
             sidecarProcess = spawn('dotnet', ['run', '--project', csprojPath], {
                 cwd: path.dirname(csprojPath),

@@ -50,7 +50,7 @@ def _run_debug_cycle(agent: CognitiveCycleRunner) -> None:
 def app() -> None:
     args = sys.argv[1:]
     if not args:
-        console.print("[bold]AI Kernel CLI[/bold]")
+        console.print("[bold]Krnl-AI CLI[/bold]")
         console.print("Usage:")
         console.print("  krnlai init <name>         Create a new agent project")
         console.print("  krnlai run [text]          Run agent once")

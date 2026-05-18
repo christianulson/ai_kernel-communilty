@@ -60,10 +60,10 @@ describe('ProgressHelper', () => {
     });
 
     it('createStatusBarProgress_ShouldCreateAndShow', () => {
-        const item = createStatusBarProgress('$(sync) Working...', 'AI Kernel task in progress');
+        const item = createStatusBarProgress('$(sync) Working...', 'Krnl-AI task in progress');
         expect(item).toBeDefined();
         expect(item.text).toBe('$(sync) Working...');
-        expect(item.tooltip).toBe('AI Kernel task in progress');
+        expect(item.tooltip).toBe('Krnl-AI task in progress');
     });
 
     it('createStatusBarProgress_DefaultTooltip', () => {

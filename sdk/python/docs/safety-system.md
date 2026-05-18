@@ -1,6 +1,6 @@
 # Safety System
 
-The AI Kernel enforces 20 fundamental rules (R01-R20) that cannot be overridden.
+The Krnl-AI enforces 20 fundamental rules (R01-R20) that cannot be overridden.
 
 ## Rules Overview
 

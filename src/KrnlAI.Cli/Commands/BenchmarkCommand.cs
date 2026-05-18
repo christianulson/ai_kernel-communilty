@@ -82,7 +82,7 @@ public sealed class BenchmarkCommand(
                 return 1;
             }
 
-            console.MarkupLine("[yellow]Running AI Kernel safety benchmark...[/]");
+            console.MarkupLine("[yellow]Running Krnl-AI safety benchmark...[/]");
             console.MarkupLine($"[grey]Scenarios: {scenarioList.Count} | Seed: {seed}[/]");
 
             var result = await benchRunner.RunBenchmarkAsync(scenarioList, $"benchmark-{seed}", ct);
@@ -166,7 +166,7 @@ public sealed class BenchmarkCommand(
             }
 
             console.MarkupLine($"\n[bold]Results:[/]");
-            console.MarkupLine($"  [green]AI Kernel:[/] {result.OverallScore}% ({result.Passed}/{result.TotalScenarios})");
+            console.MarkupLine($"  [green]Krnl-AI:[/] {result.OverallScore}% ({result.Passed}/{result.TotalScenarios})");
 
             foreach (var (name, data) in externalResults)
             {

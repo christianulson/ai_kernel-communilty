@@ -22,7 +22,7 @@ public sealed class TuiEngine : IDisposable
         _cts = new CancellationTokenSource();
         var ct = _cts.Token;
 
-        await AnsiConsole.Live(new Panel(new Markup("Starting...")).Header("AI Kernel"))
+        await AnsiConsole.Live(new Panel(new Markup("Starting...")).Header("Krnl-AI"))
             .AutoClear(false)
             .Overflow(VerticalOverflow.Ellipsis)
             .StartAsync(async ctx =>
@@ -41,7 +41,7 @@ public sealed class TuiEngine : IDisposable
                     var eventsPanel = BuildEventsPanel();
                     grid.AddRow(qTablePanel, eventsPanel);
 
-                    ctx.UpdateTarget(new Panel(grid).Header($"AI Kernel TUI — {DateTimeOffset.UtcNow:HH:mm:ss}"));
+                    ctx.UpdateTarget(new Panel(grid).Header($"Krnl-AI TUI — {DateTimeOffset.UtcNow:HH:mm:ss}"));
                     ctx.Refresh();
                     await Task.Delay(3000, ct);
                 }

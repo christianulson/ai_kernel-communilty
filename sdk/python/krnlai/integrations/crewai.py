@@ -8,10 +8,10 @@ from krnlai.core.cycle import CognitiveCycleRunner, CycleConfig
 class AikernelAgent:
     def __init__(
         self,
-        name: str = "AI Kernel Agent",
+        name: str = "Krnl-AI Agent",
         role: str = "Cognitive Assistant",
         goal: str = "Process tasks with safety and cognitive awareness",
-        backstory: str = "An AI agent powered by the AI Kernel cognitive cycle with 20 fundamental safety rules",
+        backstory: str = "An AI agent powered by the Krnl-AI cognitive cycle with 20 fundamental safety rules",
         safety_level: str = "strict",
         allow_delegation: bool = False,
         verbose: bool = False,
