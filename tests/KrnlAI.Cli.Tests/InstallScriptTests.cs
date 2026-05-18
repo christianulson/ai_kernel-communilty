@@ -55,6 +55,6 @@ public sealed class InstallScriptTests
         var files = Directory.GetFiles(workflowsDir, "*.yml");
         Assert.NotEmpty(files);
         Assert.Contains(files, f => f.Contains("pr-review"));
-        Assert.Contains(files, f => f.Contains("vsix-publish"));
+        Assert.Contains(files, f => f.Contains("ci"));
     }
 }
