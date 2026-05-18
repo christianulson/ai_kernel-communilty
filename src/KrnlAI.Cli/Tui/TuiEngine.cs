@@ -135,7 +135,7 @@ public sealed class TuiEngine
             case "/connect":
                 if (_isLocal)
                 {
-                    _chat.AddMessage("system", "Modo local ativo; /connect não altera o EmbeddedKernel.");
+                    _chat.AddMessage("system", "Modo local ativo; /connect não altera o EmbeddedKrnlAI.");
                     await CheckHealthAsync(ct);
                     break;
                 }

@@ -157,7 +157,7 @@ public sealed class AdvancedModelsTests
         var data = new CrossSummaryData(gw, kernel, weights);
 
         Assert.Equal("1.0", data.Gateway.Version);
-        Assert.Equal("2.0", data.Kernel.Version);
+        Assert.Equal("2.0", data.KrnlAI.Version);
         Assert.Equal(0.7, data.HybridWeights!.Semantic);
     }
 

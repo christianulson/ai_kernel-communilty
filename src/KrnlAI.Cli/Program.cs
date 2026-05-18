@@ -2,7 +2,7 @@ using System.CommandLine;
 using KrnlAI.Cli.Abstractions;
 using KrnlAI.Cli.Commands;
 using KrnlAI.Cli.Services;
-using Kernel.Core.Services.Safety;
+using KrnlAI.Core.Services.Safety;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Spectre.Console;
@@ -61,14 +61,14 @@ var benchRunner = host.Services.GetRequiredService<SafetyBenchRunner>();
 root.Add(new SecurityCommand(benchRunner, console).Build());
 
 // Benchmark (Plano 08 - Safety Benchmark)
-var reportGen = host.Services.GetRequiredService<Kernel.Core.Abstractions.Safety.ISafetyReportGenerator>();
+var reportGen = host.Services.GetRequiredService<KrnlAI.Core.Abstractions.Safety.ISafetyReportGenerator>();
 root.Add(new BenchmarkCommand(benchRunner, reportGen, console).Build());
 
 // Integration management (Plano 02 - Ecosystem)
 root.Add(new IntegrationCommand(console).Build());
 
 // Plugin management (Plano 37 - Plugin Ecosystem)
-var pluginLoader = host.Services.GetService<Kernel.Core.Abstractions.IAssemblyPluginLoader>();
+var pluginLoader = host.Services.GetService<KrnlAI.Core.Abstractions.IAssemblyPluginLoader>();
 root.Add(new PluginCommand(console, pluginLoader).Build());
 
 // MCP management (Track B2)

@@ -2,9 +2,9 @@ using System.CommandLine;
 using System.Text.Json;
 using KrnlAI.Cli.Abstractions;
 using KrnlAI.Cli.Services;
-using Kernel.Core.Abstractions.Safety;
-using Kernel.Core.Model;
-using Kernel.Core.Services.Safety;
+using KrnlAI.Core.Abstractions.Safety;
+using KrnlAI.Core.Model;
+using KrnlAI.Core.Services.Safety;
 using Spectre.Console;
 
 namespace KrnlAI.Cli.Commands;

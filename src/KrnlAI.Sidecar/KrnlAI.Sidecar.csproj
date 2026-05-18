@@ -20,19 +20,16 @@
     <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.15.1" />
   </ItemGroup>
   <ItemGroup Condition="'$(KrnlAI)' == 'Local'">
-    <ProjectReference Include="..\..\..\src\Kernel.Core\Kernel.Core.csproj" />
-    <ProjectReference Include="..\..\..\src\Kernel.Infrastructure\Kernel.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\src\KrnlAI.Core\KrnlAI.Core.csproj" />
+    <ProjectReference Include="..\..\..\src\KrnlAI.Infrastructure\KrnlAI.Infrastructure.csproj" />
     <ProjectReference Include="..\..\..\src\KrnlAI.Embedded\KrnlAI.Embedded.csproj" />
+    <ProjectReference Include="..\..\..\src\KrnlAI.Contracts\KrnlAI.Contracts.csproj" />
   </ItemGroup>
   <ItemGroup Condition="'$(KrnlAI)' != 'Local'">
-    <PackageReference Include="Kernel.Core" Version="1.0.0" />
-    <PackageReference Include="Kernel.Infrastructure" Version="1.0.0" />
-    <PackageReference Include="Kernel.Contracts" Version="1.0.0" />
+    <PackageReference Include="KrnlAI.Core" Version="1.0.0" />
+    <PackageReference Include="KrnlAI.Infrastructure" Version="1.0.0" />
+    <PackageReference Include="KrnlAI.Contracts" Version="1.0.0" />
     <PackageReference Include="KrnlAI.Embedded" Version="1.0.0" />
   </ItemGroup>
-  <ItemGroup Condition="'$(KrnlAI)' == 'Local'">
-    <ProjectReference Include="..\Kernel.Contracts\Kernel.Contracts.csproj" />
-  </ItemGroup>
-
 </Project>
 

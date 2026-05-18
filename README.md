@@ -22,7 +22,7 @@ krnlai chat --local
 
 | Package | Purpose | License |
 | --- | --- | --- |
-| `Kernel.Contracts` | Public DTOs and interfaces | MIT |
+| `KrnlAI.Contracts` | Public DTOs and interfaces | MIT |
 | `KrnlAI.Cli` | Local CLI and interactive TUI | MIT |
 | `KrnlAI.Sidecar` | Local HTTP sidecar for tools | MIT |
 | `KrnlAI.Embedded` | In-process kernel for community apps | MIT |

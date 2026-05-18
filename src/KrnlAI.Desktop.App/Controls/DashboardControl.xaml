@@ -470,8 +470,8 @@
                         </StackPanel>
                         <StackPanel Grid.Column="1">
                             <TextBlock Text="{loc:Loc sidebar_brand}" FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
-                            <TextBlock Text="{Binding DashVM.CrossSummaryData.Kernel.Version}" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
-                            <TextBlock Text="{Binding DashVM.CrossSummaryData.Kernel.RequestsPerMinute, StringFormat={}{0} req/min}" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock Text="{Binding DashVM.CrossSummaryData.KrnlAI.Version}" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock Text="{Binding DashVM.CrossSummaryData.KrnlAI.RequestsPerMinute, StringFormat={}{0} req/min}" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
                         </StackPanel>
                     </Grid>
                 </StackPanel>

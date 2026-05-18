@@ -10,9 +10,9 @@ It does not delegate state decisions to an LLM.
 
 Key packages:
 
-- `Kernel.Contracts`: public contracts and DTOs
-- `Kernel.Core`: domain models, abstractions, policies, and core services
-- `Kernel.Infrastructure`: local storage, scheduling, and persistence
+- `KrnlAI.Contracts`: public contracts and DTOs
+- `KrnlAI.Core`: domain models, abstractions, policies, and core services
+- `KrnlAI.Infrastructure`: local storage, scheduling, and persistence
 - `KrnlAI.Embedded`: in-process kernel composition for local applications
 
 ## Gateway

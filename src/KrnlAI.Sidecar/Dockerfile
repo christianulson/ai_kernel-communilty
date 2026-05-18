@@ -5,9 +5,9 @@ EXPOSE 5001
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 COPY ["src/KrnlAI.Sidecar/KrnlAI.Sidecar.csproj", "src/KrnlAI.Sidecar/"]
-COPY ["src/Kernel.Core/Kernel.Core.csproj", "src/Kernel.Core/"]
-COPY ["src/Kernel.Contracts/Kernel.Contracts.csproj", "src/Kernel.Contracts/"]
-COPY ["src/Kernel.Infrastructure/Kernel.Infrastructure.csproj", "src/Kernel.Infrastructure/"]
+COPY ["src/KrnlAI.Core/KrnlAI.Core.csproj", "src/KrnlAI.Core/"]
+COPY ["src/KrnlAI.Contracts/KrnlAI.Contracts.csproj", "src/KrnlAI.Contracts/"]
+COPY ["src/KrnlAI.Infrastructure/KrnlAI.Infrastructure.csproj", "src/KrnlAI.Infrastructure/"]
 RUN dotnet restore "src/KrnlAI.Sidecar/KrnlAI.Sidecar.csproj"
 COPY . .
 WORKDIR "/src/src/KrnlAI.Sidecar"

@@ -1,7 +1,7 @@
 using System.CommandLine;
 using System.Text.Json;
-using Kernel.Core.Model;
-using Kernel.Core.Services.Safety;
+using KrnlAI.Core.Model;
+using KrnlAI.Core.Services.Safety;
 using Spectre.Console;
 
 namespace KrnlAI.Cli.Commands;

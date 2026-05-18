@@ -55,7 +55,7 @@ No VsCode **original** (janela do projeto):
 
 ## 🐛 Método 2: Debug Completo (Extension + Sidecar + Kernel)
 
-### Cenário: Extensão → Sidecar → Kernel.Core
+### Cenário: Extensão → Sidecar → KrnlAI.Core
 
 ```
 VsCode Extension (F5)
@@ -65,7 +65,7 @@ KrnlAI.Sidecar (Kestrel)
     │ AdversarialGuard.ValidateAsync()
     │ SimpleRiskScorer.ScoreRisk()
     ▼
-Kernel.Core (in-process)
+KrnlAI.Core (in-process)
 ```
 
 ### Passo 1: Iniciar Sidecar em modo debug
@@ -121,7 +121,7 @@ Ou use o **VsCode Task Runner** para depurar o Sidecar ao mesmo tempo:
 
 Agora você tem:
 - ✅ Extensão VsCode com WebViews
-- ✅ Sidecar .NET com Kernel.Core in-process
+- ✅ Sidecar .NET com KrnlAI.Core in-process
 - ✅ Debug de ambos com breakpoints
 
 ---

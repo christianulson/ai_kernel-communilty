@@ -1,6 +1,6 @@
 using System.CommandLine;
 using KrnlAI.Cli.Services;
-using Kernel.Core.Abstractions;
+using KrnlAI.Core.Abstractions;
 using Spectre.Console;
 
 namespace KrnlAI.Cli.Commands;

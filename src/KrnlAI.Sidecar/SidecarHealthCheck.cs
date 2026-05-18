@@ -1,4 +1,4 @@
-using Kernel.Core.Abstractions;
+using KrnlAI.Core.Abstractions;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace KrnlAI.Sidecar;

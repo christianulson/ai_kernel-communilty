@@ -1,5 +1,5 @@
-using Kernel.Core.Abstractions;
-using Kernel.Core.Services.Safety;
+using KrnlAI.Core.Abstractions;
+using KrnlAI.Core.Services.Safety;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 namespace KrnlAI.Sidecar;

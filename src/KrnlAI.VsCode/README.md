@@ -116,7 +116,7 @@ VsCode Extension (TypeScript)
 │                                 └── Kernel API
 │
 └── Modo Standalone ── spawn ──> KrnlAI.Sidecar.exe (:5001)
-                                   └── Kernel.Core (in-process)
+                                   └── KrnlAI.Core (in-process)
                                        ├── AdversarialGuard
                                        ├── SimpleRiskScorer
                                        ├── MonteCarloTreeSearch

@@ -1,5 +1,5 @@
-using Kernel.Core.Abstractions;
-using Kernel.Core.Model;
+using KrnlAI.Core.Abstractions;
+using KrnlAI.Core.Model;
 
 namespace {{PolicyNamespace}};
 

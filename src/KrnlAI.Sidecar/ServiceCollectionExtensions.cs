@@ -1,8 +1,8 @@
 using System.Threading.RateLimiting;
-using Kernel.Core.Abstractions;
-using Kernel.Core.Services.Safety;
-using Kernel.Infrastructure.InMemory;
-using Kernel.Core.Services;
+using KrnlAI.Core.Abstractions;
+using KrnlAI.Core.Services.Safety;
+using KrnlAI.Infrastructure.InMemory;
+using KrnlAI.Core.Services;
 using Microsoft.Extensions.Options;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;

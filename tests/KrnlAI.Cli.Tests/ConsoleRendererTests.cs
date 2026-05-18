@@ -1,5 +1,5 @@
 using KrnlAI.Cli.Services;
-using Kernel.Core.Services.Memory;
+using KrnlAI.Core.Services.Memory;
 using Spectre.Console.Testing;
 
 namespace KrnlAI.Cli.Tests;

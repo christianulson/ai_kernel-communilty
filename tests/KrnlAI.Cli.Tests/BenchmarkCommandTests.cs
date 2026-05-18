@@ -1,9 +1,9 @@
 using System.CommandLine;
 using KrnlAI.Cli.Commands;
 using KrnlAI.Cli.Services;
-using Kernel.Core.Abstractions.Safety;
-using Kernel.Core.Services.Safety;
-using Kernel.Infrastructure.Reports;
+using KrnlAI.Core.Abstractions.Safety;
+using KrnlAI.Core.Services.Safety;
+using KrnlAI.Infrastructure.Reports;
 using Microsoft.Extensions.Logging.Abstractions;
 using Spectre.Console.Testing;
 

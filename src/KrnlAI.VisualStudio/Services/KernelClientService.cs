@@ -1,5 +1,6 @@
 using System.Text.Json;
 using KrnlAI.Sdk;
+using KrnlAI.Sdk.Models;
 
 namespace KrnlAI.VisualStudio.Services;
 

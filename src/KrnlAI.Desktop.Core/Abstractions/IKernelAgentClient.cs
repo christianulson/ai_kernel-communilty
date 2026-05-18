@@ -2,7 +2,7 @@ using KrnlAI.Desktop.Core.Models;
 
 namespace KrnlAI.Desktop.Core.Abstractions;
 
-/// <summary>Cliente focado em execução e health do Kernel.</summary>
+/// <summary>Cliente focado em execução e health do KrnlAI.</summary>
 public interface IKernelAgentClient
 {
     Task<AgentRunResponse> RunAgentAsync(AgentRunRequest request, CancellationToken cancellationToken = default);

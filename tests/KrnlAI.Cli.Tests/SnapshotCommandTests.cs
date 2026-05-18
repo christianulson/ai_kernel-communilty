@@ -4,15 +4,15 @@ using KrnlAI.Cli.Services;
 using KrnlAI.LLMGateway.Core.Abstractions;
 using KrnlAI.LLMGateway.Core.Services.Goals;
 using KrnlAI.LLMGateway.Core.Services.Governance;
-using Kernel.Core.Abstractions;
-using Kernel.Core.Services.Memory;
-using Kernel.Core.Services.Safety;
+using KrnlAI.Core.Abstractions;
+using KrnlAI.Core.Services.Memory;
+using KrnlAI.Core.Services.Safety;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console.Testing;
-using Kernel.Anticipation;
-using Kernel.Executive;
-using Kernel.Memory;
-using Kernel.Snapshot;
+using KrnlAI.Anticipation;
+using KrnlAI.Executive;
+using KrnlAI.Memory;
+using KrnlAI.Snapshot;
 
 namespace KrnlAI.Cli.Tests;
 
@@ -39,9 +39,9 @@ public sealed class SnapshotCommandTests
         services.AddSingleton<IGoalStore, InMemoryGoalStore>();
         services.AddSingleton<ISafetyCaseStore, InMemorySafetyCaseStore>();
         services.AddSingleton<FundamentalRulesEngine>();
-        services.AddSingleton<Kernel.Core.Abstractions.Mcp.IMcpServerRegistry>(new Kernel.Infrastructure.Mcp.McpServerRegistry());
-        services.AddSingleton<Kernel.Core.Services.ModelRegistry.IModelRegistry>(new Kernel.Core.Services.ModelRegistry.InMemoryModelRegistry());
-        services.AddSingleton<Kernel.Core.Services.ExperimentTracking.IExperimentTracker>(new Kernel.Core.Services.ExperimentTracking.InMemoryExperimentTracker());
+        services.AddSingleton<KrnlAI.Core.Abstractions.Mcp.IMcpServerRegistry>(new KrnlAI.Infrastructure.Mcp.McpServerRegistry());
+        services.AddSingleton<KrnlAI.Core.Services.ModelRegistry.IModelRegistry>(new KrnlAI.Core.Services.ModelRegistry.InMemoryModelRegistry());
+        services.AddSingleton<KrnlAI.Core.Services.ExperimentTracking.IExperimentTracker>(new KrnlAI.Core.Services.ExperimentTracking.InMemoryExperimentTracker());
         var sp = services.BuildServiceProvider();
         var ctx = new CliContext(sp);
         return (renderer, console, ctx);

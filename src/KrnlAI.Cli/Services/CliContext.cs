@@ -1,10 +1,10 @@
 using KrnlAI.LLMGateway.Core.Abstractions;
-using Kernel.Core.Abstractions;
-using Kernel.Core.Abstractions.Mcp;
-using Kernel.Core.Services.ExperimentTracking;
-using Kernel.Core.Services.Memory;
-using Kernel.Core.Services.ModelRegistry;
-using Kernel.Core.Services.Safety;
+using KrnlAI.Core.Abstractions;
+using KrnlAI.Core.Abstractions.Mcp;
+using KrnlAI.Core.Services.ExperimentTracking;
+using KrnlAI.Core.Services.Memory;
+using KrnlAI.Core.Services.ModelRegistry;
+using KrnlAI.Core.Services.Safety;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace KrnlAI.Cli.Services;
@@ -39,7 +39,7 @@ public sealed class CliContext
         ExecutiveController = sp.GetRequiredService<IExecutiveController>();
         Homeostasis = sp.GetRequiredService<ICognitiveHomeostasis>();
         GoalStore = sp.GetRequiredService<IGoalStore>();
-        Scheduler = sp.GetService<ISchedulerService>() ?? new Kernel.Infrastructure.Scheduling.InMemorySchedulerStore();
+        Scheduler = sp.GetService<ISchedulerService>() ?? new KrnlAI.Infrastructure.Scheduling.InMemorySchedulerStore();
         SafetyCaseStore = sp.GetRequiredService<ISafetyCaseStore>();
         RulesEngine = sp.GetRequiredService<FundamentalRulesEngine>();
         McpRegistry = sp.GetRequiredService<IMcpServerRegistry>();

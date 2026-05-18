@@ -1,9 +1,9 @@
 using System.CommandLine;
 using System.Text.Json;
 using KrnlAI.Cli.Services;
-using Kernel.Core.Abstractions.Safety;
-using Kernel.Core.Model;
-using Kernel.Core.Services.Safety;
+using KrnlAI.Core.Abstractions.Safety;
+using KrnlAI.Core.Model;
+using KrnlAI.Core.Services.Safety;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Spectre.Console;

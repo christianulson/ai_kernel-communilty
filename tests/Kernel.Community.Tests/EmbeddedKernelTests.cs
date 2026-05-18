@@ -1,7 +1,7 @@
 using KrnlAI.Embedded;
-using Kernel.Infrastructure.Storage.Dialect;
+using KrnlAI.Infrastructure.Storage.Dialect;
 
-namespace Kernel.Tests.Community;
+namespace KrnlAI.Tests.Community;
 
 public sealed class EmbeddedKernelTests
 {

@@ -1,16 +1,16 @@
 using KrnlAI.LLMGateway.Core.Abstractions;
 using KrnlAI.LLMGateway.Core.Services.Goals;
 using KrnlAI.LLMGateway.Core.Services.Governance;
-using Kernel.Anticipation;
-using Kernel.Core.Abstractions;
-using Kernel.Core.Abstractions.Mcp;
-using Kernel.Core.Services.ExperimentTracking;
-using Kernel.Core.Services.Memory;
-using Kernel.Core.Services.ModelRegistry;
-using Kernel.Core.Services.Safety;
-using Kernel.Executive;
-using Kernel.Memory;
-using Kernel.Snapshot;
+using KrnlAI.Anticipation;
+using KrnlAI.Core.Abstractions;
+using KrnlAI.Core.Abstractions.Mcp;
+using KrnlAI.Core.Services.ExperimentTracking;
+using KrnlAI.Core.Services.Memory;
+using KrnlAI.Core.Services.ModelRegistry;
+using KrnlAI.Core.Services.Safety;
+using KrnlAI.Executive;
+using KrnlAI.Memory;
+using KrnlAI.Snapshot;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -41,7 +41,7 @@ public static class CliServiceExtensions
                 sp.GetRequiredService<IAnticipationStore>(),
                 logger: null));
         services.AddSingleton<IGoalStore, InMemoryGoalStore>();
-        services.AddSingleton<ISchedulerService, Kernel.Infrastructure.Scheduling.InMemorySchedulerStore>();
+        services.AddSingleton<ISchedulerService, KrnlAI.Infrastructure.Scheduling.InMemorySchedulerStore>();
         services.AddSingleton<ISafetyCaseStore, InMemorySafetyCaseStore>();
         services.AddSingleton<FundamentalRulesEngine>(sp =>
         {
@@ -54,7 +54,7 @@ public static class CliServiceExtensions
             var logger = sp.GetService<ILogger<SafetyBenchRunner>>();
             return new SafetyBenchRunner(rules, hybridEngine: null, logger: logger);
         });
-        services.AddSingleton<IMcpServerRegistry>(new Kernel.Infrastructure.Mcp.McpServerRegistry(
+        services.AddSingleton<IMcpServerRegistry>(new KrnlAI.Infrastructure.Mcp.McpServerRegistry(
             httpClientFactory: null,
             oauthHandler: null,
             logger: null));
@@ -63,21 +63,21 @@ public static class CliServiceExtensions
         services.AddSingleton<InMemorySessionStore>();
 
         // Plugin local mode services
-        services.AddSingleton<IAssemblyPluginLoader>(new Kernel.Infrastructure.Plugin.AssemblyPluginLoader());
-        services.AddSingleton<IPluginDiscovery>(new Kernel.Infrastructure.Plugin.DirectoryPluginDiscovery());
-        services.AddSingleton<IPluginSandbox, Kernel.Infrastructure.InMemory.InMemoryPluginSandbox>();
-        services.AddSingleton<Kernel.Core.Services.Plugin.PluginHookManager>();
+        services.AddSingleton<IAssemblyPluginLoader>(new KrnlAI.Infrastructure.Plugin.AssemblyPluginLoader());
+        services.AddSingleton<IPluginDiscovery>(new KrnlAI.Infrastructure.Plugin.DirectoryPluginDiscovery());
+        services.AddSingleton<IPluginSandbox, KrnlAI.Infrastructure.InMemory.InMemoryPluginSandbox>();
+        services.AddSingleton<KrnlAI.Core.Services.Plugin.PluginHookManager>();
         services.AddSingleton(sp =>
         {
             var loader = sp.GetRequiredService<IAssemblyPluginLoader>();
             var discovery = sp.GetRequiredService<IPluginDiscovery>();
             var sandbox = sp.GetRequiredService<IPluginSandbox>();
-            return new Kernel.Infrastructure.Plugin.PluginHost(discovery, loader, sandbox);
+            return new KrnlAI.Infrastructure.Plugin.PluginHost(discovery, loader, sandbox);
         });
 
         // Report generator for benchmark command
-        services.AddSingleton<Kernel.Core.Abstractions.Safety.ISafetyReportGenerator>(
-            new Kernel.Infrastructure.Reports.SafetyHtmlReportGenerator());
+        services.AddSingleton<KrnlAI.Core.Abstractions.Safety.ISafetyReportGenerator>(
+            new KrnlAI.Infrastructure.Reports.SafetyHtmlReportGenerator());
 
         return services;
     }

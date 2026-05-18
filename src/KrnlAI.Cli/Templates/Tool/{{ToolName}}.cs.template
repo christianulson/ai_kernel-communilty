@@ -1,4 +1,4 @@
-using Kernel.Core.Abstractions;
+using KrnlAI.Core.Abstractions;
 
 namespace {{ToolNamespace}};
 

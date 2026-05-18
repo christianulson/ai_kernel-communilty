@@ -1,5 +1,5 @@
-using Kernel.Core.Abstractions;
-using Kernel.Core.Services.Memory;
+using KrnlAI.Core.Abstractions;
+using KrnlAI.Core.Services.Memory;
 
 namespace KrnlAI.Cli.Services;
 
