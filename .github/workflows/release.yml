@@ -33,10 +33,10 @@ jobs:
           node-version: "22"
 
       - name: Build .NET
-        run: dotnet build krnlai.slnx -c Release
+        run: dotnet build KrnlAICommunity.slnx -c Release
 
       - name: Run .NET Tests
-        run: dotnet test krnlai.slnx -c Release --no-build
+        run: dotnet test KrnlAICommunity.slnx -c Release --no-build
 
       - name: Build Python SDK
         run: |
@@ -67,7 +67,6 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          body_path: CHANGELOG.md
           generate_release_notes: true
           files: |
             sdk/python/dist/*.whl

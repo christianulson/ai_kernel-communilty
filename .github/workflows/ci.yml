@@ -45,7 +45,7 @@ jobs:
           cd src/KrnlAI.VsCode
           npx jest --ci
 
-  benchmark:
+  test-community:
     needs: [desktop, sidecar, vscode]
     runs-on: windows-latest
     continue-on-error: true
@@ -54,37 +54,24 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
-      - run: dotnet test tests/LLMGateway.Api.Tests/LLMGateway.Api.Tests.csproj --filter "FullyQualifiedName~Benchmark"
-      - run: dotnet test tests/KrnlAI.Benchmark.Tests/KrnlAI.Benchmark.Tests.csproj
+      - run: dotnet test tests/KrnlAI.Community.Tests/KrnlAI.Community.Tests.csproj --configuration Release
+      - run: dotnet test tests/KrnlAI.Cli.Tests/KrnlAI.Cli.Tests.csproj --configuration Release
+      - run: dotnet test tests/KrnlAI.Sidecar.Tests/KrnlAI.Sidecar.Tests.csproj --configuration Release
 
   docker:
-    needs: [benchmark]
+    needs: [test-community]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
-      - name: Build KrnlAI.Api
+      - name: Build KrnlAI.Sidecar
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: src/KrnlAI.Api/Dockerfile
+          file: src/KrnlAI.Sidecar/Dockerfile
           push: false
-          tags: krnlai/kernel-api:latest
-      - name: Build LLMGateway.Api
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: src/LLMGateway.Api/Dockerfile
-          push: false
-          tags: krnlai/llm-gateway:latest
-      - name: Build Gateway.Api
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: src/Gateway.Api/Dockerfile
-          push: false
-          tags: krnlai/gateway-proxy:latest
+          tags: krnlai/sidecar:latest
 
   publish:
     needs: [desktop, sidecar, vscode]

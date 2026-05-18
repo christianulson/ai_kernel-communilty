@@ -1,0 +1,44 @@
+name: Publish VS Code Extension
+on:
+  push:
+    tags:
+      - 'vscode-v*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/KrnlAI.VsCode
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Compile extension
+        run: npm run compile
+
+      - name: Package VSIX
+        run: npx @vscode/vsce package -o krnlai-vscode.vsix
+
+      - name: Upload VSIX as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: krnlai-vscode
+          path: src/KrnlAI.VsCode/krnlai-vscode.vsix
+          retention-days: 90
+
+      - name: Publish to VS Code Marketplace
+        env:
+          VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
+        run: npx @vscode/vsce publish -p $VSCE_TOKEN
+
+      - name: Publish to Open VSX Registry
+        env:
+          OVSX_TOKEN: ${{ secrets.OVSX_TOKEN }}
+        run: npx ovsx publish -p $OVSX_TOKEN

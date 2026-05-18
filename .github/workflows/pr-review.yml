@@ -27,7 +27,7 @@ jobs:
       - name: Krnl-AI Review
         if: steps.diff.outputs.diff_size < 50000
         id: krnlai
-        uses: ./../../.github/actions/krnlai
+        uses: ./.github/actions/krnlai
         with:
           prompt: >
             Review this PR diff. Focus on:

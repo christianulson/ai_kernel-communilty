@@ -1,7 +1,7 @@
 blank_issues_enabled: true
 contact_links:
   - name: GitHub Discussions
-    url: https://github.com/your-org/krnlai/discussions
+    url: https://github.com/christianulson/krnlai-communilty/discussions
     about: Please ask questions and discuss ideas here
   - name: Discord Community
     url: https://discord.gg/krnlai
