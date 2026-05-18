@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter</value></resheader>
+  <data name="ToolWindowTitle" xml:space="preserve"><value>Krnl-AI</value></data>
+  <data name="ConnectButton" xml:space="preserve"><value>Connect</value></data>
+  <data name="Disconnected" xml:space="preserve"><value>Disconnected</value></data>
+  <data name="Connected" xml:space="preserve"><value>Connected</value></data>
+  <data name="Connecting" xml:space="preserve"><value>Connecting...</value></data>
+  <data name="Failed" xml:space="preserve"><value>Failed</value></data>
+  <data name="TabChat" xml:space="preserve"><value>Chat</value></data>
+  <data name="TabMemory" xml:space="preserve"><value>Memory</value></data>
+  <data name="TabStatus" xml:space="preserve"><value>Status</value></data>
+  <data name="SendButton" xml:space="preserve"><value>Send</value></data>
+  <data name="SearchButton" xml:space="preserve"><value>Search</value></data>
+  <data name="RefreshButton" xml:space="preserve"><value>Refresh</value></data>
+  <data name="YouPrefix" xml:space="preserve"><value>You</value></data>
+  <data name="AiPrefix" xml:space="preserve"><value>AI</value></data>
+  <data name="ErrorPrefix" xml:space="preserve"><value>Error</value></data>
+  <data name="ConnectionFailed" xml:space="preserve"><value>Could not connect to Krnl-AI. Ensure the API is running.</value></data>
+  <data name="CodeContext" xml:space="preserve"><value>(using selection from {0})</value></data>
+  <data name="OptionsEndpoint" xml:space="preserve"><value>API Endpoint</value></data>
+  <data name="OptionsTimeout" xml:space="preserve"><value>Timeout (seconds)</value></data>
+  <data name="OptionsMaxRetries" xml:space="preserve"><value>Max Retries</value></data>
+  <data name="OptionsAutoConnect" xml:space="preserve"><value>Auto-connect on start</value></data>
+</root>

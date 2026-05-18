@@ -1,4 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>Kernel.Contracts</PackageId>
+    <Description>Core abstractions and contracts for the Krnl-AI cognitive kernel</Description>
+  </PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Refit" Version="10.1.6" />

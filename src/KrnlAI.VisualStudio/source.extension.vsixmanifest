@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011">
+  <Metadata>
+    <Identity Id="KrnlAI.VisualStudio.a6b3f8e1-2c4d-4e5f-8a9b-0c1d2e3f4a5b" Version="1.0.0" Language="en-US" Publisher="Krnl-AI" />
+    <DisplayName>Krnl-AI</DisplayName>
+    <Description>Krnl-AI - Cognitive Agent inside Visual Studio. Chat, search memory, analyze code context.</Description>
+    <MoreInfo>https://krnlai.dev</MoreInfo>
+    <License>MIT</License>
+    <Tags>AI;Kernel;Agent;Productivity</Tags>
+  </Metadata>
+  <Installation>
+    <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.0,)" />
+  </Installation>
+  <Dependencies>
+    <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="[4.7.2,)" />
+  </Dependencies>
+  <Assets>
+    <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%|" />
+  </Assets>
+</PackageManifest>

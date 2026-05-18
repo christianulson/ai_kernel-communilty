@@ -17,9 +17,15 @@
     </PackageReference>
     <PackageReference Include="FluentAssertions" Version="8.10.0" />
   </ItemGroup>
-  <ItemGroup>
+    <ItemGroup Condition="'$(KrnlAI)' == 'Local'">
+    <ProjectReference Include="..\..\..\src\Kernel.Core\Kernel.Core.csproj" />
+    <ProjectReference Include="..\..\..\src\Kernel.Infrastructure\Kernel.Infrastructure.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(KrnlAI)' != 'Local'">
     <PackageReference Include="Kernel.Core" Version="1.0.0" />
     <PackageReference Include="Kernel.Infrastructure" Version="1.0.0" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\src\KrnlAI.Cli\KrnlAI.Cli.csproj" />
   </ItemGroup>
   <ItemGroup>

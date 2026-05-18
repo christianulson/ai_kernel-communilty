@@ -4,7 +4,7 @@
     <LangVersion>12</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <PackageId>KrnlAi.Sdk</PackageId>
+    <PackageId>KrnlAI.Sdk</PackageId>
     <Version>0.1.0</Version>
     <Authors>Krnl-AI</Authors>
     <Description>SDK for the Krnl-AI API</Description>

@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace KrnlAi.Sdk.Models;
+namespace KrnlAI.Sdk.Models;
 
 public sealed record CreateGoalRequest(
     [property: JsonPropertyName("description")] string Description,

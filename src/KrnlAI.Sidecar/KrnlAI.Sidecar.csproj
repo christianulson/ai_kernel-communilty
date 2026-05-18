@@ -9,20 +9,28 @@
     <AssemblyName>KrnlAI.Sidecar</AssemblyName>
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>false</SelfContained>
-      <UserSecretsId>krnlai_KrnlAI.Sidecar</UserSecretsId>
+    <UserSecretsId>krnlai_KrnlAI.Sidecar</UserSecretsId>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="Kernel.Core" Version="1.0.0" />
-    <PackageReference Include="Kernel.Infrastructure" Version="1.0.0" />
-    <PackageReference Include="KrnlAI.Embedded" Version="1.0.0" />
     <PackageReference Include="OpenTelemetry.Exporter.Prometheus.AspNetCore" Version="1.15.3-beta.1" />
     <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.15.3" />
     <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.15.2" />
     <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.15.1" />
     <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.15.1" />
   </ItemGroup>
-  <ItemGroup>
+  <ItemGroup Condition="'$(KrnlAI)' == 'Local'">
+    <ProjectReference Include="..\..\..\src\Kernel.Core\Kernel.Core.csproj" />
+    <ProjectReference Include="..\..\..\src\Kernel.Infrastructure\Kernel.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\src\KrnlAI.Embedded\KrnlAI.Embedded.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(KrnlAI)' != 'Local'">
+    <PackageReference Include="Kernel.Core" Version="1.0.0" />
+    <PackageReference Include="Kernel.Infrastructure" Version="1.0.0" />
+    <PackageReference Include="Kernel.Contracts" Version="1.0.0" />
+    <PackageReference Include="KrnlAI.Embedded" Version="1.0.0" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(KrnlAI)' == 'Local'">
     <ProjectReference Include="..\Kernel.Contracts\Kernel.Contracts.csproj" />
   </ItemGroup>
 

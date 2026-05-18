@@ -1,0 +1,49 @@
+<UserControl x:Class="KrnlAI.Desktop.App.Controls.ProfileControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:loc="clr-namespace:KrnlAI.Desktop.App.Converters">
+    <ScrollViewer Padding="28" VerticalScrollBarVisibility="Auto">
+        <StackPanel MaxWidth="600">
+            <Grid Margin="0,0,0,24">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="{loc:Loc profile_title}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                    <TextBlock Text="Suas informações e preferências." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                </StackPanel>
+            </Grid>
+
+            <Border Background="#18FB7185" BorderBrush="#3CFB7185" BorderThickness="1" CornerRadius="16" Padding="14,10" Margin="0,0,0,12"
+                    Visibility="{Binding ProfileVM.ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}">
+                <TextBlock Text="{Binding ProfileVM.ErrorMessage}" Foreground="#FFDBE1" FontSize="13"/>
+            </Border>
+
+            <Border Background="{StaticResource PanelBrush}" CornerRadius="24" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="24" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="{loc:Loc profile_identification}" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,20"/>
+
+                    <TextBlock Text="{loc:Loc profile_user_id}" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
+                    <TextBox Text="{Binding ProfileVM.UserId, UpdateSourceTrigger=PropertyChanged}" Height="44" Margin="0,0,0,16"/>
+
+                    <TextBlock Text="{loc:Loc profile_name}" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
+                    <TextBox Text="{Binding ProfileVM.Name, UpdateSourceTrigger=PropertyChanged}" Height="44" Margin="0,0,0,16"/>
+
+                    <TextBlock Text="{loc:Loc profile_email}" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
+                    <TextBox Text="{Binding ProfileVM.Email, UpdateSourceTrigger=PropertyChanged}" Height="44" Margin="0,0,0,16"/>
+
+                    <TextBlock Text="{loc:Loc profile_role}" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
+                    <TextBox Text="{Binding ProfileVM.Role, UpdateSourceTrigger=PropertyChanged}" Height="44" Margin="0,0,0,20"/>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Command="{Binding ProfileVM.LoadCommand}" Style="{StaticResource GhostButton}" Padding="16,10" Margin="0,0,8,0">Recarregar</Button>
+                        <Button Command="{Binding ProfileVM.SaveCommand}" Style="{StaticResource PrimaryButton}" Height="44" MinWidth="120">
+                            <TextBlock Text="{Binding ProfileVM.SaveButtonText}"/>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

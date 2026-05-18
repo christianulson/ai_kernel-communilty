@@ -1,0 +1,50 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>KrnlAI.Desktop</AssemblyName>
+    <RootNamespace>KrnlAI.Desktop.App</RootNamespace>
+    <!-- Single-file publish -->
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <SelfContained>false</SelfContained>
+    <ApplicationIcon>..\..\webapp\apps\kernel-ui\public\favicon.ico</ApplicationIcon>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+	<ItemGroup Condition="'$(KrnlAI)' == 'Local'">
+		<ProjectReference Include="..\..\..\src\Kernel.Core\Kernel.Core.csproj" />
+		<ProjectReference Include="..\..\..\src\Kernel.Infrastructure\Kernel.Infrastructure.csproj" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(KrnlAI)' != 'Local'">
+		<PackageReference Include="Kernel.Core" Version="1.0.0" />
+		<PackageReference Include="Kernel.Infrastructure" Version="1.0.0" />
+	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\KrnlAI.Desktop.Core\KrnlAI.Desktop.Core.csproj" />
+    <ProjectReference Include="..\KrnlAI.Desktop.Infrastructure\KrnlAI.Desktop.Infrastructure.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="2.0.1" />
+    <PackageReference Include="NAudio" Version="2.3.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.8" />
+    <PackageReference Include="Refit.HttpClientFactory" Version="10.1.6" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.8" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.9.1" />
+    <PackageReference Include="System.Data.SQLite" Version="2.0.3" />
+    <PackageReference Include="System.Speech" Version="10.0.8" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Strings\*.json" />
+    <Content Include="Resources\Strings\*.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="haarcascades\*.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+</Project>

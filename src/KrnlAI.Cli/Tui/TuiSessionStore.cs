@@ -20,10 +20,14 @@ public sealed class TuiSessionStore
     private readonly string _sessionsDir;
     private const int MaxSessions = 20;
 
-    public TuiSessionStore()
+    public TuiSessionStore() : this(
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".krnlai", "tui-sessions"))
     {
-        var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        _sessionsDir = Path.Combine(home, ".krnlai", "tui-sessions");
+    }
+
+    public TuiSessionStore(string sessionsDir)
+    {
+        _sessionsDir = sessionsDir;
         if (!Directory.Exists(_sessionsDir))
             Directory.CreateDirectory(_sessionsDir);
     }

@@ -1,0 +1,10 @@
+namespace KrnlAI.Desktop.Core.Models;
+
+public sealed record McpServerInfo(
+    string ServerId,
+    string Name,
+    string TransportType,
+    bool Enabled,
+    bool IsConnected,
+    int ToolCount,
+    DateTimeOffset? LastUsedAt);

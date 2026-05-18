@@ -1,0 +1,225 @@
+<UserControl x:Class="KrnlAI.Desktop.App.Controls.MemoryControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:loc="clr-namespace:KrnlAI.Desktop.App.Converters">
+    <ScrollViewer Padding="28" VerticalScrollBarVisibility="Auto">
+        <StackPanel>
+            <!-- Header -->
+            <Grid Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="{loc:Loc nav_memory}" FontSize="24" FontWeight="Bold"
+                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                    <TextBlock Text="Busca semântica, métricas e memória de trabalho."
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- Tabs -->
+            <Border Background="{StaticResource PanelBrush}" CornerRadius="14"
+                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                    Padding="4" Margin="0,0,0,20" HorizontalAlignment="Left">
+                <StackPanel Orientation="Horizontal">
+                    <RadioButton Content="🔍 Busca" IsChecked="{Binding MemoryVM.IsSearch}"
+                                 Style="{StaticResource TabRadioStyle}"
+                                 Command="{Binding MemoryVM.SetTabSearchCommand}" Margin="0,0,2,0"/>
+                    <RadioButton Content="📊 Métricas" IsChecked="{Binding MemoryVM.IsMetrics}"
+                                 Style="{StaticResource TabRadioStyle}"
+                                 Command="{Binding MemoryVM.SetTabMetricsCommand}" Margin="0,0,2,0"/>
+                    <RadioButton Content="🧠 Working" IsChecked="{Binding MemoryVM.IsWorking}"
+                                 Style="{StaticResource TabRadioStyle}"
+                                 Command="{Binding MemoryVM.SetTabWorkingCommand}"/>
+                </StackPanel>
+            </Border>
+
+            <!-- ════════ SEARCH TAB ════════ -->
+            <StackPanel Visibility="{Binding MemoryVM.IsSearch, Converter={StaticResource BoolToVisibilityConverter}}">
+                <!-- Search Bar -->
+                <Border Background="{StaticResource PanelBrush}" CornerRadius="24"
+                        BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                        Padding="20" Margin="0,0,0,16">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" Text="{Binding MemoryVM.MemoryQuery, UpdateSourceTrigger=PropertyChanged}"
+                                 Height="44" FontSize="14">
+                            <TextBox.InputBindings>
+                                <KeyBinding Key="Return" Command="{Binding MemoryVM.SearchMemoryCommand}"/>
+                            </TextBox.InputBindings>
+                        </TextBox>
+                        <Button Grid.Column="1" Command="{Binding MemoryVM.SearchMemoryCommand}"
+                                Style="{StaticResource PrimaryButton}" Margin="12,0,0,0"
+                                Height="44" MinWidth="100"
+                                IsEnabled="{Binding MemoryVM.IsLoading, Converter={StaticResource InverseBoolConverter}}">
+                            <TextBlock Text="Buscar"/>
+                        </Button>
+                    </Grid>
+                </Border>
+
+                <!-- Loading -->
+                <Border Background="{StaticResource PanelBrush}" CornerRadius="24"
+                        BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                        Padding="24" Margin="0,0,0,16"
+                        Visibility="{Binding MemoryVM.IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Margin="0,20">
+                        <TextBlock Text="⏳" FontSize="18" Margin="0,0,12,0"/>
+                        <TextBlock Text="Buscando..." Foreground="{StaticResource TextSecondaryBrush}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Results -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="380"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Background="{StaticResource PanelBrush}" CornerRadius="24"
+                            BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                            Padding="20" Margin="0,0,12,0">
+                        <StackPanel>
+                            <TextBlock Text="{loc:Loc memory_results}" FontSize="16" FontWeight="SemiBold"
+                                       Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,12"/>
+                            <ItemsControl ItemsSource="{Binding MemoryVM.MemoryResults}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Padding="14" CornerRadius="16"
+                                                Background="#14FFFFFF"
+                                                BorderBrush="{StaticResource BorderBrush}"
+                                                BorderThickness="1" Margin="0,0,0,8">
+                                            <StackPanel>
+                                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                                    <Border Padding="4,2" CornerRadius="6"
+                                                            Background="#1838BDF8">
+                                                        <TextBlock Text="{Binding ScorePercent, StringFormat={}{0:P0}}" FontSize="10" Foreground="{StaticResource PrimaryBrush}"/>
+                                                    </Border>
+                                                    <TextBlock Text="{Binding DocId}" FontSize="10" Foreground="{StaticResource TextSecondaryBrush}" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                                <TextBlock Text="{Binding Text}" FontSize="12"
+                                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                                           TextWrapping="Wrap" MaxHeight="80"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="1" Background="{StaticResource PanelBrush}" CornerRadius="24"
+                            BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                            Padding="20">
+                        <TextBlock Text="Selecione um resultado para ver detalhes."
+                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                    </Border>
+                </Grid>
+            </StackPanel>
+
+            <!-- ════════ METRICS TAB ════════ -->
+            <StackPanel Visibility="{Binding MemoryVM.IsMetrics, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Border Background="{StaticResource PanelBrush}" CornerRadius="24"
+                        BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                        Padding="24">
+                    <StackPanel>
+                        <TextBlock Text="Métricas de Busca" FontSize="16" FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Padding="16" CornerRadius="22"
+                                    Background="{StaticResource PanelBrush}"
+                                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Margin="4">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding MemoryVM.MemoryMetricsData.TotalRequests, TargetNullValue=—}" FontSize="24" FontWeight="Bold"
+                                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    <TextBlock Text="{loc:Loc memory_metrics_total}" FontSize="11"
+                                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="1" Padding="16" CornerRadius="22"
+                                    Background="{StaticResource PanelBrush}"
+                                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Margin="4">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding MemoryVM.MemoryMetricsData.TotalFallbacks, TargetNullValue=—}" FontSize="24" FontWeight="Bold"
+                                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    <TextBlock Text="{loc:Loc memory_metrics_fallbacks}" FontSize="11"
+                                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="2" Padding="16" CornerRadius="22"
+                                    Background="{StaticResource PanelBrush}"
+                                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Margin="4">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding MemoryVM.MemoryMetricsData.AvgCandidates, TargetNullValue=—, StringFormat={}{0:N1}}" FontSize="24" FontWeight="Bold"
+                                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    <TextBlock Text="{loc:Loc memory_metrics_candidates}" FontSize="11"
+                                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="3" Padding="16" CornerRadius="22"
+                                    Background="{StaticResource PanelBrush}"
+                                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Margin="4">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding MemoryVM.MemoryMetricsData.AvgHits, TargetNullValue=—, StringFormat={}{0:N1}}" FontSize="24" FontWeight="Bold"
+                                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    <TextBlock Text="{loc:Loc memory_metrics_hits}" FontSize="11"
+                                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                        <Button Command="{Binding MemoryVM.LoadMetricsCommand}"
+                                Style="{StaticResource GhostButton}" HorizontalAlignment="Left" Margin="0,16,0,0">
+                            Atualizar
+                        </Button>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- ════════ WORKING TAB ════════ -->
+            <StackPanel Visibility="{Binding MemoryVM.IsWorking, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Border Background="{StaticResource PanelBrush}" CornerRadius="24"
+                        BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                        Padding="24">
+                    <StackPanel>
+                        <TextBlock Text="{loc:Loc memory_working}" FontSize="16" FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+                        <ItemsControl ItemsSource="{Binding MemoryVM.WorkingSlots}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Padding="12,10" CornerRadius="12" Margin="0,0,0,6"
+                                            Background="#14FFFFFF">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="30"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Index, StringFormat={}{0}}" FontSize="11"
+                                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                                       VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding Content}" FontSize="12"
+                                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                                       TextWrapping="Wrap"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <Button Command="{Binding MemoryVM.LoadWorkingCommand}"
+                                Style="{StaticResource GhostButton}" HorizontalAlignment="Left" Margin="0,12,0,0">
+                            Atualizar
+                        </Button>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

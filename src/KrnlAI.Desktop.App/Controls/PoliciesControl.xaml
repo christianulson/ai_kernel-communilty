@@ -1,0 +1,124 @@
+<UserControl x:Class="KrnlAI.Desktop.App.Controls.PoliciesControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:loc="clr-namespace:KrnlAI.Desktop.App.Converters">
+    <ScrollViewer Padding="28" VerticalScrollBarVisibility="Auto">
+        <StackPanel>
+            <Grid Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="{loc:Loc nav_policies}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                    <TextBlock Text="Políticas, versões e rollbacks." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <ComboBox ItemsSource="{Binding PoliciesVM.PolicyDomains}" SelectedItem="{Binding PoliciesVM.SelectedPolicyDomain}" Width="180" Margin="0,0,12,0"/>
+                    <Button Command="{Binding PoliciesVM.LoadPoliciesCommand}" Style="{StaticResource GhostButton}" Padding="16,10">Atualizar</Button>
+                </StackPanel>
+            </Grid>
+
+            <!-- Error -->
+            <Border Background="#18FB7185" BorderBrush="#3CFB7185" BorderThickness="1" CornerRadius="16" Padding="14,10" Margin="0,0,0,12"
+                    Visibility="{Binding PoliciesVM.ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}">
+                <TextBlock Text="{Binding PoliciesVM.ErrorMessage}" Foreground="#FFDBE1" FontSize="13"/>
+            </Border>
+
+            <!-- Loading -->
+            <Border Background="{StaticResource PanelBrush}" CornerRadius="24" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="24" Margin="0,0,0,16"
+                    Visibility="{Binding PoliciesVM.IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
+                <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Margin="0,20">
+                    <TextBlock Text="⏳" FontSize="18" Margin="0,0,12,0"/>
+                    <TextBlock Text="Carregando..." Foreground="{StaticResource TextSecondaryBrush}"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Table -->
+            <Border Background="{StaticResource PanelBrush}" CornerRadius="24" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="0" Margin="0,0,0,16"
+                    Visibility="{Binding PoliciesVM.IsLoading, Converter={StaticResource InverseBoolConverter}}">
+                <StackPanel>
+                    <ItemsControl ItemsSource="{Binding PoliciesVM.PolicyList}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="16,12" Margin="0,0,0,4" CornerRadius="12" Background="#10FFFFFF">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="120"/><ColumnDefinition Width="*"/><ColumnDefinition Width="80"/><ColumnDefinition Width="140"/><ColumnDefinition Width="140"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding Domain}" FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding Name}" FontSize="13" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding Version}" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="3" Text="{Binding CreatedAt, StringFormat={}{0:dd/MM/yyyy}}" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Column="4" Orientation="Horizontal" HorizontalAlignment="Right">
+                                            <Button Content="Versões" Style="{StaticResource SmallButton}" Padding="10,6" FontSize="10" Margin="0,0,4,0" Command="{Binding DataContext.PoliciesVM.LoadVersionsCommand, RelativeSource={RelativeSource AncestorType={x:Type ScrollViewer}}}"/>
+                                            <Button Content="Rollbacks" Style="{StaticResource SmallButton}" Padding="10,6" FontSize="10" Command="{Binding DataContext.PoliciesVM.LoadRollbacksCommand, RelativeSource={RelativeSource AncestorType={x:Type ScrollViewer}}}"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- Versões Panel -->
+            <Border Background="{StaticResource PanelBrush}" CornerRadius="24" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="24" Margin="0,0,0,16"
+                    Visibility="{Binding PoliciesVM.PolicyVersions, Converter={StaticResource NullToVisibilityConverter}}">
+                <StackPanel>
+                    <Grid Margin="0,0,0,16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{loc:Loc policies_versions}" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                        <Button Grid.Column="1" Content="{loc:Loc policies_close}" Style="{StaticResource SmallButton}" Command="{Binding PoliciesVM.ClearVersionsCommand}"/>
+                    </Grid>
+                    <ItemsControl ItemsSource="{Binding PoliciesVM.PolicyVersions.Versions}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="12,8" CornerRadius="12" Background="#14FFFFFF" Margin="0,0,0,6">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="60"/><ColumnDefinition Width="*"/><ColumnDefinition Width="100"/><ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding Version}" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding CreatedBy}" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" Margin="12,0,0,0"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding SuccessRate, TargetNullValue=—, StringFormat={}{0:P1}}" FontSize="11" Foreground="{StaticResource SuccessBrush}"/>
+                                        <TextBlock Grid.Column="3" Text="{Binding CreatedAt, StringFormat={}{0:dd/MM/yyyy HH:mm}}" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" HorizontalAlignment="Right"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- Rollbacks Panel -->
+            <Border Background="{StaticResource PanelBrush}" CornerRadius="24" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="24" Margin="0,0,0,16"
+                    Visibility="{Binding PoliciesVM.PolicyRollbacks.Count, Converter={StaticResource NullToVisibilityConverter}}">
+                <StackPanel>
+                    <TextBlock Text="{loc:Loc policies_rollbacks}" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+                    <ItemsControl ItemsSource="{Binding PoliciesVM.PolicyRollbacks}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="12,8" CornerRadius="12" Background="#14FFFFFF" Margin="0,0,0,6">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="80"/><ColumnDefinition Width="60"/><ColumnDefinition Width="100"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding RollbackId, StringFormat=#{0}}" FontSize="11" FontWeight="Bold" Foreground="{StaticResource WarningBrush}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding TargetVersion, StringFormat=v{0}}" FontSize="11" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding PerformedBy}" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                        <TextBlock Grid.Column="3" Text="{Binding Reason}" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Grid.Column="4" Text="{Binding PerformedAt, StringFormat={}{0:dd/MM/yyyy HH:mm}}" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

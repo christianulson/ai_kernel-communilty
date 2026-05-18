@@ -2,12 +2,28 @@ using KrnlAI.Cli.Tui;
 
 namespace KrnlAI.Cli.Tests;
 
-public sealed class TuiSessionStoreTests
+public sealed class TuiSessionStoreTests : IDisposable
 {
+    private readonly string _tmpDir;
+
+    public TuiSessionStoreTests()
+    {
+        _tmpDir = Path.Combine(Path.GetTempPath(), "krnlai-test-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(_tmpDir);
+    }
+
+    public void Dispose()
+    {
+        try { Directory.Delete(_tmpDir, true); }
+        catch { /* best effort cleanup */ }
+    }
+
+    private TuiSessionStore CreateStore() => new(_tmpDir);
+
     [Fact]
     public async Task TuiSessionStore_SaveAndList_ShouldReturnSession()
     {
-        var store = new TuiSessionStore();
+        var store = CreateStore();
         var messages = new List<ChatMessage>
         {
             new("user", "hello", false, DateTimeOffset.UtcNow),

@@ -10,7 +10,13 @@
     <Description>Krnl-AI CLI - Developer Interface for scaffolding and managing cognitive agents</Description>
     <Authors>Krnl-AI</Authors>
   </PropertyGroup>
-  <ItemGroup>
+  <ItemGroup Condition="'$(KrnlAI)' == 'Local'">
+    <ProjectReference Include="..\..\..\src\Kernel.Core\Kernel.Core.csproj" />
+    <ProjectReference Include="..\..\..\src\Kernel.Infrastructure\Kernel.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\src\LLMGateway.Core\LLMGateway.Core.csproj" />
+    <ProjectReference Include="..\..\..\src\KrnlAI.Embedded\KrnlAI.Embedded.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(KrnlAI)' != 'Local'">
     <PackageReference Include="Kernel.Core" Version="1.0.0" />
     <PackageReference Include="Kernel.Infrastructure" Version="1.0.0" />
     <PackageReference Include="LLMGateway.Core" Version="1.0.0" />

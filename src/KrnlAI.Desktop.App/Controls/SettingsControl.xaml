@@ -1,0 +1,138 @@
+<UserControl x:Class="KrnlAI.Desktop.App.Controls.SettingsControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:loc="clr-namespace:KrnlAI.Desktop.App.Converters">
+    <ScrollViewer Padding="28" VerticalScrollBarVisibility="Auto">
+        <StackPanel MaxWidth="640" HorizontalAlignment="Left">
+            <TextBlock Text="{loc:Loc nav_settings}" FontSize="24" FontWeight="Bold"
+                       Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,28"/>
+
+            <!-- API Endpoint -->
+            <Border Background="{StaticResource PanelBrush}" CornerRadius="24"
+                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                    Padding="24" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="{loc:Loc settings_api_endpoint}" FontSize="15" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="URL base para conexão com o backend."
+                               FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,16"/>
+                    <TextBox Text="{Binding SettingsVM.ApiEndpoint, UpdateSourceTrigger=PropertyChanged}"
+                             Height="44" FontSize="14"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Devices -->
+            <Border Background="{StaticResource PanelBrush}" CornerRadius="24"
+                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                    Padding="24" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="{loc:Loc settings_devices}" FontSize="15" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="Microfone, auto-falante e câmera."
+                               FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,16"/>
+
+                    <TextBlock Text="{loc:Loc settings_microphone}" FontSize="11" FontWeight="Bold"
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
+                    <ComboBox ItemsSource="{Binding SettingsVM.Microphones}"
+                              SelectedItem="{Binding SettingsVM.SelectedMicrophone}"
+                              DisplayMemberPath="Name" Margin="0,0,0,12"/>
+
+                    <TextBlock Text="{loc:Loc settings_speaker}" FontSize="11" FontWeight="Bold"
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
+                    <ComboBox ItemsSource="{Binding SettingsVM.Speakers}"
+                              SelectedItem="{Binding SettingsVM.SelectedSpeaker}"
+                              DisplayMemberPath="Name" Margin="0,0,0,12"/>
+
+                    <TextBlock Text="{loc:Loc settings_camera}" FontSize="11" FontWeight="Bold"
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
+                    <ComboBox ItemsSource="{Binding SettingsVM.Cameras}"
+                              SelectedItem="{Binding SettingsVM.SelectedCamera}"
+                              DisplayMemberPath="Name"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Theme -->
+            <Border Background="{StaticResource PanelBrush}" CornerRadius="24"
+                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                    Padding="24" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="{loc:Loc settings_appearance}" FontSize="15" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <RadioButton Grid.Column="0" Content="🌙  Escuro"
+                                     IsChecked="{Binding SettingsVM.IsDarkTheme}"
+                                     GroupName="Theme" Style="{StaticResource TabRadioStyle}"/>
+                        <RadioButton Grid.Column="1" Content="☀️  Claro"
+                                     IsChecked="{Binding SettingsVM.IsLightTheme}"
+                                     GroupName="Theme" Style="{StaticResource TabRadioStyle}"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Listening -->
+            <Border Background="{StaticResource PanelBrush}" CornerRadius="24"
+                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                    Padding="24" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="{loc:Loc settings_listening}" FontSize="15" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+
+                    <TextBlock Text="{loc:Loc settings_vad}" FontSize="11" FontWeight="Bold"
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <Slider Value="{Binding SettingsVM.VadThreshold}" Minimum="0.001" Maximum="0.1"
+                            TickFrequency="0.001" IsSnapToTickEnabled="True" Margin="0,0,0,12"/>
+
+                    <TextBlock Text="Silence timeout (ms)" FontSize="11" FontWeight="Bold"
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <Slider Value="{Binding SettingsVM.SilenceDurationMs}" Minimum="500" Maximum="5000"
+                            TickFrequency="100" IsSnapToTickEnabled="True" Margin="0,0,0,12"/>
+                </StackPanel>
+            </Border>
+
+            <!-- MCP Servers -->
+            <Border Background="{StaticResource PanelBrush}" CornerRadius="24"
+                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                    Padding="24" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="MCP Servers" FontSize="15" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="External tool connections via Model Context Protocol."
+                               FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,16"/>
+
+                    <ItemsControl ItemsSource="{Binding SettingsVM.McpServers}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="{StaticResource PanelSoftBrush}" CornerRadius="12"
+                                        Padding="12" Margin="0,0,0,8">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold"
+                                                       Foreground="{StaticResource TextPrimaryBrush}"/>
+                                            <TextBlock FontSize="11" Foreground="{StaticResource TextSecondaryBrush}">
+                                                <Run Text="{Binding TransportType}"/>
+                                                <Run Text="·"/>
+                                                <Run Text="{Binding ToolCount, StringFormat='{}{0} tools'}"/>
+                                                <Run Text="·"/>
+                                                <Run Text="{Binding IsConnected, StringFormat='{}{0}'}"/>
+                                            </TextBlock>
+                                        </StackPanel>
+                                        <CheckBox Grid.Column="1" IsChecked="{Binding Enabled}"
+                                                  VerticalAlignment="Center" Margin="8,0,0,0"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

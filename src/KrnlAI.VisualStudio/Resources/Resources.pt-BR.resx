@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter</value></resheader>
+  <data name="ToolWindowTitle" xml:space="preserve"><value>Krnl-AI</value></data>
+  <data name="ConnectButton" xml:space="preserve"><value>Conectar</value></data>
+  <data name="Disconnected" xml:space="preserve"><value>Desconectado</value></data>
+  <data name="Connected" xml:space="preserve"><value>Conectado</value></data>
+  <data name="Connecting" xml:space="preserve"><value>Conectando...</value></data>
+  <data name="Failed" xml:space="preserve"><value>Falhou</value></data>
+  <data name="TabChat" xml:space="preserve"><value>Chat</value></data>
+  <data name="TabMemory" xml:space="preserve"><value>Memória</value></data>
+  <data name="TabStatus" xml:space="preserve"><value>Status</value></data>
+  <data name="SendButton" xml:space="preserve"><value>Enviar</value></data>
+  <data name="SearchButton" xml:space="preserve"><value>Buscar</value></data>
+  <data name="RefreshButton" xml:space="preserve"><value>Atualizar</value></data>
+  <data name="YouPrefix" xml:space="preserve"><value>Você</value></data>
+  <data name="AiPrefix" xml:space="preserve"><value>IA</value></data>
+  <data name="ErrorPrefix" xml:space="preserve"><value>Erro</value></data>
+  <data name="ConnectionFailed" xml:space="preserve"><value>Não foi possível conectar ao Krnl-AI. Verifique se a API está rodando.</value></data>
+  <data name="CodeContext" xml:space="preserve"><value>(usando seleção de {0})</value></data>
+  <data name="OptionsEndpoint" xml:space="preserve"><value>Endpoint da API</value></data>
+  <data name="OptionsTimeout" xml:space="preserve"><value>Timeout (segundos)</value></data>
+  <data name="OptionsMaxRetries" xml:space="preserve"><value>Máx. de tentativas</value></data>
+  <data name="OptionsAutoConnect" xml:space="preserve"><value>Conectar automaticamente ao iniciar</value></data>
+</root>
