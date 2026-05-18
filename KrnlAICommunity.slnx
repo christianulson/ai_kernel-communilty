@@ -1,12 +1,12 @@
 <Solution>
   <Folder Name="/src/">
-    <Project Path="src/KrnlAI.Contracts/KrnlAI.Contracts.csproj" />
     <Project Path="src/KrnlAI.Cli/KrnlAI.Cli.csproj" />
     <Project Path="src/KrnlAI.Sidecar/KrnlAI.Sidecar.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/KrnlAI.Cli.Tests/KrnlAI.Cli.Tests.csproj" />
     <Project Path="tests/KrnlAI.Sidecar.Tests/KrnlAI.Sidecar.Tests.csproj" />
-    <Project Path="tests/KrnlAI.Tests/KrnlAI.Tests.csproj" />
+    <Project Path="tests/KrnlAI.Desktop.Tests/KrnlAI.Desktop.Tests.csproj" />
+    <Project Path="tests/KrnlAI.Community.Tests/KrnlAI.Community.Tests.csproj" />
   </Folder>
 </Solution>

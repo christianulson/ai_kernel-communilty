@@ -27,7 +27,7 @@ public sealed class ServeCommand
         {
             var port = r.GetValue(portOpt);
             var model = r.GetValue(modelOpt) ?? "ollama";
-            var kernel = new EmbeddedKernel(new EmbeddedKernelOptions { LLmProvider = model });
+            var kernel = new EmbeddedKrnlAI(new EmbeddedKernelOptions { LLmProvider = model });
 
             var builder = WebApplication.CreateSlimBuilder();
             builder.WebHost.UseUrls($"http://0.0.0.0:{port}");

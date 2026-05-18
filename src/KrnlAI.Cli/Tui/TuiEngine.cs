@@ -12,7 +12,7 @@ public sealed class TuiEngine
     private readonly TuiSessionStore _sessionStore = new();
     private readonly TuiInputHandler _inputHandler;
     private readonly HttpClient? _http;
-    private readonly EmbeddedKernel? _kernel;
+    private readonly EmbeddedKrnlAI? _kernel;
     private readonly string _baseUrl;
     private readonly bool _isLocal;
     private bool _running;

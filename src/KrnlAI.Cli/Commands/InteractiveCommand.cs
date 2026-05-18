@@ -25,7 +25,7 @@ public sealed class InteractiveCommand
         {
             var useLocal = r.GetValue(local);
             var engine = useLocal
-                ? new TuiEngine(new EmbeddedKernel(new EmbeddedKernelOptions { LLmProvider = r.GetValue(model) ?? "ollama" }))
+                ? new TuiEngine(new EmbeddedKrnlAI(new EmbeddedKernelOptions { LLmProvider = r.GetValue(model) ?? "ollama" }))
                 : new TuiEngine(r.GetValue(endpoint) ?? "http://localhost:5000");
             try
             {

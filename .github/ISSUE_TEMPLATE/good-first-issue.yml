@@ -1,0 +1,26 @@
+name: "🎯 Good First Issue"
+description: "A beginner-friendly issue for new contributors"
+labels: ["good first issue", "help wanted"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🎯 Good First Issue
+
+        ### Context
+        [description of the problem]
+
+        ### Expected Behavior
+        [what should happen]
+
+        ### Files to Change
+        - `src/KrnlAI.Core/...`
+        - `tests/KrnlAI.Tests/...`
+
+        ### How to Test
+        ```bash
+        dotnet test --filter "FullyQualifiedName~TestName"
+        ```
+
+        ### Resources
+        - [Link to relevant docs]

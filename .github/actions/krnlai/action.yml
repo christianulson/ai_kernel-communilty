@@ -1,0 +1,66 @@
+name: 'Krnl-AI Action'
+description: 'Run Krnl-AI agents in CI/CD pipelines'
+author: 'Krnl-AI'
+branding:
+  icon: 'cpu'
+  color: 'purple'
+
+inputs:
+  prompt:
+    description: 'Task prompt for the agent'
+    required: true
+  model:
+    description: 'LLM model to use'
+    required: false
+    default: 'gpt-4o'
+  timeout:
+    description: 'Timeout in seconds'
+    required: false
+    default: '300'
+  endpoint:
+    description: 'Backend endpoint URL'
+    required: false
+    default: 'http://localhost:5000'
+
+outputs:
+  result:
+    description: 'Agent response text'
+    value: ${{ steps.run-agent.outputs.result }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+
+    - name: Install Krnl-AI CLI
+      shell: bash
+      run: |
+        dotnet tool install -g KrnlAI.Cli 2>/dev/null || dotnet tool update -g KrnlAI.Cli 2>/dev/null
+        echo "✅ Krnl-AI CLI installed"
+        krnlai --help
+
+    - name: Run Krnl-AI Agent
+      id: run-agent
+      shell: bash
+      run: |
+        krnlai run "${{ inputs.prompt }}" \
+          --timeout ${{ inputs.timeout }} \
+          --endpoint ${{ inputs.endpoint }} \
+          --output /tmp/krnlai-result.txt
+        if [ -f /tmp/krnlai-result.txt ]; then
+          result=$(cat /tmp/krnlai-result.txt)
+          echo "result<<EOF" >> $GITHUB_OUTPUT
+          echo "$result" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Upload Result
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: krnlai-result
+        path: /tmp/krnlai-result.txt
+        retention-days: 7

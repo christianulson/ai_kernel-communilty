@@ -7,7 +7,7 @@ public static class SidecarCommunityServices
 {
     public static IServiceCollection AddSidecarCommunityServices(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddSingleton(new EmbeddedKernel(new EmbeddedKernelOptions
+        services.AddSingleton(new EmbeddedKrnlAI(new EmbeddedKernelOptions
         {
             StoreMode = configuration["Store:Mode"] ?? "SQLite",
             SqliteMode = configuration["Store:SqliteMode"] ?? "Hybrid",

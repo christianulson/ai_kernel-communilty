@@ -1,0 +1,74 @@
+name: Release Krnl-AI v1.0
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Build .NET
+        run: dotnet build krnlai.slnx -c Release
+
+      - name: Run .NET Tests
+        run: dotnet test krnlai.slnx -c Release --no-build
+
+      - name: Build Python SDK
+        run: |
+          cd sdk/python
+          pip install hatchling
+          python -m build
+
+      - name: Publish Python SDK to PyPI
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          cd sdk/python
+          pip install twine
+          twine upload dist/*
+
+      - name: Publish VS Code Extension
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: |
+          cd src/KrnlAI.VsCode
+          npm install
+          npx @vscode/vsce publish
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: CHANGELOG.md
+          generate_release_notes: true
+          files: |
+            sdk/python/dist/*.whl
+            sdk/python/dist/*.tar.gz

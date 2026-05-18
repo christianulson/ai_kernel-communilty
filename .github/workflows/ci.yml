@@ -1,0 +1,118 @@
+name: Krnl-AI CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  desktop:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - run: dotnet build src/KrnlAI.Desktop.App/KrnlAI.Desktop.App.csproj --configuration Release
+      - run: dotnet test src/KrnlAI.Desktop.Tests/KrnlAI.Desktop.Tests.csproj --configuration Release
+
+  sidecar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - run: dotnet build src/KrnlAI.Sidecar/KrnlAI.Sidecar.csproj --configuration Release
+
+  vscode:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: |
+          cd src/KrnlAI.VsCode
+          npm ci
+          npx tsc
+      - run: |
+          cd src/KrnlAI.VsCode
+          npx jest --ci
+
+  benchmark:
+    needs: [desktop, sidecar, vscode]
+    runs-on: windows-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - run: dotnet test tests/LLMGateway.Api.Tests/LLMGateway.Api.Tests.csproj --filter "FullyQualifiedName~Benchmark"
+      - run: dotnet test tests/KrnlAI.Benchmark.Tests/KrnlAI.Benchmark.Tests.csproj
+
+  docker:
+    needs: [benchmark]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build KrnlAI.Api
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: src/KrnlAI.Api/Dockerfile
+          push: false
+          tags: krnlai/kernel-api:latest
+      - name: Build LLMGateway.Api
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: src/LLMGateway.Api/Dockerfile
+          push: false
+          tags: krnlai/llm-gateway:latest
+      - name: Build Gateway.Api
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: src/Gateway.Api/Dockerfile
+          push: false
+          tags: krnlai/gateway-proxy:latest
+
+  publish:
+    needs: [desktop, sidecar, vscode]
+    runs-on: windows-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Publish Desktop
+        run: dotnet publish src/KrnlAI.Desktop.App -c Release -o artifacts/desktop -p:PublishSingleFile=true
+
+      - name: Publish Sidecar
+        run: dotnet publish src/KrnlAI.Sidecar -c Release -o artifacts/sidecar -p:PublishSingleFile=true
+
+      - name: Package VsCode Extension
+        run: |
+          cd src/KrnlAI.VsCode
+          npm ci
+          npx tsc
+          npx @vscode/vsce package -o ../../artifacts/krnlai-vscode.vsix
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: krnlai-artifacts
+          path: artifacts/

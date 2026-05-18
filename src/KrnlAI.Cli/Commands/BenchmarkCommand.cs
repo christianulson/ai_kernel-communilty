@@ -3,7 +3,6 @@ using System.Text.Json;
 using KrnlAI.Cli.Abstractions;
 using KrnlAI.Cli.Services;
 using KrnlAI.Core.Abstractions.Safety;
-using KrnlAI.Core.Model;
 using KrnlAI.Core.Services.Safety;
 using Spectre.Console;
 

@@ -9,14 +9,14 @@
     <PublishSingleFile>true</PublishSingleFile>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <SelfContained>false</SelfContained>
-    <ApplicationIcon>Resources\Icons\krnl-ai-icon.png"</ApplicationIcon>
+
     <IsPackable>false</IsPackable>
   </PropertyGroup>
-	<ItemGroup Condition="'$(KrnlAI)' == 'Local'">
+	<ItemGroup Condition="Exists('..\..\..\src\KrnlAI.Core\KrnlAI.Core.csproj')">
 		<ProjectReference Include="..\..\..\src\KrnlAI.Core\KrnlAI.Core.csproj" />
 		<ProjectReference Include="..\..\..\src\KrnlAI.Infrastructure\KrnlAI.Infrastructure.csproj" />
 	</ItemGroup>
-	<ItemGroup Condition="'$(KrnlAI)' != 'Local'">
+	<ItemGroup Condition="!Exists('..\..\..\src\KrnlAI.Core\KrnlAI.Core.csproj')">
 		<PackageReference Include="KrnlAI.Core" Version="1.0.0" />
 		<PackageReference Include="KrnlAI.Infrastructure" Version="1.0.0" />
 	</ItemGroup>

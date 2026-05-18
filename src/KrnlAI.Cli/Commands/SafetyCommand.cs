@@ -2,7 +2,6 @@ using System.CommandLine;
 using System.Text.Json;
 using KrnlAI.Cli.Services;
 using KrnlAI.Core.Abstractions.Safety;
-using KrnlAI.Core.Model;
 using KrnlAI.Core.Services.Safety;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;

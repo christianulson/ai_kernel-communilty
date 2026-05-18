@@ -4,9 +4,15 @@
     <NoWarn>$(NoWarn);xUnit1051</NoWarn>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="!Exists('..\..\..\src\KrnlAI.Embedded\KrnlAI.Embedded.csproj')">
     <PackageReference Include="KrnlAI.Embedded" Version="1.0.0" />
     <PackageReference Include="KrnlAI.Infrastructure" Version="1.0.0" />
+  </ItemGroup>
+  <ItemGroup Condition="Exists('..\..\..\src\KrnlAI.Embedded\KrnlAI.Embedded.csproj')">
+    <ProjectReference Include="..\..\..\src\KrnlAI.Embedded\KrnlAI.Embedded.csproj" />
+    <ProjectReference Include="..\..\..\src\KrnlAI.Infrastructure\KrnlAI.Infrastructure.csproj" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.5.1" />
     <PackageReference Include="xunit.v3" Version="3.2.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">

@@ -1,7 +1,5 @@
 using System.CommandLine;
 using KrnlAI.Cli.Commands;
-using KrnlAI.Cli.Services;
-using KrnlAI.Core.Abstractions.Safety;
 using KrnlAI.Core.Services.Safety;
 using KrnlAI.Infrastructure.Reports;
 using Microsoft.Extensions.Logging.Abstractions;

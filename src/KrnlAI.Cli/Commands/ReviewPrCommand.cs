@@ -1,6 +1,5 @@
 using System.CommandLine;
 using System.Net.Http.Json;
-using System.Text.Json.Serialization;
 using Spectre.Console;
 
 namespace KrnlAI.Cli.Commands;
