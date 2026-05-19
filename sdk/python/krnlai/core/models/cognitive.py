@@ -7,6 +7,8 @@ from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
 
+from krnlai.core.models.thought import ThoughtClassification
+
 
 class CycleStep(str, Enum):
     SENSOR = "sensor"
@@ -56,6 +58,7 @@ class CycleEvent(BaseModel):
     data: Dict[str, Any] = Field(default_factory=dict)
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     duration_ms: float = 0.0
+    classification: Optional[ThoughtClassification] = None
 
 
 from krnlai.core.models.safety import SafetyVerdict

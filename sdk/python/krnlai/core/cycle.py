@@ -23,6 +23,12 @@ from krnlai.core.models.envelope import (
     ResultEnvelope,
     ResultStatus,
 )
+from krnlai.core.models.thought import (
+    ThoughtCategory,
+    ThoughtClassification,
+    ThoughtHorizon,
+    ThoughtTrigger,
+)
 from krnlai.core.policies.engine import PolicyEngine
 from krnlai.core.risk.scorer import RiskScorer
 from krnlai.core.safety.rules import SafetyChecker
@@ -113,10 +119,12 @@ class CognitiveCycleRunner:
                 state.current_step = step
                 step_start = time.monotonic()
 
+                classification = self._classify_step(step, step_context, state)
                 event = CycleEvent(
                     cycle_id=state.cycle_id,
                     step=step,
                     status="running",
+                    classification=classification,
                 )
 
                 try:
@@ -308,6 +316,60 @@ class CognitiveCycleRunner:
         elif iteration < 8:
             return CyclePhase.ACTION
         return CyclePhase.REFLECTION
+
+    @staticmethod
+    def _classify_step(step: CycleStep, ctx: StepContext, state: CognitiveState) -> ThoughtClassification:
+        category_map = {
+            CycleStep.SENSOR: ThoughtCategory.SENSORY_INPUT,
+            CycleStep.ATTENTION: ThoughtCategory.PATTERN_MATCH,
+            CycleStep.MEMORY: ThoughtCategory.EPISODIC_RECALL,
+            CycleStep.EVALUATION: ThoughtCategory.EVALUATIVE,
+            CycleStep.METACOGNITION: ThoughtCategory.SELF_OBSERVATION,
+            CycleStep.PLANNING: ThoughtCategory.SEQUENCE_PLANNING,
+            CycleStep.GOVERNANCE: ThoughtCategory.POLICY_CHECK,
+            CycleStep.EXECUTION: ThoughtCategory.COMMUNICATION,
+            CycleStep.OUTCOME: ThoughtCategory.EVALUATIVE,
+            CycleStep.LEARNING: ThoughtCategory.SEMANTIC_RECALL,
+        }
+        category = category_map.get(step, ThoughtCategory.CONTEXT_AWARE)
+
+        risk = ctx.data.get("risk_score", 0.0)
+        complexity = min(1.0, max(0.0, risk + 0.3))
+        abstractness = 0.3 if step in (CycleStep.METACOGNITION, CycleStep.PLANNING) else 0.1
+        novelty = min(1.0, max(0.0, risk * 0.8 + 0.1))
+        confidence = 1.0 - risk * 0.5
+        valence = ctx.data.get("valence_delta", 0.0)
+        arousal = risk * 0.5
+
+        trigger_map = {
+            CycleStep.SENSOR: ThoughtTrigger.EXTERNAL,
+            CycleStep.ATTENTION: ThoughtTrigger.EXTERNAL,
+            CycleStep.MEMORY: ThoughtTrigger.MEMORY,
+            CycleStep.LEARNING: ThoughtTrigger.INFERENCE,
+        }
+        trigger = trigger_map.get(step, ThoughtTrigger.INTERNAL)
+
+        horizon_map = {
+            CycleStep.PLANNING: ThoughtHorizon.NEAR_FUTURE,
+            CycleStep.LEARNING: ThoughtHorizon.FAR_FUTURE,
+            CycleStep.MEMORY: ThoughtHorizon.PAST,
+        }
+        horizon = horizon_map.get(step, ThoughtHorizon.PRESENT)
+
+        return ThoughtClassification(
+            category=category,
+            subcategory=None,
+            complexity=complexity,
+            abstractness=abstractness,
+            novelty=novelty,
+            confidence=confidence,
+            horizon=horizon,
+            duration_ms=0.0,
+            valence_delta=valence,
+            arousal_delta=arousal,
+            trigger=trigger,
+            antecedents=[],
+        )
 
     def _should_stop(self, state: CognitiveState, ctx: StepContext) -> bool:
         if ctx.errors:
