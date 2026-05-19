@@ -6,6 +6,10 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, AsyncGenerator, Callable, Dict, List, Optional
 
+from krnlai.core.cognition.adaptive import AdaptiveProcessor
+from krnlai.core.cognition.confidence import ConfidenceCalibrator
+from krnlai.core.cognition.reasoning_quality import ReasoningQualityAssessor
+from krnlai.core.cognition.thought_graph import ThoughtGraph, ThoughtNode, ThoughtRelation
 from krnlai.core.emotion.pain_reward import PainRewardModel
 from krnlai.core.emotion.vad import VADModel
 from krnlai.core.memory.episodic_memory import EpisodicMemory
@@ -33,7 +37,12 @@ from krnlai.core.policies.engine import PolicyEngine
 from krnlai.core.risk.scorer import RiskScorer
 from krnlai.core.safety.rules import SafetyChecker
 from krnlai.core.steps.attention import EnhancedAttentionStep
+from krnlai.core.steps.execution import ExecutionStep
+from krnlai.core.steps.learning import LearningStep
 from krnlai.core.steps.metacognition import EnhancedMetacognitionStep
+from krnlai.core.steps.moment_classifier import MomentClassifierStep
+from krnlai.core.steps.planning import DynamicPlanningStep
+from krnlai.core.stores.moment_store import MomentStore
 
 
 @dataclass
@@ -66,6 +75,14 @@ class CognitiveCycleRunner:
         policy_engine: Optional[PolicyEngine] = None,
         attention_step: Optional[EnhancedAttentionStep] = None,
         metacognition_step: Optional[EnhancedMetacognitionStep] = None,
+        moment_classifier: Optional[MomentClassifierStep] = None,
+        moment_store: Optional[MomentStore] = None,
+        planning_step: Optional[DynamicPlanningStep] = None,
+        execution_step: Optional[ExecutionStep] = None,
+        confidence_calibrator: Optional[ConfidenceCalibrator] = None,
+        thought_graph: Optional[ThoughtGraph] = None,
+        quality_assessor: Optional[ReasoningQualityAssessor] = None,
+        adaptive_processor: Optional[AdaptiveProcessor] = None,
     ) -> None:
         self.config = config or CycleConfig()
         self.safety = safety_checker or SafetyChecker()
@@ -78,6 +95,19 @@ class CognitiveCycleRunner:
         self.policies = policy_engine or PolicyEngine()
         self.attention_step = attention_step or EnhancedAttentionStep()
         self.metacognition_step = metacognition_step or EnhancedMetacognitionStep()
+        self.moment_classifier = moment_classifier or MomentClassifierStep()
+        self.moment_store = moment_store or MomentStore()
+        self.planning_step = planning_step or DynamicPlanningStep()
+        self.execution_step = execution_step or ExecutionStep()
+        self.confidence_calibrator = confidence_calibrator or ConfidenceCalibrator()
+        self.thought_graph = thought_graph or ThoughtGraph()
+        self.quality_assessor = quality_assessor or ReasoningQualityAssessor()
+        self.adaptive_processor = adaptive_processor or AdaptiveProcessor(
+            default_max_iterations=self.config.max_iterations,
+            default_safety_level=self.config.safety_level,
+        )
+
+        self.metacognition_step.confidence_calibrator = self.confidence_calibrator
 
         self._step_handlers: Dict[CycleStep, Callable[[StepContext], Any]] = {}
         self._on_event: List[Callable[[CycleEvent], None]] = []
@@ -103,6 +133,36 @@ class CognitiveCycleRunner:
     def _emit(self, event: CycleEvent) -> None:
         for handler in self._on_event:
             handler(event)
+
+    def _record_thought_node(
+        self,
+        state: CognitiveState,
+        step: CycleStep,
+        classification: ThoughtClassification,
+        ctx: StepContext,
+    ) -> None:
+        moment_cat = ctx.data.get("moment_category")
+        payload = state.command or ""
+        node = ThoughtNode(
+            cycle_id=state.cycle_id,
+            step=step,
+            category=classification.category,
+            moment_category=moment_cat,
+            content_hash=ThoughtGraph.compute_content_hash(payload),
+            classification=classification,
+            summary=f"{step.value}: {payload[:60]}" if payload else step.value,
+        )
+        self.thought_graph.add_node(node)
+
+        if len(self.thought_graph._access_order) > 1:
+            prev_id = None
+            for nid in reversed(self.thought_graph._access_order[:-1]):
+                prev = self.thought_graph.get_node(nid)
+                if prev and prev.cycle_id == state.cycle_id:
+                    prev_id = prev.id
+                    break
+            if prev_id:
+                self.thought_graph.add_edge(prev_id, node.id, ThoughtRelation.SEQUENCES)
 
     async def run(self, command: str, context: Optional[Dict[str, Any]] = None) -> ResultEnvelope:
         cmd = CommandEnvelope(type=CommandType.TEXT, payload=command, context=context or {})
@@ -152,11 +212,44 @@ class CognitiveCycleRunner:
                 event.timestamp = datetime.now(timezone.utc)
                 self._emit(event)
 
+                if classification and event.status != "timeout":
+                    self._record_thought_node(state, step, classification, step_context)
+
                 if event.status == "error" and self.config.safety_level == "strict":
                     break
 
             if self._should_stop(state, step_context):
                 break
+
+        reasoning = self.quality_assessor.assess(
+            input_text=command.payload,
+            output_text=str(step_context.data.get("output", "")),
+            context=step_context.data,
+            thought_graph=self.thought_graph,
+        )
+
+        mode = self.adaptive_processor.determine_mode(
+            reasoning_quality=reasoning.quality,
+            bias_count=len(step_context.data.get("biases_detected", [])),
+            calibration_error=self.confidence_calibrator.get_calibration_error("general"),
+            cognitive_load=step_context.data.get("cognitive_load", 0.0),
+            fatigue=step_context.data.get("fatigue", 0.0),
+        )
+
+        self.adaptive_processor.record_assessment(
+            iteration=state.iteration,
+            quality=reasoning.quality,
+            coherence=reasoning.coherence,
+            completeness=reasoning.completeness,
+            soundness=reasoning.soundness,
+            issues=reasoning.issues,
+        )
+
+        self.adaptive_processor.apply_mode_to_config(self.config)
+
+        step_context.data["reasoning_quality"] = reasoning.quality
+        step_context.data["reasoning_assessment"] = reasoning
+        step_context.data["processing_mode"] = mode.mode
 
         elapsed_ms = (time.monotonic() - start_time) * 1000
         state.completed_at = datetime.now(timezone.utc)
@@ -245,6 +338,11 @@ class CognitiveCycleRunner:
                 trigger="evaluation",
             )
 
+        moment_result = await self.moment_classifier.execute(cmd, state, ctx.data)
+        ctx.data.update(moment_result)
+        snapshot = self.moment_classifier.moment_history[-1]
+        self.moment_store.add(snapshot.moment_id, snapshot)
+
         if not verdict.allowed:
             return f"BLOCKED: {verdict.reason}"
         return f"Risk: {risk:.2f}, Allowed: {verdict.allowed}"
@@ -258,16 +356,26 @@ class CognitiveCycleRunner:
         context["urgency"] = ctx.data.get("urgency", 0.0)
         context["complexity"] = ctx.data.get("complexity", 0.0)
         context["emotional_state"] = state.emotional_state
+        context["moment_category"] = ctx.data.get("moment_category")
+        context["moment_cognitive_load"] = ctx.data.get("moment_cognitive_load", 0.0)
+        context["moment_confidence"] = ctx.data.get("moment_confidence", 0.0)
         result = await self.metacognition_step.execute(cmd, state, context)
         ctx.data.update(result)
         quality = result['reasoning_quality']
         return f"Quality: {quality}, Biases: {len(result['biases_detected'])}, Load: {result['cognitive_load']}"
 
     async def _step_planning(self, ctx: StepContext, cmd: CommandEnvelope, state: CognitiveState) -> str:
-        plan_steps = ["analyze", "execute", "verify"]
-        ctx.data["plan"] = plan_steps
-        ctx.data["current_plan_step"] = 0
-        return f"Plan: {plan_steps}"
+        plan_context = dict(ctx.data)
+        plan_context.setdefault("complexity", 0.3)
+        plan_context.setdefault("thought_type", "analytical")
+        plan_context.setdefault("cognitive_load", ctx.data.get("moment_cognitive_load", 0.0))
+        plan_context.setdefault("risk_score", ctx.data.get("risk_score", 0.0))
+        plan_context.setdefault("metacognitive_observations", ctx.data.get("observations", []))
+        result = await self.planning_step.execute(cmd, state, plan_context)
+        ctx.data["plan"] = result["plan"]
+        ctx.data["current_plan_step"] = result["current_step_index"]
+        ctx.data["decomposition_strategy"] = result["decomposition_strategy"]
+        return f"Plan ({result['decomposition_strategy']}): {result['plan']}"
 
     async def _step_governance(self, ctx: StepContext, cmd: CommandEnvelope, state: CognitiveState) -> str:
         policy_context = {
@@ -280,11 +388,13 @@ class CognitiveCycleRunner:
         return "Policy check passed" if result.get("allowed", True) else "Policy check failed"
 
     async def _step_execution(self, ctx: StepContext, cmd: CommandEnvelope, state: CognitiveState) -> str:
-        output = f"Processed: {cmd.payload}"
-        ctx.data["output"] = output
+        result = await self.execution_step.execute(cmd, state, ctx.data)
+        ctx.data["output"] = result["output"]
+        ctx.data["steps_executed"] = result["steps_executed"]
+        ctx.data["current_plan_step"] = ctx.data.get("current_plan_step", 0) + len(result["steps_executed"])
         if self.config.enable_emotions:
             self.vad.update(delta_valence=0.05, trigger="execution_complete")
-        return output
+        return result["output"]
 
     async def _step_outcome(self, ctx: StepContext, cmd: CommandEnvelope, state: CognitiveState) -> str:
         output = ctx.data.get("output", "")
@@ -298,16 +408,14 @@ class CognitiveCycleRunner:
     async def _step_learning(self, ctx: StepContext, cmd: CommandEnvelope, state: CognitiveState) -> str:
         if not self.config.enable_learning:
             return "Learning disabled"
-        self.semantic_memory.store_fact(
-            subject="agent",
-            predicate="processed",
-            object_val=cmd.payload[:50],
-            confidence=0.8,
+        learning_step = LearningStep(
+            semantic_memory=self.semantic_memory,
+            vad_model=self.vad,
+            pain_reward=self.pain_reward,
+            confidence_calibrator=self.confidence_calibrator,
         )
-        if self.config.enable_emotions:
-            self.pain_reward.apply_many([])
-            self.vad.decay(steps=1)
-        return "Learning complete"
+        result = await learning_step.execute(cmd, state, ctx.data)
+        return "Learning complete" if result.get("learning_status") == "completed" else "Learning disabled"
 
     def _determine_phase(self, iteration: int) -> CyclePhase:
         if iteration < 2:

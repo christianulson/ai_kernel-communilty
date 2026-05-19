@@ -6,9 +6,12 @@ from krnlai.core.emotion.vad import VADState
 from krnlai.core.memory.working_memory import WorkingMemory
 from krnlai.core.models.cognitive import CognitiveState
 from krnlai.core.models.envelope import CommandEnvelope, ResultEnvelope
+from krnlai.core.models.moment import MomentCategory, MomentImportance, MomentNarrativeRole, MomentSnapshot
 from krnlai.core.models.safety import RiskLevel, SafetyVerdict
 from krnlai.core.models.thought import ThoughtCategory, ThoughtClassification, ThoughtHorizon, ThoughtTrigger
 from krnlai.core.safety.rules import SafetyChecker
+from krnlai.core.steps.moment_classifier import MomentClassifierStep
+from krnlai.core.stores.moment_store import MomentStore
 from krnlai.enterprise.merge import CognitiveAgent
 
 __all__ = [
@@ -21,6 +24,12 @@ __all__ = [
     "CognitiveLoadAssessor",
     "CognitiveState",
     "CommandEnvelope",
+    "MomentCategory",
+    "MomentClassifierStep",
+    "MomentImportance",
+    "MomentNarrativeRole",
+    "MomentSnapshot",
+    "MomentStore",
     "ReasoningAssessment",
     "ReasoningQualityAssessor",
     "ResultEnvelope",

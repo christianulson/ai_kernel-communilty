@@ -21,16 +21,16 @@
 
 ```bash
 # Restore
-dotnet restore KrnlAICommunity.slnx
+dotnet restore krnlai.slnx
 
 # Build
-dotnet build KrnlAICommunity.slnx
+dotnet build krnlai.slnx
 
 # Test all
-dotnet test KrnlAICommunity.slnx
+dotnet test krnlai.slnx
 
 # Test specific project
-dotnet test tests/KrnlAI.Cli.Tests/KrnlAI.Cli.Tests.csproj
+dotnet test tests/KrnlAI.Tests/KrnlAI.Tests.csproj
 
 # Test with filter
 dotnet test --filter "FullyQualifiedName~SafetyCommandTests"
@@ -39,18 +39,15 @@ dotnet test --filter "FullyQualifiedName~SafetyCommandTests"
 ### Python SDK
 
 ```bash
-cd sdk/python
-pip install -e ".[dev]"
+cd Community/sdk/python
+pip install -e .
 pytest
 ```
 
-### Web/Tauri
+### Web/Tauri (in development)
 
 ```bash
-cd src/KrnlAI.Desktop.Tauri
-npm install
-npm run build
-npm run test
+# See docs/webapp/ for the React frontend
 ```
 
 ## Pull Request Checklist

@@ -5,11 +5,13 @@ from krnlai.core.steps.governance import GovernanceStep
 from krnlai.core.steps.learning import LearningStep
 from krnlai.core.steps.memory import MemoryStep
 from krnlai.core.steps.metacognition import EnhancedMetacognitionStep
+from krnlai.core.steps.moment_classifier import MomentClassifierStep
 from krnlai.core.steps.outcome import OutcomeStep
-from krnlai.core.steps.planning import PlanningStep
+from krnlai.core.steps.planning import DynamicPlanningStep
 from krnlai.core.steps.sensor import SensorStep
 
 __all__ = [
+    "DynamicPlanningStep",
     "EnhancedAttentionStep",
     "EnhancedMetacognitionStep",
     "EvaluationStep",
@@ -17,7 +19,7 @@ __all__ = [
     "GovernanceStep",
     "LearningStep",
     "MemoryStep",
+    "MomentClassifierStep",
     "OutcomeStep",
-    "PlanningStep",
     "SensorStep",
 ]

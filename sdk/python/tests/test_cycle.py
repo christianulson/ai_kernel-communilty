@@ -16,10 +16,12 @@ class TestCognitiveCycleRunner:
         assert result.status == ResultStatus.SUCCESS
 
     @pytest.mark.asyncio
-    async def test_Run_Output_ShouldContainProcessed(self):
+    async def test_Run_Output_ShouldContainDynamicExecutionResult(self):
         runner = CognitiveCycleRunner()
         result = await runner.run("test input")
-        assert "Processed" in result.output
+        # "test input" has low complexity (~0.02) → simple plan + analytical adapt → analyze + execute
+        assert "Analyzed" in result.output
+        assert "Executed" in result.output
 
     @pytest.mark.asyncio
     async def test_Run_EmotionalDelta_ShouldBePresent(self):
@@ -91,3 +93,37 @@ class TestCognitiveCycleRunner:
         await runner.run("second")
         assert runner.episodic_memory.count > 0
         assert runner.working_memory.count > 0
+
+    @pytest.mark.asyncio
+    async def test_Run_ComplexInput_ShouldUseComplexDecomposition(self):
+        runner = CognitiveCycleRunner()
+        long_payload = "Analyze the algorithm complexity and mathematical foundations " * 20
+        result = await runner.run(long_payload)
+        assert "Verified" in result.output or "conclude" in result.output or "verify" in result.output
+
+    @pytest.mark.asyncio
+    async def test_Run_DecompositionStrategy_ShouldBeSet(self):
+        runner = CognitiveCycleRunner()
+        events = []
+
+        def capture(event):
+            if event.step == CycleStep.PLANNING:
+                events.append(event)
+
+        runner.on_event(capture)
+        await runner.run("test")
+        assert len(events) > 0
+
+    @pytest.mark.asyncio
+    async def test_Run_ExecutionStepsExecuted_ShouldBeTracked(self):
+        runner = CognitiveCycleRunner()
+        events = []
+
+        def capture(event):
+            if event.step == CycleStep.EXECUTION:
+                events.append(event)
+
+        runner.on_event(capture)
+        await runner.run("test command")
+        assert len(events) > 0
+        assert events[0].data is not None

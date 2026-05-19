@@ -58,6 +58,8 @@ def app() -> None:
         console.print("  krnlai debug [text]        Debug cognitive cycle")
         console.print("  krnlai security <command>  Security audit, benchmark, report")
         console.print("  krnlai deploy <target>     Generate Docker/K8s files")
+        console.print("  krnlai thought <sub>       Thought Graph commands")
+        console.print("  krnlai reasoning <sub>     Reasoning quality commands")
         return
 
     cmd = args[0]
@@ -80,6 +82,12 @@ def app() -> None:
         elif cmd == "deploy":
             from krnlai.cli.commands.deploy import cmd_deploy
             asyncio.run(cmd_deploy(cmd_args))
+        elif cmd == "thought":
+            from krnlai.cli.commands.thoughtgraph import cmd_thoughtgraph
+            cmd_thoughtgraph(cmd_args)
+        elif cmd == "reasoning" or cmd == "cognitive":
+            from krnlai.cli.commands.reasoning import cmd_reasoning
+            cmd_reasoning(cmd_args)
         else:
             console.print(f"[red]Unknown command: {cmd}[/red]")
     except KeyboardInterrupt:

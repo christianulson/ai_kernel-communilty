@@ -1,41 +1,42 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from krnlai.core.cognition.bias_detector import BiasDetector, BiasFlag
 from krnlai.core.cognition.cognitive_load import CognitiveLoadAssessor
+from krnlai.core.cognition.confidence import ConfidenceCalibrator
 from krnlai.core.cognition.reasoning_quality import ReasoningAssessment, ReasoningQualityAssessor
 from krnlai.core.models.cognitive import CognitiveState
 from krnlai.core.models.envelope import CommandEnvelope
 
 
-@dataclass
-class CalibratedConfidence:
-    confidence: float
-    adjustment: float
-
-
 class EnhancedMetacognitionStep:
     def __init__(
         self,
-        bias_detector: BiasDetector | None = None,
-        reasoning_quality: ReasoningQualityAssessor | None = None,
-        cognitive_load: CognitiveLoadAssessor | None = None,
+        bias_detector: Optional[BiasDetector] = None,
+        reasoning_quality: Optional[ReasoningQualityAssessor] = None,
+        cognitive_load: Optional[CognitiveLoadAssessor] = None,
+        confidence_calibrator: Optional[ConfidenceCalibrator] = None,
     ) -> None:
         self.bias_detector = bias_detector or BiasDetector()
         self.reasoning_quality = reasoning_quality or ReasoningQualityAssessor()
         self.cognitive_load = cognitive_load or CognitiveLoadAssessor()
+        self.confidence_calibrator = confidence_calibrator or ConfidenceCalibrator()
 
     async def execute(self, cmd: CommandEnvelope, state: CognitiveState, context: Dict[str, Any]) -> Dict[str, Any]:
-        reasoning = self.reasoning_quality.assess(cmd.payload, context)
+        reasoning = self.reasoning_quality.assess(cmd.payload, "", context)
         biases = self.bias_detector.detect(cmd.payload, context)
-        calibrated = self._calibrate_confidence(
-            initial_confidence=context.get("confidence", 0.5),
+        thought_type = context.get("thought_type", "analytical")
+
+        calibrated = self.confidence_calibrator.calibrate(
+            raw_confidence=context.get("confidence", 0.5),
+            thought_type=thought_type,
             reasoning_quality=reasoning.quality,
             bias_count=len(biases),
             emotional_state=state.emotional_state,
+            complexity=context.get("complexity", 0.0),
         )
+
         load = self.cognitive_load.assess(
             payload=cmd.payload,
             context=context,
@@ -54,8 +55,10 @@ class EnhancedMetacognitionStep:
                 {"type": b.bias_type.value, "severity": b.severity, "evidence": b.evidence}
                 for b in biases
             ],
-            "calibrated_confidence": calibrated.confidence,
+            "calibrated_confidence": calibrated.calibrated_confidence,
             "calibration_adjustment": calibrated.adjustment,
+            "calibration_error": calibrated.calibration_error,
+            "calibration_reason": calibrated.reason,
             "cognitive_load": load.overall_load,
             "cognitive_load_intrinsic": load.intrinsic_load,
             "cognitive_load_extraneous": load.extraneous_load,
@@ -64,27 +67,6 @@ class EnhancedMetacognitionStep:
             "requires_decomposition": load.overall_load > 0.7 or reasoning.quality < 0.3,
             "requires_intervention": len(biases) > 2 or reasoning.quality < 0.2,
         }
-
-    @staticmethod
-    def _calibrate_confidence(
-        initial_confidence: float,
-        reasoning_quality: float,
-        bias_count: int,
-        emotional_state: Dict[str, float] | None,
-    ) -> CalibratedConfidence:
-        adjustment = 0.0
-        adjustment += (reasoning_quality - 0.5) * 0.3
-        adjustment -= bias_count * 0.1
-        if emotional_state:
-            valence = emotional_state.get("valence", 0.0)
-            arousal = emotional_state.get("arousal", 0.0)
-            if abs(arousal) > 0.7:
-                adjustment -= 0.15
-            if valence > 0.8:
-                adjustment -= 0.1
-        adjustment = max(-0.5, min(0.5, adjustment))
-        new_confidence = max(0.0, min(1.0, initial_confidence + adjustment))
-        return CalibratedConfidence(confidence=round(new_confidence, 2), adjustment=round(adjustment, 2))
 
     @staticmethod
     def _classify_decision_type(context: Dict[str, Any]) -> str:
