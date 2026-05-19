@@ -13,7 +13,7 @@ var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((ctx, services) =>
     {
         services.AddSingleton<ConsoleRenderer>();
-        services.AddSingleton<IAnsiConsole>(AnsiConsole.Console);
+        services.AddSingleton(AnsiConsole.Console);
         services.AddCliServices();
         services.AddSingleton<CliSeeder>();
         services.AddSingleton<ITemplateEngine, TemplateEngine>();

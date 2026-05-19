@@ -39,7 +39,7 @@ public sealed class CliContext
         ExecutiveController = sp.GetRequiredService<IExecutiveController>();
         Homeostasis = sp.GetRequiredService<ICognitiveHomeostasis>();
         GoalStore = sp.GetRequiredService<IGoalStore>();
-        Scheduler = sp.GetService<ISchedulerService>() ?? new KrnlAI.Infrastructure.Scheduling.InMemorySchedulerStore();
+        Scheduler = sp.GetService<ISchedulerService>() ?? new Infrastructure.Scheduling.InMemorySchedulerStore();
         SafetyCaseStore = sp.GetRequiredService<ISafetyCaseStore>();
         RulesEngine = sp.GetRequiredService<FundamentalRulesEngine>();
         McpRegistry = sp.GetRequiredService<IMcpServerRegistry>();

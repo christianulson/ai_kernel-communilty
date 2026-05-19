@@ -1,0 +1,10 @@
+{
+  "alwaysUpdateLinks": true,
+  "newFileLocation": "current",
+  "showUnsupportedFiles": false,
+  "attachmentFolderPath": "./",
+  "strictLineBreaks": false,
+  "useMarkdownLinks": false,
+  "showLineNumber": false,
+  "readableLineLength": true
+}

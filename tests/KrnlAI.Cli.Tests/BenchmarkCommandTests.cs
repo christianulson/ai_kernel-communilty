@@ -13,7 +13,8 @@ public sealed class BenchmarkCommandTests
     {
         var rules = new FundamentalRulesEngine(NullLogger<FundamentalRulesEngine>.Instance);
         var runner = new SafetyBenchRunner(rules, hybridEngine: null, NullLogger<SafetyBenchRunner>.Instance);
-        var reporter = new SafetyHtmlReportGenerator();
+        var calc1 = new SafetyScorecardCalculator();
+        var reporter = new SafetyHtmlReportGenerator(calc1);
         var console = new TestConsole();
         return new BenchmarkCommand(runner, reporter, console);
     }
@@ -84,7 +85,8 @@ public sealed class BenchmarkCommandTests
         var console = new TestConsole();
         var rules = new FundamentalRulesEngine(NullLogger<FundamentalRulesEngine>.Instance);
         var runner = new SafetyBenchRunner(rules, hybridEngine: null, NullLogger<SafetyBenchRunner>.Instance);
-        var reporter = new SafetyHtmlReportGenerator();
+        var calc2 = new SafetyScorecardCalculator();
+        var reporter = new SafetyHtmlReportGenerator(calc2);
         var cmd = new BenchmarkCommand(runner, reporter, console).Build();
         var root = new RootCommand { cmd };
 
