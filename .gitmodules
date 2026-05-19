@@ -1,0 +1,3 @@
+[submodule "WikiObsidian"]
+	path = WikiObsidian
+	url = https://github.com/christianulson/ai_kernel-communilty.wiki.git
