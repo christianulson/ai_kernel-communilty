@@ -12,5 +12,5 @@
     "types": ["node", "jest"]
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "out", "media"]
+  "exclude": ["node_modules", "out", "media", "src/chat/artifacts"]
 }

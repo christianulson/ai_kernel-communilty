@@ -1,14 +1,16 @@
-using KrnlAI.LLMGateway.Core.Abstractions;
-using KrnlAI.LLMGateway.Core.Services.Goals;
-using KrnlAI.LLMGateway.Core.Services.Governance;
 using KrnlAI.Anticipation;
 using KrnlAI.Core.Abstractions;
 using KrnlAI.Core.Abstractions.Mcp;
+using KrnlAI.Core.Abstractions.Safety;
 using KrnlAI.Core.Services.ExperimentTracking;
 using KrnlAI.Core.Services.Memory;
 using KrnlAI.Core.Services.ModelRegistry;
 using KrnlAI.Core.Services.Safety;
 using KrnlAI.Executive;
+using KrnlAI.Infrastructure.InMemory;
+using KrnlAI.LLMGateway.Core.Abstractions;
+using KrnlAI.LLMGateway.Core.Services.Goals;
+using KrnlAI.LLMGateway.Core.Services.Governance;
 using KrnlAI.Memory;
 using KrnlAI.Snapshot;
 using Microsoft.Extensions.DependencyInjection;
@@ -43,6 +45,8 @@ public static class CliServiceExtensions
         services.AddSingleton<IGoalStore, InMemoryGoalStore>();
         services.AddSingleton<ISchedulerService, KrnlAI.Infrastructure.Scheduling.InMemorySchedulerStore>();
         services.AddSingleton<ISafetyCaseStore, InMemorySafetyCaseStore>();
+        services.AddSingleton<ISafetyAuditStore, InMemorySafetyAuditStore>();
+        services.AddSingleton<ISafetyScenarioStore, InMemorySafetyScenarioStore>();
         services.AddSingleton<FundamentalRulesEngine>(sp =>
         {
             var logger = sp.GetService<ILogger<FundamentalRulesEngine>>();
