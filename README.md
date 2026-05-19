@@ -1,49 +1,89 @@
 # Krnl-AI Community
 
-Krnl-AI Community is the local-first edition of Krnl-AI: a cognitive runtime for
-agents with persistent memory, safety checks, evolving skills, and a developer CLI.
-It is designed to run on your machine without requiring hosted infrastructure.
+Krnl-AI Community is the open-source, local-first edition of Krnl-AI — a cognitive runtime
+for building intelligent agents with persistent memory, safety checks, evolving skills,
+and developer tooling. It runs entirely on your machine without requiring hosted infrastructure.
 
-```bash
-dotnet tool install -g KrnlAI.Cli
-krnlai chat --local
+## Features
+
+### Cognitive Cycle (10 Steps)
+
+A structured processing pipeline inspired by human cognition:
+
+```
+Sensor → Attention → Memory → Evaluation → Metacognition
+→ Planning → Governance → Execution → Outcome → Learning
 ```
 
-## What You Can Build
+Progresses through 4 phases: `PERCEPTION → DELIBERATION → ACTION → REFLECTION`
 
-- Local agents that work with your preferred LLM provider
-- Persistent memory backed by SQLite
-- Semantic search over local memory
-- Skills that can be created, refined, exported, and installed
-- Safety-aware execution with policy checks before actions
-- Local sidecar APIs for editors and tools
+### Memory System (5 Types)
 
-## Packages
+| Memory | Purpose |
+|--------|---------|
+| **Working** | Immediate context (TTL-based eviction) |
+| **Episodic** | Past execution history with LRU pruning |
+| **Semantic** | Factual knowledge with vector search |
+| **Emotional** | Emotional state transitions over time |
+| **Procedural** | How-to knowledge and learned behavior |
 
-| Package | Purpose | License |
-| --- | --- | --- |
-| `KrnlAI.Contracts` | Public DTOs and interfaces | MIT |
-| `KrnlAI.Cli` | Local CLI and interactive TUI | MIT |
-| `KrnlAI.Sidecar` | Local HTTP sidecar for tools | MIT |
-| `KrnlAI.Embedded` | In-process kernel for community apps | MIT |
+### Safety & Guardrails (20 Rules)
+
+Multi-layered safety with 20 fundamental rules (R01-R20), adversarial guard,
+ethical enforcer, rate limiting, and risk scoring — every action validated before execution.
+
+### Emotional Model (VAD)
+
+Valence-Arousal-Dominance dimensional model that influences decision-making,
+with pain/reward learning signals and natural emotional decay.
+
+### Multi-Provider LLM Support
+
+Bring your own LLM: OpenAI, Ollama, Anthropic, OpenRouter, DeepSeek,
+Google Gemini, Groq, or any OpenAI-compatible endpoint.
+
+### SDKs
+
+- **Python SDK** (`sdk/python/`) — Full cognitive cycle access
+- **.NET SDK** (`sdk/dotnet/`) — Native C# integration
+
+### Editor Integrations
+
+- **VS Code Extension** — Chat panel, inline completions, agent mode, memory browser
+- **Visual Studio Extension** — Tool window, code analysis, chat history
+
+### Desktop Apps
+
+- **WPF** (Windows) — Full-featured desktop with dashboard, memory browser, policy editor
+- **Tauri** (Cross-platform) — Chat interface, system tray, native notifications
+
+---
 
 ## Quick Start
 
 ```bash
 dotnet tool install -g KrnlAI.Cli
-krnlai config set provider openai
-krnlai config set api_key sk-...
+krnlai config set provider ollama
+krnlai config set endpoint http://localhost:11434/v1
 krnlai chat --local
 ```
 
-For offline or local-model workflows, configure an OpenAI-compatible endpoint such
-as Ollama or another local gateway.
+## Packages
+
+| Package | Purpose | License |
+| --- | --- | --- |
+| `KrnlAI.Cli` | Local CLI and interactive TUI | MIT |
+| `KrnlAI.Sidecar` | Local HTTP sidecar for tools and editors | MIT |
+| `KrnlAI.Embedded` | In-process kernel for community apps | MIT |
 
 ## Documentation
 
+- [Wiki (English)](WikiObsidian/Home.md)
+- [Obsidian Vault — EN](obsidian/en/)
+- [Obsidian Vault — PT-BR](obsidian/pt-br/)
 - [Quickstart](docs/quickstart.md)
 - [Architecture](docs/architecture.md)
-- [CLI guide](docs/getting-started-cli.md)
+- [CLI Guide](docs/getting-started-cli.md)
 - [Contributing](CONTRIBUTING.md)
 
 ## Community
