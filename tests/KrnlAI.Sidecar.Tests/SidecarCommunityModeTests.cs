@@ -38,5 +38,8 @@ public sealed class CommunitySidecarWebAppFactory : WebApplicationFactory<Progra
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseSetting("Sidecar:Mode", "Community");
+        builder.UseSetting("Store:Mode", "InMemory");
+        builder.UseSetting("Vector:Mode", "InMemory");
+        builder.UseSetting("Cache:Mode", "Memory");
     }
 }
