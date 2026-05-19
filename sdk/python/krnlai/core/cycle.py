@@ -32,6 +32,8 @@ from krnlai.core.models.thought import (
 from krnlai.core.policies.engine import PolicyEngine
 from krnlai.core.risk.scorer import RiskScorer
 from krnlai.core.safety.rules import SafetyChecker
+from krnlai.core.steps.attention import EnhancedAttentionStep
+from krnlai.core.steps.metacognition import EnhancedMetacognitionStep
 
 
 @dataclass
@@ -62,6 +64,8 @@ class CognitiveCycleRunner:
         episodic_memory: Optional[EpisodicMemory] = None,
         semantic_memory: Optional[SemanticMemory] = None,
         policy_engine: Optional[PolicyEngine] = None,
+        attention_step: Optional[EnhancedAttentionStep] = None,
+        metacognition_step: Optional[EnhancedMetacognitionStep] = None,
     ) -> None:
         self.config = config or CycleConfig()
         self.safety = safety_checker or SafetyChecker()
@@ -72,6 +76,8 @@ class CognitiveCycleRunner:
         self.episodic_memory = episodic_memory or EpisodicMemory()
         self.semantic_memory = semantic_memory or SemanticMemory()
         self.policies = policy_engine or PolicyEngine()
+        self.attention_step = attention_step or EnhancedAttentionStep()
+        self.metacognition_step = metacognition_step or EnhancedMetacognitionStep()
 
         self._step_handlers: Dict[CycleStep, Callable[[StepContext], Any]] = {}
         self._on_event: List[Callable[[CycleEvent], None]] = []
@@ -206,15 +212,9 @@ class CognitiveCycleRunner:
         return f"Sensed input: {cmd.payload[:50]}..."
 
     async def _step_attention(self, ctx: StepContext, cmd: CommandEnvelope, state: CognitiveState) -> str:
-        payload = cmd.payload
-        features = {
-            "length": len(payload),
-            "has_question": "?" in payload,
-            "has_command": payload.startswith(("/", "!", "run")),
-            "word_count": len(payload.split()),
-        }
-        ctx.data["features"] = features
-        return f"Attended features: {features}"
+        result = await self.attention_step.execute(cmd, state, ctx.data)
+        ctx.data.update(result)
+        return f"Intent: {result['intent']}, Topic: {result['topic']}, Complexity: {result['complexity']}"
 
     async def _step_memory(self, ctx: StepContext, cmd: CommandEnvelope, state: CognitiveState) -> str:
         recall = self.episodic_memory.recent(3)
@@ -250,17 +250,18 @@ class CognitiveCycleRunner:
         return f"Risk: {risk:.2f}, Allowed: {verdict.allowed}"
 
     async def _step_metacognition(self, ctx: StepContext, cmd: CommandEnvelope, state: CognitiveState) -> str:
-        risk = ctx.data.get("risk_score", 0.0)
-        emotional = self.vad.current
-        observations = []
-        if risk > 0.7:
-            observations.append("high_risk_requires_caution")
-        if emotional.is_negative:
-            observations.append("negative_emotional_state")
-        if emotional.is_intense:
-            observations.append("high_arousal")
-        ctx.data["metacognitive_observations"] = observations
-        return f"Metacognitive observations: {observations}" if observations else "Stable state"
+        context = dict(ctx.data)
+        context["risk_score"] = ctx.data.get("risk_score", 0.0)
+        context["novelty"] = ctx.data.get("novelty", 0.0)
+        context["fatigue"] = ctx.data.get("fatigue", 0.0)
+        context["confidence"] = ctx.data.get("confidence", 0.5)
+        context["urgency"] = ctx.data.get("urgency", 0.0)
+        context["complexity"] = ctx.data.get("complexity", 0.0)
+        context["emotional_state"] = state.emotional_state
+        result = await self.metacognition_step.execute(cmd, state, context)
+        ctx.data.update(result)
+        quality = result['reasoning_quality']
+        return f"Quality: {quality}, Biases: {len(result['biases_detected'])}, Load: {result['cognitive_load']}"
 
     async def _step_planning(self, ctx: StepContext, cmd: CommandEnvelope, state: CognitiveState) -> str:
         plan_steps = ["analyze", "execute", "verify"]
