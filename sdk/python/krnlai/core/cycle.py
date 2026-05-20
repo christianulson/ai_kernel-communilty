@@ -375,6 +375,7 @@ class CognitiveCycleRunner:
         ctx.data["plan"] = result["plan"]
         ctx.data["current_plan_step"] = result["current_step_index"]
         ctx.data["decomposition_strategy"] = result["decomposition_strategy"]
+        ctx.data["max_plan_steps"] = self.planning_step._max_plan_steps
         return f"Plan ({result['decomposition_strategy']}): {result['plan']}"
 
     async def _step_governance(self, ctx: StepContext, cmd: CommandEnvelope, state: CognitiveState) -> str:

@@ -11,6 +11,9 @@ MAX_PLAN_STEPS = 10
 class DynamicPlanningStep:
     MAX_PLAN_STEPS = MAX_PLAN_STEPS
 
+    def __init__(self, max_plan_steps: int | None = None) -> None:
+        self._max_plan_steps = max_plan_steps or self.MAX_PLAN_STEPS
+
     async def execute(self, cmd: CommandEnvelope, state: CognitiveState, context: Dict[str, Any]) -> Dict[str, Any]:
         complexity = context.get("complexity", 0.3)
         thought_type = context.get("thought_type", "analytical")
@@ -30,8 +33,8 @@ class DynamicPlanningStep:
         plan = self._adapt_by_homeostasis(plan, context)
         plan = self._adapt_by_safety(plan, risk_score, requires_decomposition, observations)
 
-        if len(plan) > self.MAX_PLAN_STEPS:
-            plan = plan[:self.MAX_PLAN_STEPS]
+        if len(plan) > self._max_plan_steps:
+            plan = plan[:self._max_plan_steps]
 
         return {
             "plan": plan,

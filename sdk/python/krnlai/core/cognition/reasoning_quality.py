@@ -226,12 +226,12 @@ class ReasoningQualityAssessor:
     @staticmethod
     def _detect_contradictions(text: str) -> bool:
         pairs = [
-            ("always", "never"), ("yes", "no"),
-            ("increase", "decrease"), ("good", "bad"),
-            ("positive", "negative"), ("true", "false"),
-            ("right", "wrong"), ("support", "oppose"),
+            ("always", "never"), ("increase", "decrease"),
+            ("good", "bad"), ("positive", "negative"),
         ]
+        sentences = [s.strip() for s in text.replace("!", ".").replace("?", ".").split(".") if s.strip()]
         for a, b in pairs:
-            if a in text and b in text:
-                return True
+            for sentence in sentences:
+                if a in sentence and b in sentence:
+                    return True
         return False

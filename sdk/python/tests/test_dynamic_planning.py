@@ -132,6 +132,15 @@ class TestDynamicPlanningStep:
         assert result["total_steps"] <= 10
 
     @pytest.mark.asyncio
+    async def test_Execute_MaxStepsLimit_LowLimit_ShouldTruncate(self):
+        planner = DynamicPlanningStep(max_plan_steps=2)
+        cmd = CommandEnvelope(payload="hello")
+        state = CognitiveState()
+        result = await planner.execute(cmd, state, {"complexity": 0.5})
+        assert result["total_steps"] <= 2
+        assert len(result["plan"]) <= 2
+
+    @pytest.mark.asyncio
     async def test_Execute_FatigueAndNoveltyStarvation_ShouldBothApply(self):
         planner = DynamicPlanningStep()
         cmd = CommandEnvelope(payload="hello")
