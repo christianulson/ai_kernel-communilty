@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using KrnlAI.VisualStudio.Commands.ChatCommands;
 using KrnlAI.VisualStudio.Services;
 using Microsoft.VisualStudio.Shell;
 
@@ -9,6 +10,9 @@ public partial class KrnlAIToolWindowControl : UserControl
 {
     private readonly KernelClientService _clientService;
     private readonly ISolutionContextService _solutionContext;
+    private readonly SlashCommandRouter _commandRouter;
+    private readonly IApplyEditService _applyEdit;
+    private readonly IAgenticLoopService _agenticLoop;
     private readonly System.Threading.CancellationTokenSource _cts = new();
 
     public KrnlAIToolWindowControl()
@@ -17,6 +21,9 @@ public partial class KrnlAIToolWindowControl : UserControl
 
         _clientService = new KernelClientService();
         _solutionContext = new SolutionContextService(ServiceProvider.GlobalProvider);
+        _applyEdit = new ApplyEditService();
+        _agenticLoop = new AgenticLoopService(_clientService);
+        _commandRouter = new SlashCommandRouter(_clientService, _solutionContext, _applyEdit, _agenticLoop);
 
         _clientService.StateChanged += OnStateChanged;
         Loaded += OnLoaded;
@@ -92,6 +99,16 @@ public partial class KrnlAIToolWindowControl : UserControl
 
         await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
         ChatList.Items.Add(new ListBoxItem { Content = "You: " + text, IsEnabled = false });
+        ChatInput.Clear();
+        CommandSuggestions.Visibility = Visibility.Collapsed;
+
+        if (_commandRouter.IsSlashCommand(text))
+        {
+            var result = await _commandRouter.ExecuteAsync(text, _cts.Token);
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+            ChatList.Items.Add(new ListBoxItem { Content = "AI: " + result });
+            return;
+        }
 
         var codeContext = _solutionContext.GetActiveSelection();
         var fullPrompt = text;
@@ -105,8 +122,6 @@ public partial class KrnlAIToolWindowControl : UserControl
             });
         }
 
-        ChatInput.Clear();
-
         try
         {
             var result = await _clientService.RunAgentAsync(fullPrompt, ct: _cts.Token);
@@ -117,6 +132,38 @@ public partial class KrnlAIToolWindowControl : UserControl
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
             ChatList.Items.Add(new ListBoxItem { Content = "Error: " + ex.Message, IsEnabled = false });
+        }
+    }
+
+    private void OnChatInputTextChanged(object sender, TextChangedEventArgs e)
+    {
+        var text = ChatInput.Text;
+        if (text.StartsWith("/") && text.Length > 1)
+        {
+            var partial = text.TrimStart('/').ToLowerInvariant();
+            var matches = _commandRouter.Commands.Values
+                .Where(c => c.Name.StartsWith(partial) && (c.IsVisible?.Invoke() ?? true))
+                .Select(c => "/" + c.Name + " — " + c.Description)
+                .ToList();
+
+            if (matches.Count > 0)
+            {
+                CommandSuggestions.ItemsSource = matches;
+                CommandSuggestions.Visibility = Visibility.Visible;
+                return;
+            }
+        }
+        CommandSuggestions.Visibility = Visibility.Collapsed;
+    }
+
+    private void OnCommandSuggestionSelected(object sender, SelectionChangedEventArgs e)
+    {
+        if (CommandSuggestions.SelectedItem is string suggestion)
+        {
+            var cmd = suggestion.Split(' ')[0]; // "/explain"
+            ChatInput.Text = cmd + " ";
+            ChatInput.CaretIndex = ChatInput.Text.Length;
+            CommandSuggestions.Visibility = Visibility.Collapsed;
         }
     }
 

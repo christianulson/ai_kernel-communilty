@@ -1,0 +1,39 @@
+<UserControl x:Class="KrnlAI.VisualStudio.ToolWindows.Episodes.EpisodesControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{DynamicResource VsBrush.Window}"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" d:DesignHeight="400" d:DesignWidth="400">
+  <Grid Margin="8">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+
+    <TextBlock Grid.Row="0" Text="Agent Episodes" FontSize="14" FontWeight="Bold"
+               Foreground="{DynamicResource VsBrush.CaptionText}" Margin="0,0,0,8" />
+
+    <ListView x:Name="EpisodesList" Grid.Row="2"
+              Foreground="{DynamicResource VsBrush.WindowText}"
+              BorderThickness="0" SelectionChanged="OnEpisodeSelected">
+      <ListView.View>
+        <GridView>
+          <GridViewColumn Header="Timestamp" Width="120" DisplayMemberBinding="{Binding Timestamp}" />
+          <GridViewColumn Header="Goal" Width="140" DisplayMemberBinding="{Binding Goal}" />
+          <GridViewColumn Header="Status" Width="70" DisplayMemberBinding="{Binding Status}" />
+          <GridViewColumn Header="Steps" Width="50" DisplayMemberBinding="{Binding StepCount}" />
+        </GridView>
+      </ListView.View>
+    </ListView>
+
+    <Expander x:Name="EpisodeDetails" Grid.Row="1" Header="Details" Margin="0,8,0,0"
+              Visibility="Collapsed" Foreground="{DynamicResource VsBrush.CaptionText}">
+      <StackPanel x:Name="DetailsPanel" Margin="8" />
+    </Expander>
+
+    <Button x:Name="RefreshButton" Grid.Row="2" Content="Refresh" Width="80" Height="24"
+            Click="OnRefresh" HorizontalAlignment="Left" Margin="0,8,0,0" />
+  </Grid>
+</UserControl>

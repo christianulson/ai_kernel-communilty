@@ -39,7 +39,16 @@
               <ColumnDefinition Width="*" />
               <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <TextBox x:Name="ChatInput" Grid.Column="0" Height="24" Margin="0,4,4,0" />
+            <Grid Grid.Column="0">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+              </Grid.RowDefinitions>
+              <TextBox x:Name="ChatInput" Grid.Row="0" Height="24" Margin="0,4,4,0" TextChanged="OnChatInputTextChanged" />
+              <ListBox x:Name="CommandSuggestions" Grid.Row="1" Height="60" Margin="0,0,4,0"
+                       Visibility="Collapsed" SelectionChanged="OnCommandSuggestionSelected"
+                       FontSize="11" Background="{DynamicResource VsBrush.ToolWindowBackground}" />
+            </Grid>
             <Button x:Name="SendButton" Grid.Column="1" Content="Send" Width="60" Height="24" Margin="0,4,0,0" Click="OnSend" />
           </Grid>
         </Grid>

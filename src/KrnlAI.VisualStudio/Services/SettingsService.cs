@@ -14,6 +14,10 @@ public sealed class SettingsService : ISettingsService
     public int MaxRetries { get; set; } = 3;
     public string? DefaultProvider { get; set; }
     public string? DefaultModel { get; set; }
+    public bool EnableInlineCompletions { get; set; } = true;
+    public bool EnableCodeLens { get; set; } = true;
+    public bool EnableHover { get; set; } = true;
+    public bool EnableCodeActions { get; set; } = true;
 
     public void Load()
     {
@@ -27,6 +31,10 @@ public sealed class SettingsService : ISettingsService
             MaxRetries = ReadInt("MaxRetries", 3);
             DefaultProvider = ReadString("DefaultProvider", null);
             DefaultModel = ReadString("DefaultModel", null);
+            EnableInlineCompletions = ReadBool("EnableInlineCompletions", true);
+            EnableCodeLens = ReadBool("EnableCodeLens", true);
+            EnableHover = ReadBool("EnableHover", true);
+            EnableCodeActions = ReadBool("EnableCodeActions", true);
         }
         catch
         {
@@ -52,6 +60,11 @@ public sealed class SettingsService : ISettingsService
                 _store.SetString(CollectionPath, "DefaultProvider", DefaultProvider);
             if (DefaultModel is not null)
                 _store.SetString(CollectionPath, "DefaultModel", DefaultModel);
+
+            _store.SetBoolean(CollectionPath, "EnableInlineCompletions", EnableInlineCompletions);
+            _store.SetBoolean(CollectionPath, "EnableCodeLens", EnableCodeLens);
+            _store.SetBoolean(CollectionPath, "EnableHover", EnableHover);
+            _store.SetBoolean(CollectionPath, "EnableCodeActions", EnableCodeActions);
         }
         catch
         {
@@ -84,5 +97,12 @@ public sealed class SettingsService : ISettingsService
         if (_store is null || !_store.PropertyExists(CollectionPath, key))
             return defaultValue;
         return _store.GetInt32(CollectionPath, key, defaultValue);
+    }
+
+    private bool ReadBool(string key, bool defaultValue)
+    {
+        if (_store is null || !_store.PropertyExists(CollectionPath, key))
+            return defaultValue;
+        return _store.GetBoolean(CollectionPath, key, defaultValue);
     }
 }

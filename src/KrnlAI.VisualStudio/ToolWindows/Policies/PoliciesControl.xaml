@@ -1,0 +1,53 @@
+<UserControl x:Class="KrnlAI.VisualStudio.ToolWindows.Policies.PoliciesControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{DynamicResource VsBrush.Window}"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" d:DesignHeight="400" d:DesignWidth="400">
+  <Grid Margin="8">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+
+    <TextBlock Grid.Row="0" Text="Learned Policies" FontSize="14" FontWeight="Bold"
+               Foreground="{DynamicResource VsBrush.CaptionText}" Margin="0,0,0,8" />
+
+    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,8">
+      <TextBlock Text="Domain:" VerticalAlignment="Center" Margin="0,0,4,0"
+                 Foreground="{DynamicResource VsBrush.CaptionText}" />
+      <ComboBox x:Name="DomainFilter" Width="120" SelectionChanged="OnDomainFilterChanged">
+        <ComboBoxItem Content="All" IsSelected="True" />
+        <ComboBoxItem Content="Code" />
+        <ComboBoxItem Content="Safety" />
+        <ComboBoxItem Content="Memory" />
+        <ComboBoxItem Content="Reasoning" />
+      </ComboBox>
+    </StackPanel>
+
+    <ListView x:Name="PoliciesList" Grid.Row="2"
+              Foreground="{DynamicResource VsBrush.WindowText}"
+              BorderThickness="0">
+      <ListView.View>
+        <GridView>
+          <GridViewColumn Header="Name" Width="120" DisplayMemberBinding="{Binding Name}" />
+          <GridViewColumn Header="Domain" Width="80" DisplayMemberBinding="{Binding Domain}" />
+          <GridViewColumn Header="Score" Width="60" DisplayMemberBinding="{Binding Score}" />
+          <GridViewColumn Header="Active" Width="60">
+            <GridViewColumn.CellTemplate>
+              <DataTemplate>
+                <CheckBox IsChecked="{Binding IsActive}" IsEnabled="False" />
+              </DataTemplate>
+            </GridViewColumn.CellTemplate>
+          </GridViewColumn>
+        </GridView>
+      </ListView.View>
+    </ListView>
+
+    <Button x:Name="RefreshButton" Grid.Row="3" Content="Refresh" Width="80" Height="24"
+            Click="OnRefresh" HorizontalAlignment="Left" Margin="0,8,0,0" />
+  </Grid>
+</UserControl>

@@ -1,0 +1,43 @@
+<UserControl x:Class="KrnlAI.VisualStudio.ToolWindows.Dashboard.DashboardControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{DynamicResource VsBrush.Window}"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" d:DesignHeight="400" d:DesignWidth="400">
+  <ScrollViewer Margin="8">
+    <StackPanel>
+      <TextBlock Text="Autonomy Scorecard" FontSize="14" FontWeight="Bold"
+                 Foreground="{DynamicResource VsBrush.CaptionText}" Margin="0,0,0,8" />
+
+      <TextBlock Text="Goal Autonomy" Foreground="{DynamicResource VsBrush.CaptionText}" />
+      <ProgressBar x:Name="GoalBar" Height="12" Minimum="0" Maximum="100" Margin="0,2,0,6" />
+
+      <TextBlock Text="Execution Autonomy" Foreground="{DynamicResource VsBrush.CaptionText}" />
+      <ProgressBar x:Name="ExecutionBar" Height="12" Minimum="0" Maximum="100" Margin="0,2,0,6" />
+
+      <TextBlock Text="Safety Autonomy" Foreground="{DynamicResource VsBrush.CaptionText}" />
+      <ProgressBar x:Name="SafetyBar" Height="12" Minimum="0" Maximum="100" Margin="0,2,0,6" />
+
+      <TextBlock Text="Learning Autonomy" Foreground="{DynamicResource VsBrush.CaptionText}" />
+      <ProgressBar x:Name="LearningBar" Height="12" Minimum="0" Maximum="100" Margin="0,2,0,6" />
+
+      <TextBlock Text="Meta-Cognition Autonomy" Foreground="{DynamicResource VsBrush.CaptionText}" />
+      <ProgressBar x:Name="MetaBar" Height="12" Minimum="0" Maximum="100" Margin="0,2,0,10" />
+
+      <Separator Margin="0,4" />
+
+      <TextBlock Text="System Health" FontSize="14" FontWeight="Bold"
+                 Foreground="{DynamicResource VsBrush.CaptionText}" Margin="0,0,0,8" />
+      <TextBlock x:Name="HealthStatusText" Margin="0,0,0,4"
+                 Foreground="{DynamicResource VsBrush.CaptionText}" />
+      <TextBlock x:Name="HealthDetailsText" Margin="0,0,0,4"
+                 Foreground="{DynamicResource VsBrush.GrayText}" />
+      <TextBlock x:Name="MoodText" Margin="0,0,0,8"
+                 Foreground="{DynamicResource VsBrush.CaptionText}" FontWeight="SemiBold" />
+
+      <Button x:Name="RefreshButton" Content="Refresh" Width="80" Height="24"
+              Click="OnRefresh" HorizontalAlignment="Left" />
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

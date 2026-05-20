@@ -38,6 +38,26 @@ public sealed class KrnlAIOptionsPage : DialogPage
     [Description("Automatically connect to the API endpoint when Visual Studio starts")]
     public bool AutoConnect { get; set; } = true;
 
+    [Category("Krnl-AI - Editor Intelligence")]
+    [DisplayName("Enable Inline Completions")]
+    [Description("Show AI-powered inline code completions while typing")]
+    public bool EnableInlineCompletions { get; set; } = true;
+
+    [Category("Krnl-AI - Editor Intelligence")]
+    [DisplayName("Enable CodeLens")]
+    [Description("Show cognitive complexity metrics in CodeLens annotations")]
+    public bool EnableCodeLens { get; set; } = true;
+
+    [Category("Krnl-AI - Editor Intelligence")]
+    [DisplayName("Enable Hover")]
+    [Description("Show AI explanation when hovering over code")]
+    public bool EnableHover { get; set; } = true;
+
+    [Category("Krnl-AI - Editor Intelligence")]
+    [DisplayName("Enable Code Actions")]
+    [Description("Show AI-powered suggestions in the lightbulb menu")]
+    public bool EnableCodeActions { get; set; } = true;
+
     public void ApplyTo(ISettingsService settings)
     {
         settings.Endpoint = Endpoint;
@@ -45,6 +65,10 @@ public sealed class KrnlAIOptionsPage : DialogPage
         settings.MaxRetries = MaxRetries;
         settings.DefaultProvider = DefaultProvider;
         settings.DefaultModel = DefaultModel;
+        settings.EnableInlineCompletions = EnableInlineCompletions;
+        settings.EnableCodeLens = EnableCodeLens;
+        settings.EnableHover = EnableHover;
+        settings.EnableCodeActions = EnableCodeActions;
     }
 
     public void LoadFrom(ISettingsService settings)
@@ -54,5 +78,9 @@ public sealed class KrnlAIOptionsPage : DialogPage
         MaxRetries = settings.MaxRetries;
         DefaultProvider = settings.DefaultProvider;
         DefaultModel = settings.DefaultModel;
+        EnableInlineCompletions = settings.EnableInlineCompletions;
+        EnableCodeLens = settings.EnableCodeLens;
+        EnableHover = settings.EnableHover;
+        EnableCodeActions = settings.EnableCodeActions;
     }
 }

@@ -7,6 +7,10 @@ public interface ISettingsService
     int MaxRetries { get; set; }
     string? DefaultProvider { get; set; }
     string? DefaultModel { get; set; }
+    bool EnableInlineCompletions { get; set; }
+    bool EnableCodeLens { get; set; }
+    bool EnableHover { get; set; }
+    bool EnableCodeActions { get; set; }
 
     void Load();
     void Save();
