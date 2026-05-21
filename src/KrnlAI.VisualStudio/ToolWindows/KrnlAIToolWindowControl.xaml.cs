@@ -1,7 +1,9 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using KrnlAI.VisualStudio.Commands.ChatCommands;
 using KrnlAI.VisualStudio.Services;
+using KrnlAI.VisualStudio.ToolWindows.Chat.Artifacts;
 using Microsoft.VisualStudio.Shell;
 
 namespace KrnlAI.VisualStudio.ToolWindows;
@@ -13,19 +15,35 @@ public partial class KrnlAIToolWindowControl : UserControl
     private readonly SlashCommandRouter _commandRouter;
     private readonly IApplyEditService _applyEdit;
     private readonly IAgenticLoopService _agenticLoop;
+    private readonly ISignalRStreamingService _streamingService;
+    private readonly IApprovalService _approvalService;
+    private readonly ArtifactDispatcher _artifactDispatcher;
+    private readonly ISettingsService _settings;
     private readonly System.Threading.CancellationTokenSource _cts = new();
+    private CancellationTokenSource? _currentStreamCts;
+    private string? _streamingBuffer;
 
     public KrnlAIToolWindowControl()
     {
         InitializeComponent();
+
+        _settings = new SettingsService();
+        _settings.Load();
 
         _clientService = new KernelClientService();
         _solutionContext = new SolutionContextService(ServiceProvider.GlobalProvider);
         _applyEdit = new ApplyEditService();
         _agenticLoop = new AgenticLoopService(_clientService);
         _commandRouter = new SlashCommandRouter(_clientService, _solutionContext, _applyEdit, _agenticLoop);
+        _streamingService = new SignalRStreamingService();
+        _approvalService = new ApprovalService(_settings);
+        _artifactDispatcher = new ArtifactDispatcher();
 
         _clientService.StateChanged += OnStateChanged;
+        _streamingService.TokenReceived += OnStreamTokenReceived;
+        _streamingService.StreamCompleted += OnStreamCompleted;
+        _streamingService.ErrorReceived += OnStreamError;
+
         Loaded += OnLoaded;
         Unloaded += (_, _) => _cts.Cancel();
     }
@@ -37,7 +55,7 @@ public partial class KrnlAIToolWindowControl : UserControl
 
     private void OnStateChanged(ConnectionState state)
     {
-#pragma warning disable VSTHRD001, VSTHRD110 // Dispatcher.InvokeAsync is the correct pattern for event handlers from background threads
+#pragma warning disable VSTHRD001, VSTHRD110
         if (!Dispatcher.CheckAccess())
         {
             Dispatcher.InvokeAsync(() => OnStateChanged(state));
@@ -67,23 +85,36 @@ public partial class KrnlAIToolWindowControl : UserControl
         try
         {
             var mood = await _clientService.GetEmotionalMoodAsync(_cts.Token);
-            await Microsoft.VisualStudio.Shell.ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
             MoodText.Text = !string.IsNullOrEmpty(mood) ? mood : "";
             StatusMoodText.Text = !string.IsNullOrEmpty(mood) ? "Estado Emocional: " + mood : "";
         }
-        catch { /* silent */ }
+        catch { }
     }
 
     private async System.Threading.Tasks.Task DoConnectAsync()
     {
         ErrorText.Text = "";
-        var settings = new SettingsService();
-        settings.Load();
+        _settings.Load();
 
-        var ok = await _clientService.ConnectAsync(settings.Endpoint, _cts.Token);
+        var ok = await _clientService.ConnectAsync(_settings.Endpoint, _cts.Token);
         if (!ok && !_cts.IsCancellationRequested)
         {
             ErrorText.Text = "Could not connect to Krnl-AI. Ensure the API is running.";
+            return;
+        }
+
+        if (_settings.EnableStreaming && _clientService.BaseUrl != null)
+        {
+            try
+            {
+                var hubUrl = _clientService.BaseUrl.TrimEnd('/') + "/hubs/agent";
+                await _streamingService.ConnectAsync(hubUrl, _cts.Token);
+            }
+            catch
+            {
+                // Streaming is optional; continue without it
+            }
         }
     }
 
@@ -98,7 +129,7 @@ public partial class KrnlAIToolWindowControl : UserControl
         if (string.IsNullOrEmpty(text)) return;
 
         await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-        ChatList.Items.Add(new ListBoxItem { Content = "You: " + text, IsEnabled = false });
+        AddUserMessage(text);
         ChatInput.Clear();
         CommandSuggestions.Visibility = Visibility.Collapsed;
 
@@ -106,7 +137,7 @@ public partial class KrnlAIToolWindowControl : UserControl
         {
             var result = await _commandRouter.ExecuteAsync(text, _cts.Token);
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-            ChatList.Items.Add(new ListBoxItem { Content = "AI: " + result });
+            AddAiMessage(result);
             return;
         }
 
@@ -115,24 +146,182 @@ public partial class KrnlAIToolWindowControl : UserControl
         if (codeContext?.SelectedText is not null)
         {
             fullPrompt = text + "\n\n```" + (codeContext.Language ?? "") + "\n" + codeContext.SelectedText + "\n```";
-            ChatList.Items.Add(new ListBoxItem
-            {
-                Content = "(using selection from " + System.IO.Path.GetFileName(codeContext.FilePath) + ")",
-                IsEnabled = false,
-            });
+            AddSystemMessage("using selection from " + System.IO.Path.GetFileName(codeContext.FilePath));
         }
 
         try
         {
-            var result = await _clientService.RunAgentAsync(fullPrompt, ct: _cts.Token);
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-            ChatList.Items.Add(new ListBoxItem { Content = "AI: " + (result.Summary ?? result.Status) });
+            ShowThinking(true);
+
+            if (_settings.EnableStreaming && _streamingService.State == ConnectionState.Connected)
+            {
+                _currentStreamCts = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token);
+                _streamingBuffer = "";
+                var streamingItem = AddStreamingMessage();
+
+                await _streamingService.StartAgentStreamAsync(fullPrompt, Guid.NewGuid().ToString("N"), _currentStreamCts.Token);
+
+                // Wait for stream to complete
+                var tcs = new TaskCompletionSource<bool>();
+                void OnCompleted() { tcs.TrySetResult(true); }
+                _streamingService.StreamCompleted += OnCompleted;
+                try
+                {
+                    await tcs.Task;
+                }
+                finally
+                {
+                    _streamingService.StreamCompleted -= OnCompleted;
+                }
+
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                FinalizeStreamingMessage(streamingItem, _streamingBuffer ?? "");
+            }
+            else
+            {
+                var result = await _clientService.RunAgentAsync(fullPrompt, ct: _cts.Token);
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                var responseText = result.Summary ?? result.Status ?? "";
+                AddArtifactMessage(responseText);
+            }
         }
         catch (Exception ex)
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-            ChatList.Items.Add(new ListBoxItem { Content = "Error: " + ex.Message, IsEnabled = false });
+            AddErrorMessage(ex.Message);
         }
+        finally
+        {
+            ShowThinking(false);
+        }
+    }
+
+    private void OnStreamTokenReceived(string token)
+    {
+        _streamingBuffer += token;
+    }
+
+    private void OnStreamCompleted()
+    {
+#pragma warning disable VSTHRD001, VSTHRD110
+        Dispatcher.InvokeAsync(() => ShowThinking(false));
+#pragma warning restore VSTHRD001, VSTHRD110
+    }
+
+    private void OnStreamError(string error)
+    {
+#pragma warning disable VSTHRD001, VSTHRD110
+        Dispatcher.InvokeAsync(() => AddErrorMessage(error));
+#pragma warning restore VSTHRD001, VSTHRD110
+    }
+
+    private void OnStop(object sender, RoutedEventArgs e)
+    {
+        _currentStreamCts?.Cancel();
+        ShowThinking(false);
+    }
+
+    private void ShowThinking(bool visible)
+    {
+        ThinkingIndicator.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
+        StopButton.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void AddUserMessage(string text)
+    {
+        ChatItems.Items.Add(new Border
+        {
+            Child = new TextBlock { Text = "You: " + text, TextWrapping = TextWrapping.Wrap },
+            Margin = new Thickness(0, 2, 0, 2),
+            Padding = new Thickness(8),
+            Background = new SolidColorBrush(Color.FromArgb(20, 56, 189, 248)),
+            CornerRadius = new CornerRadius(8)
+        });
+    }
+
+    private void AddAiMessage(string text)
+    {
+        ChatItems.Items.Add(new Border
+        {
+            Child = new TextBlock { Text = "AI: " + text, TextWrapping = TextWrapping.Wrap },
+            Margin = new Thickness(0, 2, 0, 2),
+            Padding = new Thickness(8),
+            Background = new SolidColorBrush(Color.FromArgb(12, 0, 0, 0)),
+            CornerRadius = new CornerRadius(8)
+        });
+    }
+
+    private void AddArtifactMessage(string text)
+    {
+        var container = new StackPanel
+        {
+            Margin = new Thickness(0, 2, 0, 2),
+            Background = new SolidColorBrush(Color.FromArgb(12, 0, 0, 0))
+        };
+
+        var artifacts = _artifactDispatcher.RenderAll(text);
+        foreach (var element in artifacts)
+            container.Children.Add(element);
+
+        ChatItems.Items.Add(new Border
+        {
+            Child = container,
+            CornerRadius = new CornerRadius(8),
+            Margin = new Thickness(0, 2, 0, 2)
+        });
+    }
+
+    private Border AddStreamingMessage()
+    {
+        var border = new Border
+        {
+            Child = new TextBlock { Text = "AI: ", TextWrapping = TextWrapping.Wrap },
+            Margin = new Thickness(0, 2, 0, 2),
+            Padding = new Thickness(8),
+            Background = new SolidColorBrush(Color.FromArgb(12, 0, 0, 0)),
+            CornerRadius = new CornerRadius(8)
+        };
+        ChatItems.Items.Add(border);
+        return border;
+    }
+
+    private void FinalizeStreamingMessage(Border border, string fullText)
+    {
+        if (_settings.EnableArtifactRendering)
+        {
+            var container = new StackPanel();
+            var artifacts = _artifactDispatcher.RenderAll(fullText);
+            foreach (var element in artifacts)
+                container.Children.Add(element);
+            border.Child = container;
+        }
+        else
+        {
+            ((TextBlock)border.Child).Text = "AI: " + fullText;
+        }
+    }
+
+    private void AddSystemMessage(string text)
+    {
+        ChatItems.Items.Add(new TextBlock
+        {
+            Text = text,
+            TextWrapping = TextWrapping.Wrap,
+            FontStyle = FontStyles.Italic,
+            Foreground = new SolidColorBrush(Colors.Gray),
+            Margin = new Thickness(0, 2, 0, 2)
+        });
+    }
+
+    private void AddErrorMessage(string text)
+    {
+        ChatItems.Items.Add(new TextBlock
+        {
+            Text = "Error: " + text,
+            TextWrapping = TextWrapping.Wrap,
+            Foreground = new SolidColorBrush(Colors.Red),
+            Margin = new Thickness(0, 2, 0, 2)
+        });
     }
 
     private void OnChatInputTextChanged(object sender, TextChangedEventArgs e)
@@ -160,7 +349,7 @@ public partial class KrnlAIToolWindowControl : UserControl
     {
         if (CommandSuggestions.SelectedItem is string suggestion)
         {
-            var cmd = suggestion.Split(' ')[0]; // "/explain"
+            var cmd = suggestion.Split(' ')[0];
             ChatInput.Text = cmd + " ";
             ChatInput.CaretIndex = ChatInput.Text.Length;
             CommandSuggestions.Visibility = Visibility.Collapsed;

@@ -93,7 +93,14 @@ public sealed class GitService : IGitService
             }, ct);
 
             await readTask;
-            process.WaitForExit(5000);
+            try
+            {
+                process.WaitForExit(5000);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[KrnlAI] Git WaitForExit failed: {ex.Message}");
+            }
 
             return output.ToString().Trim();
         }
@@ -120,10 +127,15 @@ public sealed class GitService : IGitService
             if (solution?.FullName is string path && !string.IsNullOrEmpty(path))
                 return System.IO.Path.GetDirectoryName(path);
         }
-        catch
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[KrnlAI] DetectGitDir failed: {ex.Message}");
             try { return System.IO.Directory.GetCurrentDirectory(); }
-            catch { }
+            catch (Exception innerEx)
+            {
+                System.Diagnostics.Debug.WriteLine($"[KrnlAI] GetCurrentDirectory failed: {innerEx.Message}");
+                return null;
+            }
         }
         return null;
     }

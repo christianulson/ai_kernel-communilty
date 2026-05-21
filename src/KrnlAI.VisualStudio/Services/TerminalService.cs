@@ -73,14 +73,31 @@ public sealed class TerminalService : ITerminalService
                             errorBuilder.AppendLine(line);
                     }
                 }
-                catch (OperationCanceledException) { }
+                catch (OperationCanceledException ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[KrnlAI] Read task cancelled: {ex.Message}");
+                }
             }, ct);
 
             await readTask;
 
-            if (!process.WaitForExit(5000))
+            using var exitCts = new CancellationTokenSource(5000);
+            try
             {
-                try { process.Kill(); } catch { }
+                process.WaitForExit(5000);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[KrnlAI] WaitForExit failed: {ex.Message}");
+            }
+
+            if (!process.HasExited)
+            {
+                try { process.Kill(); }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[KrnlAI] Kill failed: {ex.Message}");
+                }
                 return new TerminalResult(-1, outputBuilder.ToString(),
                     "Command timed out after " + DefaultTimeoutSec + " seconds.");
             }
@@ -108,10 +125,15 @@ public sealed class TerminalService : ITerminalService
             if (solution?.FullName is string path && !string.IsNullOrEmpty(path))
                 return System.IO.Path.GetDirectoryName(path);
         }
-        catch
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[KrnlAI] DetectSolutionDir failed: {ex.Message}");
             try { return System.IO.Directory.GetCurrentDirectory(); }
-            catch { }
+            catch (Exception innerEx)
+            {
+                System.Diagnostics.Debug.WriteLine($"[KrnlAI] GetCurrentDirectory failed: {innerEx.Message}");
+                return null;
+            }
         }
         return null;
     }

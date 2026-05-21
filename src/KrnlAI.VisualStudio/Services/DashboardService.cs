@@ -30,8 +30,9 @@ public sealed class DashboardService : IDashboardService, IDisposable
             settings.Load();
             _baseUrl = settings.Endpoint.TrimEnd('/');
         }
-        catch
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[KrnlAI] GetBaseUrl failed: {ex.Message}");
             _baseUrl = "http://localhost:65335";
         }
         return _baseUrl;
@@ -59,8 +60,9 @@ public sealed class DashboardService : IDashboardService, IDisposable
 
             return result;
         }
-        catch
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[KrnlAI] GetScorecard failed: {ex.Message}");
             return _cachedScorecard;
         }
     }
@@ -87,8 +89,9 @@ public sealed class DashboardService : IDashboardService, IDisposable
                 sw.ElapsedMilliseconds
             );
         }
-        catch
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[KrnlAI] GetHealth failed: {ex.Message}");
             return new SystemHealth("Unreachable", null, null, null);
         }
     }
@@ -113,8 +116,9 @@ public sealed class DashboardService : IDashboardService, IDisposable
                 return arousal < 0.4 ? "😮‍💨 Tired" : "😰 Tense";
             return arousal >= 0.4 ? "🧐 Focused" : "😐 Neutral";
         }
-        catch
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[KrnlAI] GetMood failed: {ex.Message}");
             return null;
         }
     }

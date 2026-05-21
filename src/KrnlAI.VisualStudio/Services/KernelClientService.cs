@@ -12,6 +12,8 @@ public sealed class KernelClientService : IKernelClientService, IDisposable
     private string? _baseUrl;
     private const int MaxRetries = 3;
 
+    public string? BaseUrl => _baseUrl;
+
     public ConnectionState State
     {
         get => _state;

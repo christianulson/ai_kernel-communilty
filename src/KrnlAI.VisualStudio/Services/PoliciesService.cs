@@ -30,8 +30,9 @@ public sealed class PoliciesService : IPoliciesService, IDisposable
             settings.Load();
             _baseUrl = settings.Endpoint.TrimEnd('/');
         }
-        catch
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[KrnlAI] Policies GetBaseUrl failed: {ex.Message}");
             _baseUrl = "http://localhost:65335";
         }
         return _baseUrl;
@@ -59,8 +60,9 @@ public sealed class PoliciesService : IPoliciesService, IDisposable
 
             return _cached ?? Array.Empty<Policy>();
         }
-        catch
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[KrnlAI] GetPolicies failed: {ex.Message}");
             return _cached ?? Array.Empty<Policy>();
         }
     }
@@ -76,8 +78,9 @@ public sealed class PoliciesService : IPoliciesService, IDisposable
                 _cached = null;
             return response.IsSuccessStatusCode;
         }
-        catch
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[KrnlAI] TogglePolicy failed: {ex.Message}");
             return false;
         }
     }

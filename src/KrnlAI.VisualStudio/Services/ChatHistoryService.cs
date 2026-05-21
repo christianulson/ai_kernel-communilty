@@ -31,8 +31,9 @@ public sealed class ChatHistoryService
                 store.SetString(CollectionPath, $"Message_{i}", value);
             }
         }
-        catch
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[KrnlAI] SaveMessages failed: {ex.Message}");
         }
     }
 
@@ -61,8 +62,9 @@ public sealed class ChatHistoryService
                 }
             }
         }
-        catch
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[KrnlAI] LoadMessages failed: {ex.Message}");
         }
 
         return result;
@@ -78,8 +80,9 @@ public sealed class ChatHistoryService
             if (store.CollectionExists(CollectionPath))
                 store.DeleteCollection(CollectionPath);
         }
-        catch
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[KrnlAI] ClearHistory failed: {ex.Message}");
         }
     }
 
@@ -90,8 +93,9 @@ public sealed class ChatHistoryService
             var shellSettingsManager = new ShellSettingsManager(ServiceProvider.GlobalProvider);
             return shellSettingsManager.GetWritableSettingsStore(SettingsScope.UserSettings);
         }
-        catch
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[KrnlAI] GetStore failed: {ex.Message}");
             return null;
         }
     }

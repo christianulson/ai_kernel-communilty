@@ -30,8 +30,9 @@ public sealed class EpisodesService : IEpisodesService, IDisposable
             settings.Load();
             _baseUrl = settings.Endpoint.TrimEnd('/');
         }
-        catch
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[KrnlAI] Episodes GetBaseUrl failed: {ex.Message}");
             _baseUrl = "http://localhost:65335";
         }
         return _baseUrl;
@@ -59,8 +60,9 @@ public sealed class EpisodesService : IEpisodesService, IDisposable
 
             return _cached ?? Array.Empty<Episode>();
         }
-        catch
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[KrnlAI] GetEpisodes failed: {ex.Message}");
             return _cached ?? Array.Empty<Episode>();
         }
     }
@@ -76,8 +78,9 @@ public sealed class EpisodesService : IEpisodesService, IDisposable
             return await response.Content
                 .ReadFromJsonAsync<Episode>(JsonOpts, ct);
         }
-        catch
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[KrnlAI] GetEpisodeDetails failed: {ex.Message}");
             return null;
         }
     }

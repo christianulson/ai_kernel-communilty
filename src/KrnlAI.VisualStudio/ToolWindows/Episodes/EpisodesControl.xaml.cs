@@ -31,20 +31,25 @@ public partial class EpisodesControl : UserControl
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
             EpisodesList.ItemsSource = episodes;
         }
-        catch { }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[KrnlAI] Episodes refresh failed: {ex.Message}");
+        }
     }
 
 #pragma warning disable VSTHRD100
     private async void OnEpisodeSelected(object sender, SelectionChangedEventArgs e)
 #pragma warning restore VSTHRD100
     {
-        if (EpisodesList.SelectedItem is not Episode episode)
+        try
         {
-            EpisodeDetails.Visibility = Visibility.Collapsed;
-            return;
-        }
+            if (EpisodesList.SelectedItem is not Episode episode)
+            {
+                EpisodeDetails.Visibility = Visibility.Collapsed;
+                return;
+            }
 
-        DetailsPanel.Children.Clear();
+            DetailsPanel.Children.Clear();
 
         if (episode.Steps is not null)
         {
@@ -77,6 +82,11 @@ public partial class EpisodesControl : UserControl
         }
 
         EpisodeDetails.Visibility = Visibility.Visible;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[KrnlAI] Episode selection failed: {ex.Message}");
+        }
     }
 
     private void OnRefresh(object sender, RoutedEventArgs e)

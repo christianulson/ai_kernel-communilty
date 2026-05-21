@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Infrastructure.Abstractions;
 using CoreModels = KrnlAI.Desktop.Core.Models;

@@ -1,5 +1,7 @@
 namespace KrnlAI.VisualStudio.Services;
 
+public enum ApprovalMode { ChatOnly, Confirm, FullApproval }
+
 public interface ISettingsService
 {
     string Endpoint { get; set; }
@@ -11,6 +13,12 @@ public interface ISettingsService
     bool EnableCodeLens { get; set; }
     bool EnableHover { get; set; }
     bool EnableCodeActions { get; set; }
+    ApprovalMode ApprovalMode { get; set; }
+    bool EnableArtifactRendering { get; set; }
+    bool EnableStreaming { get; set; }
+    CloudMode CloudMode { get; set; }
+    string? CloudEndpoint { get; set; }
+    bool EnableUsageTracking { get; set; }
 
     void Load();
     void Save();

@@ -29,12 +29,21 @@
       <TabItem Header="Chat">
         <Grid>
           <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
           </Grid.RowDefinitions>
-          <ListBox x:Name="ChatList" BorderThickness="0"
-                   Foreground="{DynamicResource VsBrush.WindowText}" />
-          <Grid Grid.Row="1">
+          <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,4">
+            <TextBlock x:Name="ThinkingIndicator" Text="Agent thinking..." Visibility="Collapsed"
+                       Foreground="{DynamicResource VsBrush.GrayText}" FontStyle="Italic" VerticalAlignment="Center" />
+            <Button x:Name="StopButton" Content="Stop" Width="50" Height="22" Margin="8,0,0,0"
+                    Visibility="Collapsed" Click="OnStop" />
+          </StackPanel>
+          <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <ItemsControl x:Name="ChatItems" BorderThickness="0"
+                          Foreground="{DynamicResource VsBrush.WindowText}" />
+          </ScrollViewer>
+          <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*" />
               <ColumnDefinition Width="Auto" />

@@ -18,6 +18,12 @@ public sealed class SettingsService : ISettingsService
     public bool EnableCodeLens { get; set; } = true;
     public bool EnableHover { get; set; } = true;
     public bool EnableCodeActions { get; set; } = true;
+    public ApprovalMode ApprovalMode { get; set; } = Services.ApprovalMode.Confirm;
+    public bool EnableArtifactRendering { get; set; } = true;
+    public bool EnableStreaming { get; set; } = true;
+    public CloudMode CloudMode { get; set; } = Services.CloudMode.Auto;
+    public string? CloudEndpoint { get; set; }
+    public bool EnableUsageTracking { get; set; } = true;
 
     public void Load()
     {
@@ -35,10 +41,16 @@ public sealed class SettingsService : ISettingsService
             EnableCodeLens = ReadBool("EnableCodeLens", true);
             EnableHover = ReadBool("EnableHover", true);
             EnableCodeActions = ReadBool("EnableCodeActions", true);
+            ApprovalMode = (Services.ApprovalMode)ReadInt("ApprovalMode", (int)Services.ApprovalMode.Confirm);
+            EnableArtifactRendering = ReadBool("EnableArtifactRendering", true);
+            EnableStreaming = ReadBool("EnableStreaming", true);
+            CloudMode = (Services.CloudMode)ReadInt("CloudMode", (int)Services.CloudMode.Auto);
+            CloudEndpoint = ReadString("CloudEndpoint", null);
+            EnableUsageTracking = ReadBool("EnableUsageTracking", true);
         }
-        catch
+        catch (Exception ex)
         {
-            // Fall back to defaults
+            System.Diagnostics.Debug.WriteLine($"[KrnlAI] Settings Load failed: {ex.Message}");
         }
     }
 
@@ -65,10 +77,17 @@ public sealed class SettingsService : ISettingsService
             _store.SetBoolean(CollectionPath, "EnableCodeLens", EnableCodeLens);
             _store.SetBoolean(CollectionPath, "EnableHover", EnableHover);
             _store.SetBoolean(CollectionPath, "EnableCodeActions", EnableCodeActions);
+            _store.SetInt32(CollectionPath, "ApprovalMode", (int)ApprovalMode);
+            _store.SetBoolean(CollectionPath, "EnableArtifactRendering", EnableArtifactRendering);
+            _store.SetBoolean(CollectionPath, "EnableStreaming", EnableStreaming);
+            _store.SetInt32(CollectionPath, "CloudMode", (int)CloudMode);
+            if (CloudEndpoint is not null)
+                _store.SetString(CollectionPath, "CloudEndpoint", CloudEndpoint);
+            _store.SetBoolean(CollectionPath, "EnableUsageTracking", EnableUsageTracking);
         }
-        catch
+        catch (Exception ex)
         {
-            // Silently fail on save
+            System.Diagnostics.Debug.WriteLine($"[KrnlAI] Settings Save failed: {ex.Message}");
         }
     }
 

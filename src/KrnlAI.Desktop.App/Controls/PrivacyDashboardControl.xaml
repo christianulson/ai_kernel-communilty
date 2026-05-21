@@ -1,0 +1,25 @@
+<UserControl x:Class="KrnlAI.Desktop.App.Controls.PrivacyDashboardControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" d:DesignHeight="400" d:DesignWidth="500">
+  <Grid Margin="12">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+    <TextBlock Grid.Row="0" Text="Privacy Dashboard (LGPD)" FontSize="18" FontWeight="Bold" Margin="0,0,0,16" />
+    <Button Grid.Row="1" Content="Request Data Deletion" Width="200" Height="36" Margin="0,0,0,8" Click="OnRequestDeletion" />
+    <Button Grid.Row="2" Content="Request Data Export" Width="200" Height="36" Margin="0,0,0,16" Click="OnRequestExport" />
+    <DataGrid x:Name="RequestsGrid" Grid.Row="3" IsReadOnly="True" AutoGenerateColumns="False">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="Request ID" Binding="{Binding RequestId}" Width="*" />
+        <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="100" />
+        <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="100" />
+      </DataGrid.Columns>
+    </DataGrid>
+  </Grid>
+</UserControl>

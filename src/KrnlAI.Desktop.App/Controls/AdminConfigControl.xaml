@@ -1,0 +1,23 @@
+<UserControl x:Class="KrnlAI.Desktop.App.Controls.AdminConfigControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" d:DesignHeight="400" d:DesignWidth="600">
+  <Grid Margin="12">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+    <TextBlock Grid.Row="0" Text="Admin — Configuration" FontSize="18" FontWeight="Bold" Margin="0,0,0,12" />
+    <TextBlock Grid.Row="1" Text="Feature Flags" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8" />
+    <DataGrid x:Name="FeaturesGrid" Grid.Row="2" IsReadOnly="True" AutoGenerateColumns="False">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="Feature" Binding="{Binding Name}" Width="*" />
+        <DataGridCheckBoxColumn Header="Enabled" Binding="{Binding Enabled}" Width="80" />
+        <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="120" />
+      </DataGrid.Columns>
+    </DataGrid>
+  </Grid>
+</UserControl>

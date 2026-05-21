@@ -21,4 +21,5 @@ public interface IKernelClientService
     Task<MemorySearchResponse> SearchMemoryAsync(string query, int topK = 10, CancellationToken ct = default);
     Task<HealthStatus> CheckHealthAsync(CancellationToken ct = default);
     Task<string?> GetEmotionalMoodAsync(CancellationToken ct = default);
+    string? BaseUrl { get; }
 }

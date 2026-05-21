@@ -1,0 +1,57 @@
+<UserControl x:Class="KrnlAI.Desktop.App.Controls.MultimodalControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" d:DesignHeight="500" d:DesignWidth="600">
+  <Grid Margin="12">
+    <TabControl>
+      <TabItem Header="Ingest">
+        <Grid Margin="8">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+          </Grid.RowDefinitions>
+          <TextBlock Grid.Row="0" Text="Ingest Data" FontSize="18" FontWeight="Bold" Margin="0,0,0,12" />
+          <ComboBox x:Name="DataTypeCombo" Grid.Row="1" Margin="0,0,0,8" SelectedIndex="0">
+            <ComboBoxItem Content="Text" />
+            <ComboBoxItem Content="Image" />
+            <ComboBoxItem Content="Audio" />
+            <ComboBoxItem Content="Document" />
+          </ComboBox>
+          <TextBox x:Name="IngestInput" Grid.Row="2" Height="80" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,8" />
+          <Button Grid.Row="3" Content="Ingest" Width="100" Height="32" Click="OnIngest" HorizontalAlignment="Right" />
+        </Grid>
+      </TabItem>
+      <TabItem Header="Search">
+        <Grid Margin="8">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+          </Grid.RowDefinitions>
+          <Grid Grid.Row="0" Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBox x:Name="SearchInput" Grid.Column="0" Height="28" />
+            <Button Grid.Column="1" Content="Search" Width="80" Height="28" Margin="8,0,0,0" Click="OnSearch" />
+          </Grid>
+          <DataGrid x:Name="SearchResultsGrid" Grid.Row="1" IsReadOnly="True" AutoGenerateColumns="False"
+                    MaxHeight="300" Margin="0,0,0,8">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="80" />
+              <DataGridTextColumn Header="Content" Binding="{Binding Content}" Width="*" />
+              <DataGridTextColumn Header="Score" Binding="{Binding ScorePercent}" Width="80" />
+              <DataGridTextColumn Header="Source" Binding="{Binding SourceId}" Width="120" />
+            </DataGrid.Columns>
+          </DataGrid>
+          <TextBlock x:Name="StatusText" Grid.Row="2" Foreground="Gray" />
+        </Grid>
+      </TabItem>
+    </TabControl>
+  </Grid>
+</UserControl>

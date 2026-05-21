@@ -58,6 +58,36 @@ public sealed class KrnlAIOptionsPage : DialogPage
     [Description("Show AI-powered suggestions in the lightbulb menu")]
     public bool EnableCodeActions { get; set; } = true;
 
+    [Category("Krnl-AI - Chat")]
+    [DisplayName("Approval Mode")]
+    [Description("Chat-only: no actions, Confirm: approve per action, Full-approval: approve all")]
+    public Services.ApprovalMode ApprovalMode { get; set; } = Services.ApprovalMode.Confirm;
+
+    [Category("Krnl-AI - Chat")]
+    [DisplayName("Enable Artifact Rendering")]
+    [Description("Render Markdown, tables, charts, and Mermaid diagrams in chat")]
+    public bool EnableArtifactRendering { get; set; } = true;
+
+    [Category("Krnl-AI - Chat")]
+    [DisplayName("Enable Streaming")]
+    [Description("Stream agent responses in real-time via SignalR")]
+    public bool EnableStreaming { get; set; } = true;
+
+    [Category("Krnl-AI - Cloud")]
+    [DisplayName("Cloud Mode")]
+    [Description("Auto: decide based on latency, AlwaysCloud: always use cloud, AlwaysLocal: never use cloud")]
+    public Services.CloudMode CloudMode { get; set; } = Services.CloudMode.Auto;
+
+    [Category("Krnl-AI - Cloud")]
+    [DisplayName("Cloud Endpoint")]
+    [Description("Optional cloud API endpoint for offloading heavy computations")]
+    public string? CloudEndpoint { get; set; }
+
+    [Category("Krnl-AI - Privacy")]
+    [DisplayName("Enable Usage Tracking")]
+    [Description("Track usage statistics locally for dashboard display")]
+    public bool EnableUsageTracking { get; set; } = true;
+
     public void ApplyTo(ISettingsService settings)
     {
         settings.Endpoint = Endpoint;
@@ -69,6 +99,12 @@ public sealed class KrnlAIOptionsPage : DialogPage
         settings.EnableCodeLens = EnableCodeLens;
         settings.EnableHover = EnableHover;
         settings.EnableCodeActions = EnableCodeActions;
+        settings.ApprovalMode = ApprovalMode;
+        settings.EnableArtifactRendering = EnableArtifactRendering;
+        settings.EnableStreaming = EnableStreaming;
+        settings.CloudMode = CloudMode;
+        settings.CloudEndpoint = CloudEndpoint;
+        settings.EnableUsageTracking = EnableUsageTracking;
     }
 
     public void LoadFrom(ISettingsService settings)
@@ -82,5 +118,11 @@ public sealed class KrnlAIOptionsPage : DialogPage
         EnableCodeLens = settings.EnableCodeLens;
         EnableHover = settings.EnableHover;
         EnableCodeActions = settings.EnableCodeActions;
+        ApprovalMode = settings.ApprovalMode;
+        EnableArtifactRendering = settings.EnableArtifactRendering;
+        EnableStreaming = settings.EnableStreaming;
+        CloudMode = settings.CloudMode;
+        CloudEndpoint = settings.CloudEndpoint;
+        EnableUsageTracking = settings.EnableUsageTracking;
     }
 }
