@@ -105,6 +105,15 @@ public interface IGatewayApi
     [Post("/auth/login")]
     Task<LoginResponseDto> LoginAsync([Body] Core.Models.LoginRequest request, CancellationToken ct);
 
+    [Post("/auth/refresh")]
+    Task<RefreshTokenResponseDto> RefreshTokenAsync([Body] RefreshTokenRequest request, CancellationToken ct = default);
+
+    [Post("/auth/oauth2/callback")]
+    Task<LoginResponseDto> OAuth2CallbackAsync([Body] OAuth2CallbackRequest request, CancellationToken ct = default);
+
+    [Post("/auth/oauth2/login")]
+    Task<OAuth2LoginResponse> OAuth2LoginAsync([Body] OAuth2LoginRequest request, CancellationToken ct = default);
+
     [Post("/media/tts")]
     Task<TtsResponseDto> GenerateSpeechAsync([Body] Core.Models.SpeechRequest request, CancellationToken ct);
 

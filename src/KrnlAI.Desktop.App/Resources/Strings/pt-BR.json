@@ -41,6 +41,8 @@
   "login_button": "Entrar",
   "login_loading": "Entrando...",
   "login_error": "Login falhou",
+  "login_azure_ad": "Login com Azure AD",
+  "login_google": "Login com Google",
 
   "status_connected": "Conectado",
   "status_unavailable": "Servidor indisponível",

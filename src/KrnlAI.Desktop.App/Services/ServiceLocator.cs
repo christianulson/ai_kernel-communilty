@@ -1,3 +1,5 @@
+using System.Net.Http;
+using System.Net.Http.Headers;
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Services;
 using KrnlAI.Desktop.Infrastructure.Abstractions;
@@ -25,6 +27,7 @@ public class ServiceLocator : IDisposable
     private readonly ServiceProvider _provider;
 
     public IKernelClient KernelClient => _provider.GetRequiredService<IKernelClient>();
+    public IGatewayApi GatewayApi => _provider.GetRequiredService<IGatewayApi>();
     public IAudioCapture AudioCapture => _provider.GetRequiredService<IAudioCapture>();
     public IAudioPlayback AudioPlayback => _provider.GetRequiredService<IAudioPlayback>();
     public IVideoCapture VideoCapture => _provider.GetRequiredService<IVideoCapture>();
@@ -49,10 +52,47 @@ public class ServiceLocator : IDisposable
         services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
         services.AddSingleton<AuthTokenProvider>();
         services.AddSingleton<ISettingsService>(settingsService);
-        services.AddTransient<AuthTokenHandler>();
         services.AddSingleton<DynamicBaseUrlHandler>();
         // Initialize the dynamic base URL handler with the configured URL
         DynamicBaseUrlHandler.SetBaseUrl(baseUrl);
+
+        var refreshHttpClient = new HttpClient(new DynamicBaseUrlHandler
+        {
+            InnerHandler = new HttpClientHandler()
+        })
+        { Timeout = TimeSpan.FromSeconds(30) };
+
+        services.AddTransient<AuthTokenHandler>(sp =>
+        {
+            var tokenProvider = sp.GetRequiredService<AuthTokenProvider>();
+            return new AuthTokenHandler(tokenProvider, async ct =>
+            {
+                try
+                {
+                    var refreshRequest = new HttpRequestMessage(HttpMethod.Post, "/auth/refresh");
+                    if (tokenProvider.RefreshToken != null)
+                    {
+                        var json = System.Text.Json.JsonSerializer.Serialize(
+                            new RefreshTokenRequest(tokenProvider.RefreshToken));
+                        refreshRequest.Content = new StringContent(json,
+                            System.Text.Encoding.UTF8, "application/json");
+                    }
+                    if (!string.IsNullOrEmpty(tokenProvider.Token))
+                        refreshRequest.Headers.Authorization =
+                            new AuthenticationHeaderValue("Bearer", tokenProvider.Token);
+
+                    var refreshResponse = await refreshHttpClient.SendAsync(refreshRequest, ct);
+                    if (!refreshResponse.IsSuccessStatusCode) return null;
+
+                    var body = await refreshResponse.Content.ReadAsStringAsync(ct);
+                    var result = System.Text.Json.JsonSerializer
+                        .Deserialize<RefreshTokenResponseDto>(body);
+                    return result?.Token;
+                }
+                catch { return null; }
+            });
+        });
+
         services.AddRefitClient<IGatewayApi>()
             .ConfigureHttpClient(c => { c.BaseAddress = new Uri("http://localhost"); c.Timeout = TimeSpan.FromSeconds(60); })
             .AddHttpMessageHandler<DynamicBaseUrlHandler>()

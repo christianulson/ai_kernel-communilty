@@ -1,4 +1,5 @@
 using System.Net.Http;
+using System.Net.Http.Headers;
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Services;
 using KrnlAI.Desktop.Core.Services.Vision;
@@ -28,9 +29,42 @@ public static class Ioc
 
         services.AddSingleton<IGatewayApi>(sp =>
         {
+            var tokenProvider = sp.GetRequiredService<AuthTokenProvider>();
+
+            var refreshHttpClient = new HttpClient(new DynamicBaseUrlHandler
+            {
+                InnerHandler = new HttpClientHandler()
+            })
+            { Timeout = TimeSpan.FromSeconds(30) };
+
             var handler = new DynamicBaseUrlHandler
             {
-                InnerHandler = new AuthTokenHandler(sp.GetRequiredService<AuthTokenProvider>())
+                InnerHandler = new AuthTokenHandler(tokenProvider, async ct =>
+                {
+                    try
+                    {
+                        var refreshRequest = new HttpRequestMessage(HttpMethod.Post, "/auth/refresh");
+                        if (tokenProvider.RefreshToken != null)
+                        {
+                            var json = System.Text.Json.JsonSerializer.Serialize(
+                                new RefreshTokenRequest(tokenProvider.RefreshToken));
+                            refreshRequest.Content = new StringContent(json,
+                                System.Text.Encoding.UTF8, "application/json");
+                        }
+                        if (!string.IsNullOrEmpty(tokenProvider.Token))
+                            refreshRequest.Headers.Authorization =
+                                new AuthenticationHeaderValue("Bearer", tokenProvider.Token);
+
+                        var refreshResponse = await refreshHttpClient.SendAsync(refreshRequest, ct);
+                        if (!refreshResponse.IsSuccessStatusCode) return null;
+
+                        var body = await refreshResponse.Content.ReadAsStringAsync(ct);
+                        var result = System.Text.Json.JsonSerializer
+                            .Deserialize<RefreshTokenResponseDto>(body);
+                        return result?.Token;
+                    }
+                    catch { return null; }
+                })
                 {
                     InnerHandler = new HttpClientHandler()
                 }

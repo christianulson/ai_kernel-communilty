@@ -257,6 +257,7 @@ public sealed class DesktopServiceLifecycleTests
         public Task<AffectiveState?> GetAffectiveStateAsync(CancellationToken cancellationToken = default) => Task.FromResult<AffectiveState?>(null);
         public void SetBaseUrl(string baseUrl) { }
         public void SetAuthToken(string? token) { }
+        public void SetTokens(string? token, string? refreshToken) { }
 
         public Task<List<McpServerInfo>> GetMcpServersAsync(CancellationToken cancellationToken = default)
         {

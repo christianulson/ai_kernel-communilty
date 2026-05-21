@@ -41,6 +41,8 @@
   "login_button": "Sign in",
   "login_loading": "Signing in...",
   "login_error": "Login failed",
+  "login_azure_ad": "Sign in with Azure AD",
+  "login_google": "Sign in with Google",
 
   "status_connected": "Connected",
   "status_unavailable": "Server unavailable",

@@ -6,6 +6,7 @@ namespace KrnlAI.Desktop.Core.Abstractions;
 public interface IKernelClient : IKernelAgentClient, IKernelSpeechClient
 {
     void SetAuthToken(string? token);
+    void SetTokens(string? token, string? refreshToken);
     void SetBaseUrl(string baseUrl);
     Task<LoginResponse> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default);
     Task<Core.Models.PolicyListResponse> GetPoliciesAsync(string? domain = null, int page = 1, int pageSize = 20, CancellationToken cancellationToken = default);

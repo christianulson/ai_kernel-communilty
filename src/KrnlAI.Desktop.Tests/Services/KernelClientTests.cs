@@ -219,4 +219,17 @@ public class KernelClientTests
         client.SetAuthToken(null);
         Assert.Null(tokenProvider.Token);
     }
+
+    [Fact]
+    public void SetTokens_ShouldStoreBothInProvider()
+    {
+        var (client, _, tokenProvider) = CreateClient();
+        Assert.Null(tokenProvider.Token);
+        Assert.Null(tokenProvider.RefreshToken);
+
+        client.SetTokens("access", "refresh");
+
+        Assert.Equal("access", tokenProvider.Token);
+        Assert.Equal("refresh", tokenProvider.RefreshToken);
+    }
 }

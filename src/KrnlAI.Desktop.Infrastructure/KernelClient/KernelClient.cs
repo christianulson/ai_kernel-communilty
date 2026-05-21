@@ -16,6 +16,7 @@ public class KernelClient : IKernelClient
     }
 
     public void SetAuthToken(string? token) => _tokenProvider.Token = token;
+    public void SetTokens(string? token, string? refreshToken) => _tokenProvider.SetTokens(token, refreshToken);
     public void SetBaseUrl(string baseUrl) => DynamicBaseUrlHandler.SetBaseUrl(baseUrl);
 
     public async Task<CoreModels.AgentRunResponse> RunAgentAsync(CoreModels.AgentRunRequest request, CancellationToken ct = default)

@@ -94,6 +94,23 @@
                         </Style>
                     </Button.Style>
                 </Button>
+                <Separator Margin="0,16" Opacity="0.3"/>
+                <Border CornerRadius="17" BorderThickness="1" BorderBrush="#4C5B7A" Background="#2D3B55" Height="40" Margin="0,0,0,8">
+                    <Button Command="{Binding LoginWithAzureAdCommand}" Background="Transparent" BorderThickness="0" Foreground="White" Cursor="Hand">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Text="🅰️" FontSize="14" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Loc login_azure_ad}" FontSize="13" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </Border>
+                <Border CornerRadius="17" BorderThickness="1" BorderBrush="#4C5B7A" Background="#2D3B55" Height="40">
+                    <Button Command="{Binding LoginWithGoogleCommand}" Background="Transparent" BorderThickness="0" Foreground="White" Cursor="Hand">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Text="🔵" FontSize="14" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Loc login_google}" FontSize="13" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </Border>
             </StackPanel>
         </Border>
     </Grid>

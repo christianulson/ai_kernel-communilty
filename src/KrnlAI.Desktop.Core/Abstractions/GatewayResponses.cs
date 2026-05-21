@@ -96,3 +96,9 @@ public sealed record ContractsResponseDto(string DefaultApiVersion, List<Contrac
 public sealed record ContractEntryDto(string Endpoint, string ContractVersion, string SupportedRange, bool Deprecated, string State);
 public sealed record ShareListResponseDto(List<ShareDto>? Shares);
 public sealed record ShareDto(string ShareCode, string SessionId, string AccessLevel, DateTime CreatedAt, DateTime? ExpiresAt, int AccessCount, bool IsRevoked);
+
+public sealed record RefreshTokenRequest(string? RefreshToken);
+public sealed record RefreshTokenResponseDto(string? Token, string? RefreshToken, string? Error);
+public sealed record OAuth2CallbackRequest(string Code, string State, string Provider);
+public sealed record OAuth2LoginRequest(string Provider, string RedirectUri, string State);
+public sealed record OAuth2LoginResponse(string? AuthUrl, string? Error);
