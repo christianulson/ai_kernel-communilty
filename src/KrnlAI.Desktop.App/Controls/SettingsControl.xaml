@@ -133,6 +133,18 @@
                     </ItemsControl>
                 </StackPanel>
             </Border>
+
+            <!-- Open Logs -->
+            <Border Background="{StaticResource PanelBrush}" CornerRadius="24"
+                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                    Padding="24" Margin="0,0,0,0">
+                <StackPanel>
+                    <TextBlock Text="{loc:Loc settings_open_logs}" FontSize="15" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,8"/>
+                    <Button Content="{loc:Loc settings_open_logs}" Width="160" Height="36"
+                            Click="OnOpenLogsFolder" HorizontalAlignment="Left"/>
+                </StackPanel>
+            </Border>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

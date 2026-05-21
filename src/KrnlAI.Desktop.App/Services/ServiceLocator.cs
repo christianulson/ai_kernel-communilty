@@ -52,6 +52,7 @@ public class ServiceLocator : IDisposable
         services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
         services.AddSingleton<AuthTokenProvider>();
         services.AddSingleton<ISettingsService>(settingsService);
+        services.AddSingleton<ISessionPersistenceService>(_ => new SessionPersistenceService());
         services.AddSingleton<DynamicBaseUrlHandler>();
         // Initialize the dynamic base URL handler with the configured URL
         DynamicBaseUrlHandler.SetBaseUrl(baseUrl);

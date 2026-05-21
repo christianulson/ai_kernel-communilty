@@ -37,7 +37,7 @@ public sealed class SolutionContextService : ISolutionContextService
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Trace.TraceWarning("Failed to read active Visual Studio selection: {0}", ex.Message);
+            KrnlLogger.Write(ex);
             return null;
         }
     }
@@ -60,7 +60,7 @@ public sealed class SolutionContextService : ISolutionContextService
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Trace.TraceWarning("Failed to read Visual Studio solution directory: {0}", ex.Message);
+            KrnlLogger.Write(ex);
         }
 
         return null;

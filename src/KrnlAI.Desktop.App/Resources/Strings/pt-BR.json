@@ -172,5 +172,6 @@
   "toast_saved": "Configurações salvas",
   "toast_error": "Erro ao salvar",
   "toast_connected": "Conectado ao servidor",
-  "toast_disconnected": "Desconectado do servidor"
+  "toast_disconnected": "Desconectado do servidor",
+  "settings_open_logs": "Abrir pasta de logs"
 }

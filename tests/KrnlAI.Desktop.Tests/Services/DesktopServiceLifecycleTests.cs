@@ -261,12 +261,12 @@ public sealed class DesktopServiceLifecycleTests
 
         public Task<List<McpServerInfo>> GetMcpServersAsync(CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(new List<McpServerInfo>());
         }
 
         public Task<bool> ToggleMcpServerAsync(string serverId, bool enabled, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(false);
         }
 
         public Task<List<Core.Models.DocumentInfo>> GetDocumentsAsync(int limit = 50, CancellationToken cancellationToken = default)

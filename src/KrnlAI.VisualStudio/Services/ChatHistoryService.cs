@@ -33,7 +33,7 @@ public sealed class ChatHistoryService
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[KrnlAI] SaveMessages failed: {ex.Message}");
+            KrnlLogger.Write(ex);
         }
     }
 
@@ -64,7 +64,7 @@ public sealed class ChatHistoryService
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[KrnlAI] LoadMessages failed: {ex.Message}");
+            KrnlLogger.Write(ex);
         }
 
         return result;
@@ -82,7 +82,7 @@ public sealed class ChatHistoryService
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[KrnlAI] ClearHistory failed: {ex.Message}");
+            KrnlLogger.Write(ex);
         }
     }
 
@@ -95,7 +95,7 @@ public sealed class ChatHistoryService
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[KrnlAI] GetStore failed: {ex.Message}");
+            KrnlLogger.Write(ex);
             return null;
         }
     }

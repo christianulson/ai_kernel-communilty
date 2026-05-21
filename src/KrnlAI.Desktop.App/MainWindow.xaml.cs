@@ -3,6 +3,7 @@ using System.Windows.Media.Imaging;
 using KrnlAI.Desktop.App.Services;
 using KrnlAI.Desktop.App.ViewModels;
 using KrnlAI.Desktop.Core.Abstractions;
+using KrnlAI.Desktop.Core.Services;
 using System.Windows.Media;
 
 namespace KrnlAI.Desktop.App;
@@ -74,14 +75,14 @@ public partial class MainWindow : Window
                             var bitmap = ConvertToBitmapSource(args.ImageData, args.Width, args.Height);
                             // Camera preview frame received
                         }
-                        catch (Exception ex) { System.Diagnostics.Trace.WriteLine($"Video frame error: {ex.Message}"); }
+                        catch (Exception ex) { KrnlLogger.Write(ex); }
                     });
                     capture.FrameCaptured -= handler;
                 }
                 capture.FrameCaptured += handler;
                 _ = capture.StartCaptureAsync(devices[0].Id);
             }
-            catch (Exception ex) { System.Diagnostics.Trace.WriteLine($"Video init error: {ex.Message}"); }
+            catch (Exception ex) { KrnlLogger.Write(ex); }
         }, null, 0, 100);
     }
 
@@ -109,7 +110,7 @@ public partial class MainWindow : Window
         }
         catch (ArgumentException ex)
         {
-            System.Diagnostics.Trace.WriteLine($"Failed to create bitmap: {ex.Message}");
+            KrnlLogger.Write(ex);
             return null;
         }
     }

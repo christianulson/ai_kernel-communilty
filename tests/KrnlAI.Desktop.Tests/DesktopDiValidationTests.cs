@@ -22,7 +22,9 @@ public sealed class DesktopDiValidationTests
     [
         "ILogger", "ILogger`1", "ILoggerFactory",
         "IConfiguration", "IHttpClientFactory",
-        "AuthTokenProvider", "AuthTokenHandler"
+        "AuthTokenProvider", "AuthTokenHandler",
+        "IAdminClient", "IAuthClient", "IDashboardClient",
+        "IEpisodeClient", "IGoalClient", "IMemoryClient", "IPolicyClient"
     ];
 
     [Fact]
@@ -98,6 +100,7 @@ public sealed class DesktopDiValidationTests
         services.AddSingleton<IOfflineService, OfflineService>();
         services.AddSingleton<IWebRtcService, WebRtcService>();
         services.AddSingleton<ILocalizationService, LocalizationService>();
+        services.AddSingleton<ISessionPersistenceService>(_ => new SessionPersistenceService(System.IO.Path.GetTempPath()));
 
         var registered = services
             .Where(d => d.ServiceType.IsInterface)

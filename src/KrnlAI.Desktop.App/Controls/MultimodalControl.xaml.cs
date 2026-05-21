@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using KrnlAI.Desktop.App.Services;
+using KrnlAI.Desktop.Core.Services;
 
 namespace KrnlAI.Desktop.App.Controls;
 
@@ -25,6 +26,7 @@ public partial class MultimodalControl : UserControl
         }
         catch (Exception ex)
         {
+            KrnlLogger.Write(ex);
             MessageBox.Show($"Ingest failed: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }

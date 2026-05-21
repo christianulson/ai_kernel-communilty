@@ -99,7 +99,7 @@ public sealed class GitService : IGitService
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[KrnlAI] Git WaitForExit failed: {ex.Message}");
+                KrnlLogger.Write(ex);
             }
 
             return output.ToString().Trim();
@@ -129,11 +129,11 @@ public sealed class GitService : IGitService
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[KrnlAI] DetectGitDir failed: {ex.Message}");
+            KrnlLogger.Write(ex);
             try { return System.IO.Directory.GetCurrentDirectory(); }
             catch (Exception innerEx)
             {
-                System.Diagnostics.Debug.WriteLine($"[KrnlAI] GetCurrentDirectory failed: {innerEx.Message}");
+                KrnlLogger.Write(innerEx);
                 return null;
             }
         }

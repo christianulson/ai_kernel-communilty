@@ -75,7 +75,7 @@ public sealed class TerminalService : ITerminalService
                 }
                 catch (OperationCanceledException ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"[KrnlAI] Read task cancelled: {ex.Message}");
+                    KrnlLogger.Write(ex);
                 }
             }, ct);
 
@@ -88,7 +88,7 @@ public sealed class TerminalService : ITerminalService
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[KrnlAI] WaitForExit failed: {ex.Message}");
+                KrnlLogger.Write(ex);
             }
 
             if (!process.HasExited)
@@ -96,7 +96,7 @@ public sealed class TerminalService : ITerminalService
                 try { process.Kill(); }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"[KrnlAI] Kill failed: {ex.Message}");
+                    KrnlLogger.Write(ex);
                 }
                 return new TerminalResult(-1, outputBuilder.ToString(),
                     "Command timed out after " + DefaultTimeoutSec + " seconds.");
@@ -127,11 +127,11 @@ public sealed class TerminalService : ITerminalService
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[KrnlAI] DetectSolutionDir failed: {ex.Message}");
+            KrnlLogger.Write(ex);
             try { return System.IO.Directory.GetCurrentDirectory(); }
             catch (Exception innerEx)
             {
-                System.Diagnostics.Debug.WriteLine($"[KrnlAI] GetCurrentDirectory failed: {innerEx.Message}");
+                KrnlLogger.Write(innerEx);
                 return null;
             }
         }

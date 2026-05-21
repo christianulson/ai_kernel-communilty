@@ -50,7 +50,7 @@ public sealed class SettingsService : ISettingsService
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[KrnlAI] Settings Load failed: {ex.Message}");
+            KrnlLogger.Write(ex);
         }
     }
 
@@ -87,7 +87,7 @@ public sealed class SettingsService : ISettingsService
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[KrnlAI] Settings Save failed: {ex.Message}");
+            KrnlLogger.Write(ex);
         }
     }
 

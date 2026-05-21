@@ -135,7 +135,7 @@ public sealed class SignalRStreamingService : ISignalRStreamingService, IAsyncDi
             }
             catch
             {
-                System.Diagnostics.Debug.WriteLine($"[KrnlAI] Reconnect attempt {i + 1} failed");
+                KrnlLogger.Write("Reconnect attempt {i + 1} failed");
             }
         }
     }

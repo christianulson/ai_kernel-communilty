@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using KrnlAI.Desktop.Core.Services;
 using KrnlAI.Desktop.Infrastructure.Abstractions;
 
 namespace KrnlAI.Desktop.App.Controls;
@@ -31,12 +32,12 @@ public partial class AdminUsersControl : UserControl
         if (UsersGrid.SelectedItem is not UserInfo user) return;
         try
         {
-            System.Diagnostics.Debug.WriteLine($"[KrnlAI] Activate user: {user.Id}");
+            KrnlLogger.Write($"Activate user: {user.Id}");
             MessageBox.Show($"User {user.Name} activated.", "Admin", MessageBoxButton.OK, MessageBoxImage.Information);
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[KrnlAI] Activate user failed: {ex.Message}");
+            KrnlLogger.Write(ex);
         }
     }
 
@@ -45,12 +46,12 @@ public partial class AdminUsersControl : UserControl
         if (UsersGrid.SelectedItem is not UserInfo user) return;
         try
         {
-            System.Diagnostics.Debug.WriteLine($"[KrnlAI] Suspend user: {user.Id}");
+            KrnlLogger.Write($"Suspend user: {user.Id}");
             MessageBox.Show($"User {user.Name} suspended.", "Admin", MessageBoxButton.OK, MessageBoxImage.Information);
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[KrnlAI] Suspend user failed: {ex.Message}");
+            KrnlLogger.Write(ex);
         }
     }
 }

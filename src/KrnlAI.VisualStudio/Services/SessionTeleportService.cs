@@ -27,7 +27,7 @@ public sealed class VsSessionStorage : ISessionStorage
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[KrnlAI] Session GetStore failed: {ex.Message}");
+            KrnlLogger.Write(ex);
             return null;
         }
     }
@@ -96,7 +96,7 @@ public sealed class SessionTeleportService : ISessionTeleportService
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[KrnlAI] SaveSession failed: {ex.Message}");
+            KrnlLogger.Write(ex);
         }
     }
 
@@ -116,7 +116,7 @@ public sealed class SessionTeleportService : ISessionTeleportService
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[KrnlAI] RestoreSession failed: {ex.Message}");
+            KrnlLogger.Write(ex);
             return null;
         }
     }
@@ -130,7 +130,7 @@ public sealed class SessionTeleportService : ISessionTeleportService
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[KrnlAI] ClearSession failed: {ex.Message}");
+            KrnlLogger.Write(ex);
         }
     }
 }

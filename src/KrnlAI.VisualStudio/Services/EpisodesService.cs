@@ -32,7 +32,7 @@ public sealed class EpisodesService : IEpisodesService, IDisposable
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[KrnlAI] Episodes GetBaseUrl failed: {ex.Message}");
+            KrnlLogger.Write(ex);
             _baseUrl = "http://localhost:65335";
         }
         return _baseUrl;
@@ -62,7 +62,7 @@ public sealed class EpisodesService : IEpisodesService, IDisposable
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[KrnlAI] GetEpisodes failed: {ex.Message}");
+            KrnlLogger.Write(ex);
             return _cached ?? Array.Empty<Episode>();
         }
     }
@@ -80,7 +80,7 @@ public sealed class EpisodesService : IEpisodesService, IDisposable
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[KrnlAI] GetEpisodeDetails failed: {ex.Message}");
+            KrnlLogger.Write(ex);
             return null;
         }
     }

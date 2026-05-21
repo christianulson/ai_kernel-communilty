@@ -79,7 +79,7 @@ public sealed class UsageTrackerService : IUsageTrackerService
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[KrnlAI] Usage save failed: {ex.Message}");
+            KrnlLogger.Write(ex);
         }
     }
 
@@ -97,7 +97,7 @@ public sealed class UsageTrackerService : IUsageTrackerService
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[KrnlAI] Usage reset failed: {ex.Message}");
+            KrnlLogger.Write(ex);
         }
     }
 
@@ -113,7 +113,7 @@ public sealed class UsageTrackerService : IUsageTrackerService
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[KrnlAI] Usage load failed: {ex.Message}");
+            KrnlLogger.Write(ex);
         }
     }
 }

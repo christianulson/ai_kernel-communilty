@@ -32,7 +32,7 @@ public sealed class PoliciesService : IPoliciesService, IDisposable
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[KrnlAI] Policies GetBaseUrl failed: {ex.Message}");
+            KrnlLogger.Write(ex);
             _baseUrl = "http://localhost:65335";
         }
         return _baseUrl;
@@ -62,7 +62,7 @@ public sealed class PoliciesService : IPoliciesService, IDisposable
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[KrnlAI] GetPolicies failed: {ex.Message}");
+            KrnlLogger.Write(ex);
             return _cached ?? Array.Empty<Policy>();
         }
     }
@@ -80,7 +80,7 @@ public sealed class PoliciesService : IPoliciesService, IDisposable
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[KrnlAI] TogglePolicy failed: {ex.Message}");
+            KrnlLogger.Write(ex);
             return false;
         }
     }

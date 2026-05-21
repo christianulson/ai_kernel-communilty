@@ -26,6 +26,7 @@ public static class Ioc
         services.AddSingleton<ISettingsService, JsonSettingsService>();
         services.AddSingleton<AuthTokenProvider>();
         services.AddSingleton<IWebRtcService, WebRtcService>();
+        services.AddSingleton<ISessionPersistenceService>(_ => new SessionPersistenceService());
 
         services.AddSingleton<IGatewayApi>(sp =>
         {

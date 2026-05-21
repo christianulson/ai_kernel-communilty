@@ -62,7 +62,7 @@ public sealed class ApplyEditService : IApplyEditService
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Trace.TraceWarning("ApplyEdit failed: {0}", ex.Message);
+            KrnlLogger.Write(ex);
             return false;
         }
     }

@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Input;
 using KrnlAI.Desktop.App.Services;
+using KrnlAI.Desktop.Core.Services;
 using Hardcodet.Wpf.TaskbarNotification;
 using System.Windows.Media.Imaging;
 using Microsoft.Win32;
@@ -189,7 +190,7 @@ public partial class App : Application
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Trace.TraceWarning("Failed to register hotkey: {0}", ex.Message);
+            KrnlLogger.Write(ex);
         }
     }
 
@@ -230,7 +231,7 @@ public partial class App : Application
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Trace.TraceWarning("Failed to set auto-start: {0}", ex.Message);
+            KrnlLogger.Write(ex);
         }
     }
 
@@ -298,14 +299,14 @@ public partial class App : Application
 
     private void OnDispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
     {
-        System.Diagnostics.Trace.TraceError(e.Exception.ToString());
+        KrnlLogger.Write($"Unhandled: {e.Exception.Message}");
         MessageBox.Show(e.Exception.ToString(), "KrnlAI Desktop error", MessageBoxButton.OK, MessageBoxImage.Error);
         e.Handled = true;
     }
 
     private static void OnUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
     {
-        System.Diagnostics.Trace.TraceError(e.Exception.ToString());
+        KrnlLogger.Write($"Unhandled: {e.Exception.Message}");
         e.SetObserved();
     }
 

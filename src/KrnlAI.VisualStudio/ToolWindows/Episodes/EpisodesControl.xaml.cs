@@ -33,7 +33,7 @@ public partial class EpisodesControl : UserControl
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[KrnlAI] Episodes refresh failed: {ex.Message}");
+            KrnlLogger.Write(ex);
         }
     }
 
@@ -85,7 +85,7 @@ public partial class EpisodesControl : UserControl
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[KrnlAI] Episode selection failed: {ex.Message}");
+            KrnlLogger.Write(ex);
         }
     }
 

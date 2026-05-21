@@ -1,4 +1,5 @@
 using System.ComponentModel.Design;
+using KrnlAI.VisualStudio.Services;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Shell.TableControl;
@@ -96,7 +97,7 @@ public sealed class AnalyzeErrorCommand
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Trace.TraceWarning("Failed to inspect selected Visual Studio error: {0}", ex.Message);
+            KrnlLogger.Write(ex);
         }
 
         return null;

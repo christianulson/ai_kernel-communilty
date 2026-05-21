@@ -1,4 +1,5 @@
 using System.Text.Json;
+using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
 
 namespace KrnlAI.Desktop.Core.Services;
@@ -18,7 +19,7 @@ public sealed record SessionStore(
     string? ActiveConversationId
 );
 
-public sealed class SessionPersistenceService
+public sealed class SessionPersistenceService : ISessionPersistenceService
 {
     private const int CurrentVersion = 2;
     private readonly string _filePath;

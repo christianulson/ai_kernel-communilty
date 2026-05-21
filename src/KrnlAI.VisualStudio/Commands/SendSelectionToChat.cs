@@ -1,4 +1,5 @@
 using System.ComponentModel.Design;
+using KrnlAI.VisualStudio.Services;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
@@ -69,7 +70,7 @@ public sealed class SendSelectionToChat
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Trace.TraceWarning("Failed to send Visual Studio selection to chat: {0}", ex.Message);
+            KrnlLogger.Write(ex);
         }
     }
 
@@ -86,7 +87,7 @@ public sealed class SendSelectionToChat
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Trace.TraceWarning("Failed to inspect Visual Studio text selection: {0}", ex.Message);
+            KrnlLogger.Write(ex);
         }
 
         return false;

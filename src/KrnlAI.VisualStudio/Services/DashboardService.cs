@@ -32,7 +32,7 @@ public sealed class DashboardService : IDashboardService, IDisposable
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[KrnlAI] GetBaseUrl failed: {ex.Message}");
+            KrnlLogger.Write(ex);
             _baseUrl = "http://localhost:65335";
         }
         return _baseUrl;
@@ -62,7 +62,7 @@ public sealed class DashboardService : IDashboardService, IDisposable
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[KrnlAI] GetScorecard failed: {ex.Message}");
+            KrnlLogger.Write(ex);
             return _cachedScorecard;
         }
     }
@@ -91,7 +91,7 @@ public sealed class DashboardService : IDashboardService, IDisposable
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[KrnlAI] GetHealth failed: {ex.Message}");
+            KrnlLogger.Write(ex);
             return new SystemHealth("Unreachable", null, null, null);
         }
     }
@@ -118,7 +118,7 @@ public sealed class DashboardService : IDashboardService, IDisposable
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[KrnlAI] GetMood failed: {ex.Message}");
+            KrnlLogger.Write(ex);
             return null;
         }
     }

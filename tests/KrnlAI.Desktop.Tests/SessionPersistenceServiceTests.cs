@@ -80,6 +80,61 @@ public sealed class SessionPersistenceServiceTests
     }
 
     [Fact]
+    public void Load_CorruptedJson_ShouldReturnEmpty()
+    {
+        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(tempDir);
+        var filePath = Path.Combine(tempDir, "sessions.json");
+        File.WriteAllText(filePath, "this is not valid json {{{");
+        var service = new SessionPersistenceService(tempDir);
+
+        var store = service.Load();
+
+        Assert.Empty(store.Conversations);
+        Assert.Null(store.ActiveConversationId);
+
+        Directory.Delete(tempDir, true);
+    }
+
+    [Fact]
+    public void Load_EmptyJson_ShouldReturnEmpty()
+    {
+        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(tempDir);
+        var filePath = Path.Combine(tempDir, "sessions.json");
+        File.WriteAllText(filePath, "{}");
+        var service = new SessionPersistenceService(tempDir);
+
+        var store = service.Load();
+
+        Assert.Empty(store.Conversations);
+
+        Directory.Delete(tempDir, true);
+    }
+
+    [Fact]
+    public void Save_ThenLoadMultiple_ShouldPreserveOrder()
+    {
+        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+        var service = new SessionPersistenceService(tempDir);
+
+        var c1 = service.CreateNewConversation("First");
+        var c2 = service.CreateNewConversation("Second");
+        var c3 = service.CreateNewConversation("Third");
+        var store = new SessionStore(2, new List<ConversationData> { c1, c2, c3 }, c2.Id);
+        service.Save(store);
+
+        var loaded = service.Load();
+        Assert.Equal(3, loaded.Conversations.Count);
+        Assert.Equal("First", loaded.Conversations[0].Title);
+        Assert.Equal("Second", loaded.Conversations[1].Title);
+        Assert.Equal("Third", loaded.Conversations[2].Title);
+        Assert.Equal(c2.Id, loaded.ActiveConversationId);
+
+        Directory.Delete(tempDir, true);
+    }
+
+    [Fact]
     public void Migrate_FromV1_ShouldGenerateTitles()
     {
         var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));

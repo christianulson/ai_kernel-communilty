@@ -26,7 +26,7 @@ public class LocExtension : MarkupExtension
                 if (!string.IsNullOrEmpty(value)) return value;
             }
         }
-        catch (Exception ex) { System.Diagnostics.Trace.WriteLine($"LocExtension.ProvideValue: {ex.Message}"); }
+        catch (Exception ex) { KrnlLogger.Write(ex); }
         return Key;
     }
 }
@@ -46,7 +46,7 @@ public class LocalizationConverter : IValueConverter
                 if (!string.IsNullOrEmpty(result)) return result;
             }
         }
-        catch (Exception ex) { System.Diagnostics.Trace.WriteLine($"LocExtension.Convert: {ex.Message}"); }
+        catch (Exception ex) { KrnlLogger.Write(ex); }
         return key;
     }
 
