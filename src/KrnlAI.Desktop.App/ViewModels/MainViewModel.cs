@@ -1,14 +1,20 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using KrnlAI.Desktop.App.Services;
+using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
+using KrnlAI.Desktop.Core.Services;
 using Microsoft.Extensions.Logging;
 
 namespace KrnlAI.Desktop.App.ViewModels;
 
 public class MainViewModel : ViewModelBase
 {
-    private readonly ServiceLocator _services;
+    private readonly IKernelClient _kernelClient;
+    private readonly ISettingsService _settingsService;
+    private readonly IThemeService _themeService;
+    private readonly IListeningService _listeningService;
+    private readonly ILocalizationService _localizationService;
     private readonly ILogger<MainViewModel> _logger;
     private CancellationTokenSource? _healthCheckCts;
     private CancellationTokenSource? _emotionalPollCts;
@@ -130,7 +136,7 @@ public class MainViewModel : ViewModelBase
     public bool IsVideoCallCameraOn { get => _isVideoCallCameraOn; set { if (SetProperty(ref _isVideoCallCameraOn, value)) OnPropertyChanged(nameof(VideoCallCameraIcon)); } }
     public string VideoCallCameraIcon => IsVideoCallCameraOn ? "📹" : "📵";
 
-    public string ApiEndpoint => _services.SettingsService.LoadSettings().ApiEndpoint ?? "http://localhost:5000";
+    public string ApiEndpoint => _settingsService.LoadSettings().ApiEndpoint ?? "http://localhost:5000";
 
     public ICommand NavigateToChatCommand { get; }
     public ICommand NavigateToDashboardCommand { get; }
@@ -160,15 +166,54 @@ public class MainViewModel : ViewModelBase
     public event EventHandler? LogoutRequested;
 
     public MainViewModel()
-    {
-        _services = ServiceLocator.Instance;
-        _logger = LoggerFactory.Create(b => b.AddConsole()).CreateLogger<MainViewModel>();
+        : this(
+            ServiceLocator.Instance.KernelClient,
+            ServiceLocator.Instance.SettingsService,
+            ServiceLocator.Instance.ThemeService,
+            ServiceLocator.Instance.ListeningService,
+            ServiceLocator.Instance.LocalizationService,
+            ServiceLocator.Instance.GetLogger<MainViewModel>(),
+            new ChatViewModel(), new DashboardViewModel(), new SettingsViewModel(),
+            new MemoryViewModel(), new EpisodesViewModel(), new DocumentViewModel(),
+            new PoliciesViewModel(), new BenchmarkViewModel(), new CausalGraphViewModel(),
+            new ProfileViewModel(), new ArchiveViewModel(), new ModelRegistryViewModel(),
+            new VersionsViewModel(), new SessionsViewModel())
+    { }
 
-        ChatVM = new ChatViewModel();
-        DashVM = new DashboardViewModel();
-        SettingsVM = new SettingsViewModel();
-        MemoryVM = new MemoryViewModel();
-        EpisodesVM = new EpisodesViewModel();
+    public MainViewModel(
+        IKernelClient kernelClient,
+        ISettingsService settingsService,
+        IThemeService themeService,
+        IListeningService listeningService,
+        ILocalizationService localizationService,
+        ILogger<MainViewModel> logger,
+        ChatViewModel chatVM, DashboardViewModel dashVM, SettingsViewModel settingsVM,
+        MemoryViewModel memoryVM, EpisodesViewModel episodesVM, DocumentViewModel documentVM,
+        PoliciesViewModel policiesVM, BenchmarkViewModel benchmarkVM, CausalGraphViewModel causalVM,
+        ProfileViewModel profileVM, ArchiveViewModel archiveVM, ModelRegistryViewModel modelRegistryVM,
+        VersionsViewModel versionsVM, SessionsViewModel sessionsVM)
+    {
+        ChatVM = chatVM;
+        DashVM = dashVM;
+        SettingsVM = settingsVM;
+        MemoryVM = memoryVM;
+        EpisodesVM = episodesVM;
+        DocumentVM = documentVM;
+        PoliciesVM = policiesVM;
+        BenchmarkVM = benchmarkVM;
+        CausalVM = causalVM;
+        ProfileVM = profileVM;
+        ArchiveVM = archiveVM;
+        ModelRegistryVM = modelRegistryVM;
+        VersionsVM = versionsVM;
+        SessionsVM = sessionsVM;
+
+        _kernelClient = kernelClient;
+        _settingsService = settingsService;
+        _themeService = themeService;
+        _listeningService = listeningService;
+        _localizationService = localizationService;
+        _logger = logger;
         DocumentVM = new DocumentViewModel();
         PoliciesVM = new PoliciesViewModel();
         BenchmarkVM = new BenchmarkViewModel();
@@ -210,16 +255,16 @@ public class MainViewModel : ViewModelBase
         ToggleVideoCallCameraCommand = new RelayCommand(() => IsVideoCallCameraOn = !IsVideoCallCameraOn);
         EndVideoCallCommand = new RelayCommand(() => IsInVideoCall = false);
 
-        _services.ListeningService.VoiceLevelChanged += OnVoiceLevelChanged;
-        _services.ThemeService.ThemeChanged += OnThemeChanged;
-        UpdateThemeDisplay(_services.ThemeService.CurrentTheme);
+        _listeningService.VoiceLevelChanged += OnVoiceLevelChanged;
+        _themeService.ThemeChanged += OnThemeChanged;
+        UpdateThemeDisplay(_themeService.CurrentTheme);
         _ = CheckBackendHealthAsync();
         _ = PollEmotionalStateAsync();
     }
 
     private void ToggleTheme()
     {
-        _services.ThemeService.ToggleTheme();
+        _themeService.ToggleTheme();
     }
 
     private void OnThemeChanged(object? sender, string themeName)
@@ -243,8 +288,8 @@ public class MainViewModel : ViewModelBase
 
     private async Task ToggleListeningAsync()
     {
-        if (IsListening) { await _services.ListeningService.StopListeningAsync(); IsListening = false; StatusMessage = "Escuta parada"; }
-        else { await _services.ListeningService.StartListeningAsync(); IsListening = true; StatusMessage = "Escutando..."; }
+        if (IsListening) { await _listeningService.StopListeningAsync(); IsListening = false; StatusMessage = "Escuta parada"; }
+        else { await _listeningService.StartListeningAsync(); IsListening = true; StatusMessage = "Escutando..."; }
     }
 
     private async Task CheckBackendHealthAsync()
@@ -253,7 +298,7 @@ public class MainViewModel : ViewModelBase
         var t = _healthCheckCts.Token;
         while (!t.IsCancellationRequested)
         {
-            var isAvailable = await _services.KernelClient.CheckHealthAsync(t);
+            var isAvailable = await _kernelClient.CheckHealthAsync(t);
             UiThreadInvoker.Invoke(() =>
             {
                 IsBackendAvailable = isAvailable;
@@ -272,7 +317,7 @@ public class MainViewModel : ViewModelBase
         {
             if (IsBackendAvailable)
             {
-                var state = await _services.KernelClient.GetEmotionalStateAsync(UserId, t);
+                var state = await _kernelClient.GetEmotionalStateAsync(UserId, t);
                 if (state != null)
                 {
                     UiThreadInvoker.Invoke(() => EmotionalState = state);
@@ -284,9 +329,9 @@ public class MainViewModel : ViewModelBase
 
     private void ExecuteLogout()
     {
-        var settings = _services.SettingsService.LoadSettings();
-        _services.SettingsService.SaveSettings(settings with { AuthToken = null, IsAuthenticated = false });
-        _services.KernelClient.SetAuthToken(null);
+        var settings = _settingsService.LoadSettings();
+        _settingsService.SaveSettings(settings with { AuthToken = null, IsAuthenticated = false });
+        _kernelClient.SetAuthToken(null);
         LogoutRequested?.Invoke(this, EventArgs.Empty);
     }
 
@@ -303,8 +348,8 @@ public class MainViewModel : ViewModelBase
     public void Cleanup()
     {
         StopHealthCheck();
-        _services.ListeningService.VoiceLevelChanged -= OnVoiceLevelChanged;
-        _services.ThemeService.ThemeChanged -= OnThemeChanged;
+        _listeningService.VoiceLevelChanged -= OnVoiceLevelChanged;
+        _themeService.ThemeChanged -= OnThemeChanged;
         ChatVM.Cleanup();
     }
 

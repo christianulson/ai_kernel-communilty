@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using KrnlAI.Desktop.App.Services;
+using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
 using Microsoft.Extensions.Logging;
 
@@ -8,7 +9,10 @@ namespace KrnlAI.Desktop.App.ViewModels;
 
 public class SettingsViewModel : ViewModelBase, IDisposable
 {
-    private readonly ServiceLocator _services;
+    private readonly IKernelClient _kernelClient;
+    private readonly ISettingsService _settingsService;
+    private readonly IListeningService _listeningService;
+    private readonly IAudioPlayback _audioPlayback;
     private readonly ILogger<SettingsViewModel> _logger;
     private readonly System.Threading.Timer? _debounceTimer;
     private const int DebounceMs = 500;
@@ -26,7 +30,7 @@ public class SettingsViewModel : ViewModelBase, IDisposable
             }
             if (SetProperty(ref _apiEndpoint, value))
             {
-                _services.KernelClient.SetBaseUrl(value);
+                _kernelClient.SetBaseUrl(value);
                 _debounceTimer?.Change(DebounceMs, System.Threading.Timeout.Infinite);
             }
         }
@@ -41,16 +45,16 @@ public class SettingsViewModel : ViewModelBase, IDisposable
     private MediaDevice? _selectedMic, _selectedCam, _selectedSpeaker;
     public MediaDevice? SelectedMicrophone { get => _selectedMic; set { if (SetProperty(ref _selectedMic, value)) Save(); } }
     public MediaDevice? SelectedCamera { get => _selectedCam; set { if (SetProperty(ref _selectedCam, value)) Save(); } }
-    public MediaDevice? SelectedSpeaker { get => _selectedSpeaker; set { if (SetProperty(ref _selectedSpeaker, value)) { _services.AudioPlayback.SetDevice(value?.Id); Save(); } } }
+    public MediaDevice? SelectedSpeaker { get => _selectedSpeaker; set { if (SetProperty(ref _selectedSpeaker, value)) { _audioPlayback.SetDevice(value?.Id); Save(); } } }
     public ObservableCollection<MediaDevice> Microphones { get; } = new();
     public ObservableCollection<MediaDevice> Cameras { get; } = new();
     public ObservableCollection<MediaDevice> Speakers { get; } = new();
     private float _speakerVol = 1.0f;
-    public float SpeakerVolume { get => _speakerVol; set { if (SetProperty(ref _speakerVol, value)) { _services.AudioPlayback.SetVolume(value); Save(); } } }
+    public float SpeakerVolume { get => _speakerVol; set { if (SetProperty(ref _speakerVol, value)) { _audioPlayback.SetVolume(value); Save(); } } }
     private float _vadThreshold = 0.01f;
-    public float VadThreshold { get => _vadThreshold; set { if (SetProperty(ref _vadThreshold, value)) { _services.ListeningService.SetThreshold(value); Save(); } } }
+    public float VadThreshold { get => _vadThreshold; set { if (SetProperty(ref _vadThreshold, value)) { _listeningService.SetThreshold(value); Save(); } } }
     private int _silenceMs = 1500;
-    public int SilenceDurationMs { get => _silenceMs; set { if (SetProperty(ref _silenceMs, value)) { _services.ListeningService.SetSilenceDuration(value); Save(); } } }
+    public int SilenceDurationMs { get => _silenceMs; set { if (SetProperty(ref _silenceMs, value)) { _listeningService.SetSilenceDuration(value); Save(); } } }
     private bool _darkTheme = true, _lightTheme;
     public bool IsDarkTheme { get => _darkTheme; set { _darkTheme = value; if (value) ApplyTheme("dark"); OnPropertyChanged(); } }
     public bool IsLightTheme { get => _lightTheme; set { _lightTheme = value; if (value) ApplyTheme("light"); OnPropertyChanged(); } }
@@ -58,7 +62,7 @@ public class SettingsViewModel : ViewModelBase, IDisposable
     // Language
     public List<string> AvailableLanguages { get; } = new() { "pt-BR", "en" };
     private string _selectedLanguage = "pt-BR";
-    public string SelectedLanguage { get => _selectedLanguage; set { if (SetProperty(ref _selectedLanguage, value)) { _services.LocalizationService.SetCulture(value); Save(); } } }
+    public string SelectedLanguage { get => _selectedLanguage; set { if (SetProperty(ref _selectedLanguage, value)) { ServiceLocator.Instance.LocalizationService.SetCulture(value); Save(); } } }
     private string _languageLabel = "Português (Brasil)";
     public string LanguageLabel { get => _languageLabel; set => SetProperty(ref _languageLabel, value); }
     private bool _minTray = true, _notifyMsg = true, _notifyCall = true, _notifySys = true, _notifySound = true;
@@ -81,36 +85,41 @@ public class SettingsViewModel : ViewModelBase, IDisposable
     public ICommand ToggleThemeCommand { get; }
     public ICommand SaveHotkeysCommand { get; }
 
-    public SettingsViewModel()
+    public SettingsViewModel(IKernelClient kernelClient, ISettingsService settingsService, IListeningService listeningService, IAudioPlayback audioPlayback)
     {
-        _services = ServiceLocator.Instance;
-        _logger = _services.GetLogger<SettingsViewModel>();
+        _kernelClient = kernelClient;
+        _settingsService = settingsService;
+        _listeningService = listeningService;
+        _audioPlayback = audioPlayback;
+        _logger = ServiceLocator.Instance.GetLogger<SettingsViewModel>();
         _debounceTimer = new System.Threading.Timer(_ => { System.Windows.Application.Current?.Dispatcher.Invoke(() => Save()); }, null, System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
-        var s = _services.SettingsService.LoadSettings();
+        var s = _settingsService.LoadSettings();
         _apiEndpoint = s.ApiEndpoint ?? s.ApiBaseUrl;
-        _services.KernelClient.SetBaseUrl(_apiEndpoint);
-        _services.ListeningService.SetThreshold(s.VoiceDetectionThreshold);
-        _services.ListeningService.SetSilenceDuration(s.SilenceDurationMs);
-        if (!string.IsNullOrEmpty(s.SelectedSpeakerId)) _services.AudioPlayback.SetDevice(s.SelectedSpeakerId);
-        _services.AudioPlayback.SetVolume(s.SpeakerVolume);
+        _kernelClient.SetBaseUrl(_apiEndpoint);
+        _listeningService.SetThreshold(s.VoiceDetectionThreshold);
+        _listeningService.SetSilenceDuration(s.SilenceDurationMs);
+        if (!string.IsNullOrEmpty(s.SelectedSpeakerId)) _audioPlayback.SetDevice(s.SelectedSpeakerId);
+        _audioPlayback.SetVolume(s.SpeakerVolume);
 
         TestSpeakerCommand = new AsyncRelayCommand(TestSpeakerAsync);
         TestMicrophoneCommand = new AsyncRelayCommand(TestMicAsync);
         TestCameraCommand = new AsyncRelayCommand(TestCamAsync);
         TestWebRtcCommand = new AsyncRelayCommand(TestRtcAsync);
         ToggleThemeCommand = new RelayCommand(() => { if (IsDarkTheme) { IsDarkTheme = false; IsLightTheme = true; } else { IsDarkTheme = true; IsLightTheme = false; } });
-        SaveHotkeysCommand = new RelayCommand(() => { var ss = _services.SettingsService.LoadSettings(); _services.SettingsService.SaveSettings(ss with { GlobalHotkey = ListeningHotkey }); });
+        SaveHotkeysCommand = new RelayCommand(() => { var ss = _settingsService.LoadSettings(); _settingsService.SaveSettings(ss with { GlobalHotkey = ListeningHotkey }); });
 
         try { LoadDevices(); } catch (Exception ex) { _logger.LogError(ex, "Failed to load devices"); }
         try { _ = LoadMcpServersAsync(); } catch (Exception ex) { _logger.LogError(ex, "Failed to load MCP"); }
     }
 
+    public SettingsViewModel() : this(ServiceLocator.Instance.KernelClient, ServiceLocator.Instance.SettingsService, ServiceLocator.Instance.ListeningService, ServiceLocator.Instance.AudioPlayback) { }
+
     public void LoadDevices()
     {
         Microphones.Clear(); Speakers.Clear(); Cameras.Clear();
-        try { foreach (var d in _services.AudioCapture.GetAvailableDevices()) Microphones.Add(d); } catch (Exception ex) { _logger.LogError(ex, "LoadDevices (Microphones)"); }
-        try { foreach (var d in _services.AudioPlayback.GetAvailableDevices()) Speakers.Add(d); } catch (Exception ex) { _logger.LogError(ex, "LoadDevices (Speakers)"); }
-        try { foreach (var d in _services.VideoCapture.GetAvailableDevices()) Cameras.Add(d); } catch (Exception ex) { _logger.LogError(ex, "LoadDevices (Cameras)"); }
+        try { foreach (var d in ServiceLocator.Instance.AudioCapture.GetAvailableDevices()) Microphones.Add(d); } catch (Exception ex) { _logger.LogError(ex, "LoadDevices (Microphones)"); }
+        try { foreach (var d in _audioPlayback.GetAvailableDevices()) Speakers.Add(d); } catch (Exception ex) { _logger.LogError(ex, "LoadDevices (Speakers)"); }
+        try { foreach (var d in ServiceLocator.Instance.VideoCapture.GetAvailableDevices()) Cameras.Add(d); } catch (Exception ex) { _logger.LogError(ex, "LoadDevices (Cameras)"); }
         if (Microphones.Count > 0) SelectedMicrophone = Microphones[0];
         if (Speakers.Count > 0) SelectedSpeaker = Speakers[0];
         if (Cameras.Count > 0) SelectedCamera = Cameras[0];
@@ -118,8 +127,8 @@ public class SettingsViewModel : ViewModelBase, IDisposable
 
     private void Save()
     {
-        var s = _services.SettingsService.LoadSettings();
-        _services.SettingsService.SaveSettings(s with
+        var s = _settingsService.LoadSettings();
+        _settingsService.SaveSettings(s with
         {
             SelectedMicrophoneId = SelectedMicrophone?.Id, SelectedCameraId = SelectedCamera?.Id,
             SelectedSpeakerId = SelectedSpeaker?.Id, ApiBaseUrl = _apiEndpoint, ApiEndpoint = _apiEndpoint,
@@ -129,10 +138,10 @@ public class SettingsViewModel : ViewModelBase, IDisposable
         });
     }
 
-    private void ApplyTheme(string t) { _services.ThemeService.SetTheme(t); }
-    private async Task TestSpeakerAsync() { DeviceTestStatus = "Testando..."; var a = await _services.KernelClient.GenerateSpeechAsync("Teste"); if (a.Length > 0) await _services.AudioPlayback.PlayAsync(a); DeviceTestStatus = "OK"; await Task.Delay(1500); DeviceTestStatus = ""; }
-    private async Task TestMicAsync() { DeviceTestStatus = "Gravando..."; await _services.AudioCapture.StartCaptureAsync(SelectedMicrophone?.Id); await Task.Delay(2000); await _services.AudioCapture.StopCaptureAsync(); DeviceTestStatus = "OK"; await Task.Delay(1500); DeviceTestStatus = ""; }
-    private async Task TestCamAsync() { DeviceTestStatus = "Testando..."; try { var c = _services.VideoCapture.GetAvailableDevices(); DeviceTestStatus = c.Any() ? $"Câmera: {c[0].Name}" : "Nenhuma"; } catch { DeviceTestStatus = "Erro"; } await Task.Delay(1500); DeviceTestStatus = ""; }
+    private void ApplyTheme(string t) { ServiceLocator.Instance.ThemeService.SetTheme(t); }
+    private async Task TestSpeakerAsync() { DeviceTestStatus = "Testando..."; var a = await _kernelClient.GenerateSpeechAsync("Teste"); if (a.Length > 0) await _audioPlayback.PlayAsync(a); DeviceTestStatus = "OK"; await Task.Delay(1500); DeviceTestStatus = ""; }
+    private async Task TestMicAsync() { DeviceTestStatus = "Gravando..."; await ServiceLocator.Instance.AudioCapture.StartCaptureAsync(SelectedMicrophone?.Id); await Task.Delay(2000); await ServiceLocator.Instance.AudioCapture.StopCaptureAsync(); DeviceTestStatus = "OK"; await Task.Delay(1500); DeviceTestStatus = ""; }
+    private async Task TestCamAsync() { DeviceTestStatus = "Testando..."; try { var c = ServiceLocator.Instance.VideoCapture.GetAvailableDevices(); DeviceTestStatus = c.Any() ? $"Câmera: {c[0].Name}" : "Nenhuma"; } catch { DeviceTestStatus = "Erro"; } await Task.Delay(1500); DeviceTestStatus = ""; }
     private async Task TestRtcAsync() { DeviceTestStatus = "Não implementado (WebRTC)"; await Task.Delay(1500); DeviceTestStatus = ""; }
 
     // --- MCP Servers ---
@@ -140,7 +149,7 @@ public class SettingsViewModel : ViewModelBase, IDisposable
 
     public async Task LoadMcpServersAsync()
     {
-        var servers = await _services.KernelClient.GetMcpServersAsync();
+        var servers = await _kernelClient.GetMcpServersAsync();
         UiThreadInvoker.Invoke(() =>
         {
             McpServers.Clear();
@@ -150,7 +159,7 @@ public class SettingsViewModel : ViewModelBase, IDisposable
 
     public async Task ToggleMcpServerAsync(string serverId, bool enabled)
     {
-        var ok = await _services.KernelClient.ToggleMcpServerAsync(serverId, enabled);
+        var ok = await _kernelClient.ToggleMcpServerAsync(serverId, enabled);
         if (ok) await LoadMcpServersAsync();
     }
 }

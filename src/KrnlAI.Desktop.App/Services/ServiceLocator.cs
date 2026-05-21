@@ -126,6 +126,29 @@ public class ServiceLocator : IDisposable
             KernelClient.SetAuthToken(settings.AuthToken);
     }
 
+    public static void ConfigureForTests(IServiceProvider provider)
+    {
+        lock (_lock)
+        {
+            _instance?.Dispose();
+            _instance = new ServiceLocator(provider);
+        }
+    }
+
+    public static void Reset()
+    {
+        lock (_lock)
+        {
+            _instance?.Dispose();
+            _instance = null;
+        }
+    }
+
+    private ServiceLocator(IServiceProvider provider)
+    {
+        _provider = (ServiceProvider)provider;
+    }
+
     public void Dispose()
     {
         _provider?.Dispose();

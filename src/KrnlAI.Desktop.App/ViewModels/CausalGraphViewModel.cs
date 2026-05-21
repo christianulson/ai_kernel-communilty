@@ -1,12 +1,13 @@
 using System.Windows.Input;
 using KrnlAI.Desktop.App.Services;
+using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
 
 namespace KrnlAI.Desktop.App.ViewModels;
 
 public class CausalGraphViewModel : ViewModelBase
 {
-    private readonly ServiceLocator _services;
+    private readonly IKernelClient _kernelClient;
     private string _tab = "query", _query = "", _predictAction = "", _errorMessage = "";
     public string Query { get => _query; set => SetProperty(ref _query, value); }
     public string PredictAction { get => _predictAction; set => SetProperty(ref _predictAction, value); }
@@ -34,14 +35,16 @@ public class CausalGraphViewModel : ViewModelBase
     public ICommand SetQueryTabCommand { get; }
     public ICommand SetPredictTabCommand { get; }
 
-    public CausalGraphViewModel()
+    public CausalGraphViewModel(IKernelClient kernelClient)
     {
-        _services = ServiceLocator.Instance;
+        _kernelClient = kernelClient;
         SearchCommand = new AsyncRelayCommand(SearchAsync);
         PredictCommand = new AsyncRelayCommand(PredictAsync);
         SetQueryTabCommand = new RelayCommand(() => Tab = "query");
         SetPredictTabCommand = new RelayCommand(() => Tab = "predict");
     }
+
+    public CausalGraphViewModel() : this(ServiceLocator.Instance.KernelClient) { }
 
     private async Task SearchAsync()
     {
@@ -50,7 +53,7 @@ public class CausalGraphViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            ResultData = await _services.KernelClient.GetCausalQueryAsync(Query);
+            ResultData = await _kernelClient.GetCausalQueryAsync(Query);
         }
         catch (Exception ex)
         {
@@ -69,7 +72,7 @@ public class CausalGraphViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            PredictionResult = await _services.KernelClient.GetCausalPredictionAsync(PredictAction);
+            PredictionResult = await _kernelClient.GetCausalPredictionAsync(PredictAction);
         }
         catch (Exception ex)
         {

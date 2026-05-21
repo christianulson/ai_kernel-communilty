@@ -10,7 +10,6 @@ public sealed class DynamicBaseUrlHandler : DelegatingHandler
     }
 
     public DynamicBaseUrlHandler()
-        : base(new HttpClientHandler())
     {
     }
 

@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using KrnlAI.Desktop.App.Services;
+using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
 using Microsoft.Extensions.Logging;
 
@@ -8,7 +9,7 @@ namespace KrnlAI.Desktop.App.ViewModels;
 
 public class DashboardViewModel : ViewModelBase, IDisposable
 {
-    private readonly ServiceLocator _services;
+    private readonly IKernelClient _kernelClient;
     private readonly ILogger<DashboardViewModel> _logger;
     private CancellationTokenSource? _emotionalPollCts;
     public ObservableCollection<GoalInfo> GoalsList { get; } = new();
@@ -101,24 +102,29 @@ public class DashboardViewModel : ViewModelBase, IDisposable
     public ICommand ShowCreateGoalCommand { get; }
     public ICommand HideCreateGoalCommand { get; }
 
-    public DashboardViewModel()
+    public DashboardViewModel(IKernelClient kernelClient, ILogger<DashboardViewModel> logger)
     {
-        _services = ServiceLocator.Instance;
-        _logger = _services.GetLogger<DashboardViewModel>();
+        _kernelClient = kernelClient;
+        _logger = logger;
         LoadDashboardCommand = new AsyncRelayCommand(LoadDashboardDataAsync);
         LoadGoalsCommand = new AsyncRelayCommand(LoadGoalsDataAsync);
         CreateGoalCommand = new AsyncRelayCommand(CreateNewGoalAsync);
         PauseGoalCommand = new AsyncRelayCommand(() => UpdateGoalAsync("pause"));
         ResumeGoalCommand = new AsyncRelayCommand(() => UpdateGoalAsync("resume"));
         CompleteGoalCommand = new AsyncRelayCommand(() => UpdateGoalAsync("complete"));
-        LoadCognitiveCommand = new AsyncRelayCommand(async () => CognitiveData = await _services.KernelClient.GetCognitiveDashboardAsync());
-        LoadBenchmarkCommand = new AsyncRelayCommand(async () => BenchmarkData = await _services.KernelClient.GetBenchmarkSummaryAsync());
-        LoadCrossSummaryCommand = new AsyncRelayCommand(async () => CrossSummaryData = await _services.KernelClient.GetCrossSummaryAsync());
-        LoadMetricsByGoalCommand = new AsyncRelayCommand(async () => MetricsByGoalData = await _services.KernelClient.GetMetricsByGoalAsync());
+        LoadCognitiveCommand = new AsyncRelayCommand(async () => CognitiveData = await _kernelClient.GetCognitiveDashboardAsync());
+        LoadBenchmarkCommand = new AsyncRelayCommand(async () => BenchmarkData = await _kernelClient.GetBenchmarkSummaryAsync());
+        LoadCrossSummaryCommand = new AsyncRelayCommand(async () => CrossSummaryData = await _kernelClient.GetCrossSummaryAsync());
+        LoadMetricsByGoalCommand = new AsyncRelayCommand(async () => MetricsByGoalData = await _kernelClient.GetMetricsByGoalAsync());
         ShowCreateGoalCommand = new RelayCommand(() => IsGoalCreateVisible = true);
         HideCreateGoalCommand = new RelayCommand(() => { IsGoalCreateVisible = false; NewGoalDescription = ""; });
         _ = PollEmotionalStateAsync();
     }
+
+    public DashboardViewModel() : this(
+        ServiceLocator.Instance.KernelClient,
+        ServiceLocator.Instance.GetLogger<DashboardViewModel>())
+    { }
 
     private async Task PollEmotionalStateAsync()
     {
@@ -126,12 +132,12 @@ public class DashboardViewModel : ViewModelBase, IDisposable
         var t = _emotionalPollCts.Token;
         while (!t.IsCancellationRequested)
         {
-            var state = await _services.KernelClient.GetEmotionalStateAsync("dev-user", t);
+            var state = await _kernelClient.GetEmotionalStateAsync("dev-user", t);
             if (state != null)
             {
                 UiThreadInvoker.Invoke(() => EmotionalState = state);
             }
-            var affective = await _services.KernelClient.GetAffectiveStateAsync(t);
+            var affective = await _kernelClient.GetAffectiveStateAsync(t);
             if (affective != null)
             {
                 UiThreadInvoker.Invoke(() => AffectiveState = affective);
@@ -156,15 +162,15 @@ public class DashboardViewModel : ViewModelBase, IDisposable
         });
         try
         {
-            var scorecardTask = _services.KernelClient.GetScorecardAsync();
-            var runtimeTask = _services.KernelClient.GetRuntimeSummaryAsync();
-            var metricsTask = _services.KernelClient.GetMetricsSummaryAsync();
-            var goalsTask = _services.KernelClient.GetActiveGoalsAsync();
-            var cognitiveTask = _services.KernelClient.GetCognitiveDashboardAsync();
-            var crossTask = _services.KernelClient.GetCrossSummaryAsync();
-            var metricsByGoalTask = _services.KernelClient.GetMetricsByGoalAsync();
-            var emotionalTask = _services.KernelClient.GetEmotionalStateAsync("dev-user");
-            var affectiveTask = _services.KernelClient.GetAffectiveStateAsync();
+            var scorecardTask = _kernelClient.GetScorecardAsync();
+            var runtimeTask = _kernelClient.GetRuntimeSummaryAsync();
+            var metricsTask = _kernelClient.GetMetricsSummaryAsync();
+            var goalsTask = _kernelClient.GetActiveGoalsAsync();
+            var cognitiveTask = _kernelClient.GetCognitiveDashboardAsync();
+            var crossTask = _kernelClient.GetCrossSummaryAsync();
+            var metricsByGoalTask = _kernelClient.GetMetricsByGoalAsync();
+            var emotionalTask = _kernelClient.GetEmotionalStateAsync("dev-user");
+            var affectiveTask = _kernelClient.GetAffectiveStateAsync();
             await Task.WhenAll(scorecardTask, runtimeTask, metricsTask, goalsTask, cognitiveTask, crossTask, metricsByGoalTask, emotionalTask, affectiveTask);
             var scorecard = await scorecardTask;
             var runtime = await runtimeTask;
@@ -206,7 +212,7 @@ public class DashboardViewModel : ViewModelBase, IDisposable
     {
         try
         {
-            var r = await _services.KernelClient.GetActiveGoalsAsync();
+            var r = await _kernelClient.GetActiveGoalsAsync();
             UiThreadInvoker.Invoke(() =>
             {
                 GoalsList.Clear();
@@ -219,7 +225,7 @@ public class DashboardViewModel : ViewModelBase, IDisposable
     private async Task CreateNewGoalAsync()
     {
         if (string.IsNullOrWhiteSpace(NewGoalDescription)) return;
-        await _services.KernelClient.CreateGoalAsync(new CreateGoalRequest(NewGoalDescription, NewGoalPriority));
+        await _kernelClient.CreateGoalAsync(new CreateGoalRequest(NewGoalDescription, NewGoalPriority));
         UiThreadInvoker.Invoke(() =>
         {
             NewGoalDescription = "";
@@ -231,7 +237,7 @@ public class DashboardViewModel : ViewModelBase, IDisposable
     private async Task UpdateGoalAsync(string a)
     {
         if (SelectedGoal == null) return;
-        await _services.KernelClient.UpdateGoalStatusAsync(SelectedGoal.GoalId, a);
+        await _kernelClient.UpdateGoalStatusAsync(SelectedGoal.GoalId, a);
         await LoadGoalsDataAsync();
     }
 
@@ -239,8 +245,8 @@ public class DashboardViewModel : ViewModelBase, IDisposable
     {
         try
         {
-            var detail = await _services.KernelClient.GetGoalAsync(id);
-            var cycles = await _services.KernelClient.GetGoalCyclesAsync(id);
+            var detail = await _kernelClient.GetGoalAsync(id);
+            var cycles = await _kernelClient.GetGoalCyclesAsync(id);
             UiThreadInvoker.Invoke(() =>
             {
                 GoalDetail = detail;
@@ -255,8 +261,8 @@ public class DashboardViewModel : ViewModelBase, IDisposable
 
     private async Task LoadGoalDetailAsync(string id)
     {
-        var detail = await _services.KernelClient.GetGoalAsync(id);
-        var cycles = await _services.KernelClient.GetGoalCyclesAsync(id);
+        var detail = await _kernelClient.GetGoalAsync(id);
+        var cycles = await _kernelClient.GetGoalCyclesAsync(id);
         UiThreadInvoker.Invoke(() =>
         {
             GoalDetail = detail;

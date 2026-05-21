@@ -1,13 +1,14 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using KrnlAI.Desktop.App.Services;
+using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
 
 namespace KrnlAI.Desktop.App.ViewModels;
 
 public class PoliciesViewModel : ViewModelBase
 {
-    private readonly ServiceLocator _services;
+    private readonly IKernelClient _kernelClient;
     public ObservableCollection<PolicyInfo> PolicyList { get; } = new();
     public ObservableCollection<string> PolicyDomains { get; } = new() { "", "general", "payments", "infrastructure", "security", "support", "analytics" };
     private string? _selectedDomain;
@@ -25,14 +26,16 @@ public class PoliciesViewModel : ViewModelBase
     public ICommand LoadRollbacksCommand { get; }
     public ICommand ClearVersionsCommand { get; }
 
-    public PoliciesViewModel()
+    public PoliciesViewModel(IKernelClient kernelClient)
     {
-        _services = ServiceLocator.Instance;
+        _kernelClient = kernelClient;
         LoadPoliciesCommand = new AsyncRelayCommand(LoadAsync);
-        LoadVersionsCommand = new AsyncRelayCommand(async () => PolicyVersions = await _services.KernelClient.GetPolicyVersionsAsync(SelectedPolicyDomain ?? ""));
-        LoadRollbacksCommand = new AsyncRelayCommand(async () => { var l = await _services.KernelClient.GetPolicyRollbacksAsync(SelectedPolicyDomain ?? ""); PolicyRollbacks.Clear(); foreach (var r in l) PolicyRollbacks.Add(r); });
+        LoadVersionsCommand = new AsyncRelayCommand(async () => PolicyVersions = await _kernelClient.GetPolicyVersionsAsync(SelectedPolicyDomain ?? ""));
+        LoadRollbacksCommand = new AsyncRelayCommand(async () => { var l = await _kernelClient.GetPolicyRollbacksAsync(SelectedPolicyDomain ?? ""); PolicyRollbacks.Clear(); foreach (var r in l) PolicyRollbacks.Add(r); });
         ClearVersionsCommand = new RelayCommand(() => PolicyVersions = null);
     }
+
+    public PoliciesViewModel() : this(ServiceLocator.Instance.KernelClient) { }
 
     public async Task LoadAsync()
     {
@@ -40,7 +43,7 @@ public class PoliciesViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            var r = await _services.KernelClient.GetPoliciesAsync(null, 1, 100);
+            var r = await _kernelClient.GetPoliciesAsync(null, 1, 100);
             PolicyList.Clear();
             foreach (var p in r.Policies) PolicyList.Add(p);
         }

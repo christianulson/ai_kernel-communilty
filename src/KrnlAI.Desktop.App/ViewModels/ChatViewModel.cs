@@ -6,12 +6,17 @@ using System.Windows.Media.Imaging;
 using KrnlAI.Desktop.App.Services;
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
+using KrnlAI.Desktop.Core.Services;
 
 namespace KrnlAI.Desktop.App.ViewModels;
 
 public class ChatViewModel : ViewModelBase
 {
-    private readonly ServiceLocator _services;
+    private readonly IKernelClient _kernelClient;
+    private readonly IAudioCapture _audioCapture;
+    private readonly IAudioPlayback _audioPlayback;
+    private readonly IVideoCapture _videoCapture;
+    private readonly ILocalizationService _localization;
 
     public ObservableCollection<ChatMessage> Messages { get; } = new();
     private string _inputText = "";
@@ -24,8 +29,8 @@ public class ChatViewModel : ViewModelBase
     public bool IsCapturingAudio { get => _isCapturingAudio; set { SetProperty(ref _isCapturingAudio, value); OnPropertyChanged(nameof(AudioButtonIcon)); OnPropertyChanged(nameof(AudioButtonTooltip)); } }
     public string AudioButtonIcon => IsCapturingAudio ? "\U0001f534" : "\U0001f3a4";
     public string AudioButtonTooltip => IsCapturingAudio
-        ? (_services?.LocalizationService.GetString("chat_audio_tooltip_stop") ?? "Stop recording")
-        : (_services?.LocalizationService.GetString("chat_audio_tooltip_start") ?? "Record audio");
+        ? (_localization?.GetString("chat_audio_tooltip_stop") ?? "Stop recording")
+        : (_localization?.GetString("chat_audio_tooltip_start") ?? "Record audio");
 
     // Camera
     private bool _isCameraOn;
@@ -43,9 +48,13 @@ public class ChatViewModel : ViewModelBase
     public ICommand SnapCameraCommand { get; }
     public ICommand DismissCameraPreviewCommand { get; }
 
-    public ChatViewModel()
+    public ChatViewModel(IKernelClient kernelClient, IAudioCapture audioCapture, IAudioPlayback audioPlayback, IVideoCapture videoCapture, ILocalizationService localization)
     {
-        _services = ServiceLocator.Instance;
+        _kernelClient = kernelClient;
+        _audioCapture = audioCapture;
+        _audioPlayback = audioPlayback;
+        _videoCapture = videoCapture;
+        _localization = localization;
         SendMessageCommand = new AsyncRelayCommand(SendMessageAsync, () => !IsProcessing && (!string.IsNullOrWhiteSpace(InputText) || _lastFrameJpeg != null));
         ClearChatCommand = new RelayCommand(() => Messages.Clear());
         ToggleAudioCaptureCommand = new AsyncRelayCommand(ToggleAudioCaptureAsync);
@@ -53,6 +62,14 @@ public class ChatViewModel : ViewModelBase
         SnapCameraCommand = new AsyncRelayCommand(SnapCameraAsync, () => _isCameraOn && _lastFrameJpeg != null);
         DismissCameraPreviewCommand = new RelayCommand(DismissCameraPreview);
     }
+
+    public ChatViewModel() : this(
+        ServiceLocator.Instance.KernelClient,
+        ServiceLocator.Instance.AudioCapture,
+        ServiceLocator.Instance.AudioPlayback,
+        ServiceLocator.Instance.VideoCapture,
+        ServiceLocator.Instance.LocalizationService)
+    { }
 
     public async Task SendMessageAsync()
     {
@@ -85,7 +102,7 @@ public class ChatViewModel : ViewModelBase
             var imageBytes = _lastFrameJpeg;
             _lastFrameJpeg = null;
 
-            var response = await _services.KernelClient.RunAgentAsync(new AgentRunRequest(
+            var response = await _kernelClient.RunAgentAsync(new AgentRunRequest(
                 Prompt: text ?? "",
                 ImageBytes: imageBytes,
                 ImageFormat: imageBytes != null ? "jpeg" : null));
@@ -99,8 +116,8 @@ public class ChatViewModel : ViewModelBase
 
             if (!string.IsNullOrEmpty(response.Narration))
             {
-                var audio = await _services.KernelClient.GenerateSpeechAsync(response.Narration);
-                if (audio.Length > 0) await _services.AudioPlayback.PlayAsync(audio);
+                var audio = await _kernelClient.GenerateSpeechAsync(response.Narration);
+                if (audio.Length > 0) await _audioPlayback.PlayAsync(audio);
             }
         }
         catch (Exception ex)
@@ -114,12 +131,12 @@ public class ChatViewModel : ViewModelBase
     {
         if (IsCapturingAudio)
         {
-            var audioData = await _services.AudioCapture.StopCaptureAndGetAudioAsync();
+            var audioData = await _audioCapture.StopCaptureAndGetAudioAsync();
             IsCapturingAudio = false;
 
             if (audioData.Length > 0)
             {
-                var transcription = await _services.KernelClient.TranscribeAudioAsync(audioData);
+                var transcription = await _kernelClient.TranscribeAudioAsync(audioData);
                 if (!string.IsNullOrEmpty(transcription))
                 {
                     InputText = (InputText + " " + transcription).Trim();
@@ -128,7 +145,7 @@ public class ChatViewModel : ViewModelBase
         }
         else
         {
-            await _services.AudioCapture.StartCaptureAsync();
+            await _audioCapture.StartCaptureAsync();
             IsCapturingAudio = true;
         }
     }
@@ -142,11 +159,11 @@ public class ChatViewModel : ViewModelBase
         }
         else
         {
-            var devices = _services.VideoCapture.GetAvailableDevices();
+            var devices = _videoCapture.GetAvailableDevices();
             if (devices.Count > 0)
             {
-                _services.VideoCapture.FrameCaptured += OnFrameCaptured;
-                await _services.VideoCapture.StartCaptureAsync(devices[0].Id);
+                _videoCapture.FrameCaptured += OnFrameCaptured;
+                await _videoCapture.StartCaptureAsync(devices[0].Id);
                 IsCameraOn = true;
             }
         }
@@ -184,8 +201,8 @@ public class ChatViewModel : ViewModelBase
 
     private void StopCamera()
     {
-        _services.VideoCapture.FrameCaptured -= OnFrameCaptured;
-        _ = _services.VideoCapture.StopCaptureAsync();
+        _videoCapture.FrameCaptured -= OnFrameCaptured;
+        _ = _videoCapture.StopCaptureAsync();
         IsCameraOn = false;
     }
 

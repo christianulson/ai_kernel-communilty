@@ -244,7 +244,7 @@ public class LoginViewModel : ViewModelBase
             var responseBytes = System.Text.Encoding.UTF8.GetBytes(
                 "<html><body><p>Autenticação concluída! Feche esta janela.</p></body></html>");
             context.Response.ContentType = "text/html; charset=utf-8";
-            context.Response.OutputStream.Write(responseBytes, 0, responseBytes.Length);
+            await context.Response.OutputStream.WriteAsync(responseBytes, 0, responseBytes.Length);
             context.Response.Close();
 
             if (state != _oauthState)
