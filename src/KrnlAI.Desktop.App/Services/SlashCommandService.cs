@@ -30,7 +30,7 @@ public sealed class SlashCommandHandler
                 "/test" => await ExecuteTestAsync(args),
                 "/clear" => "CLEAR_CONVERSATION",
                 "/help" => FormatHelp(),
-                _ => $"Unknown command: {cmd}. Type /help for available commands."
+                "/explain" or "/fix" or "/refactor" or "/review" or "/sessions" => $"{cmd}: This command is only available in the VS Code or VS extension with editor context.",
             };
         }
         catch (Exception ex)
@@ -98,6 +98,11 @@ public sealed class SlashCommandHandler
   /test — Run tests: /test [project] [filter]
   /clear — Clear conversation
   /help — Show this help
+  /explain — Explain code (VS Code/VS only)
+  /fix — Fix code (VS Code/VS only)
+  /refactor — Refactor code (VS Code/VS only)
+  /review — Review code (VS Code/VS only)
+  /sessions — List sessions (VS Code/VS only)
 """;
     }
 
