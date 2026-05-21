@@ -1,5 +1,4 @@
 using System.Text;
-using KrnlAI.VisualStudio.Services;
 
 namespace KrnlAI.VisualStudio.Commands.ChatCommands.Handlers;
 

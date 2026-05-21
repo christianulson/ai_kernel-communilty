@@ -1,5 +1,3 @@
-using KrnlAI.Sdk.Models;
-
 namespace KrnlAI.VisualStudio.Services;
 
 public sealed record AgenticLoopResult(

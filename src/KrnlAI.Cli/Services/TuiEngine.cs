@@ -17,12 +17,12 @@ public sealed class TuiEngine : IDisposable
         _orchestrator = orchestrator;
     }
 
-    public async Task RunAsync()
+    public Task RunAsync()
     {
         _cts = new CancellationTokenSource();
         var ct = _cts.Token;
 
-        await AnsiConsole.Live(new Panel(new Markup("Starting...")).Header("Krnl-AI"))
+        return AnsiConsole.Live(new Panel(new Markup("Starting...")).Header("Krnl-AI"))
             .AutoClear(false)
             .Overflow(VerticalOverflow.Ellipsis)
             .StartAsync(async ctx =>
