@@ -8,7 +8,7 @@ public sealed class EmbeddedKernelTests
     [Fact]
     public async Task EmbeddedKernel_RunAsync_ShouldReturnLocalNarrationWithoutHttp()
     {
-        await using var kernel = new EmbeddedKernel(new EmbeddedKernelOptions { LLmProvider = "none" });
+        await using var kernel = new EmbeddedKrnlAI(new EmbeddedKernelOptions { LLmProvider = "none" });
 
         var result = await kernel.RunAsync("hello community", CancellationToken.None);
 
