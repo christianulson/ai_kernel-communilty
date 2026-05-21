@@ -235,26 +235,25 @@ public partial class App : Application
         }
     }
 
+    private void EnsureMainWindow()
+    {
+        if (_mainWindow != null) return;
+        _mainWindow = new MainWindow();
+        _mainWindow.LogoutRequested += OnLogoutRequested;
+    }
+
     private void ShowMainWindow()
     {
-        if (_mainWindow == null)
-        {
-            _mainWindow = new MainWindow();
-        }
-
-        _mainWindow.Show();
+        EnsureMainWindow();
+        _mainWindow!.Show();
         _mainWindow.WindowState = WindowState.Normal;
         _mainWindow.Activate();
     }
 
     private void ShowSettings()
     {
-        if (_mainWindow == null)
-        {
-            _mainWindow = new MainWindow();
-        }
-
-        _mainWindow.Show();
+        EnsureMainWindow();
+        _mainWindow!.Show();
         _mainWindow.WindowState = WindowState.Normal;
         _mainWindow.Activate();
     }

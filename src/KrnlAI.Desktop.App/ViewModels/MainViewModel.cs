@@ -214,15 +214,6 @@ public class MainViewModel : ViewModelBase
         _listeningService = listeningService;
         _localizationService = localizationService;
         _logger = logger;
-        DocumentVM = new DocumentViewModel();
-        PoliciesVM = new PoliciesViewModel();
-        BenchmarkVM = new BenchmarkViewModel();
-        CausalVM = new CausalGraphViewModel();
-        ProfileVM = new ProfileViewModel();
-        ArchiveVM = new ArchiveViewModel();
-        ModelRegistryVM = new ModelRegistryViewModel();
-        VersionsVM = new VersionsViewModel();
-        SessionsVM = new SessionsViewModel();
 
         Agents.Add(new AgentInfo("gateway", "Gateway", "Modo Gateway - acesso completo"));
         Agents.Add(new AgentInfo("kernel", "KrnlAI", "Modo KrnlAI - decisões locais"));

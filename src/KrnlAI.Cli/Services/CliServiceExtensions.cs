@@ -29,6 +29,8 @@ public static class CliServiceExtensions
         services.AddSingleton<IArchiveStore>(_ => new InMemoryArchiveStore<object>("cli-archive"));
         services.AddSingleton<ICognitiveSnapshotService, InMemorySnapshotStore>();
         services.AddSingleton<ICognitiveHomeostasis>(_ => new CognitiveHomeostasisService());
+        services.AddSingleton<IExecutiveStageBuilder, ExecutiveStageBuilder>();
+        services.AddSingleton<IExecutiveModeSelector, ExecutiveModeSelector>();
         services.AddSingleton<IExecutiveController, ExecutiveController>();
         services.AddSingleton<IAnticipationStore, InMemoryAnticipationStore>();
         services.AddSingleton<IProspectiveMemoryStore, InMemoryProspectiveMemoryStore>();

@@ -271,6 +271,7 @@ public class LoginViewModel : ViewModelBase
         {
             _oauthListener?.Stop();
             _oauthListener?.Close();
+            (_oauthListener as IDisposable)?.Dispose();
         }
         catch { }
         _oauthListener = null;

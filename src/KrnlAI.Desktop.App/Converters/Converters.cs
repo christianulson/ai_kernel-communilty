@@ -16,7 +16,7 @@ public class ListeningButtonConverter : IValueConverter
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        => throw new NotSupportedException("ListeningButtonConverter is one-way only");
+        { return Binding.DoNothing; }
 }
 
 public class BoolToVisibilityConverter : IValueConverter
@@ -29,7 +29,7 @@ public class BoolToVisibilityConverter : IValueConverter
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        => throw new NotSupportedException("BoolToVisibilityConverter is one-way only");
+        { return Binding.DoNothing; }
 }
 
 public class InverseBoolConverter : IValueConverter
@@ -53,7 +53,7 @@ public class NullToVisibilityConverter : IValueConverter
         => value != null ? Visibility.Visible : Visibility.Collapsed;
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        => throw new NotSupportedException("NullToVisibilityConverter is one-way only");
+        { return Binding.DoNothing; }
 }
 
 public class BoolToStatusConverter : IValueConverter
@@ -66,7 +66,7 @@ public class BoolToStatusConverter : IValueConverter
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        => throw new NotSupportedException("BoolToStatusConverter is one-way only");
+        { return Binding.DoNothing; }
 }
 
 public class StatusToColorConverter : IValueConverter
@@ -87,7 +87,7 @@ public class StatusToColorConverter : IValueConverter
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        => throw new NotSupportedException("StatusToColorConverter is one-way only");
+        { return Binding.DoNothing; }
 }
 
 public class ScoreToColorConverter : IValueConverter
@@ -105,7 +105,7 @@ public class ScoreToColorConverter : IValueConverter
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        => throw new NotSupportedException("ScoreToColorConverter is one-way only");
+        { return Binding.DoNothing; }
 }
 
 public class MoodToColorConverter : IValueConverter
@@ -127,7 +127,7 @@ public class MoodToColorConverter : IValueConverter
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        => throw new NotSupportedException("MoodToColorConverter is one-way only");
+        { return Binding.DoNothing; }
 }
 
 public class PercentToWidthConverter : IValueConverter
@@ -142,7 +142,7 @@ public class PercentToWidthConverter : IValueConverter
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        => throw new NotSupportedException("PercentToWidthConverter is one-way only");
+        { return Binding.DoNothing; }
 }
 
 public class StringToVisibilityConverter : IValueConverter
@@ -151,7 +151,7 @@ public class StringToVisibilityConverter : IValueConverter
         => !string.IsNullOrEmpty(value as string) ? Visibility.Visible : Visibility.Collapsed;
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        => throw new NotSupportedException("StringToVisibilityConverter is one-way only");
+        { return Binding.DoNothing; }
 }
 
 public class Base64ToImageConverter : IValueConverter
@@ -180,5 +180,5 @@ public class Base64ToImageConverter : IValueConverter
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        => throw new NotSupportedException("Base64ToImageConverter is one-way only");
+        { return Binding.DoNothing; }
 }

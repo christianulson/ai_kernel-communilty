@@ -12,6 +12,8 @@ using Refit;
 
 namespace KrnlAI.Desktop.App;
 
+[System.Obsolete("Use ServiceLocator instead. This class is kept for reference only.")]
+
 public static class Ioc
 {
     private static IServiceProvider? _provider;
