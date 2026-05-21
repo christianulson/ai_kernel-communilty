@@ -1,13 +1,14 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using KrnlAI.Desktop.App.Services;
+using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
 
 namespace KrnlAI.Desktop.App.ViewModels;
 
 public class ModelRegistryViewModel : ViewModelBase
 {
-    private readonly ServiceLocator _services;
+    private readonly IKernelClient _kernelClient;
     public ObservableCollection<ModelRegistryEntry> Models { get; } = new();
     private ModelRegistryEntry? _active;
     public ModelRegistryEntry? Active { get => _active; set => SetProperty(ref _active, value); }
@@ -18,18 +19,20 @@ public class ModelRegistryViewModel : ViewModelBase
     public string ModelId { get => _modelId; set => SetProperty(ref _modelId, value); }
     public ICommand LoadCommand { get; }
 
-    public ModelRegistryViewModel()
+    public ModelRegistryViewModel(IKernelClient kernelClient)
     {
-        _services = ServiceLocator.Instance;
+        _kernelClient = kernelClient;
         LoadCommand = new AsyncRelayCommand(LoadAsync);
     }
+
+    public ModelRegistryViewModel() : this(ServiceLocator.Instance.KernelClient) { }
 
     public async Task LoadAsync()
     {
         IsLoading = true;
         try
         {
-            var detail = await _services.KernelClient.GetModelRegistryAsync(ModelId);
+            var detail = await _kernelClient.GetModelRegistryAsync(ModelId);
             if (detail != null)
             {
                 Models.Clear();

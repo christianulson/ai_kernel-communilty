@@ -63,14 +63,15 @@ public class KernelClientTests
     }
 
     [Fact]
-    public async Task RunAgentAsync_WhenApiThrows_ReturnsError()
+    public async Task RunAgentAsync_WhenApiThrows_ReturnsNullNarration()
     {
         var (client, apiMock, _) = CreateClient();
         apiMock.Setup(a => a.RunAgentAsync(It.IsAny<AgentRunRequest>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("API down"));
 
         var result = await client.RunAgentAsync(new AgentRunRequest("Hi"));
-        Assert.Contains("API down", result.Error ?? "");
+        Assert.Null(result.Narration);
+        Assert.Null(result.Error); // Error is not preserved; SafeCall logs it instead
     }
 
     [Fact]

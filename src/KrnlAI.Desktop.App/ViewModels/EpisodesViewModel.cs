@@ -1,13 +1,14 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using KrnlAI.Desktop.App.Services;
+using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
 
 namespace KrnlAI.Desktop.App.ViewModels;
 
 public class EpisodesViewModel : ViewModelBase
 {
-    private readonly ServiceLocator _services;
+    private readonly IKernelClient _kernelClient;
     public ObservableCollection<EpisodeInfo> EpisodeList { get; } = new();
     private EpisodeDetails? _detail;
     public EpisodeDetails? EpisodeDetail { get => _detail; set => SetProperty(ref _detail, value); }
@@ -20,12 +21,14 @@ public class EpisodesViewModel : ViewModelBase
     public ICommand LoadEpisodesCommand { get; }
     public ICommand ClearDetailCommand { get; }
 
-    public EpisodesViewModel()
+    public EpisodesViewModel(IKernelClient kernelClient)
     {
-        _services = ServiceLocator.Instance;
+        _kernelClient = kernelClient;
         LoadEpisodesCommand = new AsyncRelayCommand(LoadAsync);
         ClearDetailCommand = new RelayCommand(() => EpisodeDetail = null);
     }
+
+    public EpisodesViewModel() : this(ServiceLocator.Instance.KernelClient) { }
 
     public async Task LoadAsync()
     {
@@ -33,7 +36,7 @@ public class EpisodesViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            var r = await _services.KernelClient.SearchEpisodesAsync(new EpisodeSearchRequest(Page: 1, PageSize: 50));
+            var r = await _kernelClient.SearchEpisodesAsync(new EpisodeSearchRequest(Page: 1, PageSize: 50));
             EpisodeList.Clear();
             foreach (var e in r.Episodes) EpisodeList.Add(e);
             OnPropertyChanged(nameof(HasNoData));
@@ -52,7 +55,7 @@ public class EpisodesViewModel : ViewModelBase
     {
         try
         {
-            EpisodeDetail = await _services.KernelClient.GetEpisodeAsync(id);
+            EpisodeDetail = await _kernelClient.GetEpisodeAsync(id);
         }
         catch (Exception ex)
         {

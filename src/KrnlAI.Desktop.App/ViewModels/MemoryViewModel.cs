@@ -1,13 +1,14 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using KrnlAI.Desktop.App.Services;
+using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
 
 namespace KrnlAI.Desktop.App.ViewModels;
 
 public class MemoryViewModel : ViewModelBase
 {
-    private readonly ServiceLocator _services;
+    private readonly IKernelClient _kernelClient;
     public ObservableCollection<MemoryHit> MemoryResults { get; } = new();
     public ObservableCollection<WorkingMemorySlot> WorkingSlots { get; } = new();
     private MemoryMetrics? _metrics;
@@ -31,20 +32,20 @@ public class MemoryViewModel : ViewModelBase
     public ICommand SetTabWorkingCommand { get; }
     public ICommand ClearErrorCommand { get; }
 
-    public MemoryViewModel()
+    public MemoryViewModel(IKernelClient kernelClient)
     {
-        _services = ServiceLocator.Instance;
+        _kernelClient = kernelClient;
         SearchMemoryCommand = new AsyncRelayCommand(SearchAsync);
         LoadMetricsCommand = new AsyncRelayCommand(async () =>
         {
-            try { MemoryMetricsData = await _services.KernelClient.GetMemoryMetricsAsync(); }
+            try { MemoryMetricsData = await _kernelClient.GetMemoryMetricsAsync(); }
             catch (Exception ex) { ErrorMessage = $"Erro ao carregar métricas: {ex.Message}"; }
         });
         LoadWorkingCommand = new AsyncRelayCommand(async () =>
         {
             try
             {
-                var s = await _services.KernelClient.GetWorkingMemoryAsync();
+                var s = await _kernelClient.GetWorkingMemoryAsync();
                 WorkingSlots.Clear();
                 if (s?.Slots != null) foreach (var x in s.Slots) WorkingSlots.Add(x);
             }
@@ -56,6 +57,8 @@ public class MemoryViewModel : ViewModelBase
         ClearErrorCommand = new RelayCommand(() => ErrorMessage = "");
     }
 
+    public MemoryViewModel() : this(ServiceLocator.Instance.KernelClient) { }
+
     private async Task SearchAsync()
     {
         if (string.IsNullOrWhiteSpace(MemoryQuery)) return;
@@ -63,7 +66,7 @@ public class MemoryViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            var r = await _services.KernelClient.SearchMemoryAsync(MemoryQuery, 20);
+            var r = await _kernelClient.SearchMemoryAsync(MemoryQuery, 20);
             MemoryResults.Clear();
             foreach (var h in r.Hits) MemoryResults.Add(h);
         }

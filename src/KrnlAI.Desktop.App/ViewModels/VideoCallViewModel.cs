@@ -7,9 +7,7 @@ namespace KrnlAI.Desktop.App.ViewModels;
 
 public class VideoCallViewModel : ViewModelBase
 {
-    private readonly ServiceLocator _services;
     private readonly ILogger<VideoCallViewModel> _logger;
-    private readonly Func<WebRtcService> _webRtcFactory;
     private readonly IWebRtcService _webRtc;
 
     private bool _isInCall;
@@ -33,12 +31,10 @@ public class VideoCallViewModel : ViewModelBase
     public ICommand ToggleMuteCommand { get; }
     public ICommand ToggleCameraCommand { get; }
 
-    public VideoCallViewModel()
+    public VideoCallViewModel(IWebRtcService webRtc)
     {
-        _services = ServiceLocator.Instance;
         _logger = ServiceLocator.Instance.GetLogger<VideoCallViewModel>();
-        _webRtcFactory = _services.WebRtcServiceFactory;
-        _webRtc = _webRtcFactory();
+        _webRtc = webRtc;
 
         ToggleCallCommand = new AsyncRelayCommand(ToggleCallAsync);
         EndCallCommand = new AsyncRelayCommand(EndCallAsync);
@@ -48,6 +44,8 @@ public class VideoCallViewModel : ViewModelBase
         _webRtc.StateChanged += OnWebRtcStateChanged;
     }
 
+    public VideoCallViewModel() : this(ServiceLocator.Instance.WebRtcServiceFactory()) { }
+
     private async Task ToggleCallAsync()
     {
         if (IsInVideoCall) { await EndCallAsync(); return; }
@@ -56,7 +54,7 @@ public class VideoCallViewModel : ViewModelBase
         IsVideoCallCameraOn = true;
         VideoCallState = "Connecting";
 
-        var settings = _services.SettingsService.LoadSettings();
+        var settings = ServiceLocator.Instance.SettingsService.LoadSettings();
         var signalingUrl = (settings.ApiBaseUrl ?? "http://localhost:5000").TrimEnd('/') + "/signaling/webrtc";
 
         var initialized = await _webRtc.InitializeAsync(signalingUrl, "stun.l.google.com:19302");

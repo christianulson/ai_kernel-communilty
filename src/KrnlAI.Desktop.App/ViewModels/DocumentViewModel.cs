@@ -1,13 +1,14 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using KrnlAI.Desktop.App.Services;
+using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
 
 namespace KrnlAI.Desktop.App.ViewModels;
 
 public class DocumentViewModel : ViewModelBase
 {
-    private readonly ServiceLocator _services;
+    private readonly IKernelClient _kernelClient;
     public ObservableCollection<DocumentInfo> DocumentList { get; } = new();
     private DocumentInfo? _selected;
     public DocumentInfo? SelectedDocument { get => _selected; set => SetProperty(ref _selected, value); }
@@ -20,12 +21,14 @@ public class DocumentViewModel : ViewModelBase
     public ICommand LoadDocumentsCommand { get; }
     public ICommand ClearSelectionCommand { get; }
 
-    public DocumentViewModel()
+    public DocumentViewModel(IKernelClient kernelClient)
     {
-        _services = ServiceLocator.Instance;
+        _kernelClient = kernelClient;
         LoadDocumentsCommand = new AsyncRelayCommand(LoadAsync);
         ClearSelectionCommand = new RelayCommand(() => SelectedDocument = null);
     }
+
+    public DocumentViewModel() : this(ServiceLocator.Instance.KernelClient) { }
 
     public async Task LoadAsync()
     {
@@ -33,7 +36,7 @@ public class DocumentViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            var docs = await _services.KernelClient.GetDocumentsAsync(50);
+            var docs = await _kernelClient.GetDocumentsAsync(50);
             DocumentList.Clear();
             foreach (var d in docs) DocumentList.Add(d);
             OnPropertyChanged(nameof(HasNoData));

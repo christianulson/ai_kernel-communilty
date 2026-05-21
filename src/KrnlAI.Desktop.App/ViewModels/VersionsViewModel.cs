@@ -1,13 +1,14 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using KrnlAI.Desktop.App.Services;
+using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
 
 namespace KrnlAI.Desktop.App.ViewModels;
 
 public class VersionsViewModel : ViewModelBase
 {
-    private readonly ServiceLocator _services;
+    private readonly IKernelClient _kernelClient;
     public ObservableCollection<ContractEntry> Contracts { get; } = new();
     private VersionsInfo? _versions;
     public VersionsInfo? Versions { get => _versions; set => SetProperty(ref _versions, value); }
@@ -16,19 +17,21 @@ public class VersionsViewModel : ViewModelBase
     public bool HasNoData => !IsLoading && Versions == null;
     public ICommand LoadCommand { get; }
 
-    public VersionsViewModel()
+    public VersionsViewModel(IKernelClient kernelClient)
     {
-        _services = ServiceLocator.Instance;
+        _kernelClient = kernelClient;
         LoadCommand = new AsyncRelayCommand(LoadAsync);
     }
+
+    public VersionsViewModel() : this(ServiceLocator.Instance.KernelClient) { }
 
     public async Task LoadAsync()
     {
         IsLoading = true;
         try
         {
-            Versions = await _services.KernelClient.GetVersionsAsync();
-            var contractsResp = await _services.KernelClient.GetContractsAsync();
+            Versions = await _kernelClient.GetVersionsAsync();
+            var contractsResp = await _kernelClient.GetContractsAsync();
             Contracts.Clear();
             if (contractsResp != null)
                 foreach (var c in contractsResp.Contracts) Contracts.Add(c);

@@ -1,12 +1,13 @@
 using System.Windows.Input;
 using KrnlAI.Desktop.App.Services;
+using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
 
 namespace KrnlAI.Desktop.App.ViewModels;
 
 public class BenchmarkViewModel : ViewModelBase
 {
-    private readonly ServiceLocator _services;
+    private readonly IKernelClient _kernelClient;
     private BenchmarkSummary? _data;
     public BenchmarkSummary? Data { get => _data; set => SetProperty(ref _data, value); }
     private bool _isLoading;
@@ -16,11 +17,13 @@ public class BenchmarkViewModel : ViewModelBase
     public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
     public ICommand LoadCommand { get; }
 
-    public BenchmarkViewModel()
+    public BenchmarkViewModel(IKernelClient kernelClient)
     {
-        _services = ServiceLocator.Instance;
+        _kernelClient = kernelClient;
         LoadCommand = new AsyncRelayCommand(LoadAsync);
     }
+
+    public BenchmarkViewModel() : this(ServiceLocator.Instance.KernelClient) { }
 
     public async Task LoadAsync()
     {
@@ -28,7 +31,7 @@ public class BenchmarkViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            Data = await _services.KernelClient.GetBenchmarkSummaryAsync();
+            Data = await _kernelClient.GetBenchmarkSummaryAsync();
         }
         catch (Exception ex)
         {

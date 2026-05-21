@@ -1,12 +1,13 @@
 using System.Windows.Input;
 using KrnlAI.Desktop.App.Services;
+using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
 
 namespace KrnlAI.Desktop.App.ViewModels;
 
 public class ProfileViewModel : ViewModelBase
 {
-    private readonly ServiceLocator _services;
+    private readonly IKernelClient _kernelClient;
     private string _userId = "ui_user", _name = "", _email = "", _role = "", _errorMessage = "";
     public string UserId { get => _userId; set => SetProperty(ref _userId, value); }
     public string Name { get => _name; set => SetProperty(ref _name, value); }
@@ -24,12 +25,14 @@ public class ProfileViewModel : ViewModelBase
     public ICommand LoadCommand { get; }
     public ICommand SaveCommand { get; }
 
-    public ProfileViewModel()
+    public ProfileViewModel(IKernelClient kernelClient)
     {
-        _services = ServiceLocator.Instance;
+        _kernelClient = kernelClient;
         LoadCommand = new AsyncRelayCommand(LoadAsync);
         SaveCommand = new AsyncRelayCommand(SaveAsync);
     }
+
+    public ProfileViewModel() : this(ServiceLocator.Instance.KernelClient) { }
 
     public async Task LoadAsync()
     {
@@ -38,7 +41,7 @@ public class ProfileViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            var profile = await _services.KernelClient.GetUserProfileAsync(UserId);
+            var profile = await _kernelClient.GetUserProfileAsync(UserId);
             if (profile != null)
             {
                 Name = profile.Name ?? "";
@@ -64,7 +67,7 @@ public class ProfileViewModel : ViewModelBase
         try
         {
             var profile = new UserProfile(UserId, Name, Email, Role, null, DateTime.UtcNow);
-            var success = await _services.KernelClient.UpdateUserProfileAsync(profile);
+            var success = await _kernelClient.UpdateUserProfileAsync(profile);
             if (!success)
                 ErrorMessage = "Falha ao salvar perfil";
         }

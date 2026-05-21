@@ -1,12 +1,13 @@
 using System.Windows.Input;
 using KrnlAI.Desktop.App.Services;
+using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
 
 namespace KrnlAI.Desktop.App.ViewModels;
 
 public class ArchiveViewModel : ViewModelBase
 {
-    private readonly ServiceLocator _services;
+    private readonly IKernelClient _kernelClient;
     private ArchiveStats? _stats;
     public ArchiveStats? Stats { get => _stats; set => SetProperty(ref _stats, value); }
     private bool _isLoading;
@@ -14,16 +15,18 @@ public class ArchiveViewModel : ViewModelBase
     public bool HasNoData => !IsLoading && Stats == null;
     public ICommand LoadCommand { get; }
 
-    public ArchiveViewModel()
+    public ArchiveViewModel(IKernelClient kernelClient)
     {
-        _services = ServiceLocator.Instance;
+        _kernelClient = kernelClient;
         LoadCommand = new AsyncRelayCommand(LoadAsync);
     }
+
+    public ArchiveViewModel() : this(ServiceLocator.Instance.KernelClient) { }
 
     public async Task LoadAsync()
     {
         IsLoading = true;
-        try { Stats = await _services.KernelClient.GetArchiveStatsAsync(); }
+        try { Stats = await _kernelClient.GetArchiveStatsAsync(); }
         finally { IsLoading = false; }
     }
 }
