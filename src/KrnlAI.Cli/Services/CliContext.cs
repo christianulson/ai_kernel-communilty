@@ -28,8 +28,12 @@ public sealed class CliContext
     public IExperimentTracker ExperimentTracker { get; }
     public HttpClient HttpClient { get; }
 
+    public T GetService<T>() where T : notnull => _sp.GetRequiredService<T>();
+    private readonly IServiceProvider _sp;
+
     public CliContext(IServiceProvider sp)
     {
+        _sp = sp;
         MomentStore = sp.GetRequiredService<IMomentStore>();
         MomentClassifierStore = sp.GetRequiredService<IMomentClassifierStore>();
         ArchiveStore = sp.GetRequiredService<IArchiveStore>();

@@ -150,6 +150,8 @@ public class ChatViewModel : ViewModelBase
     public ICommand SnapCameraCommand { get; }
     public ICommand DismissCameraPreviewCommand { get; }
 
+    private readonly SlashCommandHandler _slashHandler;
+
     public ChatViewModel(IKernelClient kernelClient, IAudioCapture audioCapture, IAudioPlayback audioPlayback, IVideoCapture videoCapture, ILocalizationService localization)
     {
         _kernelClient = kernelClient;
@@ -157,6 +159,7 @@ public class ChatViewModel : ViewModelBase
         _audioPlayback = audioPlayback;
         _videoCapture = videoCapture;
         _localization = localization;
+        _slashHandler = new SlashCommandHandler();
         SendMessageCommand = new AsyncRelayCommand(SendMessageAsync, () => !IsProcessing && (!string.IsNullOrWhiteSpace(InputText) || _lastFrameJpeg != null));
         ClearChatCommand = new RelayCommand(() => Messages.Clear());
         ToggleAudioCaptureCommand = new AsyncRelayCommand(ToggleAudioCaptureAsync);
@@ -176,6 +179,31 @@ public class ChatViewModel : ViewModelBase
     public async Task SendMessageAsync()
     {
         if (string.IsNullOrWhiteSpace(InputText) && _lastFrameJpeg == null) return;
+
+        var text = InputText ?? "";
+        SaveToHistory(text);
+
+        // Check for slash command
+        if (text.StartsWith("/"))
+        {
+            var cmdResult = await _slashHandler.ExecuteAsync(text);
+            InputText = "";
+            if (cmdResult == "CLEAR_CONVERSATION")
+            {
+                Messages.Clear();
+                IsProcessing = false;
+                return;
+            }
+            Messages.Add(new ChatMessage(
+                Guid.NewGuid().ToString(),
+                cmdResult,
+                MessageRole.System,
+                DateTime.Now,
+                MessageStatus.Completed));
+            IsProcessing = false;
+            return;
+        }
+
         IsProcessing = true;
 
         var hasImage = _lastFrameJpeg != null;
@@ -183,15 +211,13 @@ public class ChatViewModel : ViewModelBase
 
         var userMsg = new ChatMessage(
             Guid.NewGuid().ToString(),
-            InputText ?? "",
+            text,
             MessageRole.User,
             DateTime.Now,
             MessageStatus.Processing,
             ImageBase64: imageBase64);
         Messages.Add(userMsg);
 
-        var text = InputText ?? "";
-        SaveToHistory(text);
         InputText = "";
 
         if (hasImage)

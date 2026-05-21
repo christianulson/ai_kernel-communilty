@@ -1,3 +1,4 @@
+using KrnlAI.Core.Models;
 using KrnlAI.Core.Services.Memory;
 using Spectre.Console;
 
@@ -115,5 +116,51 @@ public sealed class ConsoleRenderer
             Console.MarkupLine($"{icon} [bold]{name}[/] {status} ({latency})");
         }
         Console.MarkupLine($"\nOverall: [bold]{overall}[/]");
+    }
+
+    public void RenderPlanArtifact(PlanArtifact artifact)
+    {
+        Console.MarkupLine($"\n[bold cyan]Plan Artifact[/]");
+        Console.MarkupLine($"  [bold]ID:[/]      {artifact.Id}");
+        Console.MarkupLine($"  [bold]Goal:[/]    {artifact.Goal.EscapeMarkup()}");
+        Console.MarkupLine($"  [bold]Created:[/] {artifact.CreatedAt:yyyy-MM-dd HH:mm:ss}");
+        if (!string.IsNullOrEmpty(artifact.Content))
+        {
+            Console.MarkupLine($"\n[bold]Content:[/]");
+            Console.WriteLine(artifact.Content);
+        }
+    }
+
+    public void RenderPlanList(IReadOnlyList<PlanArtifact> plans)
+    {
+        if (plans.Count == 0)
+        {
+            Console.MarkupLine("[yellow]No plan artifacts[/]");
+            return;
+        }
+        var table = new Table().Border(TableBorder.Rounded);
+        table.AddColumn("ID");
+        table.AddColumn("Goal");
+        table.AddColumn("Created");
+        table.AddColumn("Has Content");
+        foreach (var plan in plans)
+        {
+            table.AddRow(
+                plan.Id[..8] + "...",
+                plan.Goal.Length > 50 ? plan.Goal[..50] + "..." : plan.Goal.EscapeMarkup(),
+                plan.CreatedAt.ToString("yyyy-MM-dd HH:mm"),
+                string.IsNullOrEmpty(plan.Content) ? "[red]No[/]" : "[green]Yes[/]");
+        }
+        Console.Write(table);
+    }
+
+    public void RenderError(string message)
+    {
+        Console.MarkupLine($"[red]Error:[/] {message.EscapeMarkup()}");
+    }
+
+    public void RenderSuccess(string message)
+    {
+        Console.MarkupLine($"[green]{message.EscapeMarkup()}[/]");
     }
 }

@@ -84,6 +84,10 @@ public static class CliServiceExtensions
         // Report generator for benchmark command
         services.AddSingleton<ISafetyReportGenerator, Infrastructure.Reports.SafetyHtmlReportGenerator>();
 
+        // Plan/Act mode
+        services.AddSingleton<IPlanArtifactStore, InMemoryPlanArtifactStore>();
+        services.AddSingleton<KrnlAI.Cognition.Runtime.PlanActOrchestrator>();
+
         return services;
     }
 }

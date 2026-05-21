@@ -74,6 +74,9 @@ root.Add(new PluginCommand(console, pluginLoader).Build());
 // MCP management (Track B2)
 root.Add(new McpCommand(cliCtx, renderer).Build());
 
+// Plan/Act mode
+root.Add(new PlanCommand(cliCtx, renderer).Build());
+
 // Model management (Track B3)
 root.Add(new ModelCommand(cliCtx, renderer).Build());
 
