@@ -31,7 +31,7 @@ if (-not $NoApi) {
 if (-not $NoWebapp) {
     Write-Host "Starting webapp..." -ForegroundColor Yellow
     $webappJob = Start-Job -ScriptBlock {
-        Set-Location "$args\webapp"; npm exec nx serve @org/kernel-ui
+        Set-Location "$args\webapp"; npm exec nx serve @krnl-ai/kernel-ui
     } -ArgumentList $root
 }
 

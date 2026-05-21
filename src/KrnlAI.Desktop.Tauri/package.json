@@ -1,5 +1,5 @@
 {
-  "name": "@org/kernel-desktop",
+  "name": "@krnl-ai/kernel-desktop",
   "private": true,
   "version": "0.1.0",
   "type": "module",
