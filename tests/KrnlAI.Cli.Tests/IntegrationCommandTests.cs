@@ -64,7 +64,7 @@ public sealed class IntegrationCommandTests
             result.Should().Be(0);
             var envFile = Path.Combine(tmpDir, ".env");
             File.Exists(envFile).Should().BeTrue();
-            var content = File.ReadAllText(envFile);
+            var content = await File.ReadAllTextAsync(envFile);
             content.Should().Contain("OPENAI_API_KEY");
         }
         finally

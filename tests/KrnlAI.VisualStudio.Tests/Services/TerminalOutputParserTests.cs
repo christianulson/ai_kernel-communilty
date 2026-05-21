@@ -1,4 +1,3 @@
-using KrnlAI.VisualStudio.Commands.ChatCommands;
 using KrnlAI.VisualStudio.Services;
 using FluentAssertions;
 using Xunit;
