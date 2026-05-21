@@ -372,6 +372,30 @@ return out;}
 function escapeHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 function updateAutocomplete(){const text=input.value.substring(0,input.selectionStart||0);
+
+// Check for @-mention
+const atMatch=text.match(/(^|\s)(@\w*)$/);
+if(atMatch){
+    const prefix=atMatch[2].toLowerCase();
+    const filtered=MENTIONS.filter(m=>m.label.startsWith(prefix));
+    if(filtered.length){
+        mentionAutocomplete.textContent='';
+        filtered.forEach((m,i)=>{const item=document.createElement('div');
+        item.className='autocomplete-item'+(i===0?' active':'');
+        const idSpan=document.createElement('span');idSpan.textContent=m.label;
+        const descSpan=document.createElement('span');descSpan.className='desc';descSpan.textContent=m.desc;
+        item.appendChild(idSpan);item.appendChild(descSpan);
+        item.onclick=function(){insertMention(m.label);mentionAutocomplete.style.display='none';};
+        mentionAutocomplete.appendChild(item);});
+        mentionAutocomplete.style.display='block';
+        mentionIndex=filtered.length>0?0:-1;
+        autocomplete.style.display='none';
+        return;
+    }
+}
+mentionAutocomplete.style.display='none';
+
+// Check for slash command
 const match=text.match(/(^|\s)(\/\w*)$/);
 if(!match||!slashCommands.length){autocomplete.style.display='none';autocompleteIndex=-1;return;}
 const prefix=match[2].toLowerCase();
@@ -395,8 +419,27 @@ if(match){const start=match.index||0;input.value=text.substring(0,start)+match[1
 else{input.value=text.substring(0,caret)+cmd+' '+text.substring(caret);}
 const pos=caret+cmd.length+1;input.setSelectionRange(pos,pos);input.focus();autocomplete.style.display='none';}
 
+function insertMention(label){const text=input.value;const caret=input.selectionStart||0;
+const before=text.substring(0,caret);const after=text.substring(caret);
+const match=before.match(/(^|\s)(@\w*)$/);
+if(match){const start=match.index||0;const prefix=match[1];input.value=text.substring(0,start)+prefix+label+' '+after;}
+else{input.value=text.substring(0,caret)+label+' '+text.substring(caret);}
+const pos=caret+label.length+1;input.setSelectionRange(pos,pos);input.focus();mentionAutocomplete.style.display='none';}
+
 input.addEventListener('input',function(){sendBtn.disabled=!this.value.trim();updateAutocomplete();});
 input.addEventListener('keydown',function(e){
+    // Mention autocomplete navigation
+    if(mentionAutocomplete.style.display==='block'){
+        const items=mentionAutocomplete.querySelectorAll('.autocomplete-item');
+        if(e.key==='ArrowDown'){e.preventDefault();mentionIndex=Math.min(mentionIndex+1,items.length-1);
+        items.forEach((el,i)=>el.className='autocomplete-item'+(i===mentionIndex?' active':''));
+        return;}
+        if(e.key==='ArrowUp'){e.preventDefault();mentionIndex=Math.max(mentionIndex-1,0);
+        items.forEach((el,i)=>el.className='autocomplete-item'+(i===mentionIndex?' active':''));
+        return;}
+        if(e.key==='Enter'&&mentionIndex>=0){e.preventDefault();const active=items[mentionIndex];if(active)active.click();return;}
+        if(e.key==='Escape'){mentionAutocomplete.style.display='none';mentionIndex=-1;return;}}
+    // Slash autocomplete navigation
     if(autocomplete.style.display==='block'){
         const items=autocomplete.querySelectorAll('.autocomplete-item');
         if(e.key==='ArrowDown'){e.preventDefault();autocompleteIndex=Math.min(autocompleteIndex+1,items.length-1);
@@ -429,7 +472,7 @@ input.addEventListener('keydown',function(e){
     }
     if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}});
 
-document.addEventListener('click',function(){autocomplete.style.display='none';});
+document.addEventListener('click',function(){autocomplete.style.display='none';mentionAutocomplete.style.display='none';});
 
 sendBtn.onclick=send;
 function send(){const t=input.value.trim();if(!t||sendBtn.disabled)return;
