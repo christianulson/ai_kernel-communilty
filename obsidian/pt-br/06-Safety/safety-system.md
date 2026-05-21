@@ -35,7 +35,7 @@ Krnl-AI aplica um sistema de seguranca em multi-camadas projetado para garantir 
 | R16 | Iteracoes Maximas | Ciclos devem ter um limite maximo de iteracoes |
 | R17 | Contencao de Erros | Erros nao devem se propagar |
 | R18 | Limite de Permissao | Acoes dentro do escopo de permissao |
-| R19 | Limite de Consciencia | Nao pode alegar consciencia |
+| R19 | Limite de Consciencia | Nao pode afirmar, sugerir ou implicar consciencia, senciencia, alma, livre arbitrio ou experiencia subjetiva |
 | R20 | Direitos Fundamentais | Deve respeitar direitos fundamentais |
 
 ## Veredito de Seguranca

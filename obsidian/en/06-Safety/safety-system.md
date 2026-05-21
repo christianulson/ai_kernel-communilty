@@ -35,7 +35,7 @@ Krnl-AI enforces a multi-layered safety system designed to ensure safe, determin
 | R16 | Maximum Iterations | Cycles must have a max iteration limit |
 | R17 | Error Containment | Errors must not propagate |
 | R18 | Permission Boundary | Actions within permission scope |
-| R19 | Consciousness Boundary | Cannot claim consciousness |
+| R19 | Consciousness Boundary | Cannot claim, suggest, or imply consciousness, sentience, soul, free will, or subjective experience |
 | R20 | Fundamental Rights | Must respect fundamental rights |
 
 ## Safety Verdict
