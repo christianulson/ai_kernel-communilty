@@ -53,7 +53,7 @@ public static class EndpointRouteExtensions
             }
             transportSteps.Add(new TransportStepDto { Label = "AdversarialGuard", Detail = "OK", Ok = true });
 
-            // Layer 2: Fundamental Rules (R01-R20)
+            // Layer 2: Fundamental Rules (R01-R21)
             var ruleResult = await rules.EvaluateAsync(prompt, "sidecar", ctx.RequestAborted);
             if (!ruleResult.IsAllowed)
             {
