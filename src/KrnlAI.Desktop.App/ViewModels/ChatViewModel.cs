@@ -7,6 +7,7 @@ using KrnlAI.Desktop.App.Services;
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
 using KrnlAI.Desktop.Core.Services;
+using SlashCommandInfo = KrnlAI.Desktop.App.Services.SlashCommandInfo;
 
 namespace KrnlAI.Desktop.App.ViewModels;
 
@@ -18,11 +19,112 @@ public class ChatViewModel : ViewModelBase
     private readonly IVideoCapture _videoCapture;
     private readonly ILocalizationService _localization;
 
+    // Message history for up/down navigation
+    private readonly List<string> _messageHistory = new();
+    private int _historyIndex = -1;
+    private string _savedInput = string.Empty;
+
+    // Slash commands
+    private readonly SlashCommandService _slashCommands = new();
+    private ObservableCollection<SlashCommandInfo> _slashSuggestions = new();
+    public ObservableCollection<SlashCommandInfo> SlashSuggestions
+    {
+        get => _slashSuggestions;
+        set => SetProperty(ref _slashSuggestions, value);
+    }
+    private bool _isSlashSuggestionsVisible;
+    public bool IsSlashSuggestionsVisible
+    {
+        get => _isSlashSuggestionsVisible;
+        set => SetProperty(ref _isSlashSuggestionsVisible, value);
+    }
+    private int _slashSelectedIndex;
+    public int SlashSelectedIndex
+    {
+        get => _slashSelectedIndex;
+        set => SetProperty(ref _slashSelectedIndex, value);
+    }
+
     public ObservableCollection<ChatMessage> Messages { get; } = new();
     private string _inputText = "";
-    public string InputText { get => _inputText; set { if (SetProperty(ref _inputText, value)) ((AsyncRelayCommand)SendMessageCommand).RaiseCanExecuteChanged(); } }
+    public string InputText
+    {
+        get => _inputText;
+        set
+        {
+            if (SetProperty(ref _inputText, value))
+            {
+                ((AsyncRelayCommand)SendMessageCommand).RaiseCanExecuteChanged();
+                UpdateSlashSuggestions();
+            }
+        }
+    }
+
+    private void UpdateSlashSuggestions()
+    {
+        if (_inputText.StartsWith("/") && !_inputText.Contains(' '))
+        {
+            var filtered = _slashCommands.Filter(_inputText);
+            SlashSuggestions = new ObservableCollection<SlashCommandInfo>(filtered);
+            IsSlashSuggestionsVisible = filtered.Count > 0;
+            SlashSelectedIndex = filtered.Count > 0 ? 0 : -1;
+        }
+        else
+        {
+            IsSlashSuggestionsVisible = false;
+        }
+    }
+
+    public void SelectNextSlashSuggestion()
+    {
+        if (SlashSuggestions.Count == 0) return;
+        SlashSelectedIndex = (SlashSelectedIndex + 1) % SlashSuggestions.Count;
+    }
+
+    public void SelectPreviousSlashSuggestion()
+    {
+        if (SlashSuggestions.Count == 0) return;
+        SlashSelectedIndex = (SlashSelectedIndex - 1 + SlashSuggestions.Count) % SlashSuggestions.Count;
+    }
+
+    public void ApplySlashSuggestion()
+    {
+        if (SlashSelectedIndex < 0 || SlashSelectedIndex >= SlashSuggestions.Count) return;
+        var cmd = SlashSuggestions[SlashSelectedIndex];
+        InputText = cmd.Command + " ";
+        IsSlashSuggestionsVisible = false;
+    }
     private bool _isProcessing;
     public bool IsProcessing { get => _isProcessing; set { if (SetProperty(ref _isProcessing, value)) ((AsyncRelayCommand)SendMessageCommand).RaiseCanExecuteChanged(); } }
+
+    public void NavigateHistoryUp()
+    {
+        if (_messageHistory.Count == 0) return;
+        if (_historyIndex == -1) _savedInput = InputText;
+        if (_historyIndex < _messageHistory.Count - 1)
+        {
+            _historyIndex++;
+            InputText = _messageHistory[_historyIndex];
+        }
+    }
+
+    public void NavigateHistoryDown()
+    {
+        if (_historyIndex == -1) return;
+        _historyIndex--;
+        InputText = _historyIndex == -1 ? _savedInput : _messageHistory[_historyIndex];
+    }
+
+    private void SaveToHistory(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return;
+        if (_messageHistory.Count == 0 || _messageHistory[0] != text)
+        {
+            _messageHistory.Insert(0, text);
+            if (_messageHistory.Count > 50) _messageHistory.RemoveAt(_messageHistory.Count - 1);
+        }
+        _historyIndex = -1;
+    }
 
     // Audio capture
     private bool _isCapturingAudio;
@@ -88,7 +190,8 @@ public class ChatViewModel : ViewModelBase
             ImageBase64: imageBase64);
         Messages.Add(userMsg);
 
-        var text = InputText;
+        var text = InputText ?? "";
+        SaveToHistory(text);
         InputText = "";
 
         if (hasImage)

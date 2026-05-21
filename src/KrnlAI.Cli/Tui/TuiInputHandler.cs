@@ -5,10 +5,20 @@ namespace KrnlAI.Cli.Tui;
 public sealed class TuiInputHandler
 {
     private readonly Dictionary<string, string> _commands;
+    private readonly ReadlineService _readline;
 
     public TuiInputHandler(Dictionary<string, string> commands)
     {
         _commands = new Dictionary<string, string>(commands, StringComparer.OrdinalIgnoreCase);
+        _readline = new ReadlineService();
+        _readline.SlashCommands = _commands;
+    }
+
+    public async Task<string> ReadInputAsync(string prompt = "> ", CancellationToken ct = default)
+    {
+        AnsiConsole.Markup($"[bold cyan]{prompt}[/]");
+        var input = await _readline.ReadLineAsync(ct);
+        return (input ?? "").Trim();
     }
 
     public string ReadInput(string prompt = "> ")

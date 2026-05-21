@@ -6,6 +6,8 @@ const MAX_FILE_SIZE = 100_000;
 const TRIGGER_CHARS = new Set(['.', ' ', '\n', '\t', '(', ')', '{', '}', '[', ']', ';', ':', '=', '+', '-', '*', '/', '>', '<', '!', '~', '&', '|', '%', ',']);
 const BLOCKED_PATHS = ['node_modules', '.git', 'bin', 'obj', 'dist', 'build', '.next', '.nuxt', 'venv', '.venv', '__pycache__'];
 
+let _currentSuggestion: string | null = null;
+
 export class InlineCompletionProvider implements vscode.InlineCompletionItemProvider {
     private readonly _cache: CompletionCache;
     private _pendingRequest: AbortController | null = null;
@@ -16,6 +18,48 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
         cache?: CompletionCache
     ) {
         this._cache = cache || new CompletionCache();
+    }
+
+    get currentSuggestion(): string | null {
+        return _currentSuggestion;
+    }
+
+    clearSuggestion(): void {
+        _currentSuggestion = null;
+    }
+
+    static registerAcceptNextWordCommand(context: vscode.ExtensionContext): void {
+        const disposable = vscode.commands.registerCommand('krnlai.acceptNextWord', () => {
+            const editor = vscode.window.activeTextEditor;
+            if (!editor || !_currentSuggestion) return;
+
+            const cursorPos = editor.selection.active;
+            const line = editor.document.lineAt(cursorPos.line);
+            const textAfterCursor = line.text.substring(cursorPos.character);
+
+            // Find the next word boundary in the suggestion
+            const suggestionAfterCursor = _currentSuggestion.trimStart();
+            const nextWordMatch = suggestionAfterCursor.match(/^(\S+\s*)/);
+
+            if (!nextWordMatch) return;
+
+            const nextWord = nextWordMatch[1];
+            editor.edit(builder => {
+                builder.insert(cursorPos, nextWord);
+            });
+
+            // Update suggestion to remove the accepted word
+            _currentSuggestion = _currentSuggestion.substring(nextWord.length).trimStart();
+            if (!_currentSuggestion) _currentSuggestion = null;
+        });
+
+        context.subscriptions.push(disposable);
+
+        // Register keybinding programmatically
+        const keybindingDisposable = vscode.commands.registerCommand('krnlai.acceptNextWordKeybinding', () => {
+            vscode.commands.executeCommand('krnlai.acceptNextWord');
+        });
+        context.subscriptions.push(keybindingDisposable);
     }
 
     private _isBlockedPath(filePath: string): boolean {
@@ -78,7 +122,11 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
 
             if (response?.completions?.length) {
                 this._cache.set(prefix, language, response.completions);
+                // Store the first suggestion for partial accept
+                _currentSuggestion = response.completions[0];
                 return response.completions.map(text => new vscode.InlineCompletionItem(text));
+            } else {
+                _currentSuggestion = null;
             }
 
             return undefined;

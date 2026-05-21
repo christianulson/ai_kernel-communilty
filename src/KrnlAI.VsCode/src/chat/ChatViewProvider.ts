@@ -241,8 +241,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div id="context-area"></div>
 <div id="input-area">
 <div id="input-wrapper">
-<input id="input" type="text" placeholder="Digite / para comandos, ou envie uma mensagem..." autofocus />
+<input id="input" type="text" placeholder="Digite / para comandos, @ para contexto, ou envie uma mensagem..." autofocus />
 <div id="autocomplete"></div>
+<div id="mention-autocomplete"></div>
 </div>
 <button id="send" disabled>Enviar</button>
 </div>
@@ -271,11 +272,26 @@ const ctxArea=document.getElementById('context-area');
 const statusText=document.getElementById('status-text');
 const statusDot=document.getElementById('status-dot');
 const autocomplete=document.getElementById('autocomplete');
+const mentionAutocomplete=document.getElementById('mention-autocomplete');
 let slashCommands=[];
 let autocompleteIndex=-1;
+let mentionIndex=-1;
+const MENTIONS=[
+    {id:'file',label:'@file',desc:'Reference a file by name'},
+    {id:'selection',label:'@selection',desc:'Current editor selection'},
+    {id:'symbol',label:'@symbol',desc:'Code symbol (class, function)'},
+    {id:'terminal',label:'@terminal',desc:'Terminal output'},
+    {id:'diagnostics',label:'@diagnostics',desc:'Project errors/warnings'},
+];
 const MAX_MSGS=${MAX_DOM_MSGS};
 let currentApprovalId=null;
 let approvalTimer=null;
+
+// Message history for up/down arrow navigation
+const savedState=vscode.getState()||{};
+let messageHistory=savedState.messageHistory||[];
+let historyIndex=-1;
+let currentInput='';
 
 function setStatus(text,type){statusText.textContent=text;statusDot.className='dot '+(type||'idle');}
 
@@ -381,22 +397,49 @@ const pos=caret+cmd.length+1;input.setSelectionRange(pos,pos);input.focus();auto
 
 input.addEventListener('input',function(){sendBtn.disabled=!this.value.trim();updateAutocomplete();});
 input.addEventListener('keydown',function(e){
-if(autocomplete.style.display==='block'){
-const items=autocomplete.querySelectorAll('.autocomplete-item');
-if(e.key==='ArrowDown'){e.preventDefault();autocompleteIndex=Math.min(autocompleteIndex+1,items.length-1);
-items.forEach((el,i)=>el.className='autocomplete-item'+(i===autocompleteIndex?' active':''));
-return;}
-if(e.key==='ArrowUp'){e.preventDefault();autocompleteIndex=Math.max(autocompleteIndex-1,0);
-items.forEach((el,i)=>el.className='autocomplete-item'+(i===autocompleteIndex?' active':''));
-return;}
-if(e.key==='Enter'&&autocompleteIndex>=0){e.preventDefault();const active=items[autocompleteIndex];if(active)active.click();return;}
-if(e.key==='Escape'){autocomplete.style.display='none';autocompleteIndex=-1;return;}}
-if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}});
+    if(autocomplete.style.display==='block'){
+        const items=autocomplete.querySelectorAll('.autocomplete-item');
+        if(e.key==='ArrowDown'){e.preventDefault();autocompleteIndex=Math.min(autocompleteIndex+1,items.length-1);
+        items.forEach((el,i)=>el.className='autocomplete-item'+(i===autocompleteIndex?' active':''));
+        return;}
+        if(e.key==='ArrowUp'){e.preventDefault();autocompleteIndex=Math.max(autocompleteIndex-1,0);
+        items.forEach((el,i)=>el.className='autocomplete-item'+(i===autocompleteIndex?' active':''));
+        return;}
+        if(e.key==='Enter'&&autocompleteIndex>=0){e.preventDefault();const active=items[autocompleteIndex];if(active)active.click();return;}
+        if(e.key==='Escape'){autocomplete.style.display='none';autocompleteIndex=-1;return;}}
+    // Message history navigation with up/down arrows
+    if(e.key==='ArrowUp'&&!e.shiftKey){
+        if(messageHistory.length===0)return;
+        e.preventDefault();
+        if(historyIndex===-1)currentInput=input.value;
+        if(historyIndex<messageHistory.length-1){
+            historyIndex++;
+            input.value=messageHistory[historyIndex];
+            input.setSelectionRange(input.value.length,input.value.length);
+        }
+        return;
+    }
+    if(e.key==='ArrowDown'&&!e.shiftKey){
+        if(historyIndex===-1)return;
+        e.preventDefault();
+        historyIndex--;
+        input.value=historyIndex===-1?currentInput:messageHistory[historyIndex];
+        input.setSelectionRange(input.value.length,input.value.length);
+        return;
+    }
+    if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}});
 
 document.addEventListener('click',function(){autocomplete.style.display='none';});
 
 sendBtn.onclick=send;
 function send(){const t=input.value.trim();if(!t||sendBtn.disabled)return;
+// Save to message history
+if(t&&(!messageHistory.length||messageHistory[0]!==t)){
+    messageHistory.unshift(t);
+    if(messageHistory.length>50)messageHistory.pop();
+    vscode.setState(Object.assign(vscode.getState()||{},{messageHistory}));
+}
+historyIndex=-1;
 sendBtn.disabled=true;input.value='';autocomplete.style.display='none';
 setStatus('Processando...','running');
 vscode.postMessage({type:'send',text:t});}

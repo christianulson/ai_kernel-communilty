@@ -66,7 +66,7 @@ public sealed class TuiEngine
         {
             RenderLayout();
 
-            var input = _inputHandler.ReadInputWithAutocomplete();
+            var input = await _inputHandler.ReadInputAsync(ct: ct);
 
             if (ct.IsCancellationRequested) break;
             if (string.IsNullOrWhiteSpace(input)) continue;

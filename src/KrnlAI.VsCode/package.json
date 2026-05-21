@@ -88,6 +88,10 @@
       {
         "command": "krnlai.coding.run",
         "title": "Krnl-AI: Executar Prompt..."
+      },
+      {
+        "command": "krnlai.acceptNextWord",
+        "title": "Krnl-AI: Aceitar próxima palavra da sugestão"
       }
     ],
     "keybindings": [
@@ -110,6 +114,11 @@
         "command": "krnlai.coding.run",
         "key": "ctrl+shift+r",
         "when": "config.krnlai.codingAgent.enabled && editorTextFocus"
+      },
+      {
+        "command": "krnlai.acceptNextWord",
+        "key": "ctrl+right",
+        "when": "config.krnlai.codingAgent.inlineCompletion && editorTextFocus"
       }
     ],
     "menus": {

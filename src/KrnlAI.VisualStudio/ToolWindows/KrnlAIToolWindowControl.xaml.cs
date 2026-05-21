@@ -23,6 +23,11 @@ public partial class KrnlAIToolWindowControl : UserControl
     private CancellationTokenSource? _currentStreamCts;
     private string? _streamingBuffer;
 
+    // Message history for up/down navigation
+    private readonly System.Collections.Generic.List<string> _messageHistory = new();
+    private int _historyIndex = -1;
+    private string _savedInput = string.Empty;
+
     public KrnlAIToolWindowControl()
     {
         InitializeComponent();
@@ -127,6 +132,17 @@ public partial class KrnlAIToolWindowControl : UserControl
     {
         var text = ChatInput.Text.Trim();
         if (string.IsNullOrEmpty(text)) return;
+
+        // Save to message history
+        if (!string.IsNullOrWhiteSpace(text))
+        {
+            if (_messageHistory.Count == 0 || _messageHistory[0] != text)
+            {
+                _messageHistory.Insert(0, text);
+                if (_messageHistory.Count > 50) _messageHistory.RemoveAt(_messageHistory.Count - 1);
+            }
+            _historyIndex = -1;
+        }
 
         await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
         AddUserMessage(text);
@@ -322,6 +338,45 @@ public partial class KrnlAIToolWindowControl : UserControl
             Foreground = new SolidColorBrush(Colors.Red),
             Margin = new Thickness(0, 2, 0, 2)
         });
+    }
+
+    private void OnChatInputKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if (e.Key == System.Windows.Input.Key.Enter && e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Shift)
+        {
+            // Shift+Enter = new line (handled by AcceptsReturn=True)
+            return;
+        }
+        if (e.Key == System.Windows.Input.Key.Enter && e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Control)
+        {
+            // Ctrl+Enter = send
+            e.Handled = true;
+            _ = DoSendAsync();
+            return;
+        }
+        if (e.Key == System.Windows.Input.Key.Up && e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.None)
+        {
+            if (_messageHistory.Count > 0 && _historyIndex < _messageHistory.Count - 1)
+            {
+                e.Handled = true;
+                if (_historyIndex == -1) _savedInput = ChatInput.Text;
+                _historyIndex++;
+                ChatInput.Text = _messageHistory[_historyIndex];
+                ChatInput.CaretIndex = ChatInput.Text.Length;
+            }
+            return;
+        }
+        if (e.Key == System.Windows.Input.Key.Down && e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.None)
+        {
+            if (_historyIndex > -1)
+            {
+                e.Handled = true;
+                _historyIndex--;
+                ChatInput.Text = _historyIndex == -1 ? _savedInput : _messageHistory[_historyIndex];
+                ChatInput.CaretIndex = ChatInput.Text.Length;
+            }
+            return;
+        }
     }
 
     private void OnChatInputTextChanged(object sender, TextChangedEventArgs e)

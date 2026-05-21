@@ -234,6 +234,7 @@ function registerCodingAgentFeatures(context: vscode.ExtensionContext, client: K
     if (inlineCompletionEnabled) {
         const inlineProvider = new InlineCompletionProvider(() => client.getBaseUrl());
         pushSub(vscode.languages.registerInlineCompletionItemProvider({ pattern: '**' }, inlineProvider));
+        InlineCompletionProvider.registerAcceptNextWordCommand(context);
     }
 
     // Hover Provider (feature flag: krnlai.codingAgent.hover)
