@@ -55,7 +55,7 @@ public class VideoCallViewModel : ViewModelBase
         VideoCallState = "Connecting";
 
         var settings = ServiceLocator.Instance.SettingsService.LoadSettings();
-        var signalingUrl = (settings.ApiBaseUrl ?? "http://localhost:5000").TrimEnd('/') + "/signaling/webrtc";
+        var signalingUrl = (settings.ApiBaseUrl ?? "http://localhost:5235").TrimEnd('/') + "/signaling/webrtc";
 
         var initialized = await _webRtc.InitializeAsync(signalingUrl, "stun.l.google.com:19302");
         if (!initialized) { VideoCallState = "Failed"; return; }

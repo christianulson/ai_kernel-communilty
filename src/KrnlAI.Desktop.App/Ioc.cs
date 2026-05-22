@@ -64,6 +64,8 @@ public static class Ioc
                         var body = await refreshResponse.Content.ReadAsStringAsync(ct);
                         var result = System.Text.Json.JsonSerializer
                             .Deserialize<RefreshTokenResponseDto>(body);
+                        if (!string.IsNullOrEmpty(result?.RefreshToken))
+                            tokenProvider.RefreshToken = result.RefreshToken;
                         return result?.Token;
                     }
                     catch { return null; }
@@ -97,8 +99,8 @@ public static class Ioc
 
         var settings = Resolve<ISettingsService>().LoadSettings();
         Resolve<IKernelClient>().SetBaseUrl(settings.ApiBaseUrl);
-        if (!string.IsNullOrEmpty(settings.AuthToken))
-            Resolve<IKernelClient>().SetAuthToken(settings.AuthToken);
+        if (!string.IsNullOrEmpty(settings.AuthToken) || !string.IsNullOrEmpty(settings.RefreshToken))
+            Resolve<IKernelClient>().SetTokens(settings.AuthToken, settings.RefreshToken);
     }
 
     public static T Resolve<T>() where T : notnull

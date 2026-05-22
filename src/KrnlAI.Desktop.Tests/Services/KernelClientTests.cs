@@ -21,7 +21,7 @@ public class KernelClientTests
     {
         var (client, apiMock, _) = CreateClient();
         apiMock.Setup(a => a.GetHealthAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new HealthResponse(true, DateTimeOffset.UtcNow));
+            .ReturnsAsync(new HealthResponse { Ok = true, Ts = DateTimeOffset.UtcNow });
 
         var result = await client.CheckHealthAsync();
         Assert.True(result);
@@ -32,7 +32,7 @@ public class KernelClientTests
     {
         var (client, apiMock, _) = CreateClient();
         apiMock.Setup(a => a.GetHealthAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new HealthResponse(false, DateTimeOffset.UtcNow));
+            .ReturnsAsync(new HealthResponse { Ok = false, Ts = DateTimeOffset.UtcNow });
 
         var result = await client.CheckHealthAsync();
         Assert.False(result);
@@ -178,7 +178,7 @@ public class KernelClientTests
         var (client, apiMock, _) = CreateClient();
         var dto = new MemorySearchResultDto(
             [new MemoryHitDto("h1", "test", "web", 0.9, DateTime.UtcNow, null)], 1, 0.5);
-        apiMock.Setup(a => a.SearchMemoryAsync("test", 10, It.IsAny<CancellationToken>()))
+        apiMock.Setup(a => a.SearchMemoryAsync(It.Is<MemorySearchRequestDto>(r => r.Query == "test" && r.Limit == 10), It.IsAny<CancellationToken>()))
             .ReturnsAsync(dto);
 
         var result = await client.SearchMemoryAsync("test");

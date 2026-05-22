@@ -45,6 +45,7 @@ public partial class LoginWindow : Window
 
     public string Username => _viewModel.Username;
     public string Token => _viewModel.Token;
+    public string? RefreshToken => _viewModel.RefreshToken;
 }
 
 public class LoginViewModel : ViewModelBase
@@ -55,6 +56,7 @@ public class LoginViewModel : ViewModelBase
     private string _errorMessage = string.Empty;
     private bool _isLoading;
     private string _token = string.Empty;
+    private string? _refreshToken;
     private string? _oauthState;
     private HttpListener? _oauthListener;
 
@@ -111,6 +113,7 @@ public class LoginViewModel : ViewModelBase
     }
 
     public string Token => _token;
+    public string? RefreshToken => _refreshToken;
 
     public ICommand LoginCommand { get; }
     public ICommand LoginWithAzureAdCommand { get; }
@@ -138,11 +141,12 @@ public class LoginViewModel : ViewModelBase
             if (response.Success && !string.IsNullOrEmpty(response.Token))
             {
                 _token = response.Token;
-                kernelClient.SetAuthToken(_token);
+                _refreshToken = response.RefreshToken;
+                kernelClient.SetTokens(_token, _refreshToken);
 
                 var settingsService = ServiceLocator.Instance.SettingsService;
                 var settings = settingsService.LoadSettings();
-                settings = settings with { AuthToken = _token, Username = RememberMe ? Username : string.Empty, IsAuthenticated = true };
+                settings = settings with { AuthToken = _token, RefreshToken = _refreshToken, Username = RememberMe ? Username : string.Empty, IsAuthenticated = true };
                 settingsService.SaveSettings(settings);
 
                 LoginCompleted?.Invoke(this, EventArgs.Empty);
@@ -186,7 +190,8 @@ public class LoginViewModel : ViewModelBase
                 return;
             }
 
-            var code = await StartOAuthCallbackListenerAsync(redirectUri, callbackPath);
+            var browserUri = GetOAuthBrowserUri(loginResponse, redirectUri);
+            var code = await StartOAuthCallbackListenerAsync(redirectUri, callbackPath, browserUri);
             if (code == null)
             {
                 ErrorMessage = "Callback OAuth2 não recebido";
@@ -200,7 +205,8 @@ public class LoginViewModel : ViewModelBase
             if (callbackResult?.Token is not null)
             {
                 _token = callbackResult.Token;
-                kernelClient.SetAuthToken(_token);
+                _refreshToken = callbackResult.RefreshToken;
+                kernelClient.SetTokens(_token, _refreshToken);
                 LoginCompleted?.Invoke(this, EventArgs.Empty);
             }
             else
@@ -219,7 +225,14 @@ public class LoginViewModel : ViewModelBase
         }
     }
 
-    private async Task<string?> StartOAuthCallbackListenerAsync(string redirectUri, string callbackPath)
+    public static Uri GetOAuthBrowserUri(OAuth2LoginResponse loginResponse, string fallbackRedirectUri)
+    {
+        return Uri.TryCreate(loginResponse.AuthUrl, UriKind.Absolute, out var authUri)
+            ? authUri
+            : new Uri(fallbackRedirectUri);
+    }
+
+    private async Task<string?> StartOAuthCallbackListenerAsync(string redirectUri, string callbackPath, Uri browserUri)
     {
         var uri = new Uri(redirectUri);
         _oauthListener = new HttpListener();
@@ -229,7 +242,7 @@ public class LoginViewModel : ViewModelBase
         {
             _oauthListener.Start();
 
-            Process.Start(new ProcessStartInfo(redirectUri)
+            Process.Start(new ProcessStartInfo(browserUri.ToString())
             {
                 UseShellExecute = true,
                 Verb = "open"

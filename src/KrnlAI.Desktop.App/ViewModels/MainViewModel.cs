@@ -136,7 +136,7 @@ public class MainViewModel : ViewModelBase
     public bool IsVideoCallCameraOn { get => _isVideoCallCameraOn; set { if (SetProperty(ref _isVideoCallCameraOn, value)) OnPropertyChanged(nameof(VideoCallCameraIcon)); } }
     public string VideoCallCameraIcon => IsVideoCallCameraOn ? "📹" : "📵";
 
-    public string ApiEndpoint => _settingsService.LoadSettings().ApiEndpoint ?? "http://localhost:5000";
+    public string ApiEndpoint => _settingsService.LoadSettings().ApiEndpoint ?? "http://localhost:5235";
 
     public ICommand NavigateToChatCommand { get; }
     public ICommand NavigateToDashboardCommand { get; }
@@ -321,8 +321,8 @@ public class MainViewModel : ViewModelBase
     private void ExecuteLogout()
     {
         var settings = _settingsService.LoadSettings();
-        _settingsService.SaveSettings(settings with { AuthToken = null, IsAuthenticated = false });
-        _kernelClient.SetAuthToken(null);
+        _settingsService.SaveSettings(settings with { AuthToken = null, RefreshToken = null, IsAuthenticated = false });
+        _kernelClient.SetTokens(null, null);
         LogoutRequested?.Invoke(this, EventArgs.Empty);
     }
 

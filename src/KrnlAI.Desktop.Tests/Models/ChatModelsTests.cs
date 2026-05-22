@@ -91,7 +91,8 @@ public class AppSettingsTests
         Assert.Null(settings.SelectedMicrophoneId);
         Assert.Null(settings.SelectedCameraId);
         Assert.Null(settings.SelectedSpeakerId);
-        Assert.Equal("http://localhost:5000", settings.ApiBaseUrl);
+        Assert.Equal("http://localhost:5235", settings.ApiBaseUrl);
+        Assert.Equal("http://localhost:5235", settings.ApiEndpoint);
         Assert.Equal(0.01f, settings.VoiceDetectionThreshold);
         Assert.Equal(1500, settings.SilenceDurationMs);
         Assert.Equal(1.0f, settings.SpeakerVolume);

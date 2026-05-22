@@ -1,4 +1,5 @@
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Markup;
@@ -7,8 +8,7 @@ namespace KrnlAI.Desktop.Tests.Models;
 
 public class XamlResourceTests
 {
-    private static readonly string AppRoot = Path.GetFullPath(
-        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "..", "..", "src", "KrnlAI.Desktop.App"));
+    private static readonly string AppRoot = FindDesktopAppRoot();
 
     [Fact]
     public void AllStaticResources_AreDefinedInThemeOrApp()
@@ -46,6 +46,39 @@ public class XamlResourceTests
     }
 
     [Fact]
+    public void TopLevelStaticResources_ShouldBeDefinedBeforeUsage()
+    {
+        var appXaml = File.ReadAllText(Path.Combine(AppRoot, "App.xaml"));
+
+        var defined = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var issues = new List<string>();
+        var insideTemplate = 0;
+
+        foreach (var line in appXaml.Split('\n'))
+        {
+            if (line.Contains("<ControlTemplate") || line.Contains("<Style"))
+                insideTemplate++;
+            if ((line.Contains("</ControlTemplate") || line.Contains("</Style>")) && insideTemplate > 0)
+                insideTemplate--;
+
+            if (insideTemplate > 0) continue;
+
+            foreach (Match m in Regex.Matches(line, @"x:Key=""([^""]+)"""))
+                defined.Add(m.Groups[1].Value);
+
+            foreach (Match m in Regex.Matches(line, @"{StaticResource\s+([^}""]+)}"))
+            {
+                var key = m.Groups[1].Value.Trim();
+                if (!defined.Contains(key) && !key.StartsWith("System:") &&
+                    !key.StartsWith("ComponentResourceKey"))
+                    issues.Add($"'{key}' used before defined in App.xaml (line: {line.Trim()})");
+            }
+        }
+
+        AssertEx(issues);
+    }
+
+    [Fact]
     public void AllThemeKeys_AreConsistentBetweenLightAndDark()
     {
         var lightKeys = ExtractThemeKeys("Light.xaml");
@@ -75,5 +108,29 @@ public class XamlResourceTests
     {
         if (issues.Count > 0)
             Assert.Fail($"Found {issues.Count} resource issue(s):\n  {string.Join("\n  ", issues)}");
+    }
+
+    private static string FindDesktopAppRoot([CallerFilePath] string sourceFilePath = "")
+    {
+        var sourceRelativeCandidate = Path.GetFullPath(
+            Path.Combine(Path.GetDirectoryName(sourceFilePath)!, "..", "..", "..", "src", "KrnlAI.Desktop.App"));
+        if (Directory.Exists(sourceRelativeCandidate))
+            return sourceRelativeCandidate;
+
+        var directory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+        while (directory != null)
+        {
+            var candidate = Path.Combine(directory.FullName, "Community", "src", "KrnlAI.Desktop.App");
+            if (Directory.Exists(candidate))
+                return candidate;
+
+            candidate = Path.Combine(directory.FullName, "src", "KrnlAI.Desktop.App");
+            if (Directory.Exists(candidate))
+                return candidate;
+
+            directory = directory.Parent;
+        }
+
+        throw new DirectoryNotFoundException("Could not locate Community/src/KrnlAI.Desktop.App from the test output directory.");
     }
 }

@@ -31,7 +31,8 @@ public sealed class MediaModelsTests
         Assert.False(settings.ContinuousListeningEnabled);
         Assert.Equal(0.01f, settings.VoiceDetectionThreshold);
         Assert.Equal(1500, settings.SilenceDurationMs);
-        Assert.Equal("http://localhost:5000", settings.ApiBaseUrl);
+        Assert.Equal("http://localhost:5235", settings.ApiBaseUrl);
+        Assert.Equal("http://localhost:5235", settings.ApiEndpoint);
         Assert.Equal(1.0f, settings.SpeakerVolume);
         Assert.False(settings.IsAuthenticated);
         Assert.Equal(1200, settings.WindowWidth);

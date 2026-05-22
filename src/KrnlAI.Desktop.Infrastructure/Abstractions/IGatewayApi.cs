@@ -33,8 +33,8 @@ public interface IGatewayApi
     [Get("/episodes/{id}")]
     Task<EpisodeDetailsDto> GetEpisodeAsync(string id, CancellationToken ct);
 
-    [Get("/memory/search")]
-    Task<MemorySearchResultDto> SearchMemoryAsync(string q, int topK, CancellationToken ct);
+    [Post("/memory/search")]
+    Task<MemorySearchResultDto> SearchMemoryAsync([Body] MemorySearchRequestDto request, CancellationToken ct);
 
     [Post("/memory/ingest")]
     Task<MemoryIngestResultDto> IngestMemoryAsync([Body] Core.Models.MemoryIngestRequest request, CancellationToken ct);
@@ -160,7 +160,7 @@ public interface IGatewayApi
     [Get("/snapshots")]
     Task<List<SnapshotResponseDto>> GetSnapshotsAsync(CancellationToken ct = default);
 
-    [Get("/objectives")]
+    [Get("/objectives/active")]
     Task<List<ObjectiveResponseDto>> GetObjectivesAsync(CancellationToken ct = default);
 
     [Get("/objectives/{id}")]

@@ -36,7 +36,7 @@ public class KernelClient : IKernelClient
         }, []);
 
     public Task<bool> CheckHealthAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => (await _api.GetHealthAsync(ct)).Ok, false);
+        SafeCall.ExecuteAsync(async () => (await _api.GetHealthAsync(ct)).IsHealthy, false);
 
     public Task<string?> TranscribeAudioAsync(byte[] audioData, CancellationToken ct = default) =>
         SafeCall.ExecuteAsync(async () =>
@@ -112,7 +112,7 @@ public class KernelClient : IKernelClient
     public Task<CoreModels.MemorySearchResult> SearchMemoryAsync(string query, int topK = 10, CancellationToken ct = default) =>
         SafeCall.ExecuteAsync(async () =>
         {
-            var r = await _api.SearchMemoryAsync(query, topK, ct);
+            var r = await _api.SearchMemoryAsync(new MemorySearchRequestDto(query, topK), ct);
             return new CoreModels.MemorySearchResult(
                 r.Hits?.Select(h => new CoreModels.MemoryHit(h.Id, h.Content, h.Source, h.Score, h.CreatedAt, h.Metadata)).ToList() ?? [],
                 r.TotalCount, r.QueryTimeMs);

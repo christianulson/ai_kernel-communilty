@@ -25,19 +25,23 @@ public class ServiceLocator : IDisposable
     }
 
     private readonly ServiceProvider _provider;
+    private volatile bool _disposed;
 
-    public IKernelClient KernelClient => _provider.GetRequiredService<IKernelClient>();
-    public IGatewayApi GatewayApi => _provider.GetRequiredService<IGatewayApi>();
-    public IAudioCapture AudioCapture => _provider.GetRequiredService<IAudioCapture>();
-    public IAudioPlayback AudioPlayback => _provider.GetRequiredService<IAudioPlayback>();
-    public IVideoCapture VideoCapture => _provider.GetRequiredService<IVideoCapture>();
-    public IListeningService ListeningService => _provider.GetRequiredService<IListeningService>();
-    public ISettingsService SettingsService => _provider.GetRequiredService<ISettingsService>();
-    public IThemeService ThemeService => _provider.GetRequiredService<IThemeService>();
-    public ILocalizationService LocalizationService => _provider.GetRequiredService<ILocalizationService>();
+    public IKernelClient KernelClient => Resolve<IKernelClient>()!;
+    public IGatewayApi GatewayApi => Resolve<IGatewayApi>()!;
+    public IAudioCapture AudioCapture => Resolve<IAudioCapture>()!;
+    public IAudioPlayback AudioPlayback => Resolve<IAudioPlayback>()!;
+    public IVideoCapture VideoCapture => Resolve<IVideoCapture>()!;
+    public IListeningService ListeningService => Resolve<IListeningService>()!;
+    public ISettingsService SettingsService => Resolve<ISettingsService>()!;
+    public IThemeService ThemeService => Resolve<IThemeService>()!;
+    public ILocalizationService LocalizationService => Resolve<ILocalizationService>()!;
 
-    public ILogger<T> GetLogger<T>() => _provider.GetRequiredService<ILogger<T>>();
+    public ILogger<T> GetLogger<T>() => _provider!.GetRequiredService<ILogger<T>>();
     public Func<WebRtcService> WebRtcServiceFactory => () => new WebRtcService(GetLogger<WebRtcService>());
+
+    private T? Resolve<T>() where T : class =>
+        _disposed ? null : _provider?.GetService<T>();
 
     private ServiceLocator()
     {
@@ -45,7 +49,7 @@ public class ServiceLocator : IDisposable
 
         var settingsService = new JsonSettingsService();
         var settings = settingsService.LoadSettings();
-        var baseUrl = settings.ApiEndpoint ?? settings.ApiBaseUrl ?? "http://localhost:5000";
+        var baseUrl = settings.ApiEndpoint ?? settings.ApiBaseUrl ?? "http://localhost:5235";
 
         var services = new ServiceCollection();
         services.AddSingleton(loggerFactory);
@@ -88,6 +92,8 @@ public class ServiceLocator : IDisposable
                     var body = await refreshResponse.Content.ReadAsStringAsync(ct);
                     var result = System.Text.Json.JsonSerializer
                         .Deserialize<RefreshTokenResponseDto>(body);
+                    if (!string.IsNullOrEmpty(result?.RefreshToken))
+                        tokenProvider.RefreshToken = result.RefreshToken;
                     return result?.Token;
                 }
                 catch { return null; }
@@ -122,8 +128,8 @@ public class ServiceLocator : IDisposable
         // Initialize ThemeManager so it hooks theme change events
         _provider.GetRequiredService<ThemeManager>();
 
-        if (!string.IsNullOrEmpty(settings.AuthToken))
-            KernelClient.SetAuthToken(settings.AuthToken);
+        if (!string.IsNullOrEmpty(settings.AuthToken) || !string.IsNullOrEmpty(settings.RefreshToken))
+            KernelClient.SetTokens(settings.AuthToken, settings.RefreshToken);
     }
 
     public static void ConfigureForTests(IServiceProvider provider)
@@ -151,6 +157,7 @@ public class ServiceLocator : IDisposable
 
     public void Dispose()
     {
+        _disposed = true;
         _provider?.Dispose();
     }
 }

@@ -42,7 +42,7 @@ public partial class App : Application
             }
 
             var newSettings = settingsService.LoadSettings();
-            newSettings = newSettings with { AuthToken = loginWindow.Token, Username = loginWindow.Username, IsAuthenticated = true };
+            newSettings = newSettings with { AuthToken = loginWindow.Token, RefreshToken = loginWindow.RefreshToken, Username = loginWindow.Username, IsAuthenticated = true };
             settingsService.SaveSettings(newSettings);
         }
 
@@ -267,10 +267,10 @@ public partial class App : Application
 
         var settingsService = ServiceLocator.Instance.SettingsService;
         var settings = settingsService.LoadSettings();
-        settings = settings with { AuthToken = null, Username = null, IsAuthenticated = false };
+        settings = settings with { AuthToken = null, RefreshToken = null, Username = null, IsAuthenticated = false };
         settingsService.SaveSettings(settings);
 
-        ServiceLocator.Instance.KernelClient.SetAuthToken(null);
+        ServiceLocator.Instance.KernelClient.SetTokens(null, null);
 
         var loginWindow = new LoginWindow();
         var result = loginWindow.ShowDialog();
@@ -282,9 +282,9 @@ public partial class App : Application
         }
 
         var newSettings = settingsService.LoadSettings();
-        newSettings = newSettings with { AuthToken = loginWindow.Token, Username = loginWindow.Username, IsAuthenticated = true };
+        newSettings = newSettings with { AuthToken = loginWindow.Token, RefreshToken = loginWindow.RefreshToken, Username = loginWindow.Username, IsAuthenticated = true };
         settingsService.SaveSettings(newSettings);
-        ServiceLocator.Instance.KernelClient.SetAuthToken(loginWindow.Token);
+        ServiceLocator.Instance.KernelClient.SetTokens(loginWindow.Token, loginWindow.RefreshToken);
 
         _mainWindow?.Show();
     }
@@ -297,10 +297,16 @@ public partial class App : Application
         Shutdown();
     }
 
+    private bool _errorShown;
+
     private void OnDispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
     {
-        KrnlLogger.Write($"Unhandled: {e.Exception.Message}");
-        MessageBox.Show(e.Exception.ToString(), "KrnlAI Desktop error", MessageBoxButton.OK, MessageBoxImage.Error);
+        KrnlLogger.Write($"Unhandled: {e.Exception}");
+        if (!_errorShown)
+        {
+            _errorShown = true;
+            MessageBox.Show(e.Exception.ToString(), "KrnlAI Desktop error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
         e.Handled = true;
     }
 

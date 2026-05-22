@@ -47,7 +47,7 @@ public class SettingsSerializationTests
     {
         var original = new AppSettings
         {
-            ApiBaseUrl = "http://localhost:5000",
+            ApiBaseUrl = "http://localhost:5235",
             AuthToken = "test-token",
             Username = "admin-test",
             VoiceDetectionThreshold = 0.01f,
@@ -71,8 +71,10 @@ public class SettingsSerializationTests
         var json = """{}""";
         var settings = JsonSerializer.Deserialize<AppSettings>(json, SafeOptions);
         Assert.NotNull(settings);
-        Assert.Equal("http://localhost:5000", settings.ApiBaseUrl);
+        Assert.Equal("http://localhost:5235", settings.ApiBaseUrl);
+        Assert.Equal("http://localhost:5235", settings.ApiEndpoint);
         Assert.Null(settings.AuthToken);
+        Assert.Null(settings.RefreshToken);
         Assert.Equal(0.01f, settings.VoiceDetectionThreshold);
     }
 }

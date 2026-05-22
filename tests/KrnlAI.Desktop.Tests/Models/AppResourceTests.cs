@@ -8,6 +8,11 @@ public class AppResourceTests
 {
     private static readonly Assembly AppAssembly = typeof(KrnlAI.Desktop.App.App).Assembly;
 
+    static AppResourceTests()
+    {
+        _ = System.Windows.Navigation.BaseUriHelper.GetBaseUri(new System.Windows.DependencyObject());
+    }
+
     [Fact]
     public void PackUri_Resources_ShouldBeAccessible()
     {

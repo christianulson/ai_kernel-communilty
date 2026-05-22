@@ -31,6 +31,30 @@ public sealed class SidecarCommunityModeTests : IClassFixture<CommunitySidecarWe
         body.Should().NotBeNull();
         body!.Narration.Should().Contain("hello local");
     }
+
+    [Theory]
+    [InlineData("/policy/list")]
+    [InlineData("/memory/metrics")]
+    [InlineData("/episodes/search")]
+    [InlineData("/agent/metrics/scorecard")]
+    [InlineData("/observability/runtime/summary")]
+    [InlineData("/goals/active")]
+    [InlineData("/cognitive/dashboard")]
+    [InlineData("/benchmark/summary")]
+    [InlineData("/versions")]
+    [InlineData("/versions/contracts")]
+    [InlineData("/archive/stats")]
+    [InlineData("/snapshots")]
+    [InlineData("/objectives")]
+    [InlineData("/objectives/active")]
+    [InlineData("/investigations")]
+    [InlineData("/api/documents?limit=50")]
+    public async Task ReadEndpoints_CommunityMode_ShouldReturnStandaloneFallback(string path)
+    {
+        var response = await _client.GetAsync(path, TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+    }
 }
 
 public sealed class CommunitySidecarWebAppFactory : WebApplicationFactory<Program>

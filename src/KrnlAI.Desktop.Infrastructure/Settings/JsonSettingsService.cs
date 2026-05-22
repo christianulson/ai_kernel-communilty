@@ -9,6 +9,8 @@ namespace KrnlAI.Desktop.Infrastructure.Settings;
 
 public class JsonSettingsService : ISettingsService
 {
+    private const string GatewayProxyDefaultUrl = "http://localhost:5235";
+
     private readonly string _settingsPath;
     private readonly string _settingsDir;
     private readonly JsonSerializerOptions _jsonOptions;
@@ -43,7 +45,7 @@ public class JsonSettingsService : ISettingsService
                     var encrypted = File.ReadAllBytes(_settingsPath);
                     var json = Decrypt(encrypted);
                     var settings = JsonSerializer.Deserialize<AppSettings>(json, _jsonOptions);
-                    return settings ?? new AppSettings();
+                    return NormalizeSettings(settings ?? new AppSettings());
                 }
             }
             catch (Exception ex)
@@ -54,6 +56,30 @@ public class JsonSettingsService : ISettingsService
             return new AppSettings();
         }
     }
+
+    private static AppSettings NormalizeSettings(AppSettings settings)
+    {
+        var isUnauthenticated = string.IsNullOrEmpty(settings.AuthToken)
+            && string.IsNullOrEmpty(settings.RefreshToken);
+
+        if ((IsOldApiDefault(settings.ApiEndpoint) && IsOldApiDefault(settings.ApiBaseUrl))
+            || (isUnauthenticated && IsOldSidecarDefault(settings.ApiEndpoint) && IsOldSidecarDefault(settings.ApiBaseUrl)))
+        {
+            return settings with
+            {
+                ApiEndpoint = GatewayProxyDefaultUrl,
+                ApiBaseUrl = GatewayProxyDefaultUrl
+            };
+        }
+
+        return settings;
+    }
+
+    private static bool IsOldApiDefault(string? value)
+        => string.Equals(value, "http://localhost:5000", StringComparison.OrdinalIgnoreCase);
+
+    private static bool IsOldSidecarDefault(string? value)
+        => string.Equals(value, "http://127.0.0.1:5001", StringComparison.OrdinalIgnoreCase);
 
     public void SaveSettings(AppSettings settings)
     {

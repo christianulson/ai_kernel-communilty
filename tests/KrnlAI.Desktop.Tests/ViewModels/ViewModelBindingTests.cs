@@ -1,13 +1,13 @@
 using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
 namespace KrnlAI.Desktop.Tests.ViewModels;
 
 public class ViewModelBindingTests
 {
-    private static readonly string AppRoot = Path.GetFullPath(
-        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "..", "..", "src", "KrnlAI.Desktop.App"));
+    private static readonly string AppRoot = FindDesktopAppRoot();
 
     private static readonly Assembly ViewModelAssembly = typeof(KrnlAI.Desktop.App.ViewModels.MainViewModel).Assembly;
 
@@ -107,5 +107,29 @@ public class ViewModelBindingTests
             .ToList();
 
         return types.Count == 1 ? types[0] : null;
+    }
+
+    private static string FindDesktopAppRoot([CallerFilePath] string sourceFilePath = "")
+    {
+        var sourceRelativeCandidate = Path.GetFullPath(
+            Path.Combine(Path.GetDirectoryName(sourceFilePath)!, "..", "..", "..", "src", "KrnlAI.Desktop.App"));
+        if (Directory.Exists(sourceRelativeCandidate))
+            return sourceRelativeCandidate;
+
+        var directory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+        while (directory != null)
+        {
+            var candidate = Path.Combine(directory.FullName, "Community", "src", "KrnlAI.Desktop.App");
+            if (Directory.Exists(candidate))
+                return candidate;
+
+            candidate = Path.Combine(directory.FullName, "src", "KrnlAI.Desktop.App");
+            if (Directory.Exists(candidate))
+                return candidate;
+
+            directory = directory.Parent;
+        }
+
+        throw new DirectoryNotFoundException("Could not locate Community/src/KrnlAI.Desktop.App from the test output directory.");
     }
 }

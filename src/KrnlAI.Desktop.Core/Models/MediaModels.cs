@@ -22,10 +22,11 @@ public record AppSettings
     public string? GlobalHotkey { get; init; }
     public float VoiceDetectionThreshold { get; init; } = 0.01f;
     public int SilenceDurationMs { get; init; } = 1500;
-    public string ApiBaseUrl { get; init; } = "http://localhost:5000";
+    public string ApiBaseUrl { get; init; } = "http://localhost:5235";
     public float SpeakerVolume { get; init; } = 1.0f;
-    public string? ApiEndpoint { get; init; } = "http://localhost:5000";
+    public string? ApiEndpoint { get; init; } = "http://localhost:5235";
     public string? AuthToken { get; init; }
+    public string? RefreshToken { get; init; }
     public string? Username { get; init; }
     public DateTime? TokenExpiresAt { get; init; }
     public bool IsAuthenticated { get; init; }

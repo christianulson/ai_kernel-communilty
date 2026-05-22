@@ -1,6 +1,12 @@
 namespace KrnlAI.Desktop.Core.Abstractions;
 
-public sealed record HealthResponse(bool Ok, DateTimeOffset Ts);
+public sealed record HealthResponse
+{
+    public bool Ok { get; init; }
+    public string? Status { get; init; }
+    public DateTimeOffset Ts { get; init; }
+    public bool IsHealthy => Ok || string.Equals(Status, "healthy", StringComparison.OrdinalIgnoreCase);
+}
 
 public sealed record AgentRunResponseDto(
     string? Narration,
@@ -32,6 +38,7 @@ public sealed record EpisodeStepDto(int StepIndex, string Label, string Detail, 
 
 public sealed record MemorySearchResultDto(List<MemoryHitDto>? Hits, int TotalCount, double QueryTimeMs);
 public sealed record MemoryHitDto(string Id, string Content, string Source, double Score, DateTime CreatedAt, Dictionary<string, string>? Metadata);
+public sealed record MemorySearchRequestDto(string Query, int Limit = 10, int Offset = 0, string? Domain = null);
 public sealed record MemoryIngestResultDto(bool Success, string? DocumentId, int ChunksCreated, string? Error);
 public sealed record MemoryMetricsDto(int TotalChunks, int TotalDocuments, long TotalSizeBytes, Dictionary<string, int>? BySource, DateTime? OldestEntry, DateTime? NewestEntry);
 public sealed record WorkingMemoryDto(int ActiveSlots, int MaxSlots, List<WorkingMemorySlotDto>? Slots);

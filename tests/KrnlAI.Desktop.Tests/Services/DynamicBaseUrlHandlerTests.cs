@@ -21,9 +21,9 @@ public sealed class DynamicBaseUrlHandlerTests
     }
 
     [Fact]
-    public async Task DefaultBaseUrl_ShouldBeLocalhost()
+    public async Task DefaultBaseUrl_ShouldTargetLocalApi()
     {
-        DynamicBaseUrlHandler.SetBaseUrl("http://localhost:5000");
+        DynamicBaseUrlHandler.ResetBaseUrl();
         var handler = new DynamicBaseUrlHandler();
         var testHandler = new CapturingHandler();
         handler.InnerHandler = testHandler;
@@ -31,7 +31,7 @@ public sealed class DynamicBaseUrlHandlerTests
         using var client = new HttpClient(handler) { BaseAddress = new Uri("http://placeholder") };
         await client.GetAsync("/test");
 
-        Assert.StartsWith("http://localhost:5000/test", testHandler.LastUri?.ToString());
+        Assert.StartsWith("http://localhost:5235/test", testHandler.LastUri?.ToString());
     }
 
     [Fact]

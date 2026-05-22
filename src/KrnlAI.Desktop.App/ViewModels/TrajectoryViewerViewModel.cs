@@ -70,7 +70,7 @@ public sealed class TrajectoryViewerViewModel : ViewModelBase
 
     public TrajectoryViewerViewModel()
     {
-        _http = new HttpClient { BaseAddress = new Uri("http://localhost:5000"), Timeout = TimeSpan.FromSeconds(10) };
+        _http = new HttpClient { BaseAddress = new Uri("http://localhost:5235"), Timeout = TimeSpan.FromSeconds(10) };
         RefreshCommand = new AsyncRelayCommand(LoadSessionsAsync);
         LoadSessionCommand = new AsyncRelayCommand(async () =>
         {

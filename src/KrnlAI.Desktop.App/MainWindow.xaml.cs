@@ -91,7 +91,9 @@ public partial class MainWindow : Window
         _isVideoRunning = false;
         _videoTimer?.Dispose();
         _videoTimer = null;
-        _ = _services.VideoCapture.StopCaptureAsync();
+        var capture = _services.VideoCapture;
+        if (capture != null)
+            _ = capture.StopCaptureAsync();
     }
 
     public void ToggleAlwaysOnTop()

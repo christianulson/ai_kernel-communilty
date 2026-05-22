@@ -16,7 +16,7 @@ public class SettingsViewModel : ViewModelBase, IDisposable
     private readonly ILogger<SettingsViewModel> _logger;
     private readonly System.Threading.Timer? _debounceTimer;
     private const int DebounceMs = 500;
-    private string _apiEndpoint = "http://localhost:5000";
+    private string _apiEndpoint = "http://localhost:5235";
     private bool _disposed;
     public string ApiEndpoint
     {
@@ -56,8 +56,8 @@ public class SettingsViewModel : ViewModelBase, IDisposable
     private int _silenceMs = 1500;
     public int SilenceDurationMs { get => _silenceMs; set { if (SetProperty(ref _silenceMs, value)) { _listeningService.SetSilenceDuration(value); Save(); } } }
     private bool _darkTheme = true, _lightTheme;
-    public bool IsDarkTheme { get => _darkTheme; set { _darkTheme = value; if (value) ApplyTheme("dark"); OnPropertyChanged(); } }
-    public bool IsLightTheme { get => _lightTheme; set { _lightTheme = value; if (value) ApplyTheme("light"); OnPropertyChanged(); } }
+    public bool IsDarkTheme { get => _darkTheme; set { if (!value) return; _darkTheme = true; _lightTheme = false; ApplyTheme("dark"); OnPropertyChanged(nameof(IsDarkTheme)); OnPropertyChanged(nameof(IsLightTheme)); } }
+    public bool IsLightTheme { get => _lightTheme; set { if (!value) return; _lightTheme = true; _darkTheme = false; ApplyTheme("light"); OnPropertyChanged(nameof(IsDarkTheme)); OnPropertyChanged(nameof(IsLightTheme)); } }
 
     // Language
     public List<string> AvailableLanguages { get; } = new() { "pt-BR", "en" };
@@ -96,6 +96,8 @@ public class SettingsViewModel : ViewModelBase, IDisposable
         var s = _settingsService.LoadSettings();
         _apiEndpoint = s.ApiEndpoint ?? s.ApiBaseUrl;
         _kernelClient.SetBaseUrl(_apiEndpoint);
+        if (string.Equals(s.Theme, "light", StringComparison.OrdinalIgnoreCase))
+            IsLightTheme = true;
         _listeningService.SetThreshold(s.VoiceDetectionThreshold);
         _listeningService.SetSilenceDuration(s.SilenceDurationMs);
         if (!string.IsNullOrEmpty(s.SelectedSpeakerId)) _audioPlayback.SetDevice(s.SelectedSpeakerId);

@@ -10,7 +10,7 @@ public sealed class SlashCommandHandler
 {
     private readonly HttpClient _http;
 
-    public SlashCommandHandler(string baseUrl = "http://localhost:5000")
+    public SlashCommandHandler(string baseUrl = "http://localhost:5235")
     {
         _http = new HttpClient { BaseAddress = new Uri(baseUrl.TrimEnd('/')), Timeout = TimeSpan.FromSeconds(30) };
     }
