@@ -54,11 +54,17 @@ agent = CognitiveAgent(
 | `krnlai.llm.deepseek` | DeepSeek provider |
 | `krnlai.llm.groq` | Groq provider |
 | `krnlai.llm.openrouter` | OpenRouter provider |
+| `krnlai.llm.mistral` | Mistral AI provider |
+| `krnlai.llm.cohere` | Cohere provider |
+| `krnlai.llm.together` | Together AI provider |
 | `krnlai.core.safety` | Safety checker and rules |
-| `krnlai.core.memory` | Episodic, semantic, working memory |
-| `krnlai.core.emotion` | VAD emotional model |
+| `krnlai.core.memory` | Episodic, semantic, working, procedural, autobiographical memory |
+| `krnlai.core.emotion` | VAD emotional model + pain/reward system |
 | `krnlai.core.policies` | Policy engine |
 | `krnlai.core.risk` | Risk scoring |
+| `krnlai.core.cognition` | Cognitive cycle, metacognition, inner speech |
+| `krnlai.core.consciousness` | Operational consciousness, attention schema |
+| `krnlai.investigation` | Causal investigation and root cause analysis |
 | `krnlai.integrations` | LangChain, CrewAI, AutoGen, FastAPI |
 | `krnlai.enterprise` | Enterprise client and stores |
 

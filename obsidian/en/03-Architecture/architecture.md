@@ -12,35 +12,54 @@ Krnl-AI Community is organized around a strict separation between deterministic 
 ## High-Level Architecture
 
 ```
-┌─────────────────────────────────────────────┐
+┌──────────────────────────────────────────────┐
 │              CLI / Desktop / Editors          │
 │  (User interfaces and developer tools)       │
-└──────────────────────┬──────────────────────┘
+└──────────────────────┬───────────────────────┘
                        │
-┌──────────────────────▼──────────────────────┐
+┌──────────────────────▼───────────────────────┐
 │              Sidecar (HTTP API)               │
 │  Agent Run → Safety Checks → Local/Proxy     │
-└──────────────────────┬──────────────────────┘
+└──────────────────────┬───────────────────────┘
                        │
-┌──────────────────────▼──────────────────────┐
+┌──────────────────────▼───────────────────────┐
 │           Embedded Kernel (In-Process)        │
-│  ┌──────────┐ ┌────────┐ ┌──────────────┐   │
-│  │ Memory   │ │Safety  │ │Policy Engine │   │
-│  │ System   │ │Layers  │ │& Learning    │   │
-│  └──────────┘ └────────┘ └──────────────┘   │
-└──────────────────────┬──────────────────────┘
+│  ┌──────────┐ ┌──────────┐ ┌─────────────┐  │
+│  │ Memory   │ │Cognitive │ │Policy Engine│  │
+│  │ System   │ │Cycle     │ │& Learning   │  │
+│  └──────────┘ └──────────┘ └─────────────┘  │
+│  ┌──────────┐ ┌──────────┐ ┌─────────────┐  │
+│  │Safety    │ │Emotion   │ │Metacognition│  │
+│  │Layers    │ │Model     │ │             │  │
+│  └──────────┘ └──────────┘ └─────────────┘  │
+└──────────────────────┬───────────────────────┘
                        │
-┌──────────────────────▼──────────────────────┐
+┌──────────────────────▼───────────────────────┐
 │           Local Storage (SQLite)              │
-│  Episodes │ Semantic │ Policies │ Settings   │
-└─────────────────────────────────────────────┘
+│  Episodes │ Semantic │ Policies │ Emotions   │
+│  Procedural │ Autobiographical │ Settings    │
+└──────────────────────────────────────────────┘
 ```
+
+## Cognitive Modules
+
+The kernel is composed of specialized cognitive modules:
+
+| Module | Responsibility |
+|--------|----------------|
+| **Memory System** | Episodic, semantic, procedural, working, emotional, autobiographical, and prospective memory types |
+| **Cognitive Cycle** | 10-step perception-to-learning processing pipeline |
+| **Safety Layers** | Multi-layered guard against malicious input and unsafe actions |
+| **Emotion Model** | VAD (Valence-Arousal-Dominance) dimensional model influencing risk perception |
+| **Metacognition** | Self-observation of emotional state, risk level, and cognitive biases |
+| **Policy Engine** | Learned decision policies updated from outcomes |
+| **Attention System** | Feature extraction, prioritization, and focus allocation |
 
 ## Component Overview
 
 | Component | Responsibility |
 |-----------|----------------|
-| **Embedded Kernel** | State management, memory, safety, policies, learning |
+| **Embedded Kernel** | State management, memory, cognitive cycle, safety, policies, learning, emotions |
 | **Sidecar** | HTTP API with safety pipeline and optional enterprise proxy |
 | **CLI** | Terminal interface with TUI for interactive sessions |
 | **SDK (Python/.NET)** | Programmatic access to the cognitive runtime |
@@ -51,7 +70,8 @@ Krnl-AI Community is organized around a strict separation between deterministic 
 
 ```
 User Input → Safety Check → Memory Recall → Evaluation
-→ Planning → Governance → Execution → Outcome → Learning
+→ Metacognition → Planning → Governance → Execution
+→ Outcome Recording → Learning → Emotional Update
 ```
 
 ## Safety Pipeline
@@ -61,17 +81,20 @@ Every agent run flows through layered safety checks:
 1. **Adversarial Guard** — Detects prompt injection and jailbreak attempts
 2. **Fundamental Rules (R01-R20)** — Enforces 20 unbreakable rules
 3. **Ethical Enforcer** — Validates against ethical principles
-4. **Rate Limiting** — Prevents abuse and resource exhaustion
+4. **Input Validation** — Schema validation on all inputs
+5. **Allowlist** — Only registered actions are permitted
+6. **Rate Limiting** — Prevents abuse and resource exhaustion
 
 For detailed safety documentation, see [Safety System](../06-Safety/safety-system.md).
 
 ## Technology Stack
 
-| Component | Technology |
-|-----------|------------|
-| Runtime | .NET 10 / Python 3.10+ |
-| Storage | SQLite (local), MySQL (enterprise proxy) |
-| Vectors | SQLite vector store (local), Qdrant (enterprise proxy) |
-| Cache | In-memory (local), Redis (enterprise proxy) |
-| Desktop | WPF (.NET), Tauri (Rust + React) |
-| SDK | .NET (netstandard2.0), Python (3.10+) |
+| Component | Community (Local) | Enterprise (Proxy) |
+|-----------|-------------------|---------------------|
+| Runtime | .NET 10 / Python 3.10+ | .NET 10 / Python 3.10+ |
+| Storage | SQLite | MySQL |
+| Vectors | SQLite vector store | Qdrant HNSW |
+| Cache | In-memory | Redis |
+| Safety | Full pipeline | Full pipeline + MetaCritic |
+| Desktop | WPF (.NET), Tauri (Rust + React) | WPF (.NET), Tauri (Rust + React) |
+| SDK | .NET (netstandard2.0), Python (3.10+) | .NET (netstandard2.0), Python (3.10+) |

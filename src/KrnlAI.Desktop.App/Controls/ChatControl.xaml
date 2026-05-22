@@ -146,6 +146,17 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <ListBox Grid.Row="0"
+                             ItemsSource="{Binding ChatVM.MentionSuggestions}"
+                             Visibility="{Binding ChatVM.IsMentionSuggestionsVisible, Converter={StaticResource BoolToVisibilityConverter}}"
+                             SelectedIndex="{Binding ChatVM.MentionSelectedIndex}"
+                             MaxHeight="120"
+                             Margin="0,0,0,2"
+                             Background="{StaticResource PanelBrush}"
+                             BorderBrush="{StaticResource BorderBrush}"
+                             BorderThickness="1"
+                             FontSize="12">
+                    </ListBox>
+                    <ListBox Grid.Row="0"
                              ItemsSource="{Binding ChatVM.SlashSuggestions}"
                              Visibility="{Binding ChatVM.IsSlashSuggestionsVisible, Converter={StaticResource BoolToVisibilityConverter}}"
                              SelectedIndex="{Binding ChatVM.SlashSelectedIndex}"

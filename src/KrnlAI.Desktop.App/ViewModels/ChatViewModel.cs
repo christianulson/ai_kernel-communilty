@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Text.Json;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -23,6 +24,9 @@ public class ChatViewModel : ViewModelBase
     private readonly List<string> _messageHistory = new();
     private int _historyIndex = -1;
     private string _savedInput = string.Empty;
+    private static readonly string HistoryPath = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "KrnlAI", "chat_history.json");
 
     // Slash commands
     private readonly SlashCommandService _slashCommands = new();
@@ -45,6 +49,35 @@ public class ChatViewModel : ViewModelBase
         set => SetProperty(ref _slashSelectedIndex, value);
     }
 
+    // @-mentions
+    private static readonly (string Label, string Description, string Icon)[] MentionItems =
+    {
+        ("@file", "Reference a file by name", "\U0001f4c4"),
+        ("@selection", "Current editor selection", "\U0001f4cc"),
+        ("@symbol", "Code symbol (class, function)", "\U0001f523"),
+        ("@terminal", "Terminal output", "\U0001f4bb"),
+        ("@diagnostics", "Project errors/warnings", "\u26a0\ufe0f"),
+    };
+
+    private ObservableCollection<string> _mentionSuggestions = new();
+    public ObservableCollection<string> MentionSuggestions
+    {
+        get => _mentionSuggestions;
+        set => SetProperty(ref _mentionSuggestions, value);
+    }
+    private bool _isMentionSuggestionsVisible;
+    public bool IsMentionSuggestionsVisible
+    {
+        get => _isMentionSuggestionsVisible;
+        set => SetProperty(ref _isMentionSuggestionsVisible, value);
+    }
+    private int _mentionSelectedIndex;
+    public int MentionSelectedIndex
+    {
+        get => _mentionSelectedIndex;
+        set => SetProperty(ref _mentionSelectedIndex, value);
+    }
+
     public ObservableCollection<ChatMessage> Messages { get; } = new();
     private string _inputText = "";
     public string InputText
@@ -55,13 +88,34 @@ public class ChatViewModel : ViewModelBase
             if (SetProperty(ref _inputText, value))
             {
                 ((AsyncRelayCommand)SendMessageCommand).RaiseCanExecuteChanged();
-                UpdateSlashSuggestions();
+                UpdateSlashAndMentionSuggestions();
             }
         }
     }
 
-    private void UpdateSlashSuggestions()
+    private void UpdateSlashAndMentionSuggestions()
     {
+        // Check for @-mention
+        var lastAtIndex = _inputText.LastIndexOf('@');
+        if (lastAtIndex >= 0)
+        {
+            var afterAt = _inputText[(lastAtIndex + 1)..];
+            if (!afterAt.Contains(' ') && !afterAt.Contains('/'))
+            {
+                var filtered = MentionItems
+                    .Where(m => m.Label.Contains(afterAt, StringComparison.OrdinalIgnoreCase))
+                    .Select(m => $"{m.Icon} {m.Label} — {m.Description}")
+                    .ToList();
+                MentionSuggestions = new ObservableCollection<string>(filtered);
+                IsMentionSuggestionsVisible = filtered.Count > 0;
+                MentionSelectedIndex = filtered.Count > 0 ? 0 : -1;
+                IsSlashSuggestionsVisible = false;
+                return;
+            }
+        }
+        IsMentionSuggestionsVisible = false;
+
+        // Check for slash command
         if (_inputText.StartsWith("/") && !_inputText.Contains(' '))
         {
             var filtered = _slashCommands.Filter(_inputText);
@@ -73,6 +127,31 @@ public class ChatViewModel : ViewModelBase
         {
             IsSlashSuggestionsVisible = false;
         }
+    }
+
+    public void SelectNextMentionSuggestion()
+    {
+        if (MentionSuggestions.Count == 0) return;
+        MentionSelectedIndex = (MentionSelectedIndex + 1) % MentionSuggestions.Count;
+    }
+
+    public void SelectPreviousMentionSuggestion()
+    {
+        if (MentionSuggestions.Count == 0) return;
+        MentionSelectedIndex = (MentionSelectedIndex - 1 + MentionSuggestions.Count) % MentionSuggestions.Count;
+    }
+
+    public void ApplyMentionSuggestion()
+    {
+        if (MentionSelectedIndex < 0 || MentionSelectedIndex >= MentionSuggestions.Count) return;
+        var selected = MentionSuggestions[MentionSelectedIndex];
+        var label = selected.Split(' ')[1]; // "@file"
+        var lastAtIndex = InputText.LastIndexOf('@');
+        if (lastAtIndex >= 0)
+        {
+            InputText = InputText[..lastAtIndex] + label + " ";
+        }
+        IsMentionSuggestionsVisible = false;
     }
 
     public void SelectNextSlashSuggestion()
@@ -124,6 +203,36 @@ public class ChatViewModel : ViewModelBase
             if (_messageHistory.Count > 50) _messageHistory.RemoveAt(_messageHistory.Count - 1);
         }
         _historyIndex = -1;
+        SaveHistoryToDisk();
+    }
+
+    private void LoadHistoryFromDisk()
+    {
+        try
+        {
+            if (!File.Exists(HistoryPath)) return;
+            var json = File.ReadAllText(HistoryPath);
+            var list = JsonSerializer.Deserialize<List<string>>(json);
+            if (list != null)
+            {
+                _messageHistory.Clear();
+                _messageHistory.AddRange(list);
+            }
+        }
+        catch { /* best-effort */ }
+    }
+
+    private void SaveHistoryToDisk()
+    {
+        try
+        {
+            var dir = Path.GetDirectoryName(HistoryPath);
+            if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+            var json = JsonSerializer.Serialize(_messageHistory);
+            File.WriteAllText(HistoryPath, json);
+        }
+        catch { /* best-effort */ }
     }
 
     // Audio capture
@@ -160,6 +269,7 @@ public class ChatViewModel : ViewModelBase
         _videoCapture = videoCapture;
         _localization = localization;
         _slashHandler = new SlashCommandHandler();
+        LoadHistoryFromDisk();
         SendMessageCommand = new AsyncRelayCommand(SendMessageAsync, () => !IsProcessing && (!string.IsNullOrWhiteSpace(InputText) || _lastFrameJpeg != null));
         ClearChatCommand = new RelayCommand(() => Messages.Clear());
         ToggleAudioCaptureCommand = new AsyncRelayCommand(ToggleAudioCaptureAsync);
