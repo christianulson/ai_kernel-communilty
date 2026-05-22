@@ -1,27 +1,40 @@
 # Custom Tool Sample
 
-Community integrations should expose tools through deterministic code and let the
-LLM translate user intent into structured tool calls.
+Shows how to create a custom tool for Krnl-AI using a deterministic code pattern.
 
-Minimal flow:
+## Flow
 
-1. Define the tool input schema.
-2. Validate the request before execution.
-3. Run safety checks for actions with side effects.
-4. Return structured output to the agent.
+1. Define the tool input schema (record/class)
+2. Implement the `ITool<TInput, TOutput>` interface
+3. Register and execute from your application
+4. Keep tests offline, deterministic — use fake stores or in-memory services
+
+## Usage
+
+```bash
+dotnet run --project KrnlAI.Sample.CustomTool
+```
+
+## Code
 
 ```csharp
 public sealed record TodoInput(string Title);
 
-public sealed class TodoTool
+public sealed class TodoTool : ITool<TodoInput, TodoResult>
 {
-    public Task<string> ExecuteAsync(TodoInput input, CancellationToken cancellationToken)
+    public string Name => "todo";
+    public string Description => "Creates and manages todo items";
+
+    public Task<TodoResult> ExecuteAsync(TodoInput input, CancellationToken ct = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(input.Title);
-        return Task.FromResult($"Created todo: {input.Title}");
+        // ...
     }
 }
 ```
 
-Keep tests offline and deterministic. Use fake stores or in-memory services for
-sample test coverage.
+## Tests
+
+```bash
+dotnet test KrnlAI.Sample.CustomTool.Tests
+```

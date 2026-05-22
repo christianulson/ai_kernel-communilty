@@ -3,6 +3,14 @@
     <Project Path="src/KrnlAI.Cli/KrnlAI.Cli.csproj" />
     <Project Path="src/KrnlAI.Sidecar/KrnlAI.Sidecar.csproj" />
   </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/custom-tool/KrnlAI.Sample.CustomTool/KrnlAI.Sample.CustomTool.csproj" />
+    <Project Path="samples/custom-tool/KrnlAI.Sample.CustomTool.Tests/KrnlAI.Sample.CustomTool.Tests.csproj" />
+    <Project Path="samples/hello-agent/KrnlAI.Sample.HelloAgent/KrnlAI.Sample.HelloAgent.csproj" />
+    <Project Path="samples/hello-agent/KrnlAI.Sample.HelloAgent.Tests/KrnlAI.Sample.HelloAgent.Tests.csproj" />
+    <Project Path="samples/safety-config/KrnlAI.Sample.SafetyConfig/KrnlAI.Sample.SafetyConfig.csproj" />
+    <Project Path="samples/safety-config/KrnlAI.Sample.SafetyConfig.Tests/KrnlAI.Sample.SafetyConfig.Tests.csproj" />
+  </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/KrnlAI.Cli.Tests/KrnlAI.Cli.Tests.csproj" />
     <Project Path="tests/KrnlAI.Sidecar.Tests/KrnlAI.Sidecar.Tests.csproj" />
