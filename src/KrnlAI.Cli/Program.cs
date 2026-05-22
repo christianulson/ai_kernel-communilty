@@ -114,4 +114,7 @@ root.Add(new ExperimentCommand(cliCtx, renderer).Build());
 var sessionStore = host.Services.GetRequiredService<InMemorySessionStore>();
 root.Add(new SessionCommand(console, sessionStore).Build());
 
+// Checkpoint management
+root.Add(new CheckpointCommand(cliCtx, renderer).Build());
+
 return await root.Parse(args).InvokeAsync();

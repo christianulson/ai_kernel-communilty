@@ -88,6 +88,10 @@ public static class CliServiceExtensions
         services.AddSingleton<IPlanArtifactStore, InMemoryPlanArtifactStore>();
         services.AddSingleton<KrnlAI.Cognition.Runtime.PlanActOrchestrator>();
 
+        // Checkpoints
+        services.AddSingleton<ICheckpointStore, InMemoryCheckpointStore>();
+        services.AddSingleton<ICheckpointManager, Core.Services.Versioning.CheckpointManager>();
+
         return services;
     }
 }

@@ -1,3 +1,4 @@
+using KrnlAI.Core.Abstractions;
 using KrnlAI.Core.Models;
 using KrnlAI.Core.Services.Memory;
 using Spectre.Console;
@@ -162,5 +163,39 @@ public sealed class ConsoleRenderer
     public void RenderSuccess(string message)
     {
         Console.MarkupLine($"[green]{message.EscapeMarkup()}[/]");
+    }
+
+    public void RenderCheckpointList(IReadOnlyList<CheckpointInfo> checkpoints)
+    {
+        if (checkpoints.Count == 0)
+        {
+            Console.MarkupLine("[yellow]No checkpoints[/]");
+            return;
+        }
+        var table = new Table().Border(TableBorder.Rounded);
+        table.AddColumn("ID");
+        table.AddColumn("Label");
+        table.AddColumn("Created");
+        table.AddColumn("Files");
+        foreach (var cp in checkpoints)
+        {
+            table.AddRow(
+                cp.Id[..8] + "...",
+                cp.Label.EscapeMarkup(),
+                cp.CreatedAt.ToString("HH:mm:ss"),
+                cp.FileCount.ToString());
+        }
+        Console.Write(table);
+    }
+
+    public void RenderDiff(string diff)
+    {
+        if (string.IsNullOrEmpty(diff))
+        {
+            Console.MarkupLine("[yellow]No diff[/]");
+            return;
+        }
+        Console.MarkupLine("[bold]Diff:[/]");
+        Console.WriteLine(diff);
     }
 }
