@@ -5,6 +5,7 @@ using KrnlAI.VisualStudio.ToolWindows;
 using KrnlAI.VisualStudio.ToolWindows.Dashboard;
 using KrnlAI.VisualStudio.ToolWindows.Policies;
 using KrnlAI.VisualStudio.ToolWindows.Episodes;
+using KrnlAI.VisualStudio.ToolWindows.Kanban;
 using Microsoft.VisualStudio.Shell;
 
 namespace KrnlAI.VisualStudio;
@@ -15,6 +16,7 @@ namespace KrnlAI.VisualStudio;
 [ProvideToolWindow(typeof(DashboardToolWindow), Style = VsDockStyle.Tabbed, DockedHeight = 300, DockedWidth = 400)]
 [ProvideToolWindow(typeof(PoliciesToolWindow), Style = VsDockStyle.Tabbed, DockedHeight = 300, DockedWidth = 400)]
 [ProvideToolWindow(typeof(EpisodesToolWindow), Style = VsDockStyle.Tabbed, DockedHeight = 300, DockedWidth = 400)]
+[ProvideToolWindow(typeof(KanbanToolWindow), Style = VsDockStyle.Tabbed, DockedHeight = 300, DockedWidth = 500)]
 [ProvideOptionPage(typeof(KrnlAIOptionsPage), "Krnl-AI", "General", 0, 0, true)]
 [ProvideMenuResource("Menus.ctmenu", 1)]
 public sealed class KrnlAIPackage : AsyncPackage
@@ -27,5 +29,6 @@ public sealed class KrnlAIPackage : AsyncPackage
         await ShowToolWindowAsync(typeof(KrnlAIToolWindow), 0, true, cancellationToken);
         await SendSelectionToChat.InitializeAsync(this);
         await AnalyzeErrorCommand.InitializeAsync(this);
+        await OpenKanbanCommand.InitializeAsync(this);
     }
 }

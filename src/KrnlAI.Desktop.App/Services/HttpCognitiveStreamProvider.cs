@@ -5,7 +5,7 @@ using CognitiveCycleEvent = KrnlAI.Desktop.Core.Abstractions.CognitiveCycleEvent
 
 namespace KrnlAI.Desktop.App.Services;
 
-public sealed class CognitiveStreamPollingService
+public sealed class HttpCognitiveStreamProvider : ICognitiveStreamProvider
 {
     private readonly HttpClient _http;
     private CancellationTokenSource? _cts;
@@ -16,7 +16,7 @@ public sealed class CognitiveStreamPollingService
     public event Action<CognitiveCycleEvent>? OnEvent;
     public event Action<CognitiveStreamState>? OnStateChanged;
 
-    public CognitiveStreamPollingService(string baseUrl = "http://localhost:5000")
+    public HttpCognitiveStreamProvider(string baseUrl = "http://localhost:5000")
     {
         _http = new HttpClient { BaseAddress = new Uri(baseUrl.TrimEnd('/')), Timeout = TimeSpan.FromSeconds(30) };
     }

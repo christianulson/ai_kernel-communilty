@@ -39,6 +39,8 @@ public class ServiceLocator : IDisposable
     public ILogger<T> GetLogger<T>() => _provider.GetRequiredService<ILogger<T>>();
     public Func<WebRtcService> WebRtcServiceFactory => () => new WebRtcService(GetLogger<WebRtcService>());
 
+    public KanbanService KanbanService => _provider.GetRequiredService<KanbanService>();
+
     private ServiceLocator()
     {
         var loggerFactory = LoggerFactory.Create(b => b.AddConsole().SetMinimumLevel(LogLevel.Warning));
@@ -116,6 +118,8 @@ public class ServiceLocator : IDisposable
         ServiceLocatorAccess.SetLocalizationService(localizationService);
         services.AddSingleton<IOfflineService, OfflineService>();
         services.AddSingleton<ThemeManager>();
+        services.AddSingleton(new HttpClient { BaseAddress = new Uri(baseUrl), Timeout = TimeSpan.FromSeconds(30) });
+        services.AddSingleton<KanbanService>();
 
         _provider = services.BuildServiceProvider();
 
