@@ -1,5 +1,4 @@
 using System.Windows;
-using System.Windows.Controls;
 using KrnlAI.Desktop.App.ViewModels;
 
 namespace KrnlAI.Desktop.App.Windows;

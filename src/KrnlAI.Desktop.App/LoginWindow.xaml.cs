@@ -1,13 +1,11 @@
 using System.Diagnostics;
 using System.Net;
-using System.Runtime.Serialization;
 using System.Windows;
 using System.Windows.Input;
 using KrnlAI.Desktop.App.Services;
 using KrnlAI.Desktop.App.ViewModels;
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
-using KrnlAI.Desktop.Infrastructure.KernelClient;
 
 namespace KrnlAI.Desktop.App;
 

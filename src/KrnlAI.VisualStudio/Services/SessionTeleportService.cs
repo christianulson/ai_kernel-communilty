@@ -1,7 +1,5 @@
 using System.Text.Json;
 using Microsoft.VisualStudio.Settings;
-using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Settings;
 
 namespace KrnlAI.VisualStudio.Services;
 

@@ -289,5 +289,10 @@ public sealed class DesktopServiceLifecycleTests
 
         public Task<Core.Models.ShareListResponse?> GetSharesAsync(CancellationToken cancellationToken = default)
             => Task.FromResult<Core.Models.ShareListResponse?>(null);
+
+        public Task<List<Core.Models.SnapshotInfo>> GetSnapshotsAsync(CancellationToken ct = default) => Task.FromResult(new List<Core.Models.SnapshotInfo>());
+        public Task<List<Core.Models.ObjectiveInfo>> GetObjectivesAsync(CancellationToken ct = default) => Task.FromResult(new List<Core.Models.ObjectiveInfo>());
+        public Task<Core.Models.ObjectiveDetail> GetObjectiveDetailAsync(string id, CancellationToken ct = default) => Task.FromResult(default(Core.Models.ObjectiveDetail)!);
+        public Task<List<Core.Models.InvestigationInfo>> GetInvestigationsAsync(CancellationToken ct = default) => Task.FromResult(new List<Core.Models.InvestigationInfo>());
     }
 }

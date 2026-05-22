@@ -1,5 +1,3 @@
-using KrnlAI.Desktop.Core.Models;
-
 namespace KrnlAI.Desktop.Core.Abstractions;
 
 /// <summary>Client for communicating with the Krnl-AI backend API.</summary>

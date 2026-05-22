@@ -1,6 +1,4 @@
 using KrnlAI.Desktop.App.ViewModels;
-using KrnlAI.Desktop.Core.Models;
-using Xunit;
 
 namespace KrnlAI.Desktop.Tests.ViewModels;
 

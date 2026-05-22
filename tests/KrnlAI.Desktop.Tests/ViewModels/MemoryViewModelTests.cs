@@ -1,5 +1,4 @@
 using KrnlAI.Desktop.App.ViewModels;
-using Xunit;
 namespace KrnlAI.Desktop.Tests.ViewModels;
 public sealed class MemoryViewModelTests
 {

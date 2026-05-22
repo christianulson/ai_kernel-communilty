@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Http;
 using KrnlAI.Desktop.Infrastructure.KernelClient;
-using Xunit;
 
 namespace KrnlAI.Desktop.Tests.Services;
 

@@ -4,7 +4,6 @@ using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
 using KrnlAI.Desktop.Core.Services;
 using Moq;
-using Xunit;
 
 namespace KrnlAI.Desktop.Tests.ViewModels;
 

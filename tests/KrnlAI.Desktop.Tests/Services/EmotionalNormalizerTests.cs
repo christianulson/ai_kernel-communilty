@@ -1,5 +1,4 @@
 using KrnlAI.Desktop.Core.Services;
-using Xunit;
 
 namespace KrnlAI.Desktop.Tests.Services;
 

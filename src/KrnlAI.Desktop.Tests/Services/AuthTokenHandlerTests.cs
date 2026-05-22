@@ -1,6 +1,4 @@
 using System.Net;
-using System.Text;
-using System.Text.Json;
 using KrnlAI.Desktop.Infrastructure.KernelClient;
 
 namespace KrnlAI.Desktop.Tests.Services;

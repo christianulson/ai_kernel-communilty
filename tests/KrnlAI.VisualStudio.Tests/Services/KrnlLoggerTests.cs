@@ -1,4 +1,3 @@
-using System.IO;
 using KrnlAI.VisualStudio.Services;
 using FluentAssertions;
 using Xunit;

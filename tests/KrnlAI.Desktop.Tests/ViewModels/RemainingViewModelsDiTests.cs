@@ -1,9 +1,7 @@
-using System.Net.Http;
 using KrnlAI.Desktop.App.ViewModels;
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
 using Moq;
-using Xunit;
 
 namespace KrnlAI.Desktop.Tests.ViewModels;
 
