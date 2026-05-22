@@ -58,6 +58,7 @@ public sealed class GoalsCommand(CliContext ctx, ConsoleRenderer renderer)
             return 0;
         });
         cmd.Add(get);
+        cmd.Add(new KanbanCommand(ctx, new KanbanRenderer(renderer.Console)).Build());
 
         return cmd;
     }

@@ -1,17 +1,10 @@
 using System.Net.Http;
 using System.Net.Http.Json;
+using KrnlAI.Desktop.Core.Abstractions;
+using CognitiveCycleEvent = KrnlAI.Desktop.Core.Abstractions.CognitiveCycleEvent;
 using System.IO;
 
 namespace KrnlAI.Desktop.App.Services;
-
-public enum CognitiveStreamState { Disconnected, Connecting, Connected, Error }
-
-public sealed record CognitiveCycleEvent(
-    string Type,
-    string StepName,
-    string? Content,
-    string CycleId,
-    string Timestamp);
 
 public sealed class CognitiveStreamPollingService
 {

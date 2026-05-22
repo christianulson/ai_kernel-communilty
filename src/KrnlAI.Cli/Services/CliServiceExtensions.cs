@@ -92,6 +92,10 @@ public static class CliServiceExtensions
         services.AddSingleton<ICheckpointStore, InMemoryCheckpointStore>();
         services.AddSingleton<ICheckpointManager, Core.Services.Versioning.CheckpointManager>();
 
+        // Kanban
+        services.AddSingleton<KanbanRenderer>();
+        services.AddSingleton<IKanbanService, KanbanService>();
+
         return services;
     }
 }

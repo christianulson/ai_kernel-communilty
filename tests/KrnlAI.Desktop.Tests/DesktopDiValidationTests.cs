@@ -25,7 +25,8 @@ public sealed class DesktopDiValidationTests
         "AuthTokenProvider", "AuthTokenHandler",
         "IAdminClient", "IAuthClient", "IDashboardClient",
         "IEpisodeClient", "IGoalClient", "IMemoryClient", "IPolicyClient",
-        "ISnapshotClient", "IObjectiveClient", "IInvestigationClient"
+        "ISnapshotClient", "IObjectiveClient", "IInvestigationClient",
+        "ICognitiveStreamProvider", "ISlashCommandExecutor"
     ];
 
     [Fact]

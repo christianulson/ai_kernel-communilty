@@ -43,6 +43,8 @@ public class ServiceLocator : IDisposable
     private T? Resolve<T>() where T : class =>
         _disposed ? null : _provider?.GetService<T>();
 
+    public KanbanService KanbanService => _provider.GetRequiredService<KanbanService>();
+
     private ServiceLocator()
     {
         var loggerFactory = LoggerFactory.Create(b => b.AddConsole().SetMinimumLevel(LogLevel.Warning));
@@ -122,6 +124,8 @@ public class ServiceLocator : IDisposable
         ServiceLocatorAccess.SetLocalizationService(localizationService);
         services.AddSingleton<IOfflineService, OfflineService>();
         services.AddSingleton<ThemeManager>();
+        services.AddSingleton(new HttpClient { BaseAddress = new Uri(baseUrl), Timeout = TimeSpan.FromSeconds(30) });
+        services.AddSingleton<KanbanService>();
 
         _provider = services.BuildServiceProvider();
 

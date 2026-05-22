@@ -74,6 +74,7 @@ public class MainViewModel : ViewModelBase
     public ModelRegistryViewModel ModelRegistryVM { get; }
     public VersionsViewModel VersionsVM { get; }
     public SessionsViewModel SessionsVM { get; }
+    public KanbanViewModel KanbanVM { get; }
 
     public ObservableCollection<MediaDevice> Microphones => SettingsVM.Microphones;
     public ObservableCollection<MediaDevice> Cameras => SettingsVM.Cameras;
@@ -90,7 +91,7 @@ public class MainViewModel : ViewModelBase
     private string _statusMessage = "Iniciando...";
     public string StatusMessage { get => _statusMessage; set => SetProperty(ref _statusMessage, value); }
     private string _currentScreen = "chat";
-    public string CurrentScreen { get => _currentScreen; set { if (SetProperty(ref _currentScreen, value)) { OnPropertyChanged(nameof(IsChatVisible)); OnPropertyChanged(nameof(IsDashboardVisible)); OnPropertyChanged(nameof(IsPoliciesVisible)); OnPropertyChanged(nameof(IsEpisodesVisible)); OnPropertyChanged(nameof(IsMemoryVisible)); OnPropertyChanged(nameof(IsSettingsVisible)); OnPropertyChanged(nameof(IsBenchmarkVisible)); OnPropertyChanged(nameof(IsCausalVisible)); OnPropertyChanged(nameof(IsProfileVisible)); OnPropertyChanged(nameof(IsDocumentsVisible)); OnPropertyChanged(nameof(IsArchiveVisible)); OnPropertyChanged(nameof(IsModelRegistryVisible)); OnPropertyChanged(nameof(IsVersionsVisible)); OnPropertyChanged(nameof(IsSessionsVisible)); } } }
+    public string CurrentScreen { get => _currentScreen; set { if (SetProperty(ref _currentScreen, value)) { OnPropertyChanged(nameof(IsChatVisible)); OnPropertyChanged(nameof(IsDashboardVisible)); OnPropertyChanged(nameof(IsPoliciesVisible)); OnPropertyChanged(nameof(IsEpisodesVisible)); OnPropertyChanged(nameof(IsMemoryVisible)); OnPropertyChanged(nameof(IsSettingsVisible)); OnPropertyChanged(nameof(IsBenchmarkVisible)); OnPropertyChanged(nameof(IsCausalVisible)); OnPropertyChanged(nameof(IsProfileVisible)); OnPropertyChanged(nameof(IsDocumentsVisible)); OnPropertyChanged(nameof(IsArchiveVisible)); OnPropertyChanged(nameof(IsModelRegistryVisible)); OnPropertyChanged(nameof(IsVersionsVisible)); OnPropertyChanged(nameof(IsSessionsVisible)); OnPropertyChanged(nameof(IsKanbanVisible)); } } }
     public bool IsChatVisible => _currentScreen == "chat";
     public bool IsDashboardVisible => _currentScreen == "dashboard";
     public bool IsPoliciesVisible => _currentScreen == "policies";
@@ -105,6 +106,7 @@ public class MainViewModel : ViewModelBase
     public bool IsModelRegistryVisible => _currentScreen == "modelregistry";
     public bool IsVersionsVisible => _currentScreen == "versions";
     public bool IsSessionsVisible => _currentScreen == "sessions";
+    public bool IsKanbanVisible => _currentScreen == "kanban";
 
     public AgentInfo? SelectedAgent { get; set; }
     private ConversationSession? _activeSession;
@@ -151,6 +153,7 @@ public class MainViewModel : ViewModelBase
     public ICommand NavigateToModelRegistryCommand { get; }
     public ICommand NavigateToVersionsCommand { get; }
     public ICommand NavigateToSessionsCommand { get; }
+    public ICommand NavigateToKanbanCommand { get; }
     public ICommand NavigateToProfileCommand { get; }
     public ICommand ToggleListeningCommand { get; }
     public ICommand LogoutCommand { get; }
@@ -177,7 +180,7 @@ public class MainViewModel : ViewModelBase
             new MemoryViewModel(), new EpisodesViewModel(), new DocumentViewModel(),
             new PoliciesViewModel(), new BenchmarkViewModel(), new CausalGraphViewModel(),
             new ProfileViewModel(), new ArchiveViewModel(), new ModelRegistryViewModel(),
-            new VersionsViewModel(), new SessionsViewModel())
+            new VersionsViewModel(), new SessionsViewModel(), new KanbanViewModel())
     { }
 
     public MainViewModel(
@@ -191,7 +194,7 @@ public class MainViewModel : ViewModelBase
         MemoryViewModel memoryVM, EpisodesViewModel episodesVM, DocumentViewModel documentVM,
         PoliciesViewModel policiesVM, BenchmarkViewModel benchmarkVM, CausalGraphViewModel causalVM,
         ProfileViewModel profileVM, ArchiveViewModel archiveVM, ModelRegistryViewModel modelRegistryVM,
-        VersionsViewModel versionsVM, SessionsViewModel sessionsVM)
+        VersionsViewModel versionsVM, SessionsViewModel sessionsVM, KanbanViewModel kanbanVM)
     {
         ChatVM = chatVM;
         DashVM = dashVM;
@@ -207,6 +210,7 @@ public class MainViewModel : ViewModelBase
         ModelRegistryVM = modelRegistryVM;
         VersionsVM = versionsVM;
         SessionsVM = sessionsVM;
+        KanbanVM = kanbanVM;
 
         _kernelClient = kernelClient;
         _settingsService = settingsService;
@@ -234,6 +238,7 @@ public class MainViewModel : ViewModelBase
         NavigateToModelRegistryCommand = new RelayCommand(() => CurrentScreen = "modelregistry");
         NavigateToVersionsCommand = new RelayCommand(() => CurrentScreen = "versions");
         NavigateToSessionsCommand = new RelayCommand(() => CurrentScreen = "sessions");
+        NavigateToKanbanCommand = new RelayCommand(() => CurrentScreen = "kanban");
         NavigateToProfileCommand = new RelayCommand(() => CurrentScreen = "profile");
         ToggleListeningCommand = new AsyncRelayCommand(ToggleListeningAsync);
         LogoutCommand = new RelayCommand(ExecuteLogout);
