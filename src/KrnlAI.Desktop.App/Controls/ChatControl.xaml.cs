@@ -1,9 +1,26 @@
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 namespace KrnlAI.Desktop.App.Controls;
 public partial class ChatControl : UserControl
 {
-    public ChatControl() { InitializeComponent(); }
+    public ChatControl()
+    {
+        InitializeComponent();
+        Loaded += OnLoaded;
+    }
+
+    private async void OnLoaded(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is ViewModels.MainViewModel mainVm && mainVm.ChatVM != null)
+        {
+            var chatVm = mainVm.ChatVM;
+
+            // Start cognitive stream when processing starts
+            chatVm.SendMessageCommand.Execute(null);
+            await chatVm.ConnectCognitiveStreamAsync();
+        }
+    }
 
     private void OnChatInputKeyDown(object sender, KeyEventArgs e)
     {

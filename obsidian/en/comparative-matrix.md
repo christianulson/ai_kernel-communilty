@@ -10,28 +10,32 @@
 | **OpenAI Codex** | OpenAI | Terminal Coding Agent | Rust | Apache-2.0 | 83.6k |
 | **Claude Code** | Anthropic | Terminal Coding Agent | TypeScript / Shell | Proprietary | 125k |
 | **OpenCode** | Anomaly | Terminal/IDE Coding Agent | TypeScript | Apache-2.0 | 160k |
-| **OpenClaw** | OpenClaw | Personal AI Assistant | TypeScript | Apache-2.0 | 373k |
+| **OpenClaw** | OpenClaw | Personal AI Assistant | TypeScript | MIT | 374k |
 | **Hermes** | Nous Research | Fine-tuned LLM Models | Python | Apache-2.0 | N/A (models) |
-| **Semantic Kernel (MAF)** | Microsoft | Agent SDK / Orchestration | C# + Python + Java | MIT | 27.9k |
-| **Aider** | Aider-AI | Terminal Coding Agent (Pair Prog.) | Python | Apache-2.0 | 45k |
+| **Microsoft Agent Framework (MAF)** | Microsoft | Agent SDK / Multi-Agent Orchestration | C# + Python + Java | MIT | 28k |
+| **Gemini CLI** | Google | Terminal AI Agent | TypeScript | Apache-2.0 | 104k |
+| **Antigravity** | Google | AI-Powered IDE | TypeScript | Proprietary | — |
+| **Aider** | Aider-AI | Terminal Coding Agent (Pair Prog.) | Python | Apache-2.0 | 45.1k |
 | **GitHub Copilot** | GitHub/Microsoft | IDE Coding Assistant | TypeScript / Go | Proprietary | N/A (product) |
 | **Cursor** | Cursor | AI-Native IDE | TypeScript | Proprietary | 32.9k |
-| **Continue** | Continue Dev | IDE Extension + CLI AI Checks | TypeScript | Apache-2.0 | 33.3k |
+| **Continue** | Continue Dev | AI Checks in CI | TypeScript | Apache-2.0 | 33.3k |
 | **AutoGPT** | Significant Gravitas | Autonomous Agent Platform | Python + TypeScript | Polyform + MIT | 184k |
-| **LangChain/LangGraph** | LangChain Inc | Agent Framework / Orchestration | Python + TypeScript | MIT | 105k |
+| **LangChain/LangGraph** | LangChain Inc | Agent Engineering Platform | Python + TypeScript | MIT | 137k |
 
 ---
 
 ## Feature Comparison Matrix
 
-| Category | Feature | Krnl-AI | Codex | Claude Code | OpenCode | OpenClaw | Hermes | Sem. Kernel | Aider | Copilot | Cursor | Continue | AutoGPT | LangChain |
-|----------|---------|---------|-------|-------------|----------|----------|--------|-------------|-------|---------|--------|----------|---------|-----------|
-| **Architecture** | Cognitive Cycle (10-step) | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| | Deterministic Kernel | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| | Kernel/Gateway Separation | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| | Cognitive Phases (4 phases) | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| | Local-First/Offline | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ |
-| | Agent Framework SDK | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| Category | Feature | Krnl-AI | Codex | Claude Code | OpenCode | OpenClaw | Hermes | MAF | Gemini CLI | Antigravity | Aider | Copilot | Cursor | Continue | AutoGPT | LangChain |
+|----------|---------|---------|-------|-------------|----------|----------|--------|-----|------------|-------------|-------|---------|--------|----------|---------|-----------|
+| **Architecture** | Cognitive Cycle (10-step) | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| | Coding Cognitive Cycle (11-step) | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| | Adaptive Loop (depth modulation) | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| | Deterministic Kernel | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| | Kernel/Gateway Separation | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| | Cognitive Phases (4 phases) | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| | Local-First/Offline | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| | Agent Framework SDK | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
 | **Memory** | Episodic Memory | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | | Semantic Memory (RAG) | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
 | | Working Memory (capacity-limited) | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
@@ -42,7 +46,7 @@
 | | Archive/Forgetting (utility-based) | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | | SQLite Persistence | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ |
 | | Vector Search (native) | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ (ext.) | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ (ext.) |
-| | Multi-type Memory (5 types) | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| | Multi-type Memory (7 types) | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | | Working Memory TTL/Eviction | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | | Episodic LRU Pruning | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | | Semantic Facts (triples w/ confidence) | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
@@ -90,14 +94,14 @@
 | | Starvation-for-Novelty | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | | Sleep Pressure | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | | Health Score | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **LLM Support** | Multi-Provider | ✅ (9+) | ❌ (OpenAI) | ❌ (Claude) | ✅ (75+) | ✅ | N/A | ✅ (multi) | ✅ (multi) | ✅ (multi) | ✅ (multi) | ✅ (multi) | ✅ (multi) | ✅ (multi) |
-| | Bring Your Own Key | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ |
-| | Local Models (Ollama) | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ |
-| | Provider Pluggability | ✅ | ❌ | ❌ | ✅ | ✅ | N/A | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| **LLM Support** | Multi-Provider | ✅ (12+) | ❌ (OpenAI) | ❌ (Claude) | ✅ (75+) | ✅ (multi) | N/A | ✅ (multi) | ❌ (Gemini) | ❌ (Gemini) | ✅ (multi) | ✅ (multi) | ✅ (multi) | ✅ (multi) | ✅ (multi) |
+| | Bring Your Own Key | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| | Local Models (Ollama) | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| | Provider Pluggability | ✅ | ❌ | ❌ | ✅ | ✅ | N/A | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ |
 | | Provider Auto-Discovery | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **SDK / API** | Python SDK | ✅ (full cycle) | ✅ (limited) | ✅ (npm) | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ (ext.) | ❌ | ✅ | ✅ | ✅ |
-| | .NET SDK | ✅ (native) | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ (native) | ❌ | ✅ (ext.) | ❌ | ❌ | ❌ | ❌ |
-| | Java SDK | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| **SDK / API** | Python SDK | ✅ (full cycle) | ✅ (limited) | ✅ (npm) | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ (ext.) | ❌ | ✅ | ✅ | ✅ |
+| | .NET SDK | ✅ (native) | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ (native) | ❌ | ❌ | ❌ | ✅ (ext.) | ❌ | ❌ | ❌ | ❌ |
+| | Java SDK | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 | | Sidecar HTTP API | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ |
 | | gRPC Support | Enterprise | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | | Plugin System (5 types) | ✅ | ❌ | ✅ | ✅ | ✅ (5.4k) | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
@@ -120,7 +124,7 @@
 | | Chat Panel | ✅ | Limited | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ |
 | | Agent Mode | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ |
 | | Code Actions / Refactoring | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ |
-| **CLI** | Interactive TUI | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
+| **CLI** | Interactive TUI | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
 | | Session Management | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ |
 | | Project Scaffolding/Templates | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ |
 | | Memory Commands (search/moments) | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
@@ -150,9 +154,21 @@
 | | FastAPI Middleware | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | | MCP Protocol | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ | ✅ |
 | | OpenAPI/Swagger Plugins | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **Multi-Agent** | Multi-Agent Orchestration | Partial | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ |
-| | Agent-to-Agent Communication | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
-| | Agent Delegation | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ |
+| **Multi-Agent** | Multi-Agent Orchestration | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ |
+| | Agent-to-Agent Communication | Partial | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| | Agent Delegation | Partial | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ |
+| | Theory of Mind (ToM) | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Consciousness & Cognition** | Inner Speech Generation | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| | Higher-Order Thoughts (HOT) | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| | Operational Consciousness | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| | Attention Schema (ECAN) | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| | Metacognition (self-observation) | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| | Cognitive Bias Detection | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| | Curiously Drive (novelty-seeking) | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Investigation** | Causal Graph Store | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| | Root Cause Analysis | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| | Hypothesis Testing | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| | Evidence Collection | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Experiments** | A/B Experiment Tracking | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | | Experiment Variants | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | | Experiment Metrics | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
@@ -194,19 +210,23 @@ Sensor → Attention → Memory → Evaluation → Metacognition → Planning �
 
 The cycle progresses through **4 cognitive phases**: `PERCEPTION → DELIBERATION → ACTION → REFLECTION`
 
-No other tool in this comparison has a structured cognitive pipeline — they all use direct LLM request/response patterns. Microsoft's **Semantic Kernel (now Microsoft Agent Framework)** is the closest architectural cousin as a .NET SDK for agents, but it uses a plugin/function-calling model, not a cognitive cycle.
+Krnl-AI also implements a **Coding Cognitive Cycle** (11 steps) for code-specific tasks and an **Adaptive Loop** that modulates processing depth based on task complexity.
+
+No other tool in this comparison has a structured cognitive pipeline — they all use direct LLM request/response patterns. Microsoft's **Agent Framework (MAF, ex-Semantic Kernel)** is the closest architectural cousin as a .NET SDK for agents, but it uses a plugin/function-calling model, not a cognitive cycle.
 
 ### 2. Memory System — Krnl-AI's Unmatched Breadth
 
-Krnl-AI implements **5 distinct memory types** — more than any other tool:
+Krnl-AI implements **7 distinct memory types** — more than any other tool:
 
 | Memory Type | Purpose | Competitors |
 |-------------|---------|-------------|
 | **Working Memory** | Immediate context (capacity-limited, TTL-based eviction) | ❌ None have this |
 | **Episodic Memory** | Past execution history with LRU pruning | ❌ None have this |
-| **Semantic Memory** | Factual knowledge (subject-predicate-object triples w/ confidence) | ✅ Semantic Kernel, AutoGPT (basic), LangChain (via vector stores) |
+| **Semantic Memory** | Factual knowledge (subject-predicate-object triples w/ confidence) | ✅ MAF, AutoGPT (basic), LangChain (via vector stores) |
+| **Procedural Memory** | How-to knowledge (learned procedures/skills) | ❌ None have this |
 | **Emotional Memory** | Emotional state transitions over time | ❌ None have this |
-| **Procedural Memory** | How-to knowledge | ❌ None have this |
+| **Autobiographical Memory** | Narrative of agent's own history and identity | ❌ None have this |
+| **Prospective Memory** | Future intentions with time/event triggers | ❌ None have this |
 
 #### Additional Memory Subsystems
 
@@ -332,32 +352,64 @@ Krnl-AI is the only tool with a **policy engine that learns from outcomes**:
 - **Pain/reward reinforcement** — learning signals from execution outcomes
 - **Policy persistence** — policies stored and retrieved across sessions
 
-### 11. Where Krnl-AI Has No Competition
+### 11. Consciousness & Metacognition
+
+Krnl-AI implements a **consciousness model** inspired by Global Workspace Theory and Higher-Order Thought theory:
+
+| Feature | Description |
+|---------|-------------|
+| **Inner Speech** | Step-by-step reasoning narration generated during cognitive cycles |
+| **Higher-Order Thoughts** | Self-awareness of current cognitive state and limitations |
+| **Operational Consciousness** | Attention schema, global broadcast, stream binding |
+| **Attention Schema (ECAN)** | Economic Attention Network for selective focus |
+| **Metacognition** | Self-observation of emotional state, risk level, cognitive biases |
+| **Bias Detection** | Heuristic detection of confirmation bias, anchoring, etc. |
+| **Curiosity Drive** | Novelty-seeking behavior for exploration and learning |
+
+No other tool has anything comparable — these are direct implementations of cognitive neuroscience theories.
+
+### 12. Investigation & Causal Reasoning
+
+Krnl-AI includes a full **causal investigation subsystem**:
+
+| Feature | Description |
+|---------|-------------|
+| **Causal Graph** | Directed graph of cause-effect relationships |
+| **Root Cause Analysis** | Multi-factor root cause ranking from evidence |
+| **Hypothesis Testing** | Automated generation and testing of causal hypotheses |
+| **Evidence Collection** | Structured evidence gathering with source tracking |
+
+### 13. Where Krnl-AI Has No Competition
 
 These features are **unique to Krnl-AI** — no other tool (open source or commercial) offers them:
 
 | # | Feature | Description |
 |---|---------|-------------|
 | 1 | **10-step Cognitive Cycle** | Structured processing pipeline inspired by human cognition |
-| 2 | **5 Memory Types** | Working, Episodic, Semantic, Emotional, Procedural |
-| 3 | **Moment System** | Temporal-situated cognitive moments with domain, category, cognitive load |
-| 4 | **Prospective Memory** | Future intentions with time/event triggers |
-| 5 | **Archive/Forgetting** | Utility-based forgetting with purge schedules |
-| 6 | **Anticipation/Projection** | Future outcome simulation with confidence, risk, horizon, accuracy |
-| 7 | **Cognitive Homeostasis** | Fatigue, novelty-starvation, sleep pressure, health score |
-| 8 | **Executive Controller** | Cognitive state flags for executive control |
-| 9 | **VAD Emotional Model** | Valence-Arousal-Dominance affecting decision-making |
-| 10 | **Pain/Reward Learning** | Reinforcement signals from execution outcomes |
-| 11 | **20 Fundamental Rules** | Programmable, unbreakable safety rules engine |
-| 12 | **Multi-layer Safety Pipeline** | 20 dimensions in a single system |
-| 13 | **Policy Learning from Outcomes** | Agents that learn and adapt policies automatically |
-| 14 | **Goal Management (CRUD)** | Persistent goals with progress, subgoals, dependencies, deadlines |
-| 15 | **State Snapshots/Restore** | Full cognitive state capture with component-level restore |
-| 16 | **Safety Competitor Benchmarks** | Comparing safety against OpenAI/Anthropic standards |
-| 17 | **Experiment Tracking** | A/B experiments within the cognitive runtime |
-| 18 | **Model Registry** | Version management with production promotion |
-| 19 | **Deterministic Kernel + LLM Translation Separation** | State never written by LLM |
-| 20 | **Diagnostic System** | Component-level health checks across all subsystems |
+| 2 | **Coding Cognitive Cycle (11-step)** | Specialized code processing pipeline |
+| 3 | **Adaptive Loop** | Depth modulation based on task complexity |
+| 4 | **7 Memory Types** | Working, Episodic, Semantic, Procedural, Emotional, Autobiographical, Prospective |
+| 5 | **Moment System** | Temporal-situated cognitive moments with domain, category, cognitive load |
+| 6 | **Prospective Memory** | Future intentions with time/event triggers |
+| 7 | **Archive/Forgetting** | Utility-based forgetting with purge schedules |
+| 8 | **Anticipation/Projection** | Future outcome simulation with confidence, risk, horizon, accuracy |
+| 9 | **Cognitive Homeostasis** | Fatigue, novelty-starvation, sleep pressure, health score |
+| 10 | **Executive Controller** | Cognitive state flags for executive control |
+| 11 | **VAD Emotional Model** | Valence-Arousal-Dominance affecting decision-making |
+| 12 | **Pain/Reward Learning** | Reinforcement signals from execution outcomes |
+| 13 | **20 Fundamental Rules** | Programmable, unbreakable safety rules engine |
+| 14 | **Multi-layer Safety Pipeline** | 24 guardrails across 5 enforcement categories |
+| 15 | **Policy Learning from Outcomes** | Agents that learn and adapt policies automatically |
+| 16 | **Goal Management (CRUD)** | Persistent goals with progress, subgoals, dependencies, deadlines |
+| 17 | **State Snapshots/Restore** | Full cognitive state capture with component-level restore |
+| 18 | **Safety Competitor Benchmarks** | Comparing safety against industry standards |
+| 19 | **Experiment Tracking** | A/B experiments within the cognitive runtime |
+| 20 | **Model Registry** | Version management with production promotion |
+| 21 | **Deterministic Kernel + LLM Translation Separation** | State never written by LLM |
+| 22 | **Diagnostic System** | Component-level health checks across all subsystems |
+| 23 | **Consciousness Model** | Inner speech, HOT, attention schema, operational consciousness |
+| 24 | **Causal Investigation** | Root cause analysis with hypothesis testing |
+| 25 | **Theory of Mind** | Modeling beliefs and intentions of other agents |
 
 ---
 
@@ -365,10 +417,12 @@ These features are **unique to Krnl-AI** — no other tool (open source or comme
 
 | Tool | Primary Strength |
 |------|------------------|
-| **Krnl-AI** | **Cognitive architecture, safety system (20 dimensions), memory variety (5 types + 4 subsystems), emotional model, anticipation/projection, homeostasis, policy learning, .NET ecosystem, CLI breadth (35 commands)** |
-| Semantic Kernel (MAF) | Microsoft-backed .NET agent SDK, multi-agent orchestration, MCP/A2A support, plugin ecosystem, Java support |
+| **Krnl-AI** | **Cognitive architecture, safety system (24 guardrails), memory variety (7 types + 4 subsystems), emotional model, consciousness model, anticipation/projection, causal investigation, homeostasis, policy learning, .NET ecosystem, CLI breadth (35 commands)** |
+| Microsoft Agent Framework (MAF) | Microsoft-backed .NET agent SDK, multi-agent orchestration, MCP/A2A support, plugin ecosystem, Java support |
 | Codex | Lightweight, Rust performance, OpenAI-native, ChatGPT integration |
 | Claude Code | Claude model integration, git workflow automation, IDE extensions, MCP support |
+| Gemini CLI | Free 60 req/min tier, Gemini 3 models, 1M context, Google Search grounding, 104k ⭐ |
+| Antigravity | Google AI IDE, Gemini integration, MCP protocol, skills ecosystem (38k+ ⭐) |
 | OpenCode | 75+ providers, massive community (160k stars), LSP integration, multi-session, MCP |
 | OpenClaw | Largest community (373k stars), skills ecosystem (5,400+), cross-platform, own-your-data |
 | Hermes | Fine-tuned open models for agentic tasks, research-driven |
@@ -383,22 +437,26 @@ These features are **unique to Krnl-AI** — no other tool (open source or comme
 
 ## When to Choose Krnl-AI
 
-- **You need a cognitive runtime** — not just a coding agent, but an agent with memory, emotions, anticipation, safety, and learning
-- **Safety is critical** — you need programmable, auditable, multi-layer safety (20 dimensions)
-- **You want persistent memory** — 5 memory types + moments + prospective + archive with SQLite
+- **You need a cognitive runtime** — not just a coding agent, but an agent with memory, emotions, consciousness, anticipation, safety, and learning
+- **Safety is critical** — you need programmable, auditable, multi-layer safety (24 guardrails)
+- **You want persistent memory** — 7 memory types + moments + prospective + archive with SQLite
+- **You need causal investigation** — root cause analysis with hypothesis testing and evidence collection
 - **You need future simulation** — anticipation/projection with confidence, risk, and accuracy tracking
 - **You're in the .NET ecosystem** — C#, Visual Studio, Windows desktop
 - **You need policy learning** — agents that learn and adapt policies from outcomes
 - **You want a comprehensive CLI** — 35 commands covering memory, goals, safety, anticipation, snapshots, experiments
 - **You need emotional/personality modeling** — VAD-based emotional system
+- **You need consciousness/metacognition** — inner speech, higher-order thoughts, attention schema
 
 ## When to Choose Alternatives
 
 | Tool | Best For |
 |------|----------|
-| **Semantic Kernel (MAF)** | .NET enterprise multi-agent orchestration with Microsoft ecosystem |
+| **Microsoft Agent Framework (MAF)** | .NET enterprise multi-agent orchestration with Microsoft ecosystem |
 | **Codex** | Lightweight OpenAI-native terminal agent, ChatGPT plan users |
 | **Claude Code** | Deep Claude integration, git/inline coding, MCP protocol |
+| **Gemini CLI** | Free tier Gemini agent, Google Search grounding, 1M token context |
+| **Antigravity** | Google AI IDE with MCP, Gemini models, skills ecosystem |
 | **OpenCode** | Widest provider selection (75+), massive community, LSP integration |
 | **OpenClaw** | General-purpose AI assistant, 5,400+ skills ecosystem, own-your-data |
 | **Hermes** | Fine-tuned open-source models for custom agentic workloads |
@@ -417,16 +475,18 @@ These features are **unique to Krnl-AI** — no other tool (open source or comme
 - [OpenAI Codex](https://github.com/openai/codex) — 83.6k ⭐
 - [Claude Code](https://github.com/anthropics/claude-code) — 125k ⭐
 - [OpenCode](https://opencode.ai) — 160k ⭐
-- [OpenClaw](https://github.com/openclaw/openclaw) — 373k ⭐
+- [OpenClaw](https://github.com/openclaw/openclaw) — 374k ⭐
 - [Nous Research Hermes](https://github.com/NousResearch/Hermes) — Open LLM models
-- [Semantic Kernel / Microsoft Agent Framework](https://github.com/microsoft/semantic-kernel) — 27.9k ⭐
-- [Aider](https://github.com/Aider-AI/aider) — 45k ⭐
+- [Microsoft Agent Framework (MAF)](https://github.com/microsoft/semantic-kernel) — 28k ⭐
+- [Aider](https://github.com/Aider-AI/aider) — 45.1k ⭐
 - [Cursor](https://github.com/cursor/cursor) — 32.9k ⭐
 - [Continue](https://github.com/continuedev/continue) — 33.3k ⭐
 - [AutoGPT](https://github.com/Significant-Gravitas/AutoGPT) — 184k ⭐
-- [LangChain](https://github.com/langchain-ai/langchain) — 105k ⭐
+- [LangChain](https://github.com/langchain-ai/langchain) — 137k ⭐
+- [Gemini CLI](https://github.com/google-gemini/gemini-cli) — 104k ⭐
+- [Antigravity](https://antigravity.ai) — Google AI IDE
 - [GitHub Copilot](https://github.com/features/copilot) — Documentation
 
 ---
 
-*Last updated: May 2026*
+*Last updated: May 21, 2026*

@@ -17,20 +17,23 @@ Sensor → Attention → Memory → Evaluation → Metacognition
 
 Progresses through 4 phases: `PERCEPTION → DELIBERATION → ACTION → REFLECTION`
 
-### Memory System (5 Types)
+### Memory System (7 Types)
 
 | Memory | Purpose |
 |--------|---------|
 | **Working** | Immediate context (TTL-based eviction) |
 | **Episodic** | Past execution history with LRU pruning |
 | **Semantic** | Factual knowledge with vector search |
-| **Emotional** | Emotional state transitions over time |
 | **Procedural** | How-to knowledge and learned behavior |
+| **Emotional** | Emotional state transitions over time |
+| **Autobiographical** | Narrative of agent's own history |
+| **Prospective** | Future intentions with triggers |
 
-### Safety & Guardrails (20 Rules)
+### Safety & Guardrails (24 Guardrails)
 
-Multi-layered safety with 20 fundamental rules (R01-R20), adversarial guard,
-ethical enforcer, rate limiting, and risk scoring — every action validated before execution.
+Multi-layered safety with 20 fundamental rules (R01-R20), plus guardrails for input
+validation, output constraints, bias detection, hallucination detection, and reasoning
+quality — every action validated through 5 enforcement categories before execution.
 
 ### Emotional Model (VAD)
 
@@ -81,6 +84,7 @@ krnlai chat --local
 - [Wiki (English)](WikiObsidian/Home.md)
 - [Obsidian Vault — EN](obsidian/en/)
 - [Obsidian Vault — PT-BR](obsidian/pt-br/)
+- [Comparative Matrix](WikiObsidian/comparative-matrix.md) — Krnl-AI vs 15 market alternatives
 - [Quickstart](docs/quickstart.md)
 - [Architecture](docs/architecture.md)
 - [CLI Guide](docs/getting-started-cli.md)

@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using KrnlAI.Desktop.App.Controls;
 using KrnlAI.Desktop.App.Services;
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
@@ -235,6 +236,28 @@ public class ChatViewModel : ViewModelBase
         catch { /* best-effort */ }
     }
 
+    // Cognitive stream
+    private readonly CognitiveStreamPollingService _cognitiveStream = new();
+    private bool _isCognitiveStreamVisible;
+    public bool IsCognitiveStreamVisible
+    {
+        get => _isCognitiveStreamVisible;
+        set => SetProperty(ref _isCognitiveStreamVisible, value);
+    }
+    public List<StageViewModel> CognitiveStages { get; } = new();
+    public List<EventViewModel> CognitiveEvents { get; } = new();
+
+    // TTS toggle
+    private bool _isTtsEnabled = true;
+    public bool IsTtsEnabled
+    {
+        get => _isTtsEnabled;
+        set { SetProperty(ref _isTtsEnabled, value); OnPropertyChanged(nameof(TtsIcon)); }
+    }
+
+    public string TtsIcon => IsTtsEnabled ? "\U0001f399\ufe0f" : "\U0001f507";
+    public ICommand ToggleTtsCommand { get; }
+
     // Audio capture
     private bool _isCapturingAudio;
     public bool IsCapturingAudio { get => _isCapturingAudio; set { SetProperty(ref _isCapturingAudio, value); OnPropertyChanged(nameof(AudioButtonIcon)); OnPropertyChanged(nameof(AudioButtonTooltip)); } }
@@ -269,6 +292,9 @@ public class ChatViewModel : ViewModelBase
         _videoCapture = videoCapture;
         _localization = localization;
         _slashHandler = new SlashCommandHandler();
+        ToggleTtsCommand = new RelayCommand(() => IsTtsEnabled = !IsTtsEnabled);
+        _cognitiveStream.OnEvent += OnCognitiveEvent;
+        _cognitiveStream.OnStateChanged += state => IsCognitiveStreamVisible = state == CognitiveStreamState.Connected;
         LoadHistoryFromDisk();
         SendMessageCommand = new AsyncRelayCommand(SendMessageAsync, () => !IsProcessing && (!string.IsNullOrWhiteSpace(InputText) || _lastFrameJpeg != null));
         ClearChatCommand = new RelayCommand(() => Messages.Clear());
@@ -356,14 +382,66 @@ public class ChatViewModel : ViewModelBase
             if (!string.IsNullOrEmpty(response.Narration))
             {
                 var audio = await _kernelClient.GenerateSpeechAsync(response.Narration);
-                if (audio.Length > 0) await _audioPlayback.PlayAsync(audio);
+                if (_isTtsEnabled && audio.Length > 0) await _audioPlayback.PlayAsync(audio);
             }
         }
         catch (Exception ex)
         {
             Messages.Add(new ChatMessage(Guid.NewGuid().ToString(), $"Erro: {ex.Message}", MessageRole.System, DateTime.Now, MessageStatus.Error));
         }
-        finally { IsProcessing = false; }
+        finally
+        {
+            IsProcessing = false;
+            _cognitiveStream.Disconnect();
+        }
+    }
+
+    private void OnCognitiveEvent(CognitiveCycleEvent evt)
+    {
+        System.Windows.Application.Current.Dispatcher.Invoke(() =>
+        {
+            // Update stages
+            var stageIcons = new Dictionary<string, (string Icon, string Label)>
+            {
+                ["StepStarted"] = ("◔", "Running"),
+                ["StepCompleted"] = ("●", "Done"),
+                ["Error"] = ("!", "Error"),
+                ["CycleCompleted"] = ("●", "Complete"),
+            };
+
+            if (stageIcons.TryGetValue(evt.Type, out var si))
+            {
+                var existing = CognitiveStages.FirstOrDefault(s => s.Label == evt.StepName);
+                if (existing != null)
+                {
+                    existing.Icon = si.Icon;
+                    existing.Detail = evt.Content ?? "";
+                }
+                else
+                {
+                    CognitiveStages.Add(new StageViewModel
+                    {
+                        Label = evt.StepName,
+                        Detail = evt.Content ?? "",
+                        Icon = si.Icon,
+                        Background = System.Windows.Media.Brushes.Transparent
+                    });
+                }
+            }
+
+            // Add to events
+            CognitiveEvents.Add(new EventViewModel
+            {
+                Icon = evt.Type switch
+                {
+                    "StepStarted" => "▶", "StepCompleted" => "✅", "ToolCalled" => "🔧",
+                    "Thought" => "💭", "SafetyCheck" => "🛡️", "Error" => "❌",
+                    "CycleCompleted" => "🏁", _ => "•"
+                },
+                StepName = evt.StepName,
+                Content = evt.Content
+            });
+        });
     }
 
     private async Task ToggleAudioCaptureAsync()
@@ -445,8 +523,14 @@ public class ChatViewModel : ViewModelBase
         IsCameraOn = false;
     }
 
+    public Task ConnectCognitiveStreamAsync()
+    {
+        return _cognitiveStream.ConnectAsync();
+    }
+
     public void Cleanup()
     {
         if (IsCameraOn) StopCamera();
+        _cognitiveStream.Disconnect();
     }
 }

@@ -1,11 +1,15 @@
 <UserControl x:Class="KrnlAI.Desktop.App.Controls.ChatControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:loc="clr-namespace:KrnlAI.Desktop.App.Converters">
+             xmlns:loc="clr-namespace:KrnlAI.Desktop.App.Converters"
+             xmlns:controls="clr-namespace:KrnlAI.Desktop.App.Controls">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -37,8 +41,15 @@
             </Grid>
         </Border>
 
+        <!-- Stage Rail -->
+        <Border Grid.Row="1" Padding="16,8" Background="{StaticResource PanelBrush}"
+                BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1"
+                Visibility="{Binding ChatVM.IsCognitiveStreamVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+            <controls:StageRailControl x:Name="StageRail"/>
+        </Border>
+
         <!-- Messages -->
-        <ScrollViewer Grid.Row="1" Padding="28,16" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer Grid.Row="2" Padding="28,16" VerticalScrollBarVisibility="Auto">
             <ItemsControl ItemsSource="{Binding ChatVM.Messages}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
@@ -87,8 +98,16 @@
             </ItemsControl>
         </ScrollViewer>
 
+        <!-- Cognitive Step Timeline -->
+        <Border Grid.Row="3" Padding="16,8" Background="{StaticResource PanelBrush}"
+                BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0"
+                Visibility="{Binding ChatVM.IsCognitiveStreamVisible, Converter={StaticResource BoolToVisibilityConverter}}"
+                MaxHeight="200">
+            <controls:StepTimelineControl x:Name="StepTimeline"/>
+        </Border>
+
         <!-- Voice Level Indicator -->
-        <Border Grid.Row="2" Padding="28,6" Background="{StaticResource PanelBrush}"
+        <Border Grid.Row="4" Padding="28,6" Background="{StaticResource PanelBrush}"
                 BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -109,7 +128,7 @@
         </Border>
 
         <!-- Camera Preview -->
-        <Border Grid.Row="3" Padding="16" Background="{StaticResource PanelBrush}"
+        <Border Grid.Row="5" Padding="16" Background="{StaticResource PanelBrush}"
                 BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0"
                 Visibility="{Binding ChatVM.IsCameraOn, Converter={StaticResource BoolToVisibilityConverter}}">
             <Grid>
@@ -132,7 +151,7 @@
         </Border>
 
         <!-- Composer -->
-        <Border Grid.Row="4" Background="{StaticResource PanelBrush}"
+        <Border Grid.Row="6" Background="{StaticResource PanelBrush}"
                 BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0"
                 Padding="28,16">
             <Grid>
@@ -191,6 +210,10 @@
                     </Button>
                     <Button Command="{Binding ChatVM.ToggleCameraCommand}" Style="{StaticResource GhostButton}" Width="48" Height="48" Margin="4,0,0,0">
                         <TextBlock Text="{Binding ChatVM.CameraButtonIcon}" FontSize="18"/>
+                    </Button>
+                    <Button Command="{Binding ChatVM.ToggleTtsCommand}" Style="{StaticResource GhostButton}" Width="48" Height="48" Margin="4,0,0,0"
+                            ToolTip="Toggle text-to-speech">
+                        <TextBlock Text="{Binding ChatVM.TtsIcon}" FontSize="18"/>
                     </Button>
                     <Button Command="{Binding ChatVM.SendMessageCommand}" Style="{StaticResource PrimaryButton}" Margin="8,0,0,0" Height="48" MinWidth="100" Content="{loc:Loc chat_send}"/>
                 </StackPanel>
