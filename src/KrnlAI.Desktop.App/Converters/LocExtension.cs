@@ -51,5 +51,5 @@ public class LocalizationConverter : IValueConverter
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        { return Binding.DoNothing; }
+        => throw new NotSupportedException();
 }

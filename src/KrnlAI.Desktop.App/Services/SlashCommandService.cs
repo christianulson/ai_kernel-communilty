@@ -31,6 +31,7 @@ public sealed class SlashCommandHandler
                 "/clear" => "CLEAR_CONVERSATION",
                 "/help" => FormatHelp(),
                 "/explain" or "/fix" or "/refactor" or "/review" or "/sessions" => $"{cmd}: This command is only available in the VS Code or VS extension with editor context.",
+                _=> throw new InvalidOperationException($"Command not exist: {cmd}")
             };
         }
         catch (Exception ex)

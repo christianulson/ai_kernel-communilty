@@ -31,6 +31,8 @@ public sealed class IntentionsCommandTests
         services.AddSingleton<ICognitiveSnapshotService, InMemorySnapshotStore>();
         services.AddSingleton<ICognitiveHomeostasis>(_ => new CognitiveHomeostasisService());
         services.AddSingleton<IExecutiveController, ExecutiveController>();
+        services.AddSingleton<IExecutiveStageBuilder, ExecutiveStageBuilder>();
+        services.AddSingleton<IExecutiveModeSelector, ExecutiveModeSelector>();
         services.AddSingleton<IAnticipationStore, InMemoryAnticipationStore>();
         services.AddSingleton<IProspectiveMemoryStore>(_ =>
         {
