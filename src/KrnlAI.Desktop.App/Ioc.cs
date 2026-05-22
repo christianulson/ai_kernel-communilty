@@ -81,6 +81,9 @@ public static class Ioc
         services.AddSingleton<FaceExpressionAnalyzer>();
         services.AddSingleton<IKernelAgentClient>(sp => sp.GetRequiredService<IKernelClient>());
         services.AddSingleton<IKernelSpeechClient>(sp => sp.GetRequiredService<IKernelClient>());
+        services.AddSingleton<ISnapshotClient>(sp => sp.GetRequiredService<IKernelClient>());
+        services.AddSingleton<IObjectiveClient>(sp => sp.GetRequiredService<IKernelClient>());
+        services.AddSingleton<IInvestigationClient>(sp => sp.GetRequiredService<IKernelClient>());
         services.AddTransient<ViewModels.MainViewModel>();
         services.AddTransient<ViewModels.ChatViewModel>();
         services.AddTransient<ViewModels.DashboardViewModel>();
