@@ -55,6 +55,7 @@ krnlai chat --local
 | [Exemplos](12-Samples/samples.md) | Projetos de exemplo e padrões |
 | [Integrações](13-Integrations/integrations.md) | LangChain, CrewAI, AutoGen, FastAPI |
 | [Contribuindo](14-Contributing/contributing.md) | Como contribuir com o projeto |
+| [Matriz Comparativa](comparative-matrix.md) | Krnl-AI vs 15 alternativas de mercado — comparação recurso por recurso |
 
 ## Comunidade
 
