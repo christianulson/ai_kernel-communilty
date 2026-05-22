@@ -12,6 +12,35 @@ public partial class ChatControl : UserControl
 
         if (chatVm == null) return;
 
+        // Mention suggestion navigation
+        if (chatVm.IsMentionSuggestionsVisible)
+        {
+            if (e.Key == Key.Down)
+            {
+                chatVm.SelectNextMentionSuggestion();
+                e.Handled = true;
+                return;
+            }
+            if (e.Key == Key.Up)
+            {
+                chatVm.SelectPreviousMentionSuggestion();
+                e.Handled = true;
+                return;
+            }
+            if (e.Key == Key.Enter || e.Key == Key.Tab)
+            {
+                chatVm.ApplyMentionSuggestion();
+                e.Handled = true;
+                return;
+            }
+            if (e.Key == Key.Escape)
+            {
+                chatVm.IsMentionSuggestionsVisible = false;
+                e.Handled = true;
+                return;
+            }
+        }
+
         // Slash suggestion navigation
         if (chatVm.IsSlashSuggestionsVisible)
         {
@@ -41,6 +70,17 @@ public partial class ChatControl : UserControl
             }
         }
 
+        if (e.Key == Key.Enter && e.KeyboardDevice.Modifiers == ModifierKeys.None)
+        {
+            // Enter = send (unless slash suggestions visible)
+            if (!chatVm.IsSlashSuggestionsVisible)
+            {
+                e.Handled = true;
+                if (chatVm.SendMessageCommand.CanExecute(null))
+                    chatVm.SendMessageCommand.Execute(null);
+            }
+            return;
+        }
         if (e.Key == Key.Enter && e.KeyboardDevice.Modifiers == ModifierKeys.Shift)
         {
             // Shift+Enter = new line (already handled by AcceptsReturn=True)
@@ -48,7 +88,7 @@ public partial class ChatControl : UserControl
         }
         if (e.Key == Key.Enter && e.KeyboardDevice.Modifiers == ModifierKeys.Control)
         {
-            // Ctrl+Enter = send
+            // Ctrl+Enter = send (backward compat)
             e.Handled = true;
             if (chatVm.SendMessageCommand.CanExecute(null))
                 chatVm.SendMessageCommand.Execute(null);
