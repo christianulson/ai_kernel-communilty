@@ -367,4 +367,33 @@ public class KernelClient : IKernelClient
             var shares = r.Shares?.Select(s => new Core.Models.SessionShare(s.ShareCode, s.SessionId, s.AccessLevel, s.CreatedAt, s.ExpiresAt, s.AccessCount, s.IsRevoked)).ToList() ?? [];
             return new Core.Models.ShareListResponse(shares);
         }, default(Core.Models.ShareListResponse?));
+
+    public Task<List<Core.Models.SnapshotInfo>> GetSnapshotsAsync(CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var r = await _api.GetSnapshotsAsync(ct);
+            return r.Select(s => new Core.Models.SnapshotInfo(s.SnapshotId, s.Label, s.CreatedAt, s.Size)).ToList();
+        }, []);
+
+    public Task<List<Core.Models.ObjectiveInfo>> GetObjectivesAsync(CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var r = await _api.GetObjectivesAsync(ct);
+            return r.Select(o => new Core.Models.ObjectiveInfo(o.ObjectiveId, o.Description, o.Status, o.Progress, o.Priority, o.Deadline)).ToList();
+        }, []);
+
+    public Task<Core.Models.ObjectiveDetail> GetObjectiveDetailAsync(string id, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var r = await _api.GetObjectiveDetailAsync(id, ct);
+            return new Core.Models.ObjectiveDetail(r.ObjectiveId, r.Description, r.Status, r.Progress,
+                r.Targets?.Select(t => new Core.Models.TargetInfo(t.TargetId, t.Description, t.CurrentValue, t.TargetValue, t.Unit)).ToList() ?? []);
+        }, default(Core.Models.ObjectiveDetail)!);
+
+    public Task<List<Core.Models.InvestigationInfo>> GetInvestigationsAsync(CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var r = await _api.GetInvestigationsAsync(ct);
+            return r.Select(i => new Core.Models.InvestigationInfo(i.CaseId, i.Title, i.Status, i.EvidenceCount, i.CreatedAt)).ToList();
+        }, []);
 }

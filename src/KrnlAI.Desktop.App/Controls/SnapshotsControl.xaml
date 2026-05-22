@@ -1,0 +1,64 @@
+<UserControl x:Class="KrnlAI.Desktop.App.Controls.SnapshotsControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:loc="clr-namespace:KrnlAI.Desktop.App.Converters">
+    <ScrollViewer Padding="28" VerticalScrollBarVisibility="Auto">
+        <StackPanel>
+            <Grid Margin="0,0,0,20">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="Snapshots" FontSize="24" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                    <TextBlock Text="Pontos de restauração do estado do agente." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                </StackPanel>
+                <Button Grid.Column="1" Command="{Binding SnapshotsVM.LoadCommand}" Style="{StaticResource GhostButton}" Padding="16,10"
+                        IsEnabled="{Binding SnapshotsVM.IsLoading, Converter={StaticResource InverseBoolConverter}}">
+                    <TextBlock Text="{Binding SnapshotsVM.IsLoading, Converter={StaticResource BoolToStatusConverter}}"/>
+                </Button>
+            </Grid>
+            <Border Background="#18FB7185" BorderBrush="#3CFB7185" BorderThickness="1" CornerRadius="16" Padding="14,10" Margin="0,0,0,12"
+                    Visibility="{Binding SnapshotsVM.ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}">
+                <TextBlock Text="{Binding SnapshotsVM.ErrorMessage}" Foreground="#FFDBE1" FontSize="13"/>
+            </Border>
+            <Border Background="{StaticResource PanelBrush}" CornerRadius="24" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                    Padding="24" Margin="0,0,0,16"
+                    Visibility="{Binding SnapshotsVM.IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
+                <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Margin="0,20">
+                    <TextBlock Text="⏳" FontSize="18" Margin="0,0,12,0"/>
+                    <TextBlock Text="Carregando snapshots..." Foreground="{StaticResource TextSecondaryBrush}"/>
+                </StackPanel>
+            </Border>
+            <Border Background="{StaticResource PanelBrush}" CornerRadius="24" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="24"
+                    Visibility="{Binding SnapshotsVM.HasNoData, Converter={StaticResource BoolToVisibilityConverter}}">
+                <StackPanel HorizontalAlignment="Center" Margin="0,20">
+                    <TextBlock Text="💾" FontSize="32" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Nenhum snapshot encontrado" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                    <TextBlock Text="Snapshots são criados automaticamente." FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                </StackPanel>
+            </Border>
+            <Border Background="{StaticResource PanelBrush}" CornerRadius="24" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="0">
+                <StackPanel>
+                    <Grid Margin="20,16,20,8">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="180"/><ColumnDefinition Width="120"/></Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Rótulo" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}"/>
+                        <TextBlock Grid.Column="1" Text="Criado em" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}"/>
+                        <TextBlock Grid.Column="2" Text="Tamanho" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}"/>
+                    </Grid>
+                    <ItemsControl ItemsSource="{Binding SnapshotsVM.Snapshots}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="20,8" Margin="0,0,0,2" Background="Transparent" CornerRadius="12">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="180"/><ColumnDefinition Width="120"/></Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding Label}" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="300"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding CreatedAt, StringFormat={}{0:dd/MM/yyyy HH:mm}}" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding Size, StringFormat={}{0:N0} bytes}" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

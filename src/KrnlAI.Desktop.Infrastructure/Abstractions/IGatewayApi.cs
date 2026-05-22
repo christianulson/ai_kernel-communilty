@@ -156,6 +156,18 @@ public interface IGatewayApi
 
     [Get("/sessions/shares")]
     Task<ShareListResponseDto> GetSharesAsync(CancellationToken ct);
+
+    [Get("/snapshots")]
+    Task<List<SnapshotResponseDto>> GetSnapshotsAsync(CancellationToken ct = default);
+
+    [Get("/objectives")]
+    Task<List<ObjectiveResponseDto>> GetObjectivesAsync(CancellationToken ct = default);
+
+    [Get("/objectives/{id}")]
+    Task<ObjectiveDetailResponseDto> GetObjectiveDetailAsync(string id, CancellationToken ct = default);
+
+    [Get("/investigations")]
+    Task<List<InvestigationResponseDto>> GetInvestigationsAsync(CancellationToken ct = default);
 }
 
 public sealed record McpServerStatusDto(string ServerId, string Name, string TransportType, bool Enabled, bool IsConnected, int ToolCount, DateTimeOffset? LastUsedAt);
@@ -171,3 +183,8 @@ public sealed record ModelRegistryDetailDto(string ModelId, List<ModelRegistryEn
 public sealed record ModelRegistryEntryDto(string ModelId, string ModelVersion, string UseCase, string Runtime, string Status, string? ApprovedBy, DateTimeOffset CreatedAt, DateTimeOffset? ActivatedAt);
 public sealed record ShareListResponseDto(List<ShareDto>? Shares);
 public sealed record ShareDto(string ShareCode, string SessionId, string AccessLevel, DateTime CreatedAt, DateTime? ExpiresAt, int AccessCount, bool IsRevoked);
+public sealed record SnapshotResponseDto(string SnapshotId, string Label, DateTime CreatedAt, long Size);
+public sealed record ObjectiveResponseDto(string ObjectiveId, string Description, string Status, double Progress, int Priority, string? Deadline);
+public sealed record ObjectiveDetailResponseDto(string ObjectiveId, string Description, string Status, double Progress, List<TargetResponseDto> Targets);
+public sealed record TargetResponseDto(string TargetId, string Description, double CurrentValue, double TargetValue, string Unit);
+public sealed record InvestigationResponseDto(string CaseId, string Title, string Status, int EvidenceCount, DateTime CreatedAt);
