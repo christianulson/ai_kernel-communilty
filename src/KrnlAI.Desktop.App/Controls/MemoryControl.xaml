@@ -23,13 +23,13 @@
                     BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
                     Padding="4" Margin="0,0,0,20" HorizontalAlignment="Left">
                 <StackPanel Orientation="Horizontal">
-                    <RadioButton Content="🔍 Busca" IsChecked="{Binding MemoryVM.IsSearch}"
+                    <RadioButton Content="🔍 Busca" IsChecked="{Binding MemoryVM.IsSearch, Mode=OneWay}"
                                  Style="{StaticResource TabRadioStyle}"
                                  Command="{Binding MemoryVM.SetTabSearchCommand}" Margin="0,0,2,0"/>
-                    <RadioButton Content="📊 Métricas" IsChecked="{Binding MemoryVM.IsMetrics}"
+                    <RadioButton Content="📊 Métricas" IsChecked="{Binding MemoryVM.IsMetrics, Mode=OneWay}"
                                  Style="{StaticResource TabRadioStyle}"
                                  Command="{Binding MemoryVM.SetTabMetricsCommand}" Margin="0,0,2,0"/>
-                    <RadioButton Content="🧠 Working" IsChecked="{Binding MemoryVM.IsWorking}"
+                    <RadioButton Content="🧠 Working" IsChecked="{Binding MemoryVM.IsWorking, Mode=OneWay}"
                                  Style="{StaticResource TabRadioStyle}"
                                  Command="{Binding MemoryVM.SetTabWorkingCommand}"/>
                 </StackPanel>

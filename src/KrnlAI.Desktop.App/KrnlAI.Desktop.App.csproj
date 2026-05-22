@@ -48,11 +48,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <None Remove="Resources\Icons\krnl-ai-icon.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\Icons\krnl-ai-icon.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
+    <Resource Include="Resources\Icons\krnl-ai-icon.png" />
+    <Resource Include="Resources\Icons\favicon.ico" />
   </ItemGroup>
 </Project>

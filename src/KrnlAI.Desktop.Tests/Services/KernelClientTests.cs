@@ -78,13 +78,15 @@ public class KernelClientTests
     public async Task LoginAsync_WhenValid_ShouldReturnToken()
     {
         var (client, apiMock, _) = CreateClient();
+        var userInfo = new LoginUserInfoDto("admin-001", "admin@ai-kernel.local", "Admin", ["admin"]);
         apiMock.Setup(a => a.LoginAsync(It.IsAny<LoginRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new LoginResponseDto(true, "jwt-token", "ok", "user", null));
+            .ReturnsAsync(new LoginResponseDto("jwt-token", "refresh-abc", userInfo));
 
-        var result = await client.LoginAsync(new LoginRequest("user", "pass"));
+        var result = await client.LoginAsync(new LoginRequest("admin@ai-kernel.local", "pass"));
         Assert.True(result.Success);
         Assert.Equal("jwt-token", result.Token);
-        Assert.Equal("user", result.Username);
+        Assert.Equal("admin@ai-kernel.local", result.Username);
+        Assert.Equal("refresh-abc", result.RefreshToken);
     }
 
     [Fact]
@@ -92,10 +94,11 @@ public class KernelClientTests
     {
         var (client, apiMock, _) = CreateClient();
         apiMock.Setup(a => a.LoginAsync(It.IsAny<LoginRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new LoginResponseDto(false, null, null, null, null));
+            .ThrowsAsync(new HttpRequestException("401"));
 
-        var result = await client.LoginAsync(new LoginRequest("user", "wrong"));
+        var result = await client.LoginAsync(new LoginRequest("bad@email.com", "wrong"));
         Assert.False(result.Success);
+        Assert.Null(result.Token);
     }
 
     [Fact]

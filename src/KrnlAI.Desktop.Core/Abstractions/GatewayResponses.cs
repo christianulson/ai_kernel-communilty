@@ -14,7 +14,8 @@ public sealed record TransportStepDto(string Label, string Detail, bool Ok, int?
 public sealed record TtsResponseDto(string? Base64, string? MimeType);
 public sealed record TranscriptionResponseDto(string? Text);
 
-public sealed record LoginResponseDto(bool Success, string? Token, string? Message, string? Username, DateTime? ExpiresAt);
+public sealed record LoginResponseDto(string? Token, string? RefreshToken, LoginUserInfoDto? User);
+public sealed record LoginUserInfoDto(string Id, string Email, string Name, string[] Roles);
 
 public sealed record PolicyListResponseDto(List<PolicyInfoDto>? Policies, int TotalCount, int Page, int PageSize);
 public sealed record PolicyInfoDto(string Id, string Name, string Domain, string Version, DateTime CreatedAt, DateTime? UpdatedAt, bool IsActive);

@@ -72,10 +72,11 @@ public partial class App : Application
             settingsService.SaveSettings(newWindowSettings);
         };
 
+        var iconUri = new Uri("pack://application:,,,/KrnlAI.Desktop;component/Resources/Icons/krnl-ai-icon.png");
         _trayIcon = new TaskbarIcon
         {
             ToolTipText = "Krnl-AI Desktop",
-            IconSource = new BitmapImage(new Uri("pack://application:,,,/KrnlAI.Desktop;component/Resources/Icons/favicon.ico")),
+            IconSource = new BitmapImage(iconUri),
             Visibility = Visibility.Visible
         };
 

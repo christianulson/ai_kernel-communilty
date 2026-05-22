@@ -57,7 +57,7 @@ public record TransportStep(
 );
 
 public record LoginRequest(
-    string Username,
+    string Email,
     string Password
 );
 
@@ -66,7 +66,7 @@ public record LoginResponse(
     string? Token = null,
     string? Message = null,
     string? Username = null,
-    DateTime? ExpiresAt = null
+    string? RefreshToken = null
 );
 
 public record SpeechRequest(string Text, string Language, string? Voice);

@@ -133,7 +133,7 @@ public class LoginViewModel : ViewModelBase
         try
         {
             var kernelClient = ServiceLocator.Instance.KernelClient;
-            var response = await kernelClient.LoginAsync(new LoginRequest(Username, Password));
+            var response = await kernelClient.LoginAsync(new LoginRequest(Email: Username, Password));
 
             if (response.Success && !string.IsNullOrEmpty(response.Token))
             {
@@ -197,7 +197,7 @@ public class LoginViewModel : ViewModelBase
                 new OAuth2CallbackRequest(
                     code, _oauthState, provider));
 
-            if (callbackResult is { Success: true, Token: not null })
+            if (callbackResult?.Token is not null)
             {
                 _token = callbackResult.Token;
                 kernelClient.SetAuthToken(_token);
@@ -205,7 +205,7 @@ public class LoginViewModel : ViewModelBase
             }
             else
             {
-                ErrorMessage = callbackResult?.Message ?? "Falha no login OAuth2";
+                ErrorMessage = "Falha no login OAuth2";
             }
         }
         catch (Exception ex)

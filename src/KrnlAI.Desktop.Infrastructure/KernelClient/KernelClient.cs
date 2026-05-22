@@ -49,8 +49,13 @@ public class KernelClient : IKernelClient
         SafeCall.ExecuteAsync(async () =>
         {
             var r = await _api.LoginAsync(request, ct);
-            return new CoreModels.LoginResponse(r.Success, r.Token, r.Message, r.Username, r.ExpiresAt);
-        }, new CoreModels.LoginResponse(false, null, null, null, null));
+            return new CoreModels.LoginResponse(
+                Success: !string.IsNullOrEmpty(r.Token),
+                Token: r.Token,
+                Username: r.User?.Email,
+                RefreshToken: r.RefreshToken
+            );
+        }, new CoreModels.LoginResponse(false));
 
     public Task<CoreModels.PolicyListResponse> GetPoliciesAsync(string? domain = null, int page = 1, int pageSize = 20, CancellationToken ct = default) =>
         SafeCall.ExecuteAsync(async () =>

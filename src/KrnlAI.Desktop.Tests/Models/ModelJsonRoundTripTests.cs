@@ -41,7 +41,7 @@ public sealed class ModelJsonRoundTripTests
     [Fact]
     public void LoginRequest_RoundTrip()
     {
-        var original = new CoreModels.LoginRequest("user", "pass");
+        var original = new CoreModels.LoginRequest("user@test.com", "pass");
         Assert.Equal(Canonical(original), RoundTrip(original));
     }
 

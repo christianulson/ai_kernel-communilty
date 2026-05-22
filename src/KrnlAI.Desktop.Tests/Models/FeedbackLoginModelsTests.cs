@@ -58,19 +58,19 @@ public class LoginModelTests
     [Fact]
     public void LoginRequest_ShouldCreate()
     {
-        var req = new Core.Models.LoginRequest("user", "pass");
-        Assert.Equal("user", req.Username);
+        var req = new Core.Models.LoginRequest("admin@test.com", "pass");
+        Assert.Equal("admin@test.com", req.Email);
         Assert.Equal("pass", req.Password);
     }
 
     [Fact]
     public void LoginResponse_ShouldStoreSuccess()
     {
-        var resp = new Core.Models.LoginResponse(true, "token123", "ok", "user", DateTime.UtcNow.AddHours(1));
+        var resp = new Core.Models.LoginResponse(true, "token123", "ok", "admin@test.com", "refresh-abc");
         Assert.True(resp.Success);
         Assert.Equal("token123", resp.Token);
-        Assert.Equal("user", resp.Username);
-        Assert.NotNull(resp.ExpiresAt);
+        Assert.Equal("admin@test.com", resp.Username);
+        Assert.Equal("refresh-abc", resp.RefreshToken);
     }
 
     [Fact]

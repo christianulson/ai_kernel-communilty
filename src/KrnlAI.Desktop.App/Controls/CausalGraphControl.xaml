@@ -19,9 +19,9 @@
             <Border Background="{StaticResource PanelBrush}" CornerRadius="14" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
                     Padding="4" Margin="0,0,0,20" HorizontalAlignment="Left">
                 <StackPanel Orientation="Horizontal">
-                    <RadioButton Content="🔍 Consulta Causal" IsChecked="{Binding CausalVM.IsQuery}" Style="{StaticResource TabRadioStyle}"
+                    <RadioButton Content="🔍 Consulta Causal" IsChecked="{Binding CausalVM.IsQuery, Mode=OneWay}" Style="{StaticResource TabRadioStyle}"
                                  Command="{Binding CausalVM.SetQueryTabCommand}" Margin="0,0,2,0"/>
-                    <RadioButton Content="🔮 Predição" IsChecked="{Binding CausalVM.IsPredict}" Style="{StaticResource TabRadioStyle}"
+                    <RadioButton Content="🔮 Predição" IsChecked="{Binding CausalVM.IsPredict, Mode=OneWay}" Style="{StaticResource TabRadioStyle}"
                                  Command="{Binding CausalVM.SetPredictTabCommand}"/>
                 </StackPanel>
             </Border>
