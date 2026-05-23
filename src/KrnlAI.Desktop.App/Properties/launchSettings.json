@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "KrnlAI.Desktop.App-Local": {
+      "commandName": "Project"
+    },
+    "KrnlAI.Desktop.App-API": {
+      "commandName": "Project"
+    }
+  }
+}

@@ -1,9 +1,8 @@
-using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Embedded;
 
 namespace KrnlAI.Cli.Services;
 
-public sealed class LocalSlashHandler : ISlashCommandExecutor
+public sealed class LocalSlashHandler
 {
     private readonly EmbeddedKrnlAI _kernel;
 

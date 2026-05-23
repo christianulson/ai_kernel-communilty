@@ -17,29 +17,55 @@ public class XamlResourceTests
             Path.Combine(AppRoot, "Resources", "Themes"), "*.xaml");
         var appXaml = File.ReadAllText(Path.Combine(AppRoot, "App.xaml"));
 
-        var themeResources = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var knownResources = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (var themeFile in themeFiles)
         {
             var content = File.ReadAllText(themeFile);
             foreach (Match m in Regex.Matches(content, @"x:Key=""([^""]+)"""))
-                themeResources.Add(m.Groups[1].Value);
+                knownResources.Add(m.Groups[1].Value);
         }
 
         foreach (Match m in Regex.Matches(appXaml, @"x:Key=""([^""]+)"""))
-            themeResources.Add(m.Groups[1].Value);
+            knownResources.Add(m.Groups[1].Value);
 
         var controlFiles = Directory.GetFiles(Path.Combine(AppRoot, "Controls"), "*.xaml");
+
+        var extraDicts = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var missing = new List<string>();
         foreach (var controlFile in controlFiles)
         {
-            if (controlFile.EndsWith("\\")) continue;
             var content = File.ReadAllText(controlFile);
+
+            foreach (Match m in Regex.Matches(content, @"ResourceDictionary\s+Source=""([^""]+)"""))
+            {
+                var relPath = m.Groups[1].Value.TrimStart('/');
+                var dictPath = Path.GetFullPath(Path.Combine(AppRoot, relPath));
+                if (File.Exists(dictPath))
+                    extraDicts.Add(dictPath);
+            }
+
             foreach (Match m in Regex.Matches(content, @"{StaticResource\s+([^}""]+)}"))
             {
                 var key = m.Groups[1].Value.Trim();
-                if (!themeResources.Contains(key))
+                if (!knownResources.Contains(key))
                     missing.Add($"{Path.GetFileName(controlFile)} references '{key}' not found in themes/App.xaml");
             }
+        }
+
+        foreach (var dictPath in extraDicts)
+        {
+            var content = File.ReadAllText(dictPath);
+            foreach (Match m in Regex.Matches(content, @"x:Key=""([^""]+)"""))
+                knownResources.Add(m.Groups[1].Value);
+        }
+
+        if (missing.Count > 0)
+        {
+            var recheck = new List<string>();
+            foreach (var issue in missing)
+                if (!knownResources.Contains(issue.Split('\'')[1]))
+                    recheck.Add(issue);
+            missing = recheck;
         }
 
         AssertEx(missing);

@@ -272,13 +272,13 @@ public class MainViewModel : ViewModelBase
     {
         if (theme == "dark")
         {
-            ThemeIcon = "☀️";
-            ThemeLabel = "Modo claro";
+            ThemeIcon = "🌙";
+            ThemeLabel = "Modo escuro";
         }
         else
         {
-            ThemeIcon = "🌙";
-            ThemeLabel = "Modo escuro";
+            ThemeIcon = "☀️";
+            ThemeLabel = "Modo claro";
         }
     }
 

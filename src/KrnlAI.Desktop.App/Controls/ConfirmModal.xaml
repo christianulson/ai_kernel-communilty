@@ -6,7 +6,7 @@
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         WindowStyle="ToolWindow"
-        Background="{StaticResource BackgroundBrush}"
+        Background="{DynamicResource BackgroundBrush}"
         ShowInTaskbar="False"
         Topmost="True">
     <Grid Margin="24">
@@ -16,9 +16,9 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <TextBlock x:Name="TitleText" FontSize="16" FontWeight="Bold"
-                   Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,12"/>
+                   Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,12"/>
         <TextBlock x:Name="MessageText" Grid.Row="1" FontSize="13"
-                   Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                   Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap"/>
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
             <Button x:Name="CancelButton" Content="{loc:Loc cancel}"
                     Style="{StaticResource GhostButton}" Padding="16,8"

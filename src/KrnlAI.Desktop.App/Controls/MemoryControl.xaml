@@ -12,15 +12,15 @@
                 </Grid.ColumnDefinitions>
                 <StackPanel>
                     <TextBlock Text="{loc:Loc nav_memory}" FontSize="24" FontWeight="Bold"
-                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                               Foreground="{DynamicResource TextPrimaryBrush}"/>
                     <TextBlock Text="Busca semântica, métricas e memória de trabalho."
-                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                               Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"/>
                 </StackPanel>
             </Grid>
 
             <!-- Tabs -->
-            <Border Background="{StaticResource PanelBrush}" CornerRadius="14"
-                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+            <Border Background="{DynamicResource PanelBrush}" CornerRadius="14"
+                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                     Padding="4" Margin="0,0,0,20" HorizontalAlignment="Left">
                 <StackPanel Orientation="Horizontal">
                     <RadioButton Content="🔍 Busca" IsChecked="{Binding MemoryVM.IsSearch, Mode=OneWay}"
@@ -38,8 +38,8 @@
             <!-- ════════ SEARCH TAB ════════ -->
             <StackPanel Visibility="{Binding MemoryVM.IsSearch, Converter={StaticResource BoolToVisibilityConverter}}">
                 <!-- Search Bar -->
-                <Border Background="{StaticResource PanelBrush}" CornerRadius="24"
-                        BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                <Border Background="{DynamicResource PanelBrush}" CornerRadius="24"
+                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                         Padding="20" Margin="0,0,0,16">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -62,13 +62,13 @@
                 </Border>
 
                 <!-- Loading -->
-                <Border Background="{StaticResource PanelBrush}" CornerRadius="24"
-                        BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                <Border Background="{DynamicResource PanelBrush}" CornerRadius="24"
+                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                         Padding="24" Margin="0,0,0,16"
                         Visibility="{Binding MemoryVM.IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
                     <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Margin="0,20">
                         <TextBlock Text="⏳" FontSize="18" Margin="0,0,12,0"/>
-                        <TextBlock Text="Buscando..." Foreground="{StaticResource TextSecondaryBrush}"/>
+                        <TextBlock Text="Buscando..." Foreground="{DynamicResource TextSecondaryBrush}"/>
                     </StackPanel>
                 </Border>
 
@@ -79,29 +79,29 @@
                         <ColumnDefinition Width="380"/>
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0" Background="{StaticResource PanelBrush}" CornerRadius="24"
-                            BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                    <Border Grid.Column="0" Background="{DynamicResource PanelBrush}" CornerRadius="24"
+                            BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                             Padding="20" Margin="0,0,12,0">
                         <StackPanel>
                             <TextBlock Text="{loc:Loc memory_results}" FontSize="16" FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,12"/>
+                                       Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,12"/>
                             <ItemsControl ItemsSource="{Binding MemoryVM.MemoryResults}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Border Padding="14" CornerRadius="16"
                                                 Background="#14FFFFFF"
-                                                BorderBrush="{StaticResource BorderBrush}"
+                                                BorderBrush="{DynamicResource BorderBrush}"
                                                 BorderThickness="1" Margin="0,0,0,8">
                                             <StackPanel>
                                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                                                     <Border Padding="4,2" CornerRadius="6"
                                                             Background="#1838BDF8">
-                                                        <TextBlock Text="{Binding ScorePercent, StringFormat={}{0:P0}}" FontSize="10" Foreground="{StaticResource PrimaryBrush}"/>
+                                                        <TextBlock Text="{Binding ScorePercent, StringFormat={}{0:P0}}" FontSize="10" Foreground="{DynamicResource PrimaryBrush}"/>
                                                     </Border>
-                                                    <TextBlock Text="{Binding DocId}" FontSize="10" Foreground="{StaticResource TextSecondaryBrush}" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="{Binding DocId}" FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}" Margin="8,0,0,0" VerticalAlignment="Center"/>
                                                 </StackPanel>
                                                 <TextBlock Text="{Binding Text}" FontSize="12"
-                                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                                           Foreground="{DynamicResource TextPrimaryBrush}"
                                                            TextWrapping="Wrap" MaxHeight="80"/>
                                             </StackPanel>
                                         </Border>
@@ -111,23 +111,23 @@
                         </StackPanel>
                     </Border>
 
-                    <Border Grid.Column="1" Background="{StaticResource PanelBrush}" CornerRadius="24"
-                            BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                    <Border Grid.Column="1" Background="{DynamicResource PanelBrush}" CornerRadius="24"
+                            BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                             Padding="20">
                         <TextBlock Text="Selecione um resultado para ver detalhes."
-                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
                     </Border>
                 </Grid>
             </StackPanel>
 
             <!-- ════════ METRICS TAB ════════ -->
             <StackPanel Visibility="{Binding MemoryVM.IsMetrics, Converter={StaticResource BoolToVisibilityConverter}}">
-                <Border Background="{StaticResource PanelBrush}" CornerRadius="24"
-                        BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                <Border Background="{DynamicResource PanelBrush}" CornerRadius="24"
+                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                         Padding="24">
                     <StackPanel>
                         <TextBlock Text="Métricas de Busca" FontSize="16" FontWeight="SemiBold"
-                                   Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+                                   Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,16"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -136,43 +136,43 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <Border Grid.Column="0" Padding="16" CornerRadius="22"
-                                    Background="{StaticResource PanelBrush}"
-                                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Margin="4">
+                                    Background="{DynamicResource PanelBrush}"
+                                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Margin="4">
                                 <StackPanel>
                                     <TextBlock Text="{Binding MemoryVM.MemoryMetricsData.TotalRequests, TargetNullValue=—}" FontSize="24" FontWeight="Bold"
-                                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                                               Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     <TextBlock Text="{loc:Loc memory_metrics_total}" FontSize="11"
-                                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                                               Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"/>
                                 </StackPanel>
                             </Border>
                             <Border Grid.Column="1" Padding="16" CornerRadius="22"
-                                    Background="{StaticResource PanelBrush}"
-                                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Margin="4">
+                                    Background="{DynamicResource PanelBrush}"
+                                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Margin="4">
                                 <StackPanel>
                                     <TextBlock Text="{Binding MemoryVM.MemoryMetricsData.TotalFallbacks, TargetNullValue=—}" FontSize="24" FontWeight="Bold"
-                                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                                               Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     <TextBlock Text="{loc:Loc memory_metrics_fallbacks}" FontSize="11"
-                                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                                               Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"/>
                                 </StackPanel>
                             </Border>
                             <Border Grid.Column="2" Padding="16" CornerRadius="22"
-                                    Background="{StaticResource PanelBrush}"
-                                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Margin="4">
+                                    Background="{DynamicResource PanelBrush}"
+                                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Margin="4">
                                 <StackPanel>
                                     <TextBlock Text="{Binding MemoryVM.MemoryMetricsData.AvgCandidates, TargetNullValue=—, StringFormat={}{0:N1}}" FontSize="24" FontWeight="Bold"
-                                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                                               Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     <TextBlock Text="{loc:Loc memory_metrics_candidates}" FontSize="11"
-                                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                                               Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"/>
                                 </StackPanel>
                             </Border>
                             <Border Grid.Column="3" Padding="16" CornerRadius="22"
-                                    Background="{StaticResource PanelBrush}"
-                                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Margin="4">
+                                    Background="{DynamicResource PanelBrush}"
+                                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Margin="4">
                                 <StackPanel>
                                     <TextBlock Text="{Binding MemoryVM.MemoryMetricsData.AvgHits, TargetNullValue=—, StringFormat={}{0:N1}}" FontSize="24" FontWeight="Bold"
-                                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                                               Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     <TextBlock Text="{loc:Loc memory_metrics_hits}" FontSize="11"
-                                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                                               Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"/>
                                 </StackPanel>
                             </Border>
                         </Grid>
@@ -186,12 +186,12 @@
 
             <!-- ════════ WORKING TAB ════════ -->
             <StackPanel Visibility="{Binding MemoryVM.IsWorking, Converter={StaticResource BoolToVisibilityConverter}}">
-                <Border Background="{StaticResource PanelBrush}" CornerRadius="24"
-                        BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                <Border Background="{DynamicResource PanelBrush}" CornerRadius="24"
+                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                         Padding="24">
                     <StackPanel>
                         <TextBlock Text="{loc:Loc memory_working}" FontSize="16" FontWeight="SemiBold"
-                                   Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+                                   Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,16"/>
                         <ItemsControl ItemsSource="{Binding MemoryVM.WorkingSlots}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
@@ -203,10 +203,10 @@
                                                 <ColumnDefinition Width="*"/>
                                             </Grid.ColumnDefinitions>
                                             <TextBlock Text="{Binding Index, StringFormat={}{0}}" FontSize="11"
-                                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                                       Foreground="{DynamicResource TextSecondaryBrush}"
                                                        VerticalAlignment="Center"/>
                                             <TextBlock Grid.Column="1" Text="{Binding Content}" FontSize="12"
-                                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                                       Foreground="{DynamicResource TextPrimaryBrush}"
                                                        TextWrapping="Wrap"/>
                                         </Grid>
                                     </Border>

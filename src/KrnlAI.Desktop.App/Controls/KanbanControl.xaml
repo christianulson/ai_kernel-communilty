@@ -24,7 +24,7 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" Text="Kanban Board" FontSize="24" FontWeight="Bold"
-                               Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                               Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
                     <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="0,0,0,0">
                         <Button Content="Refresh" Command="{Binding LoadCommand}"
                                 Style="{StaticResource PrimaryButton}" Margin="0,0,8,0"/>
@@ -32,26 +32,26 @@
                 </Grid>
 
                 <!-- Filters -->
-                <Border Background="{StaticResource PanelBrush}" CornerRadius="12" Padding="16" Margin="0,0,0,20">
+                <Border Background="{DynamicResource PanelBrush}" CornerRadius="12" Padding="16" Margin="0,0,0,20">
                     <StackPanel Orientation="Horizontal">
                         <StackPanel Orientation="Horizontal" Margin="0,0,24,0">
                             <TextBlock Text="Days:" VerticalAlignment="Center" Margin="0,0,8,0"
-                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
                              <TextBox Text="{Binding DaysBack, UpdateSourceTrigger=LostFocus}" Width="60"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,24,0">
                             <TextBlock Text="Domain:" VerticalAlignment="Center" Margin="0,0,8,0"
-                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
                              <TextBox Text="{Binding SelectedDomain, UpdateSourceTrigger=LostFocus}" Width="120"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,24,0">
                             <TextBlock Text="Min Priority:" VerticalAlignment="Center" Margin="0,0,8,0"
-                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
                              <TextBox Text="{Binding MinPriority, UpdateSourceTrigger=LostFocus}" Width="60"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Search:" VerticalAlignment="Center" Margin="0,0,8,0"
-                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
                              <TextBox Text="{Binding SearchText, UpdateSourceTrigger=LostFocus}" Width="150"/>
                             <Button Content="Go" Command="{Binding SearchCommand}"
                                     Style="{StaticResource PrimaryButton}" Margin="8,0,0,0"/>
@@ -60,13 +60,13 @@
                 </Border>
 
                 <!-- Error -->
-                <TextBlock Text="{Binding ErrorMessage}" Foreground="{StaticResource ErrorBrush}"
+                <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource ErrorBrush}"
                            Visibility="{Binding ErrorMessage, Converter={StaticResource NullToVisibilityConverter}}"
                            Margin="0,0,0,16"/>
 
                 <!-- Loading -->
                 <TextBlock Text="Loading..." Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"
-                           Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,16"/>
+                           Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,16"/>
 
                 <!-- Columns -->
                 <ItemsControl ItemsSource="{Binding Columns}">
@@ -87,8 +87,8 @@
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Grid.Column="0" Text="{Binding Label}"
                                                    FontSize="14" FontWeight="SemiBold"
-                                                   Foreground="{StaticResource TextPrimaryBrush}"/>
-                                        <Border Grid.Column="1" Background="{StaticResource AccentBrush}"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                        <Border Grid.Column="1" Background="{DynamicResource AccentBrush}"
                                                 CornerRadius="10" Padding="8,2" MinWidth="24" Height="22">
                                             <TextBlock Text="{Binding TotalCount}"
                                                        FontSize="12" FontWeight="Bold"
@@ -111,15 +111,15 @@
                                                                        Text="{Binding Description}"
                                                                        Style="{StaticResource KanbanCardTitleStyle}"/>
                                                             <Border Grid.Column="1" CornerRadius="4" Padding="6,2"
-                                                                    Background="{StaticResource AccentBrush}">
+                                                                    Background="{DynamicResource AccentBrush}">
                                                                 <TextBlock Text="{Binding Priority, StringFormat='P{0}'}"
                                                                            FontSize="11" FontWeight="Bold" Foreground="White"/>
                                                             </Border>
                                                         </Grid>
                                                         <ProgressBar Value="{Binding Progress}" Maximum="1"
                                                                      Height="4" Margin="0,8,0,0"
-                                                                     Foreground="{StaticResource SuccessBrush}"
-                                                                     Background="{StaticResource BorderBrush}"/>
+                                                                     Foreground="{DynamicResource SuccessBrush}"
+                                                                     Background="{DynamicResource BorderBrush}"/>
                                                          <TextBlock Style="{StaticResource KanbanCardMetaStyle}">
                                                              <TextBlock.Text>
                                                                  <Binding Path="Progress" StringFormat="Progress: {0:P0}"/>

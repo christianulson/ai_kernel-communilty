@@ -3,6 +3,7 @@ using System.Windows.Input;
 using KrnlAI.Desktop.App.Services;
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
+using KrnlAI.Desktop.Core.Services;
 using Microsoft.Extensions.Logging;
 
 namespace KrnlAI.Desktop.App.ViewModels;
@@ -13,6 +14,7 @@ public class SettingsViewModel : ViewModelBase, IDisposable
     private readonly ISettingsService _settingsService;
     private readonly IListeningService _listeningService;
     private readonly IAudioPlayback _audioPlayback;
+    private readonly IThemeService _themeService;
     private readonly ILogger<SettingsViewModel> _logger;
     private readonly System.Threading.Timer? _debounceTimer;
     private const int DebounceMs = 500;
@@ -40,6 +42,7 @@ public class SettingsViewModel : ViewModelBase, IDisposable
     {
         if (_disposed) return;
         _disposed = true;
+        _themeService.ThemeChanged -= OnExternalThemeChanged;
         _debounceTimer?.Dispose();
     }
     private MediaDevice? _selectedMic, _selectedCam, _selectedSpeaker;
@@ -56,8 +59,8 @@ public class SettingsViewModel : ViewModelBase, IDisposable
     private int _silenceMs = 1500;
     public int SilenceDurationMs { get => _silenceMs; set { if (SetProperty(ref _silenceMs, value)) { _listeningService.SetSilenceDuration(value); Save(); } } }
     private bool _darkTheme = true, _lightTheme;
-    public bool IsDarkTheme { get => _darkTheme; set { if (!value) return; _darkTheme = true; _lightTheme = false; ApplyTheme("dark"); OnPropertyChanged(nameof(IsDarkTheme)); OnPropertyChanged(nameof(IsLightTheme)); } }
-    public bool IsLightTheme { get => _lightTheme; set { if (!value) return; _lightTheme = true; _darkTheme = false; ApplyTheme("light"); OnPropertyChanged(nameof(IsDarkTheme)); OnPropertyChanged(nameof(IsLightTheme)); } }
+    public bool IsDarkTheme { get => _darkTheme; set { if (_syncingTheme || !value) return; _darkTheme = true; _lightTheme = false; ApplyTheme("dark"); OnPropertyChanged(nameof(IsDarkTheme)); OnPropertyChanged(nameof(IsLightTheme)); } }
+    public bool IsLightTheme { get => _lightTheme; set { if (_syncingTheme || !value) return; _lightTheme = true; _darkTheme = false; ApplyTheme("light"); OnPropertyChanged(nameof(IsDarkTheme)); OnPropertyChanged(nameof(IsLightTheme)); } }
 
     // Language
     public List<string> AvailableLanguages { get; } = new() { "pt-BR", "en" };
@@ -85,19 +88,20 @@ public class SettingsViewModel : ViewModelBase, IDisposable
     public ICommand ToggleThemeCommand { get; }
     public ICommand SaveHotkeysCommand { get; }
 
-    public SettingsViewModel(IKernelClient kernelClient, ISettingsService settingsService, IListeningService listeningService, IAudioPlayback audioPlayback)
+    public SettingsViewModel(IKernelClient kernelClient, ISettingsService settingsService, IListeningService listeningService, IAudioPlayback audioPlayback, IThemeService themeService)
     {
         _kernelClient = kernelClient;
         _settingsService = settingsService;
         _listeningService = listeningService;
         _audioPlayback = audioPlayback;
+        _themeService = themeService;
+        _themeService.ThemeChanged += OnExternalThemeChanged;
         _logger = ServiceLocator.Instance.GetLogger<SettingsViewModel>();
         _debounceTimer = new System.Threading.Timer(_ => { System.Windows.Application.Current?.Dispatcher.Invoke(() => Save()); }, null, System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
         var s = _settingsService.LoadSettings();
         _apiEndpoint = s.ApiEndpoint ?? s.ApiBaseUrl;
         _kernelClient.SetBaseUrl(_apiEndpoint);
-        if (string.Equals(s.Theme, "light", StringComparison.OrdinalIgnoreCase))
-            IsLightTheme = true;
+        SyncThemeFromService();
         _listeningService.SetThreshold(s.VoiceDetectionThreshold);
         _listeningService.SetSilenceDuration(s.SilenceDurationMs);
         if (!string.IsNullOrEmpty(s.SelectedSpeakerId)) _audioPlayback.SetDevice(s.SelectedSpeakerId);
@@ -114,7 +118,41 @@ public class SettingsViewModel : ViewModelBase, IDisposable
         try { _ = LoadMcpServersAsync(); } catch (Exception ex) { _logger.LogError(ex, "Failed to load MCP"); }
     }
 
-    public SettingsViewModel() : this(ServiceLocator.Instance.KernelClient, ServiceLocator.Instance.SettingsService, ServiceLocator.Instance.ListeningService, ServiceLocator.Instance.AudioPlayback) { }
+    public SettingsViewModel() : this(
+        ServiceLocator.Instance.KernelClient,
+        ServiceLocator.Instance.SettingsService,
+        ServiceLocator.Instance.ListeningService,
+        ServiceLocator.Instance.AudioPlayback,
+        ServiceLocator.Instance.ThemeSvc) { }
+
+    private void OnExternalThemeChanged(object? sender, string themeName)
+    {
+        System.Windows.Application.Current?.Dispatcher.Invoke(() => SyncThemeFromService());
+    }
+
+    private bool _syncingTheme;
+
+    private void SyncThemeFromService()
+    {
+        if (_syncingTheme) return;
+        _syncingTheme = true;
+        try
+        {
+            var current = _themeService.CurrentTheme;
+            var isDark = string.Equals(current, "dark", StringComparison.OrdinalIgnoreCase);
+            if (isDark != _darkTheme)
+            {
+                _darkTheme = isDark;
+                _lightTheme = !isDark;
+                OnPropertyChanged(nameof(IsDarkTheme));
+                OnPropertyChanged(nameof(IsLightTheme));
+            }
+        }
+        finally
+        {
+            _syncingTheme = false;
+        }
+    }
 
     public void LoadDevices()
     {
@@ -140,7 +178,7 @@ public class SettingsViewModel : ViewModelBase, IDisposable
         });
     }
 
-    private void ApplyTheme(string t) { ServiceLocator.Instance.ThemeService.SetTheme(t); }
+    private void ApplyTheme(string t) { _themeService.SetTheme(t); }
     private async Task TestSpeakerAsync() { DeviceTestStatus = "Testando..."; var a = await _kernelClient.GenerateSpeechAsync("Teste"); if (a.Length > 0) await _audioPlayback.PlayAsync(a); DeviceTestStatus = "OK"; await Task.Delay(1500); DeviceTestStatus = ""; }
     private async Task TestMicAsync() { DeviceTestStatus = "Gravando..."; await ServiceLocator.Instance.AudioCapture.StartCaptureAsync(SelectedMicrophone?.Id); await Task.Delay(2000); await ServiceLocator.Instance.AudioCapture.StopCaptureAsync(); DeviceTestStatus = "OK"; await Task.Delay(1500); DeviceTestStatus = ""; }
     private async Task TestCamAsync() { DeviceTestStatus = "Testando..."; try { var c = ServiceLocator.Instance.VideoCapture.GetAvailableDevices(); DeviceTestStatus = c.Any() ? $"Câmera: {c[0].Name}" : "Nenhuma"; } catch { DeviceTestStatus = "Erro"; } await Task.Delay(1500); DeviceTestStatus = ""; }

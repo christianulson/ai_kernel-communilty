@@ -12,9 +12,9 @@
                 </Grid.ColumnDefinitions>
                 <StackPanel>
                     <TextBlock Text="{loc:Loc dashboard_title}" FontSize="24" FontWeight="Bold"
-                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                               Foreground="{DynamicResource TextPrimaryBrush}"/>
                     <TextBlock Text="Métricas, saúde do sistema e gerenciamento de objetivos."
-                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                               Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"/>
                 </StackPanel>
                 <Button Grid.Column="1" Command="{Binding DashVM.LoadDashboardCommand}"
                         Style="{StaticResource GhostButton}" Padding="20,10"
@@ -27,13 +27,13 @@
             </Grid>
 
             <!-- Loading -->
-            <Border Background="{StaticResource PanelBrush}" CornerRadius="24"
-                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+            <Border Background="{DynamicResource PanelBrush}" CornerRadius="24"
+                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                     Padding="24" Margin="0,0,0,20"
                     Visibility="{Binding DashVM.IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Margin="0,20">
                     <TextBlock Text="⏳" FontSize="18" Margin="0,0,12,0"/>
-                    <TextBlock Text="Carregando dashboard..." Foreground="{StaticResource TextSecondaryBrush}"/>
+                    <TextBlock Text="Carregando dashboard..." Foreground="{DynamicResource TextSecondaryBrush}"/>
                 </StackPanel>
             </Border>
 
@@ -55,10 +55,10 @@
                     </Border.BorderBrush>
                     <StackPanel>
                         <TextBlock Text="{loc:Loc dashboard_metrics_executions}" FontSize="11" FontWeight="Bold"
-                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
                         <TextBlock Text="{Binding DashVM.MetricsData.Summary.TotalRuns, TargetNullValue=—, StringFormat={}{0:N0}}"
                                    FontSize="28" FontWeight="Bold"
-                                   Foreground="{StaticResource TextPrimaryBrush}" Margin="0,8,0,0"/>
+                                   Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,8,0,0"/>
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="1" Style="{StaticResource MetricCardStyle}" Margin="4">
@@ -70,10 +70,10 @@
                     </Border.BorderBrush>
                     <StackPanel>
                         <TextBlock Text="{loc:Loc dashboard_metrics_success}" FontSize="11" FontWeight="Bold"
-                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
                         <TextBlock Text="{Binding DashVM.MetricsData.Summary.SuccessRate, TargetNullValue=—, StringFormat={}{0:P1}}"
                                    FontSize="28" FontWeight="Bold"
-                                   Foreground="{StaticResource SuccessBrush}" Margin="0,8,0,0"/>
+                                   Foreground="{DynamicResource SuccessBrush}" Margin="0,8,0,0"/>
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="2" Style="{StaticResource MetricCardStyle}" Margin="4">
@@ -85,10 +85,10 @@
                     </Border.BorderBrush>
                     <StackPanel>
                         <TextBlock Text="{loc:Loc dashboard_metrics_latency}" FontSize="11" FontWeight="Bold"
-                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
                         <TextBlock Text="{Binding DashVM.MetricsData.Summary.AvgLatencyMs, TargetNullValue=—, StringFormat={}{0:N0}ms}"
                                    FontSize="28" FontWeight="Bold"
-                                   Foreground="{StaticResource WarningBrush}" Margin="0,8,0,0"/>
+                                   Foreground="{DynamicResource WarningBrush}" Margin="0,8,0,0"/>
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="3" Style="{StaticResource MetricCardStyle}" Margin="4">
@@ -100,22 +100,22 @@
                     </Border.BorderBrush>
                     <StackPanel>
                         <TextBlock Text="{loc:Loc dashboard_metrics_cost}" FontSize="11" FontWeight="Bold"
-                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
                         <TextBlock Text="{Binding DashVM.MetricsData.Summary.TotalCost, TargetNullValue=—, StringFormat={}{0:C}}"
                                    FontSize="28" FontWeight="Bold"
-                                   Foreground="{StaticResource TextPrimaryBrush}" Margin="0,8,0,0"/>
+                                   Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,8,0,0"/>
                     </StackPanel>
                 </Border>
             </Grid>
 
             <!-- Cognitive: Modulos Ativos -->
-            <Border Background="{StaticResource PanelBrush}" CornerRadius="24"
-                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+            <Border Background="{DynamicResource PanelBrush}" CornerRadius="24"
+                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                     Padding="24" Margin="0,0,0,16"
                     Visibility="{Binding DashVM.CognitiveData, Converter={StaticResource NullToVisibilityConverter}}">
                 <StackPanel>
                     <TextBlock Text="Módulos Ativos" FontSize="16" FontWeight="SemiBold"
-                               Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+                               Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,16"/>
                     <ItemsControl ItemsSource="{Binding DashVM.CognitiveData.ActiveModules}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
@@ -126,20 +126,20 @@
                                         <ColumnDefinition Width="60"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="{Binding Name}" FontSize="12" FontWeight="SemiBold"
-                                               Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                                               Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
                                     <Border Grid.Column="1" Height="8" CornerRadius="4"
                                             Background="#20FFFFFF" Margin="8,0" VerticalAlignment="Center">
                                         <Border CornerRadius="4"
                                                 Width="{Binding HealthScore, Converter={StaticResource PercentToWidthConverter}, ConverterParameter=200}">
                                             <Border.Style>
                                                 <Style TargetType="Border">
-                                                    <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
+                                                    <Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding Status}" Value="degraded">
-                                                            <Setter Property="Background" Value="{StaticResource WarningBrush}"/>
+                                                            <Setter Property="Background" Value="{DynamicResource WarningBrush}"/>
                                                         </DataTrigger>
                                                         <DataTrigger Binding="{Binding Status}" Value="down">
-                                                            <Setter Property="Background" Value="{StaticResource ErrorBrush}"/>
+                                                            <Setter Property="Background" Value="{DynamicResource ErrorBrush}"/>
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
@@ -147,7 +147,7 @@
                                         </Border>
                                     </Border>
                                     <TextBlock Grid.Column="2" Text="{Binding HealthScore, StringFormat={}{0:P0}}"
-                                               FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"
+                                               FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"
                                                HorizontalAlignment="Right" VerticalAlignment="Center"/>
                                 </Grid>
                             </DataTemplate>
@@ -157,17 +157,17 @@
             </Border>
 
             <!-- Autonomia -->
-            <Border Background="{StaticResource PanelBrush}" CornerRadius="24"
-                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+            <Border Background="{DynamicResource PanelBrush}" CornerRadius="24"
+                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                     Padding="24" Margin="0,0,0,16"
                     Visibility="{Binding DashVM.CognitiveData.Autonomy, Converter={StaticResource NullToVisibilityConverter}}">
                 <StackPanel>
                     <TextBlock Text="Autonomia" FontSize="16" FontWeight="SemiBold"
-                               Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+                               Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,16"/>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                        <TextBlock Text="Nível atual:" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,8,0"/>
+                        <TextBlock Text="Nível atual:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,8,0"/>
                         <TextBlock Text="{Binding DashVM.CognitiveData.Autonomy.Level}" FontSize="12" FontWeight="SemiBold"
-                                   Foreground="{StaticResource PrimaryBrush}"/>
+                                   Foreground="{DynamicResource PrimaryBrush}"/>
                     </StackPanel>
                     <ItemsControl ItemsSource="{Binding DashVM.CognitiveData.Autonomy.DomainConfidence}">
                         <ItemsControl.ItemTemplate>
@@ -179,17 +179,17 @@
                                         <ColumnDefinition Width="50"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="{Binding Key}" FontSize="11"
-                                               Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                               Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"/>
                                     <Border Grid.Column="1" Height="6" CornerRadius="3"
                                             Background="#20FFFFFF" Margin="8,0" VerticalAlignment="Center">
                                         <Border CornerRadius="3"
                                                 Width="{Binding Value, Converter={StaticResource PercentToWidthConverter}, ConverterParameter=200}">
                                             <Border.Style>
                                                 <Style TargetType="Border">
-                                                    <Setter Property="Background" Value="{StaticResource SuccessBrush}"/>
+                                                    <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding Value}" Value="0">
-                                                            <Setter Property="Background" Value="{StaticResource ErrorBrush}"/>
+                                                            <Setter Property="Background" Value="{DynamicResource ErrorBrush}"/>
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
@@ -197,7 +197,7 @@
                                         </Border>
                                     </Border>
                                     <TextBlock Grid.Column="2" Text="{Binding Value, StringFormat={}{0:P0}}"
-                                               FontSize="10" Foreground="{StaticResource TextSecondaryBrush}"
+                                               FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}"
                                                HorizontalAlignment="Right" VerticalAlignment="Center"/>
                                 </Grid>
                             </DataTemplate>
@@ -207,13 +207,13 @@
             </Border>
 
             <!-- Eventos Recentes -->
-            <Border Background="{StaticResource PanelBrush}" CornerRadius="24"
-                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+            <Border Background="{DynamicResource PanelBrush}" CornerRadius="24"
+                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                     Padding="24" Margin="0,0,0,16"
                     Visibility="{Binding DashVM.CognitiveData.RecentEvents.Count, Converter={StaticResource NullToVisibilityConverter}}">
                 <StackPanel>
                     <TextBlock Text="Eventos Recentes" FontSize="16" FontWeight="SemiBold"
-                               Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+                               Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,16"/>
                     <ItemsControl ItemsSource="{Binding DashVM.CognitiveData.RecentEvents}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
@@ -228,16 +228,16 @@
                                             <TextBlock Text="{Binding Type}" FontSize="9" FontWeight="Bold"/>
                                             <Border.Style>
                                                 <Style TargetType="Border">
-                                                    <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
+                                                    <Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding Type}" Value="warning">
-                                                            <Setter Property="Background" Value="{StaticResource WarningBrush}"/>
+                                                            <Setter Property="Background" Value="{DynamicResource WarningBrush}"/>
                                                         </DataTrigger>
                                                         <DataTrigger Binding="{Binding Type}" Value="error">
-                                                            <Setter Property="Background" Value="{StaticResource ErrorBrush}"/>
+                                                            <Setter Property="Background" Value="{DynamicResource ErrorBrush}"/>
                                                         </DataTrigger>
                                                         <DataTrigger Binding="{Binding Type}" Value="success">
-                                                            <Setter Property="Background" Value="{StaticResource SuccessBrush}"/>
+                                                            <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
@@ -245,12 +245,12 @@
                                         </Border>
                                         <StackPanel Grid.Column="1">
                                             <TextBlock Text="{Binding Description}" FontSize="11"
-                                                       Foreground="{StaticResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis"/>
+                                                       Foreground="{DynamicResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis"/>
                                             <TextBlock Text="{Binding Source}" FontSize="9"
-                                                       Foreground="{StaticResource TextSecondaryBrush}" Margin="0,2,0,0"/>
+                                                       Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,2,0,0"/>
                                         </StackPanel>
                                         <TextBlock Grid.Column="2" Text="{Binding Timestamp, StringFormat={}{0:HH:mm:ss}}"
-                                                   FontSize="10" Foreground="{StaticResource TextSecondaryBrush}"
+                                                   FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}"
                                                    VerticalAlignment="Center"/>
                                     </Grid>
                                 </Border>
@@ -261,7 +261,7 @@
             </Border>
 
             <!-- Emotional State -->
-            <Border Background="{StaticResource PanelBrush}" CornerRadius="24"
+            <Border Background="{DynamicResource PanelBrush}" CornerRadius="24"
                     BorderThickness="1" Padding="24" Margin="0,0,0,16"
                     Visibility="{Binding DashVM.EmotionalState, Converter={StaticResource NullToVisibilityConverter}}">
                 <Border.BorderBrush>
@@ -270,110 +270,110 @@
                 <Grid>
                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                     <StackPanel>
-                        <TextBlock Text="Estado Emocional" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,4"/>
-                        <TextBlock Text="{Binding DashVM.EmotionalMood}" FontSize="22" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,12"/>
+                        <TextBlock Text="Estado Emocional" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+                        <TextBlock Text="{Binding DashVM.EmotionalMood}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,12"/>
                         <Grid>
                             <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                             <Grid.RowDefinitions><RowDefinition/><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
-                            <TextBlock Text="Valência" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
-                            <TextBlock Grid.Column="1" Text="{Binding DashVM.EmotionalState.Valence, StringFormat={}{0:F2}}" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}" Margin="8,0" FontWeight="SemiBold"/>
-                            <TextBlock Grid.Row="1" Text="Alerta" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
-                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding DashVM.EmotionalState.Arousal, StringFormat={}{0:F2}}" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}" Margin="8,0" FontWeight="SemiBold"/>
-                            <TextBlock Grid.Row="2" Text="Motivação" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
-                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding DashVM.EmotionalState.Motivation, StringFormat={}{0:F2}}" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}" Margin="8,0" FontWeight="SemiBold"/>
+                            <TextBlock Text="Valência" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                            <TextBlock Grid.Column="1" Text="{Binding DashVM.EmotionalState.Valence, StringFormat={}{0:F2}}" FontSize="12" Foreground="{DynamicResource TextPrimaryBrush}" Margin="8,0" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Row="1" Text="Alerta" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding DashVM.EmotionalState.Arousal, StringFormat={}{0:F2}}" FontSize="12" Foreground="{DynamicResource TextPrimaryBrush}" Margin="8,0" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Row="2" Text="Motivação" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding DashVM.EmotionalState.Motivation, StringFormat={}{0:F2}}" FontSize="12" Foreground="{DynamicResource TextPrimaryBrush}" Margin="8,0" FontWeight="SemiBold"/>
                         </Grid>
                     </StackPanel>
                     <Border Grid.Column="1" CornerRadius="16" Background="#14FFFFFF" Margin="16,0,0,0" Padding="16" VerticalAlignment="Center" MinWidth="160">
                         <StackPanel>
-                            <TextBlock Text="Modulação ativa" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,8"/>
-                            <TextBlock Text="{Binding DashVM.EmotionalState.Valence, StringFormat={}Risco: {0:+0%;-0%;0%}}" FontSize="13" Foreground="{StaticResource TextPrimaryBrush}"/>
-                            <TextBlock Text="{Binding DashVM.EmotionalState.Arousal, StringFormat={}Decisão: {0:P0}×}" FontSize="13" Foreground="{StaticResource TextPrimaryBrush}"/>
+                            <TextBlock Text="Modulação ativa" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+                            <TextBlock Text="{Binding DashVM.EmotionalState.Valence, StringFormat={}Risco: {0:+0%;-0%;0%}}" FontSize="13" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            <TextBlock Text="{Binding DashVM.EmotionalState.Arousal, StringFormat={}Decisão: {0:P0}×}" FontSize="13" Foreground="{DynamicResource TextPrimaryBrush}"/>
                         </StackPanel>
                     </Border>
                 </Grid>
             </Border>
 
             <!-- Affective State (Dor/Recompensa) -->
-            <Border Background="{StaticResource PanelBrush}" CornerRadius="24"
-                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+            <Border Background="{DynamicResource PanelBrush}" CornerRadius="24"
+                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                     Padding="24" Margin="0,0,0,16"
                     Visibility="{Binding DashVM.AffectiveState, Converter={StaticResource NullToVisibilityConverter}}">
                 <Grid>
                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                     <StackPanel>
-                        <TextBlock Text="Dor e Recompensa" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,4"/>
-                        <TextBlock Text="{Binding DashVM.AffectiveState.PainLevel, StringFormat={}Dor: {0:F2}}" FontSize="18" FontWeight="Bold" Foreground="{StaticResource DangerBrush}" Margin="0,0,0,4"/>
-                        <TextBlock Text="{Binding DashVM.AffectiveState.RewardLevel, StringFormat={}Recompensa: {0:F2}}" FontSize="18" FontWeight="Bold" Foreground="{StaticResource SuccessBrush}" Margin="0,0,0,8"/>
+                        <TextBlock Text="Dor e Recompensa" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+                        <TextBlock Text="{Binding DashVM.AffectiveState.PainLevel, StringFormat={}Dor: {0:F2}}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource DangerBrush}" Margin="0,0,0,4"/>
+                        <TextBlock Text="{Binding DashVM.AffectiveState.RewardLevel, StringFormat={}Recompensa: {0:F2}}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}" Margin="0,0,0,8"/>
                         <Grid>
                             <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                             <Grid.RowDefinitions><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
-                            <TextBlock Text="Valência" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
-                            <TextBlock Grid.Column="1" Text="{Binding DashVM.AffectiveState.Valence, StringFormat={}{0:F2}}" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}" Margin="8,0" FontWeight="SemiBold"/>
-                            <TextBlock Grid.Row="1" Text="Alerta" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
-                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding DashVM.AffectiveState.Arousal, StringFormat={}{0:F2}}" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}" Margin="8,0" FontWeight="SemiBold"/>
+                            <TextBlock Text="Valência" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                            <TextBlock Grid.Column="1" Text="{Binding DashVM.AffectiveState.Valence, StringFormat={}{0:F2}}" FontSize="12" Foreground="{DynamicResource TextPrimaryBrush}" Margin="8,0" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Row="1" Text="Alerta" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding DashVM.AffectiveState.Arousal, StringFormat={}{0:F2}}" FontSize="12" Foreground="{DynamicResource TextPrimaryBrush}" Margin="8,0" FontWeight="SemiBold"/>
                         </Grid>
                     </StackPanel>
                     <Border Grid.Column="1" CornerRadius="16" Background="#14FFFFFF" Margin="16,0,0,0" Padding="16" VerticalAlignment="Center" MinWidth="140">
                         <StackPanel>
-                            <TextBlock Text="Balanço" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,8"/>
-                            <TextBlock Text="{Binding DashVM.AffectiveState.Valence, StringFormat={}{0:+0.00;-0.00;0.00}}" FontSize="22" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                            <TextBlock Text="Balanço" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+                            <TextBlock Text="{Binding DashVM.AffectiveState.Valence, StringFormat={}{0:+0.00;-0.00;0.00}}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
                         </StackPanel>
                     </Border>
                 </Grid>
             </Border>
 
             <!-- Scorecard -->
-            <Border Background="{StaticResource PanelBrush}" CornerRadius="24"
-                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+            <Border Background="{DynamicResource PanelBrush}" CornerRadius="24"
+                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                     Padding="24" Margin="0,0,0,16"
                     Visibility="{Binding DashVM.ScorecardData, Converter={StaticResource NullToVisibilityConverter}}">
                 <StackPanel>
                     <TextBlock Text="{loc:Loc dashboard_scorecard}" FontSize="16" FontWeight="SemiBold"
-                               Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,20"/>
+                               Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,20"/>
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel HorizontalAlignment="Center">
                             <TextBlock Text="{Binding DashVM.ScorecardData.Reliability, TargetNullValue=—, StringFormat={}{0:P1}}"
-                                       FontSize="28" FontWeight="Bold" Foreground="{StaticResource SuccessBrush}"/>
-                            <TextBlock Text="Confiabilidade" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                       FontSize="28" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
+                            <TextBlock Text="Confiabilidade" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
                         </StackPanel>
                         <StackPanel Grid.Column="1" HorizontalAlignment="Center">
                             <TextBlock Text="{Binding DashVM.ScorecardData.Efficiency, TargetNullValue=—, StringFormat={}{0:P1}}"
-                                       FontSize="28" FontWeight="Bold" Foreground="{StaticResource WarningBrush}"/>
-                            <TextBlock Text="Eficiência" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                       FontSize="28" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
+                            <TextBlock Text="Eficiência" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
                         </StackPanel>
                     </Grid>
                 </StackPanel>
             </Border>
 
             <!-- Runtime -->
-            <Border Background="{StaticResource PanelBrush}" CornerRadius="24"
-                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+            <Border Background="{DynamicResource PanelBrush}" CornerRadius="24"
+                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                     Padding="24" Margin="0,0,0,16"
                     Visibility="{Binding DashVM.RuntimeData, Converter={StaticResource NullToVisibilityConverter}}">
                 <StackPanel>
                     <TextBlock Text="{loc:Loc dashboard_runtime}" FontSize="16" FontWeight="SemiBold"
-                               Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+                               Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,16"/>
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel>
                             <TextBlock Text="Gateway" FontSize="13" FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextPrimaryBrush}"/>
+                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
                             <TextBlock Text="{Binding DashVM.RuntimeData.GatewayVersion}" FontSize="11"
-                                       Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,2"/>
+                                       Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,2"/>
                             <TextBlock FontSize="11">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Text" Value="Offline"/>
-                                        <Setter Property="Foreground" Value="{StaticResource ErrorBrush}"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource ErrorBrush}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding DashVM.RuntimeData.GatewayHealthy}" Value="True">
                                                 <Setter Property="Text" Value="Online"/>
-                                                <Setter Property="Foreground" Value="{StaticResource SuccessBrush}"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -382,18 +382,18 @@
                         </StackPanel>
                         <StackPanel Grid.Column="1">
                             <TextBlock Text="{loc:Loc sidebar_brand}" FontSize="13" FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextPrimaryBrush}"/>
+                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
                             <TextBlock Text="{Binding DashVM.RuntimeData.KernelVersion}" FontSize="11"
-                                       Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,2"/>
+                                       Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,2"/>
                             <TextBlock FontSize="11">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Text" Value="Offline"/>
-                                        <Setter Property="Foreground" Value="{StaticResource ErrorBrush}"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource ErrorBrush}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding DashVM.RuntimeData.KernelHealthy}" Value="True">
                                                 <Setter Property="Text" Value="Online"/>
-                                                <Setter Property="Foreground" Value="{StaticResource SuccessBrush}"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -404,12 +404,12 @@
                 </StackPanel>
             </Border>
             <!-- #3: Goals List -->
-            <Border Background="{StaticResource PanelBrush}" CornerRadius="24" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="24" Margin="0,0,0,16"
+            <Border Background="{DynamicResource PanelBrush}" CornerRadius="24" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="24" Margin="0,0,0,16"
                     Visibility="{Binding DashVM.GoalsList.Count, Converter={StaticResource NullToVisibilityConverter}}">
                 <StackPanel>
                     <Grid Margin="0,0,0,16">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                        <TextBlock Text="Goals" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                        <TextBlock Text="Goals" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
                         <Button Grid.Column="1" Command="{Binding DashVM.ShowCreateGoalCommand}" Style="{StaticResource SmallButton}" Padding="10,6">+ Novo Goal</Button>
                     </Grid>
                     <ItemsControl ItemsSource="{Binding DashVM.GoalsList}">
@@ -419,10 +419,10 @@
                                     <Grid>
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                                         <StackPanel>
-                                            <TextBlock Text="{Binding Description}" FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                            <TextBlock Text="{Binding Description}" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                             <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                                                <TextBlock Text="{Binding Status}" FontSize="10" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,12,0"/>
-                                                <TextBlock Text="{Binding Priority, StringFormat=P{0}}" FontSize="10" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                                <TextBlock Text="{Binding Status}" FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,12,0"/>
+                                                <TextBlock Text="{Binding Priority, StringFormat=P{0}}" FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}"/>
                                             </StackPanel>
                                         </StackPanel>
                                         <StackPanel Grid.Column="1" Orientation="Horizontal">
@@ -437,16 +437,16 @@
             </Border>
 
             <!-- #3: Goal Detail -->
-            <Border Background="{StaticResource PanelBrush}" CornerRadius="24" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="24" Margin="0,0,0,16"
+            <Border Background="{DynamicResource PanelBrush}" CornerRadius="24" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="24" Margin="0,0,0,16"
                     Visibility="{Binding DashVM.GoalDetail, Converter={StaticResource NullToVisibilityConverter}}">
                 <StackPanel>
-                    <TextBlock Text="{Binding DashVM.GoalDetail.Description}" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,12"/>
+                    <TextBlock Text="{Binding DashVM.GoalDetail.Description}" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,12"/>
                     <Grid>
                         <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                        <TextBlock Text="Status:" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,8,4"/>
-                        <TextBlock Grid.Column="1" Text="{Binding DashVM.GoalDetail.Status}" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,4"/>
-                        <TextBlock Grid.Row="1" Text="Prioridade:" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,8,4"/>
-                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding DashVM.GoalDetail.Priority, StringFormat=P{0}}" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+                        <TextBlock Text="Status:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,8,4"/>
+                        <TextBlock Grid.Column="1" Text="{Binding DashVM.GoalDetail.Status}" FontSize="12" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+                        <TextBlock Grid.Row="1" Text="Prioridade:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,8,4"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding DashVM.GoalDetail.Priority, StringFormat=P{0}}" FontSize="12" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,4"/>
                     </Grid>
                     <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
                         <Button Command="{Binding DashVM.PauseGoalCommand}" Style="{StaticResource SmallButton}" Margin="0,0,4,0">Pausar</Button>
@@ -457,41 +457,41 @@
             </Border>
 
             <!-- #4: CrossSummary -->
-            <Border Background="{StaticResource PanelBrush}" CornerRadius="24" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="24" Margin="0,0,0,16"
+            <Border Background="{DynamicResource PanelBrush}" CornerRadius="24" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="24" Margin="0,0,0,16"
                     Visibility="{Binding DashVM.CrossSummaryData, Converter={StaticResource NullToVisibilityConverter}}">
                 <StackPanel>
-                    <TextBlock Text="Cross-Service Summary" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+                    <TextBlock Text="Cross-Service Summary" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,16"/>
                     <Grid>
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                         <StackPanel>
-                            <TextBlock Text="Gateway" FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
-                            <TextBlock Text="{Binding DashVM.CrossSummaryData.Gateway.Version}" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
-                            <TextBlock Text="{Binding DashVM.CrossSummaryData.Gateway.RequestsPerMinute, StringFormat={}{0} req/min}" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock Text="Gateway" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            <TextBlock Text="{Binding DashVM.CrossSummaryData.Gateway.Version}" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                            <TextBlock Text="{Binding DashVM.CrossSummaryData.Gateway.RequestsPerMinute, StringFormat={}{0} req/min}" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
                         </StackPanel>
                         <StackPanel Grid.Column="1">
-                            <TextBlock Text="{loc:Loc sidebar_brand}" FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
-                            <TextBlock Text="{Binding DashVM.CrossSummaryData.KrnlAI.Version}" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
-                            <TextBlock Text="{Binding DashVM.CrossSummaryData.KrnlAI.RequestsPerMinute, StringFormat={}{0} req/min}" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock Text="{loc:Loc sidebar_brand}" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            <TextBlock Text="{Binding DashVM.CrossSummaryData.KrnlAI.Version}" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                            <TextBlock Text="{Binding DashVM.CrossSummaryData.KrnlAI.RequestsPerMinute, StringFormat={}{0} req/min}" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
                         </StackPanel>
                     </Grid>
                 </StackPanel>
             </Border>
 
             <!-- #5: Metrics by Goal -->
-            <Border Background="{StaticResource PanelBrush}" CornerRadius="24" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="24" Margin="0,0,0,16"
+            <Border Background="{DynamicResource PanelBrush}" CornerRadius="24" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="24" Margin="0,0,0,16"
                     Visibility="{Binding DashVM.MetricsByGoalData, Converter={StaticResource NullToVisibilityConverter}}">
                 <StackPanel>
-                    <TextBlock Text="Métricas por Goal" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+                    <TextBlock Text="Métricas por Goal" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,16"/>
                     <ItemsControl ItemsSource="{Binding DashVM.MetricsByGoalData.Goals}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Border Padding="12,8" CornerRadius="12" Background="#14FFFFFF" Margin="0,0,0,6">
                                     <Grid>
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="80"/><ColumnDefinition Width="80"/><ColumnDefinition Width="80"/></Grid.ColumnDefinitions>
-                                        <TextBlock Text="{Binding GoalId}" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis"/>
-                                        <TextBlock Grid.Column="1" Text="{Binding SuccessRate, StringFormat={}{0:P1}}" FontSize="11" Foreground="{StaticResource SuccessBrush}"/>
-                                        <TextBlock Grid.Column="2" Text="{Binding AvgLatencyMs, StringFormat={}{0:N0}ms}" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
-                                        <TextBlock Grid.Column="3" Text="{Binding TotalRuns, StringFormat={}{0:N0}}" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                        <TextBlock Text="{Binding GoalId}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding SuccessRate, StringFormat={}{0:P1}}" FontSize="11" Foreground="{DynamicResource SuccessBrush}"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding AvgLatencyMs, StringFormat={}{0:N0}ms}" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                        <TextBlock Grid.Column="3" Text="{Binding TotalRuns, StringFormat={}{0:N0}}" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
                                     </Grid>
                                 </Border>
                             </DataTemplate>

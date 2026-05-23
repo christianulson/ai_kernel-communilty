@@ -16,8 +16,8 @@
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="{StaticResource PanelBrush}"
-                BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1"
+        <Border Grid.Row="0" Background="{DynamicResource PanelBrush}"
+                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1"
                 Padding="28,14">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -27,14 +27,14 @@
                 <StackPanel>
                     <TextBlock Text="{Binding ActiveSession.Title, FallbackValue='Nova Conversa'}"
                                FontSize="18" FontWeight="SemiBold"
-                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                               Foreground="{DynamicResource TextPrimaryBrush}"/>
                     <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <Ellipse Width="8" Height="8" Fill="{StaticResource SuccessBrush}" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                            <TextBlock Text="{Binding StatusMessage}" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <Ellipse Width="8" Height="8" Fill="{DynamicResource SuccessBrush}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding StatusMessage}" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
                         </StackPanel>
                         <Ellipse Width="8" Height="8" Fill="{Binding EmotionalTone, Converter={StaticResource MoodToColorConverter}}" Margin="16,0,6,0" VerticalAlignment="Center"/>
-                        <TextBlock Text="{Binding EmotionalMood}" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,0"/>
+                        <TextBlock Text="{Binding EmotionalMood}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" Margin="0,0,0,0"/>
                     </StackPanel>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal"/>
@@ -42,8 +42,8 @@
         </Border>
 
         <!-- Stage Rail -->
-        <Border Grid.Row="1" Padding="16,8" Background="{StaticResource PanelBrush}"
-                BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1"
+        <Border Grid.Row="1" Padding="16,8" Background="{DynamicResource PanelBrush}"
+                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1"
                 Visibility="{Binding ChatVM.IsCognitiveStreamVisible, Converter={StaticResource BoolToVisibilityConverter}}">
             <controls:StageRailControl x:Name="StageRail"/>
         </Border>
@@ -54,10 +54,10 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Border Margin="0,0,0,12" Padding="16" CornerRadius="18"
-                                BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
                             <Border.Style>
                                 <Style TargetType="Border">
-                                    <Setter Property="Background" Value="{StaticResource PanelBrush}"/>
+                                    <Setter Property="Background" Value="{DynamicResource PanelBrush}"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding Role}" Value="User">
                                             <Setter Property="Background" Value="#2938BDF8"/>
@@ -70,7 +70,7 @@
                             </Border.Style>
                             <StackPanel MaxWidth="720">
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                    <TextBlock FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}">
+                                    <TextBlock FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="Text" Value="&#x1f464;  Usuário"/>
@@ -83,14 +83,14 @@
                                         </TextBlock.Style>
                                     </TextBlock>
                                     <TextBlock Text="{Binding Timestamp, StringFormat={}{0:HH:mm}}" FontSize="11"
-                                               Foreground="{StaticResource TextSecondaryBrush}" Margin="12,0,0,0"/>
+                                               Foreground="{DynamicResource TextSecondaryBrush}" Margin="12,0,0,0"/>
                                 </StackPanel>
                                 <Border MaxWidth="480" MaxHeight="360" CornerRadius="8" Margin="0,0,0,8" ClipToBounds="True"
                                         Visibility="{Binding ImageBase64, Converter={StaticResource StringToVisibilityConverter}}">
                                     <Image Source="{Binding ImageBase64, Converter={StaticResource Base64ToImageConverter}}"/>
                                 </Border>
                                 <TextBlock Text="{Binding Content}" TextWrapping="Wrap"
-                                           Foreground="{StaticResource TextPrimaryBrush}" LineHeight="26"/>
+                                           Foreground="{DynamicResource TextPrimaryBrush}" LineHeight="26"/>
                             </StackPanel>
                         </Border>
                     </DataTemplate>
@@ -99,16 +99,16 @@
         </ScrollViewer>
 
         <!-- Cognitive Step Timeline -->
-        <Border Grid.Row="3" Padding="16,8" Background="{StaticResource PanelBrush}"
-                BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0"
+        <Border Grid.Row="3" Padding="16,8" Background="{DynamicResource PanelBrush}"
+                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0"
                 Visibility="{Binding ChatVM.IsCognitiveStreamVisible, Converter={StaticResource BoolToVisibilityConverter}}"
                 MaxHeight="200">
             <controls:StepTimelineControl x:Name="StepTimeline"/>
         </Border>
 
         <!-- Voice Level Indicator -->
-        <Border Grid.Row="4" Padding="28,6" Background="{StaticResource PanelBrush}"
-                BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0">
+        <Border Grid.Row="4" Padding="28,6" Background="{DynamicResource PanelBrush}"
+                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="60"/>
@@ -116,20 +116,20 @@
                     <ColumnDefinition Width="50"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Text="{loc:Loc chat_voice}" FontSize="12" VerticalAlignment="Center"
-                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                           Foreground="{DynamicResource TextSecondaryBrush}"/>
                 <Border Grid.Column="1" Height="8" CornerRadius="999" Background="#12FFFFFF" Margin="8,0">
-                    <Border CornerRadius="999" Background="{StaticResource AccentBrush}"
+                    <Border CornerRadius="999" Background="{DynamicResource AccentBrush}"
                             HorizontalAlignment="Left" Width="{Binding VoiceLevel, Converter={StaticResource PercentToWidthConverter}}"/>
                 </Border>
                 <TextBlock Grid.Column="2" Text="{Binding VoiceLevel, StringFormat={}{0:P0}}"
                            FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Center"
-                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                           Foreground="{DynamicResource TextSecondaryBrush}"/>
             </Grid>
         </Border>
 
         <!-- Camera Preview -->
-        <Border Grid.Row="5" Padding="16" Background="{StaticResource PanelBrush}"
-                BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0"
+        <Border Grid.Row="5" Padding="16" Background="{DynamicResource PanelBrush}"
+                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0"
                 Visibility="{Binding ChatVM.IsCameraOn, Converter={StaticResource BoolToVisibilityConverter}}">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -138,7 +138,7 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <Border Grid.Column="0" Width="240" Height="180" CornerRadius="8" BorderThickness="1"
-                        BorderBrush="{StaticResource BorderBrush}" Background="#0A000000">
+                        BorderBrush="{DynamicResource BorderBrush}" Background="#0A000000">
                     <Image Source="{Binding ChatVM.CameraPreviewSource}" Stretch="UniformToFill"/>
                 </Border>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center">
@@ -151,8 +151,8 @@
         </Border>
 
         <!-- Composer -->
-        <Border Grid.Row="6" Background="{StaticResource PanelBrush}"
-                BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0"
+        <Border Grid.Row="6" Background="{DynamicResource PanelBrush}"
+                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0"
                 Padding="28,16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -170,8 +170,8 @@
                              SelectedIndex="{Binding ChatVM.MentionSelectedIndex}"
                              MaxHeight="120"
                              Margin="0,0,0,2"
-                             Background="{StaticResource PanelBrush}"
-                             BorderBrush="{StaticResource BorderBrush}"
+                             Background="{DynamicResource PanelBrush}"
+                             BorderBrush="{DynamicResource BorderBrush}"
                              BorderThickness="1"
                              FontSize="12">
                     </ListBox>
@@ -181,17 +181,17 @@
                              SelectedIndex="{Binding ChatVM.SlashSelectedIndex}"
                              MaxHeight="160"
                              Margin="0,0,0,4"
-                             Background="{StaticResource PanelBrush}"
-                             BorderBrush="{StaticResource BorderBrush}"
+                             Background="{DynamicResource PanelBrush}"
+                             BorderBrush="{DynamicResource BorderBrush}"
                              BorderThickness="1">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" Margin="4,2">
                                     <TextBlock Text="{Binding Icon}" FontSize="14" Margin="0,0,8,0" VerticalAlignment="Center"/>
                                     <TextBlock Text="{Binding Command}" FontWeight="SemiBold" FontSize="13"
-                                               Foreground="{StaticResource AccentBrush}" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                                               Foreground="{DynamicResource AccentBrush}" Margin="0,0,12,0" VerticalAlignment="Center"/>
                                     <TextBlock Text="{Binding Description}" FontSize="11"
-                                               Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                               Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>

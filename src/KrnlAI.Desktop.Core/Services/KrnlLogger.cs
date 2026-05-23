@@ -32,19 +32,43 @@ public static class KrnlLogger
     public static void Write(
         Exception ex,
         [CallerFilePath] string? filePath = null,
-        [CallerMemberName] string? memberName = null)
+        [CallerMemberName] string? memberName = null,
+        [CallerLineNumber] int lineNumber = 0)
     {
         var fileName = filePath is not null ? Path.GetFileNameWithoutExtension(filePath) : "?";
-        WriteLine($"[{fileName}.{memberName}] {ex.GetType().Name}: {ex.Message}");
+        WriteLine($"[{fileName}.{memberName}:{lineNumber}] {FormatException(ex)}");
     }
 
     public static void Write(
         string message,
         [CallerFilePath] string? filePath = null,
-        [CallerMemberName] string? memberName = null)
+        [CallerMemberName] string? memberName = null,
+        [CallerLineNumber] int lineNumber = 0)
     {
         var fileName = filePath is not null ? Path.GetFileNameWithoutExtension(filePath) : "?";
-        WriteLine($"[{fileName}.{memberName}] {message}");
+        WriteLine($"[{fileName}.{memberName}:{lineNumber}] {message}");
+    }
+
+    private static string FormatException(Exception ex)
+    {
+        var sb = new System.Text.StringBuilder();
+        var depth = 0;
+        for (var current = ex; current != null; current = current.InnerException, depth++)
+        {
+            if (depth > 0)
+            {
+                sb.AppendLine();
+                sb.Append($"--- Inner Exception ({depth}) ---");
+                sb.AppendLine();
+            }
+            sb.Append($"{current.GetType().Name}: {current.Message}");
+            if (!string.IsNullOrEmpty(current.StackTrace))
+            {
+                sb.AppendLine();
+                sb.Append(current.StackTrace);
+            }
+        }
+        return sb.ToString();
     }
 
     private static void WriteLine(string line)

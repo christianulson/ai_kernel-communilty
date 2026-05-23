@@ -10,13 +10,13 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel>
-                    <TextBlock Text="{loc:Loc nav_causal}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
-                    <TextBlock Text="Relações causais entre eventos e predições." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                    <TextBlock Text="{loc:Loc nav_causal}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    <TextBlock Text="Relações causais entre eventos e predições." Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"/>
                 </StackPanel>
             </Grid>
 
             <!-- Tabs -->
-            <Border Background="{StaticResource PanelBrush}" CornerRadius="14" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+            <Border Background="{DynamicResource PanelBrush}" CornerRadius="14" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                     Padding="4" Margin="0,0,0,20" HorizontalAlignment="Left">
                 <StackPanel Orientation="Horizontal">
                     <RadioButton Content="🔍 Consulta Causal" IsChecked="{Binding CausalVM.IsQuery, Mode=OneWay}" Style="{StaticResource TabRadioStyle}"
@@ -33,7 +33,7 @@
 
             <!-- Query Tab -->
             <StackPanel Visibility="{Binding CausalVM.IsQuery, Converter={StaticResource BoolToVisibilityConverter}}">
-                <Border Background="{StaticResource PanelBrush}" CornerRadius="24" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="20" Margin="0,0,0,16">
+                <Border Background="{DynamicResource PanelBrush}" CornerRadius="24" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="20" Margin="0,0,0,16">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -50,10 +50,10 @@
                     </Grid>
                 </Border>
 
-                <Border Background="{StaticResource PanelBrush}" CornerRadius="24" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="24"
+                <Border Background="{DynamicResource PanelBrush}" CornerRadius="24" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="24"
                         Visibility="{Binding CausalVM.ResultData, Converter={StaticResource NullToVisibilityConverter}}">
                     <StackPanel>
-                        <TextBlock Text="{loc:Loc causal_result_title}" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+                        <TextBlock Text="{loc:Loc causal_result_title}" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,16"/>
                         <ItemsControl ItemsSource="{Binding CausalVM.ResultData.Nodes}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
@@ -64,16 +64,16 @@
                                                     <ColumnDefinition Width="*"/>
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
-                                                <TextBlock Text="{Binding Label}" FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                                <TextBlock Text="{Binding Label}" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                 <Border Grid.Column="1" Padding="6,2" CornerRadius="6" Background="#1838BDF8">
-                                                    <TextBlock Text="{Binding Type}" FontSize="10" Foreground="{StaticResource AccentBrush}"/>
+                                                    <TextBlock Text="{Binding Type}" FontSize="10" Foreground="{DynamicResource AccentBrush}"/>
                                                 </Border>
                                             </Grid>
                                             <StackPanel Margin="0,6,0,0" Visibility="{Binding Attributes, Converter={StaticResource NullToVisibilityConverter}}">
                                                 <ItemsControl ItemsSource="{Binding Attributes}">
                                                     <ItemsControl.ItemTemplate>
                                                         <DataTemplate>
-                                                            <TextBlock FontSize="11" Foreground="{StaticResource TextSecondaryBrush}">
+                                                            <TextBlock FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}">
                                                                 <Run Text="{Binding Key}"/><Run Text=": "/><Run Text="{Binding Value, StringFormat={}{0:N2}}"/>
                                                             </TextBlock>
                                                         </DataTemplate>
@@ -91,7 +91,7 @@
 
             <!-- Predict Tab -->
             <StackPanel Visibility="{Binding CausalVM.IsPredict, Converter={StaticResource BoolToVisibilityConverter}}">
-                <Border Background="{StaticResource PanelBrush}" CornerRadius="24" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="20" Margin="0,0,0,16">
+                <Border Background="{DynamicResource PanelBrush}" CornerRadius="24" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="20" Margin="0,0,0,16">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -108,18 +108,18 @@
                     </Grid>
                 </Border>
 
-                <Border Background="{StaticResource PanelBrush}" CornerRadius="24" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="24"
+                <Border Background="{DynamicResource PanelBrush}" CornerRadius="24" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="24"
                         Visibility="{Binding CausalVM.PredictionResult, Converter={StaticResource NullToVisibilityConverter}}">
                     <StackPanel>
-                        <TextBlock Text="{loc:Loc causal_prediction_title}" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+                        <TextBlock Text="{loc:Loc causal_prediction_title}" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,16"/>
                         <Border Padding="14,10" CornerRadius="12" Background="#14FFFFFF" Margin="0,0,0,8">
-                            <TextBlock Text="{Binding CausalVM.PredictionResult.Outcome}" FontSize="14" Foreground="{StaticResource TextPrimaryBrush}"/>
+                            <TextBlock Text="{Binding CausalVM.PredictionResult.Outcome}" FontSize="14" Foreground="{DynamicResource TextPrimaryBrush}"/>
                         </Border>
                         <Border Padding="14,10" CornerRadius="12" Background="#14FFFFFF" Margin="0,0,0,8">
                             <StackPanel>
                                 <TextBlock Text="{Binding CausalVM.PredictionResult.Probability, StringFormat={}{0:P1}}" FontSize="22" FontWeight="Bold"
-                                           Foreground="{StaticResource AccentBrush}"/>
-                                <TextBlock Text="{loc:Loc causal_probability}" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                                           Foreground="{DynamicResource AccentBrush}"/>
+                                <TextBlock Text="{loc:Loc causal_probability}" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"/>
                                 <ProgressBar Value="{Binding CausalVM.PredictionResult.Probability}" Margin="0,8,0,0"/>
                             </StackPanel>
                         </Border>

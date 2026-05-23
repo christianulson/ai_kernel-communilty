@@ -6,29 +6,29 @@
             <Grid Margin="0,0,0,20">
                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                 <StackPanel>
-                    <TextBlock Text="Model Registry" FontSize="24" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
-                    <TextBlock Text="Modelos neurais e versoes" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                    <TextBlock Text="Model Registry" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    <TextBlock Text="Modelos neurais e versoes" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"/>
                 </StackPanel>
                 <Button Grid.Column="1" Command="{Binding ModelRegistryVM.LoadCommand}" Style="{StaticResource GhostButton}" Padding="16,10">
                     <TextBlock Text="Atualizar"/>
                 </Button>
             </Grid>
-            <Border Background="{StaticResource PanelBrush}" CornerRadius="24" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="24" Margin="0,0,0,16"
+            <Border Background="{DynamicResource PanelBrush}" CornerRadius="24" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="24" Margin="0,0,0,16"
                     Visibility="{Binding ModelRegistryVM.Active, Converter={StaticResource NullToVisibilityConverter}}">
                 <StackPanel>
-                    <TextBlock Text="Versao Ativa" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
-                    <TextBlock Text="{Binding ModelRegistryVM.Active.ModelVersion}" FontSize="28" FontWeight="Bold" Foreground="{StaticResource SuccessBrush}" Margin="0,8,0,0"/>
-                    <TextBlock Text="{Binding ModelRegistryVM.Active.UseCase}" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
-                    <TextBlock Text="{Binding ModelRegistryVM.Active.Runtime}" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,2,0,0"/>
+                    <TextBlock Text="Versao Ativa" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    <TextBlock Text="{Binding ModelRegistryVM.Active.ModelVersion}" FontSize="28" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}" Margin="0,8,0,0"/>
+                    <TextBlock Text="{Binding ModelRegistryVM.Active.UseCase}" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                    <TextBlock Text="{Binding ModelRegistryVM.Active.Runtime}" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,2,0,0"/>
                 </StackPanel>
             </Border>
-            <Border Background="{StaticResource PanelBrush}" CornerRadius="24" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="24"
+            <Border Background="{DynamicResource PanelBrush}" CornerRadius="24" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="24"
                     Visibility="{Binding ModelRegistryVM.HasNoData, Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel HorizontalAlignment="Center" Margin="0,20">
-                    <TextBlock Text="Nenhum modelo encontrado" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Nenhum modelo encontrado" FontSize="14" Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center"/>
                 </StackPanel>
             </Border>
-            <Border Background="{StaticResource PanelBrush}" CornerRadius="24" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="0">
+            <Border Background="{DynamicResource PanelBrush}" CornerRadius="24" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="0">
                 <StackPanel>
                     <ItemsControl ItemsSource="{Binding ModelRegistryVM.Models}">
                         <ItemsControl.ItemTemplate>
@@ -38,10 +38,10 @@
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="120"/><ColumnDefinition Width="*"/><ColumnDefinition Width="100"/><ColumnDefinition Width="100"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Text="{Binding ModelVersion}" FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
-                                        <TextBlock Grid.Column="1" Text="{Binding UseCase}" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center"/>
-                                        <TextBlock Grid.Column="2" Text="{Binding Status}" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
-                                        <TextBlock Grid.Column="3" Text="{Binding Runtime}" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding ModelVersion}" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding UseCase}" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding Status}" FontSize="12" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="3" Text="{Binding Runtime}" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"/>
                                     </Grid>
                                 </Border>
                             </DataTemplate>

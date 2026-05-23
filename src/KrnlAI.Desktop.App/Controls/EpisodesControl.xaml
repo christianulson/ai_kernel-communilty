@@ -19,9 +19,9 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel>
                         <TextBlock Text="{loc:Loc nav_episodes}" FontSize="24" FontWeight="Bold"
-                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
                         <TextBlock Text="Histórico de execuções do agente."
-                                   Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                                   Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"/>
                     </StackPanel>
                     <Button Grid.Column="1" Command="{Binding EpisodesVM.LoadEpisodesCommand}"
                             Style="{StaticResource GhostButton}" Padding="16,10"
@@ -37,32 +37,32 @@
                 </Border>
 
                 <!-- Loading -->
-                <Border Background="{StaticResource PanelBrush}" CornerRadius="24"
-                        BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                <Border Background="{DynamicResource PanelBrush}" CornerRadius="24"
+                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                         Padding="24" Margin="0,0,0,16"
                         Visibility="{Binding EpisodesVM.IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
                     <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Margin="0,20">
                         <TextBlock Text="⏳" FontSize="18" Margin="0,0,12,0"/>
-                        <TextBlock Text="Carregando episódios..." Foreground="{StaticResource TextSecondaryBrush}"/>
+                        <TextBlock Text="Carregando episódios..." Foreground="{DynamicResource TextSecondaryBrush}"/>
                     </StackPanel>
                 </Border>
 
                 <!-- Empty state -->
-                <Border Background="{StaticResource PanelBrush}" CornerRadius="24"
-                        BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="24"
+                <Border Background="{DynamicResource PanelBrush}" CornerRadius="24"
+                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="24"
                         Visibility="{Binding EpisodesVM.HasNoData, Converter={StaticResource BoolToVisibilityConverter}}">
                     <StackPanel HorizontalAlignment="Center" Margin="0,20">
                         <TextBlock Text="📋" FontSize="32" HorizontalAlignment="Center"/>
-                        <TextBlock Text="Nenhum episódio encontrado" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}"
+                        <TextBlock Text="Nenhum episódio encontrado" FontSize="14" Foreground="{DynamicResource TextSecondaryBrush}"
                                    HorizontalAlignment="Center" Margin="0,8,0,0"/>
-                        <TextBlock Text="Execute comandos para gerar episódios." FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"
+                        <TextBlock Text="Execute comandos para gerar episódios." FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"
                                    HorizontalAlignment="Center" Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
 
                 <!-- Episodes List -->
-                <Border Background="{StaticResource PanelBrush}" CornerRadius="24"
-                        BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                <Border Background="{DynamicResource PanelBrush}" CornerRadius="24"
+                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                         Padding="0">
                     <StackPanel>
                         <!-- Table header -->
@@ -74,11 +74,11 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="140"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="Status" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}"/>
-                            <TextBlock Grid.Column="1" Text="Domínio" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}"/>
-                            <TextBlock Grid.Column="2" Text="Objetivo" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}"/>
-                            <TextBlock Grid.Column="3" Text="Resumo" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}"/>
-                            <TextBlock Grid.Column="4" Text="Data" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock Grid.Column="0" Text="Status" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                            <TextBlock Grid.Column="1" Text="Domínio" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                            <TextBlock Grid.Column="2" Text="Objetivo" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                            <TextBlock Grid.Column="3" Text="Resumo" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                            <TextBlock Grid.Column="4" Text="Data" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}"/>
                         </Grid>
 
                         <ItemsControl ItemsSource="{Binding EpisodesVM.EpisodeList}">
@@ -98,15 +98,15 @@
                                                 <TextBlock Text="{Binding Status}" FontSize="11" FontWeight="SemiBold" Foreground="{Binding Status, Converter={StaticResource StatusToColorConverter}}"/>
                                             </Border>
                                             <TextBlock Grid.Column="1" Text="{Binding Domain}" FontSize="12"
-                                                       Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                                                       Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
                                             <TextBlock Grid.Column="2" Text="{Binding Goal}" FontSize="12"
-                                                       Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"
                                                        TextTrimming="CharacterEllipsis" MaxWidth="200"/>
                                             <TextBlock Grid.Column="3" Text="{Binding Summary}" FontSize="11"
-                                                       Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"
                                                        TextTrimming="CharacterEllipsis" MaxWidth="200"/>
                                             <TextBlock Grid.Column="4" Text="{Binding CreatedAt, StringFormat={}{0:dd/MM/yyyy HH:mm}}" FontSize="11"
-                                                       Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                                       Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"/>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
@@ -117,8 +117,8 @@
             </StackPanel>
 
             <!-- Detail Panel -->
-            <Border Grid.Column="1" Background="{StaticResource PanelBrush}" CornerRadius="24"
-                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+            <Border Grid.Column="1" Background="{DynamicResource PanelBrush}" CornerRadius="24"
+                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                     Padding="24"
                     Visibility="{Binding EpisodesVM.EpisodeDetail, Converter={StaticResource NullToVisibilityConverter}}">
                 <StackPanel>
@@ -128,34 +128,34 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="{loc:Loc episodes_detail}" FontSize="16" FontWeight="SemiBold"
-                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
                         <Button Grid.Column="1" Content="✕" Style="{StaticResource SmallButton}" Command="{Binding EpisodesVM.ClearDetailCommand}" Width="28" Height="28"/>
                     </Grid>
 
                     <StackPanel>
-                        <TextBlock Text="ID" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,2"/>
-                        <TextBlock Text="{Binding EpisodesVM.EpisodeDetail.EpisodeId}" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,12"/>
+                        <TextBlock Text="ID" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,2"/>
+                        <TextBlock Text="{Binding EpisodesVM.EpisodeDetail.EpisodeId}" FontSize="12" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,12"/>
 
-                        <TextBlock Text="Usuário" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,2"/>
-                        <TextBlock Text="{Binding EpisodesVM.EpisodeDetail.UserId}" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,12"/>
+                        <TextBlock Text="Usuário" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,2"/>
+                        <TextBlock Text="{Binding EpisodesVM.EpisodeDetail.UserId}" FontSize="12" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,12"/>
 
-                        <TextBlock Text="Domínio" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,2"/>
-                        <TextBlock Text="{Binding EpisodesVM.EpisodeDetail.Domain}" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,12"/>
+                        <TextBlock Text="Domínio" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,2"/>
+                        <TextBlock Text="{Binding EpisodesVM.EpisodeDetail.Domain}" FontSize="12" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,12"/>
 
-                        <TextBlock Text="Status" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,2"/>
-                        <TextBlock Text="{Binding EpisodesVM.EpisodeDetail.Status}" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,12"/>
+                        <TextBlock Text="Status" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,2"/>
+                        <TextBlock Text="{Binding EpisodesVM.EpisodeDetail.Status}" FontSize="12" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,12"/>
 
-                        <TextBlock Text="Objetivo" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,2"/>
-                        <TextBlock Text="{Binding EpisodesVM.EpisodeDetail.Goal}" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,0,0,12"/>
+                        <TextBlock Text="Objetivo" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,2"/>
+                        <TextBlock Text="{Binding EpisodesVM.EpisodeDetail.Goal}" FontSize="12" Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,0,0,12"/>
 
-                        <TextBlock Text="Resumo" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,2"/>
-                        <TextBlock Text="{Binding EpisodesVM.EpisodeDetail.Summary}" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,0,0,12"/>
+                        <TextBlock Text="Resumo" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,2"/>
+                        <TextBlock Text="{Binding EpisodesVM.EpisodeDetail.Summary}" FontSize="12" Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,0,0,12"/>
 
-                        <TextBlock Text="Criado em" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,2"/>
-                        <TextBlock Text="{Binding EpisodesVM.EpisodeDetail.CreatedAt, StringFormat={}{0:dd/MM/yyyy HH:mm:ss}}" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,12"/>
+                        <TextBlock Text="Criado em" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,2"/>
+                        <TextBlock Text="{Binding EpisodesVM.EpisodeDetail.CreatedAt, StringFormat={}{0:dd/MM/yyyy HH:mm:ss}}" FontSize="12" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,12"/>
 
-                        <TextBlock Text="Concluído em" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,2"/>
-                        <TextBlock Text="{Binding EpisodesVM.EpisodeDetail.FinishedAt, TargetNullValue=—, StringFormat={}{0:dd/MM/yyyy HH:mm:ss}}" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                        <TextBlock Text="Concluído em" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,2"/>
+                        <TextBlock Text="{Binding EpisodesVM.EpisodeDetail.FinishedAt, TargetNullValue=—, StringFormat={}{0:dd/MM/yyyy HH:mm:ss}}" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}"/>
                     </StackPanel>
                 </StackPanel>
             </Border>

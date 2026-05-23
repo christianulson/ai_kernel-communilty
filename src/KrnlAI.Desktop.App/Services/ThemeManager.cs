@@ -1,4 +1,5 @@
 using System.Windows;
+using System.Windows.Media;
 using KrnlAI.Desktop.Core.Services;
 
 namespace KrnlAI.Desktop.App.Services;
@@ -23,13 +24,14 @@ public sealed class ThemeManager : IDisposable
     {
         if (Application.Current == null) return;
 
+        var fileName = string.Equals(themeName, "light", StringComparison.OrdinalIgnoreCase) ? "Light.xaml" : "Dark.xaml";
         var uri = new Uri(
-            $"pack://application:,,,/KrnlAI.Desktop;component/Resources/Themes/{themeName}.xaml",
+            $"pack://application:,,,/KrnlAI.Desktop;component/Resources/Themes/{fileName}",
             UriKind.Absolute);
 
         try
         {
-            var themeDict = new ResourceDictionary { Source = uri };
+            var newTheme = new ResourceDictionary { Source = uri };
             var merged = Application.Current.Resources.MergedDictionaries;
 
             var existing = merged.FirstOrDefault(d =>
@@ -39,11 +41,29 @@ public sealed class ThemeManager : IDisposable
             if (existing != null)
                 merged.Remove(existing);
 
-            merged.Insert(0, themeDict);
+            merged.Insert(0, newTheme);
+
+            foreach (var key in newTheme.Keys)
+            {
+                var newValue = newTheme[key];
+                if (newValue is SolidColorBrush newBrush)
+                {
+                    if (Application.Current.Resources[key] is SolidColorBrush oldBrush)
+                    {
+                        var mutable = oldBrush.Clone();
+                        mutable.Color = newBrush.Color;
+                        Application.Current.Resources[key] = mutable;
+                        continue;
+                    }
+                }
+                Application.Current.Resources[key] = newValue;
+            }
+
+            KrnlLogger.Write($"ThemeManager: switched to '{fileName}' ({newTheme.Count} resources)");
         }
-        catch
+        catch (Exception ex)
         {
-            // Fallback: theme file not found, keep current
+            KrnlLogger.Write($"ThemeManager: failed to load '{uri}' — {ex.GetType().Name}: {ex.Message}");
         }
     }
 

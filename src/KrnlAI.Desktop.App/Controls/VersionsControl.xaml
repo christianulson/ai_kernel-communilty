@@ -7,15 +7,15 @@
                 <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0" Margin="0,0,16,0">
-                <TextBlock Text="Versoes da API" FontSize="24" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,20"/>
-                <Border Background="{StaticResource PanelBrush}" CornerRadius="24" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="24">
+                <TextBlock Text="Versoes da API" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,20"/>
+                <Border Background="{DynamicResource PanelBrush}" CornerRadius="24" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="24">
                     <StackPanel>
-                        <TextBlock Text="Versao Padrao" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
-                        <TextBlock Text="{Binding VersionsVM.Versions.DefaultVersion}" FontSize="28" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,8,0,16"/>
-                        <TextBlock Text="Vercoes Suportadas" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                        <TextBlock Text="Versao Padrao" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        <TextBlock Text="{Binding VersionsVM.Versions.DefaultVersion}" FontSize="28" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" Margin="0,8,0,16"/>
+                        <TextBlock Text="Vercoes Suportadas" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
                         <ItemsControl ItemsSource="{Binding VersionsVM.Versions.SupportedVersions}">
                             <ItemsControl.ItemTemplate>
-                                <DataTemplate><TextBlock Text="{Binding}" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,2"/></DataTemplate>
+                                <DataTemplate><TextBlock Text="{Binding}" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,2"/></DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </StackPanel>
@@ -24,12 +24,12 @@
             <StackPanel Grid.Column="1" Margin="16,0,0,0">
                 <Grid Margin="0,0,0,20">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                    <TextBlock Text="Contratos" FontSize="24" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                    <TextBlock Text="Contratos" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
                     <Button Grid.Column="1" Command="{Binding VersionsVM.LoadCommand}" Style="{StaticResource GhostButton}" Padding="16,10">
                         <TextBlock Text="Atualizar"/>
                     </Button>
                 </Grid>
-                <Border Background="{StaticResource PanelBrush}" CornerRadius="24" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="0">
+                <Border Background="{DynamicResource PanelBrush}" CornerRadius="24" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="0">
                     <StackPanel>
                         <ItemsControl ItemsSource="{Binding VersionsVM.Contracts}">
                             <ItemsControl.ItemTemplate>
@@ -39,9 +39,9 @@
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="120"/><ColumnDefinition Width="80"/><ColumnDefinition Width="80"/>
                                             </Grid.ColumnDefinitions>
-                                            <TextBlock Text="{Binding Endpoint}" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
-                                            <TextBlock Grid.Column="1" Text="{Binding ContractVersion}" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center"/>
-                                            <TextBlock Grid.Column="2" Text="{Binding State}" FontSize="11" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding Endpoint}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding ContractVersion}" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding State}" FontSize="11" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>

@@ -39,6 +39,7 @@ public class ServiceLocator : IDisposable
 
     public ILogger<T> GetLogger<T>() => _provider!.GetRequiredService<ILogger<T>>();
     public Func<WebRtcService> WebRtcServiceFactory => () => new WebRtcService(GetLogger<WebRtcService>());
+    public IThemeService ThemeSvc => _provider.GetRequiredService<IThemeService>();
 
     private T? Resolve<T>() where T : class =>
         _disposed ? null : _provider?.GetService<T>();
