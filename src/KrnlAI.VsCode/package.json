@@ -204,6 +204,12 @@
           "default": 5001,
           "description": "Porta do Sidecar local"
         },
+        "krnlai.sidecarTransport": {
+          "type": "string",
+          "default": "http",
+          "enum": ["http", "stdio"],
+          "description": "Transporte do Sidecar local: http (HTTP REST) ou stdio (StreamJsonRpc sobre pipes)"
+        },
         "krnlai.codingAgent.enabled": {
           "type": "boolean",
           "default": false,
