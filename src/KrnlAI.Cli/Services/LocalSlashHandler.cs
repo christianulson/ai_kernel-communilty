@@ -1,9 +1,13 @@
-using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Embedded;
 
 namespace KrnlAI.Cli.Services;
 
-public sealed class LocalSlashHandler : ISlashCommandExecutor
+public interface ILocalSlashExecutor
+{
+    Task<string> ExecuteAsync(string input, CancellationToken ct = default);
+}
+
+public sealed class LocalSlashHandler : ILocalSlashExecutor
 {
     private readonly EmbeddedKrnlAI _kernel;
 
