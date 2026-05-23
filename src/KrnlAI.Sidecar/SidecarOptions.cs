@@ -10,6 +10,8 @@ public sealed class SidecarOptions
     public RateLimitingOptions RateLimiting { get; init; } = new();
     public CorsOptions Cors { get; init; } = new();
     public KernelApiOptions KernelApi { get; init; } = new();
+    public AgentRunOptions AgentRun { get; init; } = new();
+    public OtlpOptions Otlp { get; init; } = new();
 }
 
 public sealed class AuthOptions
@@ -38,4 +40,21 @@ public sealed class KernelApiOptions
 {
     public string BaseUrl { get; init; } = "";
     public int TimeoutSeconds { get; init; } = 10;
+    public int CacheTtlSeconds { get; init; } = 60;
+    public int RetryCount { get; init; } = 3;
+    public int CircuitBreakDurationSeconds { get; init; } = 15;
+    public int CircuitMinThroughput { get; init; } = 5;
+    public double CircuitFailureRatio { get; init; } = 0.5;
+}
+
+public sealed class AgentRunOptions
+{
+    public int TimeoutSeconds { get; init; } = 120;
+}
+
+public sealed class OtlpOptions
+{
+    public string Endpoint { get; init; } = "";
+    public string Headers { get; init; } = "";
+    public string Protocol { get; init; } = "Grpc";
 }

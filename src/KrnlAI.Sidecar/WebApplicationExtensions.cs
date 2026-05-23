@@ -8,22 +8,48 @@ public static class WebApplicationExtensions
 {
     public static WebApplication ConfigureSidecarPipeline(this WebApplication app)
     {
-        // Global exception handler
+        // Prometheus
         app.MapPrometheusScrapingEndpoint();
 
+        // Global exception handler
         app.UseExceptionHandler(appError =>
         {
             appError.Run(async ctx =>
             {
+                var reqId = ctx.Items["RequestId"]?.ToString() ?? "";
                 ctx.Response.StatusCode = 500;
                 ctx.Response.ContentType = "application/json";
-                await ctx.Response.WriteAsJsonAsync(new { error = "internal_server_error", message = "An unexpected error occurred." });
+                await ctx.Response.WriteAsJsonAsync(new ErrorResponse("internal_error", "An unexpected error occurred.", reqId));
             });
         });
 
         app.UseCors();
         app.UseRateLimiter();
 
+        // Correlation ID
+        app.Use(async (ctx, next) =>
+        {
+            var requestId = ctx.Request.Headers["X-Request-ID"].FirstOrDefault()
+                          ?? ctx.Request.Headers["X-Correlation-ID"].FirstOrDefault()
+                          ?? Guid.NewGuid().ToString();
+            ctx.Items["RequestId"] = requestId;
+            ctx.Response.Headers["X-Request-ID"] = requestId;
+
+            var logger = ctx.RequestServices.GetRequiredService<ILogger<Program>>();
+            using (logger.BeginScope(new Dictionary<string, object> { ["RequestId"] = requestId }))
+            {
+                await next();
+            }
+        });
+
+        // X-API-Version header
+        app.Use(async (ctx, next) =>
+        {
+            ctx.Response.Headers["X-API-Version"] = "1.0";
+            await next();
+        });
+
+        // Security headers
         app.Use(async (ctx, next) =>
         {
             ctx.Response.Headers["X-Content-Type-Options"] = "nosniff";
@@ -34,9 +60,10 @@ public static class WebApplicationExtensions
             await next();
         });
 
+        // Auth
         app.Use(async (ctx, next) =>
         {
-            if (ctx.Request.Path != "/health")
+            if (!ctx.Request.Path.StartsWithSegments("/health"))
             {
                 var options = ctx.RequestServices.GetRequiredService<IOptions<SidecarOptions>>();
                 var authToken = options.Value.Auth.Token;
@@ -51,7 +78,7 @@ public static class WebApplicationExtensions
                         var logger = ctx.RequestServices.GetRequiredService<ILogger<Program>>();
                         logger.LogWarning("Unauthorized access attempt to {Path} from {RemoteIp}", ctx.Request.Path, ctx.Connection.RemoteIpAddress);
                         ctx.Response.StatusCode = 401;
-                        await ctx.Response.WriteAsJsonAsync(new { error = "unauthorized" });
+                        await ctx.Response.WriteAsJsonAsync(new ErrorResponse("unauthorized", null, ctx.Items["RequestId"]?.ToString()));
                         return;
                     }
                 }
@@ -59,6 +86,16 @@ public static class WebApplicationExtensions
             await next();
         });
 
+        // Rate limit headers — Retry-After on 429
+        app.Use(async (ctx, next) =>
+        {
+            await next();
+            if (ctx.Response.StatusCode == 429 && !ctx.Response.Headers.ContainsKey("Retry-After"))
+                ctx.Response.Headers["Retry-After"] = "60";
+        });
+
         return app;
     }
 }
+
+public sealed record ErrorResponse(string Error, string? Message, string? RequestId);

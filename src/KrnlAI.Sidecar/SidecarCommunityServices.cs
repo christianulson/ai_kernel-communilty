@@ -18,6 +18,19 @@ public static class SidecarCommunityServices
         }));
 
         services.AddHealthChecks().AddCheck("community", () => Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy("community"), ["live", "ready"]);
+
+        services.AddCors(o =>
+        {
+            o.AddDefaultPolicy(p =>
+            {
+                var corsSection = configuration.GetSection("Sidecar:Cors:AllowedOrigins").Get<string[]>();
+                if (corsSection is { Length: > 0 })
+                    p.WithOrigins(corsSection).AllowAnyHeader().AllowAnyMethod();
+                else
+                    p.SetIsOriginAllowed(_ => true).AllowAnyHeader().AllowAnyMethod();
+            });
+        });
+
         services.AddRateLimiter(options =>
         {
             options.AddFixedWindowLimiter("agent-run", limiter =>

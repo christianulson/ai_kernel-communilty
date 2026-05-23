@@ -2,7 +2,12 @@ using KrnlAI.Embedded;
 
 namespace KrnlAI.Cli.Services;
 
-public sealed class LocalSlashHandler
+public interface ILocalSlashExecutor
+{
+    Task<string> ExecuteAsync(string input, CancellationToken ct = default);
+}
+
+public sealed class LocalSlashHandler : ILocalSlashExecutor
 {
     private readonly EmbeddedKrnlAI _kernel;
 

@@ -29,19 +29,55 @@ public static class ServiceCollectionExtensions
         // Safety pipeline
         services.AddSingleton<FundamentalRulesEngine>();
         services.AddSingleton<EthicalEnforcer>();
+        services.AddSingleton(sp => new SemanticSimilarityScorer(FundamentalRulesEngine.GetAllKeywords()));
+        services.AddSingleton<HybridSafetyEngine>();
+        services.AddSingleton<LawEnforcer>();
 
         // OpenTelemetry
+        var otlpEndpoint = configuration.GetValue<string>("Sidecar:Otlp:Endpoint");
+        var hasOtlp = !string.IsNullOrWhiteSpace(otlpEndpoint);
+
         services.AddOpenTelemetry()
-            .ConfigureResource(r => r.AddService("KrnlAI.Sidecar", "1.0.0"))
-            .WithTracing(t => t
-                .AddAspNetCoreInstrumentation()
-                .AddHttpClientInstrumentation()
-                .SetSampler(new AlwaysOnSampler()))
-            .WithMetrics(m => m
-                .AddAspNetCoreInstrumentation()
-                .AddHttpClientInstrumentation()
-                .AddRuntimeInstrumentation()
-                .AddPrometheusExporter());
+            .ConfigureResource(r =>
+            {
+                r.AddService("KrnlAI.Sidecar", "1.0.0",
+                    autoGenerateServiceInstanceId: false);
+                r.AddAttributes(new Dictionary<string, object>
+                {
+                    ["deployment.environment"] = environment.EnvironmentName,
+                    ["host.name"] = Environment.MachineName,
+                    ["sidecar.mode"] = "Legacy",
+                });
+            })
+            .WithTracing(t =>
+            {
+                t.AddAspNetCoreInstrumentation()
+                    .AddHttpClientInstrumentation()
+                    .SetSampler(new AlwaysOnSampler());
+                if (hasOtlp)
+                    t.AddOtlpExporter(o =>
+                    {
+                        o.Endpoint = new Uri(otlpEndpoint!);
+                        var headers = configuration.GetValue<string>("Sidecar:Otlp:Headers");
+                        if (!string.IsNullOrWhiteSpace(headers))
+                            o.Headers = headers;
+                    });
+            })
+            .WithMetrics(m =>
+            {
+                m.AddAspNetCoreInstrumentation()
+                    .AddHttpClientInstrumentation()
+                    .AddRuntimeInstrumentation()
+                    .AddPrometheusExporter();
+                if (hasOtlp)
+                    m.AddOtlpExporter(o =>
+                    {
+                        o.Endpoint = new Uri(otlpEndpoint!);
+                        var headers = configuration.GetValue<string>("Sidecar:Otlp:Headers");
+                        if (!string.IsNullOrWhiteSpace(headers))
+                            o.Headers = headers;
+                    });
+            });
 
         services.AddHealthChecks()
             .AddCheck<SidecarHealthCheck>("self", tags: ["live", "ready"]);
@@ -58,6 +94,9 @@ public static class ServiceCollectionExtensions
                     p.SetIsOriginAllowed(_ => true).AllowAnyHeader().AllowAnyMethod();
             });
         });
+
+        // Memory cache for proxy fallback
+        services.AddMemoryCache();
 
         // KrnlAI API proxy (optional — for proxying to remote KrnlAI API)
         services.AddHttpClient("kernel")

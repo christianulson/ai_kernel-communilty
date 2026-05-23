@@ -64,20 +64,35 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.window.showErrorMessage(`Sidecar não encontrado em: ${csprojPath}`);
             return;
         }
-        vscode.window.showInformationMessage('Iniciando Krnl-AI Sidecar...');
+        const transport = vscode.workspace.getConfiguration('krnlai').get<string>('sidecarTransport', 'http');
+        const isStdio = transport === 'stdio';
+        const args = isStdio ? ['run', '--project', csprojPath, '--', '--stdio'] : ['run', '--project', csprojPath];
+        vscode.window.showInformationMessage(`Iniciando Krnl-AI Sidecar (${transport})...`);
         try {
-            sidecarProcess = spawn('dotnet', ['run', '--project', csprojPath], {
+            sidecarProcess = spawn('dotnet', args, {
                 cwd: path.dirname(csprojPath),
-                stdio: 'pipe'
+                stdio: isStdio ? ['pipe', 'pipe', 'pipe'] : 'pipe'
             });
             const sanitizeLog = (data: any): string => {
                 const s = String(data);
                 return s.replace(/((?:token|secret|password|key|authorization|api_key)\s*[:=]\s*['"]?)[^\s'"&]+/gi, '$1***');
             };
-            sidecarProcess.stdout.on('data', (d: any) => console.log(`[sidecar] ${sanitizeLog(d)}`));
-            sidecarProcess.stderr.on('data', (d: any) => console.error(`[sidecar] ${sanitizeLog(d)}`));
-            sidecarProcess.on('close', (code: number) => { console.log(`Sidecar exited: ${code}`); sidecarProcess = undefined; });
-            setTimeout(() => { vscode.window.showInformationMessage('Sidecar iniciado na porta 5001'); updateHealth(); }, 5000);
+            if (isStdio) {
+                // JSON-RPC over stdio: send request, read response
+                let buffer = '';
+                sidecarProcess.stdout.on('data', (d: any) => {
+                    buffer += String(d);
+                    console.log(`[sidecar-rpc] ${sanitizeLog(d)}`);
+                });
+                sidecarProcess.stderr.on('data', (d: any) => console.error(`[sidecar-rpc] ${sanitizeLog(d)}`));
+                sidecarProcess.on('close', (code: number) => { console.log(`Sidecar stdio exited: ${code}`); sidecarProcess = undefined; });
+                setTimeout(() => { vscode.window.showInformationMessage('Sidecar iniciado em modo stdio/RPC'); updateHealth(); }, 3000);
+            } else {
+                sidecarProcess.stdout.on('data', (d: any) => console.log(`[sidecar] ${sanitizeLog(d)}`));
+                sidecarProcess.stderr.on('data', (d: any) => console.error(`[sidecar] ${sanitizeLog(d)}`));
+                sidecarProcess.on('close', (code: number) => { console.log(`Sidecar exited: ${code}`); sidecarProcess = undefined; });
+                setTimeout(() => { vscode.window.showInformationMessage('Sidecar iniciado na porta 5001'); updateHealth(); }, 5000);
+            }
         } catch (ex: any) { vscode.window.showErrorMessage(`Erro: ${ex.message}`); }
     }));
 
