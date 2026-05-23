@@ -10,10 +10,10 @@ namespace KrnlAI.Desktop.App.ViewModels;
 
 public class MainViewModel : ViewModelBase
 {
-    private readonly IKernelClient _kernelClient;
+    private readonly IKernelClient? _kernelClient;
     private readonly ISettingsService _settingsService;
     private readonly IThemeService _themeService;
-    private readonly IListeningService _listeningService;
+    private readonly IListeningService? _listeningService;
     private readonly ILocalizationService _localizationService;
     private readonly ILogger<MainViewModel> _logger;
     private CancellationTokenSource? _healthCheckCts;
@@ -251,7 +251,8 @@ public class MainViewModel : ViewModelBase
         ToggleVideoCallCameraCommand = new RelayCommand(() => IsVideoCallCameraOn = !IsVideoCallCameraOn);
         EndVideoCallCommand = new RelayCommand(() => IsInVideoCall = false);
 
-        _listeningService.VoiceLevelChanged += OnVoiceLevelChanged;
+        if (_listeningService != null)
+            _listeningService.VoiceLevelChanged += OnVoiceLevelChanged;
         _themeService.ThemeChanged += OnThemeChanged;
         UpdateThemeDisplay(_themeService.CurrentTheme);
         _ = CheckBackendHealthAsync();
@@ -284,12 +285,14 @@ public class MainViewModel : ViewModelBase
 
     private async Task ToggleListeningAsync()
     {
+        if (_listeningService == null) return;
         if (IsListening) { await _listeningService.StopListeningAsync(); IsListening = false; StatusMessage = "Escuta parada"; }
         else { await _listeningService.StartListeningAsync(); IsListening = true; StatusMessage = "Escutando..."; }
     }
 
     private async Task CheckBackendHealthAsync()
     {
+        if (_kernelClient == null) return;
         _healthCheckCts = new CancellationTokenSource();
         var t = _healthCheckCts.Token;
         while (!t.IsCancellationRequested)
@@ -307,6 +310,7 @@ public class MainViewModel : ViewModelBase
 
     private async Task PollEmotionalStateAsync()
     {
+        if (_kernelClient == null) return;
         _emotionalPollCts = new CancellationTokenSource();
         var t = _emotionalPollCts.Token;
         while (!t.IsCancellationRequested)
@@ -325,6 +329,7 @@ public class MainViewModel : ViewModelBase
 
     private void ExecuteLogout()
     {
+        if (_kernelClient == null) return;
         var settings = _settingsService.LoadSettings();
         _settingsService.SaveSettings(settings with { AuthToken = null, RefreshToken = null, IsAuthenticated = false });
         _kernelClient.SetTokens(null, null);
@@ -344,7 +349,8 @@ public class MainViewModel : ViewModelBase
     public void Cleanup()
     {
         StopHealthCheck();
-        _listeningService.VoiceLevelChanged -= OnVoiceLevelChanged;
+        if (_listeningService != null)
+            _listeningService.VoiceLevelChanged -= OnVoiceLevelChanged;
         _themeService.ThemeChanged -= OnThemeChanged;
         ChatVM.Cleanup();
     }

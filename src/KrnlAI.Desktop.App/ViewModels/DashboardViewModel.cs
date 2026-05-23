@@ -112,10 +112,10 @@ public class DashboardViewModel : ViewModelBase, IDisposable
         PauseGoalCommand = new AsyncRelayCommand(() => UpdateGoalAsync("pause"));
         ResumeGoalCommand = new AsyncRelayCommand(() => UpdateGoalAsync("resume"));
         CompleteGoalCommand = new AsyncRelayCommand(() => UpdateGoalAsync("complete"));
-        LoadCognitiveCommand = new AsyncRelayCommand(async () => CognitiveData = await _kernelClient.GetCognitiveDashboardAsync());
-        LoadBenchmarkCommand = new AsyncRelayCommand(async () => BenchmarkData = await _kernelClient.GetBenchmarkSummaryAsync());
-        LoadCrossSummaryCommand = new AsyncRelayCommand(async () => CrossSummaryData = await _kernelClient.GetCrossSummaryAsync());
-        LoadMetricsByGoalCommand = new AsyncRelayCommand(async () => MetricsByGoalData = await _kernelClient.GetMetricsByGoalAsync());
+        LoadCognitiveCommand = new AsyncRelayCommand(async () => { if (_kernelClient != null) CognitiveData = await _kernelClient.GetCognitiveDashboardAsync(); });
+        LoadBenchmarkCommand = new AsyncRelayCommand(async () => { if (_kernelClient != null) BenchmarkData = await _kernelClient.GetBenchmarkSummaryAsync(); });
+        LoadCrossSummaryCommand = new AsyncRelayCommand(async () => { if (_kernelClient != null) CrossSummaryData = await _kernelClient.GetCrossSummaryAsync(); });
+        LoadMetricsByGoalCommand = new AsyncRelayCommand(async () => { if (_kernelClient != null) MetricsByGoalData = await _kernelClient.GetMetricsByGoalAsync(); });
         ShowCreateGoalCommand = new RelayCommand(() => IsGoalCreateVisible = true);
         HideCreateGoalCommand = new RelayCommand(() => { IsGoalCreateVisible = false; NewGoalDescription = ""; });
         _ = PollEmotionalStateAsync();
@@ -212,6 +212,7 @@ public class DashboardViewModel : ViewModelBase, IDisposable
 
     private async Task LoadGoalsDataAsync()
     {
+        if (_kernelClient == null) return;
         try
         {
             var r = await _kernelClient.GetActiveGoalsAsync();
@@ -226,7 +227,7 @@ public class DashboardViewModel : ViewModelBase, IDisposable
 
     private async Task CreateNewGoalAsync()
     {
-        if (string.IsNullOrWhiteSpace(NewGoalDescription)) return;
+        if (_kernelClient == null || string.IsNullOrWhiteSpace(NewGoalDescription)) return;
         await _kernelClient.CreateGoalAsync(new CreateGoalRequest(NewGoalDescription, NewGoalPriority));
         UiThreadInvoker.Invoke(() =>
         {
@@ -238,13 +239,14 @@ public class DashboardViewModel : ViewModelBase, IDisposable
 
     private async Task UpdateGoalAsync(string a)
     {
-        if (SelectedGoal == null) return;
+        if (_kernelClient == null || SelectedGoal == null) return;
         await _kernelClient.UpdateGoalStatusAsync(SelectedGoal.GoalId, a);
         await LoadGoalsDataAsync();
     }
 
     private async Task LoadGoalDetailSafeAsync(string id)
     {
+        if (_kernelClient == null) return;
         try
         {
             var detail = await _kernelClient.GetGoalAsync(id);
@@ -263,6 +265,7 @@ public class DashboardViewModel : ViewModelBase, IDisposable
 
     private async Task LoadGoalDetailAsync(string id)
     {
+        if (_kernelClient == null) return;
         var detail = await _kernelClient.GetGoalAsync(id);
         var cycles = await _kernelClient.GetGoalCyclesAsync(id);
         UiThreadInvoker.Invoke(() =>
