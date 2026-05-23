@@ -9,6 +9,7 @@ using KrnlAI.Desktop.App.Services;
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
 using KrnlAI.Desktop.Core.Services;
+using KrnlAI.Embedded;
 using SlashCommandInfo = KrnlAI.Desktop.App.Services.SlashCommandInfo;
 
 namespace KrnlAI.Desktop.App.ViewModels;
@@ -16,6 +17,7 @@ namespace KrnlAI.Desktop.App.ViewModels;
 public class ChatViewModel : ViewModelBase
 {
     private readonly IKernelClient _kernelClient;
+    private readonly EmbeddedKrnlAI? _embeddedKernel;
     private readonly IAudioCapture _audioCapture;
     private readonly IAudioPlayback _audioPlayback;
     private readonly IVideoCapture _videoCapture;
@@ -30,6 +32,7 @@ public class ChatViewModel : ViewModelBase
         "KrnlAI", "chat_history.json");
 
     // Slash commands
+    private readonly ISlashCommandExecutor _slashHandler;
     private readonly SlashCommandService _slashCommands = new();
     private ObservableCollection<SlashCommandInfo> _slashSuggestions = new();
     public ObservableCollection<SlashCommandInfo> SlashSuggestions
@@ -237,7 +240,7 @@ public class ChatViewModel : ViewModelBase
     }
 
     // Cognitive stream
-    private readonly CognitiveStreamPollingService _cognitiveStream = new();
+    private readonly ICognitiveStreamProvider _cognitiveStream;
     private bool _isCognitiveStreamVisible;
     public bool IsCognitiveStreamVisible
     {
@@ -282,16 +285,18 @@ public class ChatViewModel : ViewModelBase
     public ICommand SnapCameraCommand { get; }
     public ICommand DismissCameraPreviewCommand { get; }
 
-    private readonly SlashCommandHandler _slashHandler;
 
-    public ChatViewModel(IKernelClient kernelClient, IAudioCapture audioCapture, IAudioPlayback audioPlayback, IVideoCapture videoCapture, ILocalizationService localization)
+
+    public ChatViewModel(IKernelClient kernelClient, IAudioCapture audioCapture, IAudioPlayback audioPlayback, IVideoCapture videoCapture, ILocalizationService localization, ISlashCommandExecutor slashHandler, ICognitiveStreamProvider cognitiveStream, EmbeddedKrnlAI? embeddedKernel = null)
     {
         _kernelClient = kernelClient;
+        _embeddedKernel = embeddedKernel;
         _audioCapture = audioCapture;
         _audioPlayback = audioPlayback;
         _videoCapture = videoCapture;
         _localization = localization;
-        _slashHandler = new SlashCommandHandler();
+        _slashHandler = slashHandler;
+        _cognitiveStream = cognitiveStream;
         ToggleTtsCommand = new RelayCommand(() => IsTtsEnabled = !IsTtsEnabled);
         _cognitiveStream.OnEvent += OnCognitiveEvent;
         _cognitiveStream.OnStateChanged += state => IsCognitiveStreamVisible = state == CognitiveStreamState.Connected;
@@ -309,7 +314,10 @@ public class ChatViewModel : ViewModelBase
         ServiceLocator.Instance.AudioCapture,
         ServiceLocator.Instance.AudioPlayback,
         ServiceLocator.Instance.VideoCapture,
-        ServiceLocator.Instance.LocalizationService)
+        ServiceLocator.Instance.LocalizationService,
+        ServiceLocator.Instance.SlashCommandExecutor,
+        ServiceLocator.Instance.CognitiveStreamProvider,
+        ServiceLocator.Instance.EmbeddedKernel)
     { }
 
     public async Task SendMessageAsync()
@@ -367,22 +375,36 @@ public class ChatViewModel : ViewModelBase
             var imageBytes = _lastFrameJpeg;
             _lastFrameJpeg = null;
 
-            var response = await _kernelClient.RunAgentAsync(new AgentRunRequest(
-                Prompt: text ?? "",
-                ImageBytes: imageBytes,
-                ImageFormat: imageBytes != null ? "jpeg" : null));
-
-            Messages.Add(new ChatMessage(
-                Guid.NewGuid().ToString(),
-                response.Narration ?? response.Error ?? "Sem resposta",
-                MessageRole.Assistant,
-                DateTime.Now,
-                string.IsNullOrEmpty(response.Error) ? MessageStatus.Completed : MessageStatus.Error));
-
-            if (!string.IsNullOrEmpty(response.Narration))
+            if (_embeddedKernel != null)
             {
-                var audio = await _kernelClient.GenerateSpeechAsync(response.Narration);
-                if (_isTtsEnabled && audio.Length > 0) await _audioPlayback.PlayAsync(audio);
+                var result = await _embeddedKernel.RunAsync(text ?? "");
+
+                Messages.Add(new ChatMessage(
+                    Guid.NewGuid().ToString(),
+                    result.Narration ?? result.Error ?? "Sem resposta",
+                    MessageRole.Assistant,
+                    DateTime.Now,
+                    string.IsNullOrEmpty(result.Error) ? MessageStatus.Completed : MessageStatus.Error));
+            }
+            else
+            {
+                var response = await _kernelClient.RunAgentAsync(new AgentRunRequest(
+                    Prompt: text ?? "",
+                    ImageBytes: imageBytes,
+                    ImageFormat: imageBytes != null ? "jpeg" : null));
+
+                Messages.Add(new ChatMessage(
+                    Guid.NewGuid().ToString(),
+                    response.Narration ?? response.Error ?? "Sem resposta",
+                    MessageRole.Assistant,
+                    DateTime.Now,
+                    string.IsNullOrEmpty(response.Error) ? MessageStatus.Completed : MessageStatus.Error));
+
+                if (!string.IsNullOrEmpty(response.Narration))
+                {
+                    var audio = await _kernelClient.GenerateSpeechAsync(response.Narration);
+                    if (_isTtsEnabled && audio.Length > 0) await _audioPlayback.PlayAsync(audio);
+                }
             }
         }
         catch (Exception ex)
@@ -451,7 +473,7 @@ public class ChatViewModel : ViewModelBase
             var audioData = await _audioCapture.StopCaptureAndGetAudioAsync();
             IsCapturingAudio = false;
 
-            if (audioData.Length > 0)
+            if (audioData.Length > 0 && _kernelClient != null)
             {
                 var transcription = await _kernelClient.TranscribeAudioAsync(audioData);
                 if (!string.IsNullOrEmpty(transcription))

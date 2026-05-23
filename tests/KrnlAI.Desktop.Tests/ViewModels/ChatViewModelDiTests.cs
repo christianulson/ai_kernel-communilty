@@ -16,7 +16,9 @@ public sealed class ChatViewModelDiTests
         var playback = Mock.Of<IAudioPlayback>();
         var video = Mock.Of<IVideoCapture>();
         var loc = Mock.Of<ILocalizationService>();
-        return new ChatViewModel(kc, audio, playback, video, loc);
+        var slash = Mock.Of<ISlashCommandExecutor>();
+        var stream = Mock.Of<ICognitiveStreamProvider>();
+        return new ChatViewModel(kc, audio, playback, video, loc, slash, stream);
     }
 
     [Fact]

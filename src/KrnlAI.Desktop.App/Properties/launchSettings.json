@@ -1,10 +1,17 @@
 {
   "profiles": {
     "KrnlAI.Desktop.App-Local": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "environmentVariables": {
+        "KRNL__RUN_MODE": "Local"
+      }
     },
     "KrnlAI.Desktop.App-API": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "environmentVariables": {
+        "KRNL__RUN_MODE": "API",
+        "KRNL__API_BASE_URL": "http://localhost:5235"
+      }
     }
   }
 }

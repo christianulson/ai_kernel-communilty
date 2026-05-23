@@ -9,7 +9,7 @@ namespace KrnlAI.Desktop.App.ViewModels;
 
 public class DashboardViewModel : ViewModelBase, IDisposable
 {
-    private readonly IKernelClient _kernelClient;
+    private readonly IKernelClient? _kernelClient;
     private readonly ILogger<DashboardViewModel> _logger;
     private CancellationTokenSource? _emotionalPollCts;
     public ObservableCollection<GoalInfo> GoalsList { get; } = new();
@@ -132,12 +132,13 @@ public class DashboardViewModel : ViewModelBase, IDisposable
         var t = _emotionalPollCts.Token;
         while (!t.IsCancellationRequested)
         {
+            if (_kernelClient == null) break;
             var state = await _kernelClient.GetEmotionalStateAsync("dev-user", t);
             if (state != null)
             {
                 UiThreadInvoker.Invoke(() => EmotionalState = state);
             }
-            var affective = await _kernelClient.GetAffectiveStateAsync(t);
+            var affective = _kernelClient != null ? await _kernelClient.GetAffectiveStateAsync(t) : null;
             if (affective != null)
             {
                 UiThreadInvoker.Invoke(() => AffectiveState = affective);
@@ -155,6 +156,7 @@ public class DashboardViewModel : ViewModelBase, IDisposable
 
     public async Task LoadDashboardDataAsync()
     {
+        if (_kernelClient == null) return;
         UiThreadInvoker.Invoke(() =>
         {
             IsLoading = true;

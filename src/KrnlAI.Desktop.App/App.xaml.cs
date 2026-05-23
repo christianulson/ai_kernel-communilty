@@ -23,14 +23,14 @@ public partial class App : Application
 
         var settingsService = ServiceLocator.Instance.SettingsService;
         var settings = settingsService.LoadSettings();
+        var isLocal = ServiceLocator.Instance.CurrentMode == RunMode.Local;
 
-        // P2: Apply saved theme on startup
         if (!string.IsNullOrEmpty(settings.Theme))
         {
             ServiceLocator.Instance.ThemeService.SetTheme(settings.Theme);
         }
 
-        if (string.IsNullOrEmpty(settings.AuthToken))
+        if (!isLocal && string.IsNullOrEmpty(settings.AuthToken))
         {
             var loginWindow = new LoginWindow();
             var result = loginWindow.ShowDialog();
