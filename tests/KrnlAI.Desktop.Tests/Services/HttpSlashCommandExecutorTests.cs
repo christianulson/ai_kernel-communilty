@@ -9,8 +9,7 @@ public sealed class HttpSlashCommandExecutorTests
     public async Task ExecuteAsync_Clear_ShouldReturnConstant()
     {
         var executor = new HttpSlashCommandExecutor("http://localhost");
-        var result = await executor.ExecuteAsync("/clear");
-        Assert.Equal("CLEAR_CONVERSATION", result);
+        Assert.Equal("CLEAR_CONVERSATION", await executor.ExecuteAsync("/clear"));
     }
 
     [Fact]
@@ -20,34 +19,88 @@ public sealed class HttpSlashCommandExecutorTests
         var result = await executor.ExecuteAsync("/help");
         Assert.Contains("/undo", result);
         Assert.Contains("/diff", result);
+        Assert.Contains("/run", result);
+        Assert.Contains("/test", result);
+        Assert.DoesNotContain("Error", result);
     }
 
     [Fact]
-    public async Task ExecuteAsync_Unknown_ShouldReturnError()
+    public async Task ExecuteAsync_Help_WithArgs_ShouldStillShowHelp()
     {
         var executor = new HttpSlashCommandExecutor("http://localhost");
-        var result = await executor.ExecuteAsync("/nonexistent");
+        var result = await executor.ExecuteAsync("/help commands");
+        Assert.Contains("/undo", result);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_UnknownCommand_ShouldReturnError()
+    {
+        var executor = new HttpSlashCommandExecutor("http://localhost");
+        var result = await executor.ExecuteAsync("/nonexistent123");
         Assert.Contains("Error", result);
     }
 
     [Fact]
-    public async Task ExecuteAsync_ApiFailure_ShouldReturnError()
+    public async Task ExecuteAsync_EmptySlash_ShouldReturnError()
     {
-        var handler = new MockHttpHandler(_ =>
-            new HttpResponseMessage(HttpStatusCode.InternalServerError));
-        using var http = new HttpClient(handler) { BaseAddress = new Uri("http://localhost") };
         var executor = new HttpSlashCommandExecutor("http://localhost");
+        var result = await executor.ExecuteAsync("/");
+        Assert.Contains("Error", result);
+    }
 
+    [Fact]
+    public async Task ExecuteAsync_Undo_ApiFailure_ShouldReturnError()
+    {
+        var executor = new HttpSlashCommandExecutor("http://localhost");
         var result = await executor.ExecuteAsync("/undo");
-
         Assert.Contains("Error", result);
     }
 
-    private sealed class MockHttpHandler : HttpMessageHandler
+    [Fact]
+    public async Task ExecuteAsync_Run_WithoutArgs_ShouldShowUsage()
     {
-        private readonly Func<HttpRequestMessage, HttpResponseMessage> _handler;
-        public MockHttpHandler(Func<HttpRequestMessage, HttpResponseMessage> handler) => _handler = handler;
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
-            => Task.FromResult(_handler(request));
+        var executor = new HttpSlashCommandExecutor("http://localhost");
+        var result = await executor.ExecuteAsync("/run");
+        Assert.Contains("Usage", result);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_ExplainerCommands_ShouldReturnVsOnlyMessage()
+    {
+        var executor = new HttpSlashCommandExecutor("http://localhost");
+        var result = await executor.ExecuteAsync("/explain");
+        Assert.Contains("VS Code", result);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_Diff_ApiFailure_ShouldReturnError()
+    {
+        var executor = new HttpSlashCommandExecutor("http://localhost");
+        var result = await executor.ExecuteAsync("/diff");
+        Assert.Contains("Error", result);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_Commit_WithArgs_ShouldReturnError()
+    {
+        var executor = new HttpSlashCommandExecutor("http://localhost");
+        var result = await executor.ExecuteAsync("/commit fix bug");
+        Assert.Contains("Error", result);
+    }
+
+    [Fact]
+    public async Task IsSlashCommand_SlashPrefix_ShouldReturnTrue()
+    {
+        var executor = new HttpSlashCommandExecutor("http://localhost");
+        Assert.True(executor.IsSlashCommand("/help"));
+        Assert.True(executor.IsSlashCommand("/undo something"));
+    }
+
+    [Fact]
+    public async Task IsSlashCommand_NormalText_ShouldReturnFalse()
+    {
+        var executor = new HttpSlashCommandExecutor("http://localhost");
+        Assert.False(executor.IsSlashCommand("hello"));
+        Assert.False(executor.IsSlashCommand(""));
     }
 }
