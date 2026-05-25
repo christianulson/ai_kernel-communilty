@@ -141,6 +141,20 @@ public class StringToVisibilityConverter : IValueConverter
         => throw new NotSupportedException();
 }
 
+public class ListeningButtonConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is bool isListening)
+            return isListening ? "Parar Escuta" : "Iniciar Escuta";
+
+        return "Escuta";
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        => throw new NotSupportedException();
+}
+
 public class Base64ToImageConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
