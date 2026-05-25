@@ -1,13 +1,13 @@
-using KrnlAI.Embedded;
+using KrnlAI.Embedded.Abstractions;
 
 namespace KrnlAI.Sidecar.Rpc;
 
 public sealed class SidecarRpcHandler
 {
-    private readonly EmbeddedKrnlAI _kernel;
+    private readonly IEmbeddedKrnlAI _kernel;
     private readonly ILogger<SidecarRpcHandler> _logger;
 
-    public SidecarRpcHandler(EmbeddedKrnlAI kernel, ILogger<SidecarRpcHandler> logger)
+    public SidecarRpcHandler(IEmbeddedKrnlAI kernel, ILogger<SidecarRpcHandler> logger)
     {
         _kernel = kernel;
         _logger = logger;

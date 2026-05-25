@@ -14,7 +14,9 @@ using KrnlAI.LLMGateway.Core.Services.Governance;
 using KrnlAI.Memory;
 using KrnlAI.Snapshot;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Spectre.Console.Testing;
+using Microsoft.Extensions.Options;
 
 namespace KrnlAI.Cli.Tests;
 
@@ -37,7 +39,7 @@ public sealed class KanbanCommandTests
         services.AddSingleton<IMomentClassifierStore, InMemoryMomentClassifierStore>();
         services.AddSingleton<IArchiveStore>(_ => new InMemoryArchiveStore<object>("test-archive"));
         services.AddSingleton<ICognitiveSnapshotService, InMemorySnapshotStore>();
-        services.AddSingleton<ICognitiveHomeostasis>(_ => new CognitiveHomeostasisService());
+        services.AddSingleton<ICognitiveHomeostasis>(sp => new CognitiveHomeostasisService(Options.Create(new CognitiveHomeostasisOptions()), sp.GetRequiredService<ILogger<CognitiveHomeostasisService>>()));
         services.AddSingleton<IExecutiveController, ExecutiveController>();
         services.AddSingleton<IExecutiveStageBuilder, ExecutiveStageBuilder>();
         services.AddSingleton<IExecutiveModeSelector, ExecutiveModeSelector>();
@@ -182,7 +184,7 @@ public sealed class KanbanCommandTests
         services.AddSingleton<IMomentClassifierStore, InMemoryMomentClassifierStore>();
         services.AddSingleton<IArchiveStore>(_ => new InMemoryArchiveStore<object>("test-archive"));
         services.AddSingleton<ICognitiveSnapshotService, InMemorySnapshotStore>();
-        services.AddSingleton<ICognitiveHomeostasis>(_ => new CognitiveHomeostasisService());
+        services.AddSingleton<ICognitiveHomeostasis>(sp => new CognitiveHomeostasisService(Options.Create(new CognitiveHomeostasisOptions()), sp.GetRequiredService<ILogger<CognitiveHomeostasisService>>()));
         services.AddSingleton<IExecutiveController, ExecutiveController>();
         services.AddSingleton<IExecutiveStageBuilder, ExecutiveStageBuilder>();
         services.AddSingleton<IExecutiveModeSelector, ExecutiveModeSelector>();

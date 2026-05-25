@@ -1,5 +1,6 @@
 using System.Threading.RateLimiting;
 using KrnlAI.Embedded;
+using KrnlAI.Embedded.Abstractions;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
 using OpenTelemetry.Metrics;
@@ -17,7 +18,7 @@ public static class SidecarCommunityServices
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
-        services.AddSingleton(new EmbeddedKrnlAI(new EmbeddedKernelOptions
+        services.AddSingleton<IEmbeddedKrnlAI>(new EmbeddedKrnlAI(new EmbeddedKernelOptions
         {
             StoreMode = configuration["Store:Mode"] ?? "SQLite",
             SqliteMode = configuration["Store:SqliteMode"] ?? "Hybrid",

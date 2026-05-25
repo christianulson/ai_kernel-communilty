@@ -1,16 +1,17 @@
-using KrnlAI.Embedded;
+using KrnlAI.Embedded.Abstractions;
 using KrnlAI.Sidecar.Rpc;
 using Microsoft.Extensions.Logging.Abstractions;
-using Xunit;
 
 namespace KrnlAI.Sidecar.Tests;
 
 public sealed class SidecarRpcHandlerTests
 {
+    private static IEmbeddedKrnlAI CreateFakeKernel() => new FakeEmbeddedKrnlAI();
+
     [Fact]
     public async Task RunAgentAsync_WithValidPrompt_ShouldReturnNarration()
     {
-        var kernel = new EmbeddedKrnlAI();
+        var kernel = CreateFakeKernel();
         var handler = new SidecarRpcHandler(kernel, NullLogger<SidecarRpcHandler>.Instance);
 
         var result = await handler.RunAgentAsync("hello", CancellationToken.None);
@@ -23,7 +24,7 @@ public sealed class SidecarRpcHandlerTests
     [Fact]
     public async Task RunAgentAsync_WithNullPrompt_ShouldNotThrow()
     {
-        var kernel = new EmbeddedKrnlAI();
+        var kernel = CreateFakeKernel();
         var handler = new SidecarRpcHandler(kernel, NullLogger<SidecarRpcHandler>.Instance);
 
         var result = await handler.RunAgentAsync(null!, CancellationToken.None);
@@ -35,7 +36,7 @@ public sealed class SidecarRpcHandlerTests
     [Fact]
     public async Task GetHealthAsync_ShouldReturnHealthy()
     {
-        var kernel = new EmbeddedKrnlAI();
+        var kernel = CreateFakeKernel();
         var handler = new SidecarRpcHandler(kernel, NullLogger<SidecarRpcHandler>.Instance);
 
         var result = await handler.GetHealthAsync(CancellationToken.None);
@@ -48,7 +49,7 @@ public sealed class SidecarRpcHandlerTests
     [Fact]
     public async Task SearchMemoryAsync_ShouldReturnHits()
     {
-        var kernel = new EmbeddedKrnlAI();
+        var kernel = CreateFakeKernel();
         var handler = new SidecarRpcHandler(kernel, NullLogger<SidecarRpcHandler>.Instance);
 
         var result = await handler.SearchMemoryAsync("test", CancellationToken.None);

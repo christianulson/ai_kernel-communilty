@@ -1,4 +1,4 @@
-using KrnlAI.Embedded;
+using KrnlAI.Embedded.Abstractions;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 namespace KrnlAI.Sidecar;
@@ -9,7 +9,7 @@ public static class CommunityEndpoints
     {
         app.ConfigureSidecarPipeline();
 
-        app.MapPost("/agent/run", async (HttpContext ctx, AgentRunRequest request, EmbeddedKrnlAI kernel, ILogger<Program> logger, CancellationToken ct) =>
+        app.MapPost("/agent/run", async (HttpContext ctx, AgentRunRequest request, IEmbeddedKrnlAI kernel, ILogger<Program> logger, CancellationToken ct) =>
         {
             logger.LogInformation("Community agent/run: prompt={PromptLen}chars, ip={RemoteIp}", request.Prompt?.Length ?? 0, ctx.Connection.RemoteIpAddress);
             var sw = System.Diagnostics.Stopwatch.StartNew();
@@ -25,7 +25,7 @@ public static class CommunityEndpoints
             });
         }).RequireRateLimiting("agent-run");
 
-        app.MapPost("/memory/search", async (HttpContext ctx, Dictionary<string, object>? body, EmbeddedKrnlAI kernel, ILogger<Program> logger, CancellationToken ct) =>
+        app.MapPost("/memory/search", async (HttpContext ctx, Dictionary<string, object>? body, IEmbeddedKrnlAI kernel, ILogger<Program> logger, CancellationToken ct) =>
         {
             if (body is null)
                 return Results.BadRequest(new { error = "invalid_request" });
@@ -109,7 +109,7 @@ public static class CommunityEndpoints
         app.MapGet("/emotions/history", () => Results.Ok(new { entries = Array.Empty<object>(), mode = "community" }));
         app.MapGet("/metacognition/status", () => Results.Ok(new { overallHealth = 1.0, mode = "community" }));
 
-        app.MapGet("/health", (EmbeddedKrnlAI kernel) => Results.Ok(new { status = "healthy", mode = "community", store = kernel.Options.StoreMode, vector = kernel.Options.VectorMode, skills = kernel.Options.SkillsStoreMode, llm = kernel.Provider }));
+        app.MapGet("/health", (IEmbeddedKrnlAI kernel) => Results.Ok(new { status = "healthy", mode = "community", store = kernel.Options.StoreMode, vector = kernel.Options.VectorMode, skills = kernel.Options.SkillsStoreMode, llm = kernel.Provider }));
 
         app.MapHealthChecks("/health/ready", new HealthCheckOptions { Predicate = check => check.Tags.Contains("ready") });
         app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = check => check.Tags.Contains("live") });

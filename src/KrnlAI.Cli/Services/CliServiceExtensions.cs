@@ -16,6 +16,7 @@ using KrnlAI.Snapshot;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 namespace KrnlAI.Cli.Services;
 
@@ -28,10 +29,20 @@ public static class CliServiceExtensions
         services.AddSingleton<IMomentClassifierStore, InMemoryMomentClassifierStore>();
         services.AddSingleton<IArchiveStore>(_ => new InMemoryArchiveStore<object>("cli-archive"));
         services.AddSingleton<ICognitiveSnapshotService, InMemorySnapshotStore>();
-        services.AddSingleton<ICognitiveHomeostasis>(_ => new CognitiveHomeostasisService());
-        services.AddSingleton<IExecutiveStageBuilder, ExecutiveStageBuilder>();
-        services.AddSingleton<IExecutiveModeSelector, ExecutiveModeSelector>();
-        services.AddSingleton<IExecutiveController, ExecutiveController>();
+        services.AddSingleton<ICognitiveHomeostasis>(sp =>
+            new CognitiveHomeostasisService(
+                Options.Create(new CognitiveHomeostasisOptions()),
+                sp.GetRequiredService<ILogger<CognitiveHomeostasisService>>()));
+        services.AddSingleton<IExecutiveStageBuilder>(sp =>
+            new ExecutiveStageBuilder(sp.GetRequiredService<ILogger<ExecutiveStageBuilder>>()));
+        services.AddSingleton<IExecutiveModeSelector>(sp =>
+            new ExecutiveModeSelector(sp.GetRequiredService<ILogger<ExecutiveModeSelector>>()));
+        services.AddSingleton<IExecutiveController>(sp =>
+            new ExecutiveController(
+                sp.GetRequiredService<ICognitiveHomeostasis>(),
+                sp.GetRequiredService<IExecutiveStageBuilder>(),
+                sp.GetRequiredService<IExecutiveModeSelector>(),
+                sp.GetRequiredService<ILogger<ExecutiveController>>()));
         services.AddSingleton<IAnticipationStore, InMemoryAnticipationStore>();
         services.AddSingleton<IProspectiveMemoryStore, InMemoryProspectiveMemoryStore>();
         services.AddSingleton<IProspectiveMemoryService>(sp =>

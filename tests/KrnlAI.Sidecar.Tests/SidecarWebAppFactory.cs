@@ -1,3 +1,4 @@
+using KrnlAI.Embedded.Abstractions;
 using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace KrnlAI.Sidecar.Tests;
@@ -7,6 +8,18 @@ public class SidecarWebAppFactory : WebApplicationFactory<Program>
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseSetting("https_port", "5001");
+        ReplaceEmbeddedKernelWithFake(builder);
+    }
+
+    internal static void ReplaceEmbeddedKernelWithFake(IWebHostBuilder builder)
+    {
+        builder.ConfigureServices(services =>
+        {
+            var descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(IEmbeddedKrnlAI));
+            if (descriptor is not null)
+                services.Remove(descriptor);
+            services.AddSingleton<IEmbeddedKrnlAI>(new FakeEmbeddedKrnlAI());
+        });
     }
 }
 
@@ -28,5 +41,6 @@ public sealed class AuthCommunitySidecarWebAppFactory : WebApplicationFactory<Pr
         builder.UseSetting("Store:Mode", "InMemory");
         builder.UseSetting("Vector:Mode", "InMemory");
         builder.UseSetting("Cache:Mode", "Memory");
+        SidecarWebAppFactory.ReplaceEmbeddedKernelWithFake(builder);
     }
 }

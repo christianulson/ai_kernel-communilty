@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using KrnlAI.Core.Abstractions;
 using KrnlAI.Core.Services.Safety;
-using KrnlAI.Embedded;
+using KrnlAI.Embedded.Abstractions;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using SafetyExecutionContext = KrnlAI.Core.Services.Safety.ExecutionContext;
@@ -166,7 +166,7 @@ public static class EndpointRouteExtensions
             EthicalEnforcer ethics,
             LawEnforcer law,
             KernelApiProxy kernel,
-            EmbeddedKrnlAI? embeddedKernel,
+            IEmbeddedKrnlAI? embeddedKernel,
             IOptions<SidecarOptions> options,
             ILogger<Program> logger) =>
         {

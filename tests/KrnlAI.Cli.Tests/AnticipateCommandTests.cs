@@ -8,7 +8,9 @@ using KrnlAI.Core.Abstractions;
 using KrnlAI.Core.Services.Memory;
 using KrnlAI.Core.Services.Safety;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Spectre.Console.Testing;
+using Microsoft.Extensions.Options;
 using KrnlAI.Anticipation;
 using KrnlAI.Executive;
 using KrnlAI.Memory;
@@ -28,7 +30,7 @@ public sealed class AnticipateCommandTests
         services.AddSingleton<IMomentClassifierStore, InMemoryMomentClassifierStore>();
         services.AddSingleton<IArchiveStore>(_ => new InMemoryArchiveStore<object>("test-archive"));
         services.AddSingleton<ICognitiveSnapshotService, InMemorySnapshotStore>();
-        services.AddSingleton<ICognitiveHomeostasis>(_ => new CognitiveHomeostasisService());
+        services.AddSingleton<ICognitiveHomeostasis>(sp => new CognitiveHomeostasisService(Options.Create(new CognitiveHomeostasisOptions()), sp.GetRequiredService<ILogger<CognitiveHomeostasisService>>()));
         services.AddSingleton<IExecutiveController, ExecutiveController>();
         services.AddSingleton<IExecutiveStageBuilder, ExecutiveStageBuilder>();
         services.AddSingleton<IExecutiveModeSelector, ExecutiveModeSelector>();

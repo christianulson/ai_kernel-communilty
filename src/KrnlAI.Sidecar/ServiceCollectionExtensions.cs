@@ -4,6 +4,7 @@ using KrnlAI.Core.Services.Safety;
 using KrnlAI.Infrastructure.InMemory;
 using KrnlAI.Core.Services;
 using KrnlAI.Embedded;
+using KrnlAI.Embedded.Abstractions;
 using Microsoft.Extensions.Options;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -98,7 +99,7 @@ public static class ServiceCollectionExtensions
         services.AddMemoryCache();
 
         // EmbeddedKrnlAI for local fallback when proxy is unavailable
-        services.AddSingleton<EmbeddedKrnlAI>();
+        services.AddSingleton<IEmbeddedKrnlAI, EmbeddedKrnlAI>();
 
         // KrnlAI API proxy (optional — for proxying to remote KrnlAI API)
         services.AddHttpClient("kernel")

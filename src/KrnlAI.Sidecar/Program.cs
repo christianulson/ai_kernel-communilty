@@ -1,4 +1,5 @@
 using KrnlAI.Embedded;
+using KrnlAI.Embedded.Abstractions;
 using KrnlAI.Sidecar;
 using KrnlAI.Sidecar.Rpc;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,7 +12,7 @@ if (stdioMode)
 #pragma warning disable ASP0000
     var services = new ServiceCollection();
     services.AddLogging(b => b.AddConsole().SetMinimumLevel(LogLevel.Warning));
-    services.AddSingleton(new EmbeddedKrnlAI());
+    services.AddSingleton<IEmbeddedKrnlAI>(new EmbeddedKrnlAI());
     services.AddSingleton<SidecarRpcHandler>();
     var sp = services.BuildServiceProvider();
 
