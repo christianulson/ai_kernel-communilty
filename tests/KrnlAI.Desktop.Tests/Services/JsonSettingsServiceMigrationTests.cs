@@ -7,30 +7,27 @@ namespace KrnlAI.Desktop.Tests.Services;
 public sealed class JsonSettingsServiceMigrationTests
 {
     [Fact]
-    public void NormalizeSettings_UnauthenticatedOldSidecarDefault_ShouldMoveToGatewayProxy()
+    public void NormalizeSettings_ShouldPreserveOldApiDefault()
     {
         var settings = new AppSettings
         {
-            ApiBaseUrl = "http://127.0.0.1:5001",
-            ApiEndpoint = "http://127.0.0.1:5001",
-            AuthToken = null,
-            RefreshToken = null
+            ApiBaseUrl = "http://localhost:5000",
+            ApiEndpoint = "http://localhost:5000",
         };
 
         var normalized = InvokeNormalize(settings);
 
-        Assert.Equal("http://localhost:5235", normalized.ApiBaseUrl);
-        Assert.Equal("http://localhost:5235", normalized.ApiEndpoint);
+        Assert.Equal("http://localhost:5000", normalized.ApiBaseUrl);
+        Assert.Equal("http://localhost:5000", normalized.ApiEndpoint);
     }
 
     [Fact]
-    public void NormalizeSettings_AuthenticatedSidecarEndpoint_ShouldPreserveExplicitConfiguration()
+    public void NormalizeSettings_ShouldPreserveOldSidecarDefault()
     {
         var settings = new AppSettings
         {
             ApiBaseUrl = "http://127.0.0.1:5001",
             ApiEndpoint = "http://127.0.0.1:5001",
-            AuthToken = "token"
         };
 
         var normalized = InvokeNormalize(settings);
@@ -40,30 +37,12 @@ public sealed class JsonSettingsServiceMigrationTests
     }
 
     [Fact]
-    public void NormalizeSettings_UnauthenticatedOldApiDefault_ShouldMoveToGatewayProxy()
+    public void NormalizeSettings_ShouldPreserveCustomUrl()
     {
         var settings = new AppSettings
         {
-            ApiBaseUrl = "http://localhost:5000",
-            ApiEndpoint = "http://localhost:5000",
-            AuthToken = null,
-            RefreshToken = null
-        };
-
-        var normalized = InvokeNormalize(settings);
-
-        Assert.Equal("http://localhost:5235", normalized.ApiBaseUrl);
-        Assert.Equal("http://localhost:5235", normalized.ApiEndpoint);
-    }
-
-    [Fact]
-    public void NormalizeSettings_AuthenticatedOldApiDefault_ShouldMoveToGatewayProxy()
-    {
-        var settings = new AppSettings
-        {
-            ApiBaseUrl = "http://localhost:5000",
-            ApiEndpoint = "http://localhost:5000",
-            AuthToken = "token"
+            ApiBaseUrl = "http://localhost:5235",
+            ApiEndpoint = "http://localhost:5235",
         };
 
         var normalized = InvokeNormalize(settings);

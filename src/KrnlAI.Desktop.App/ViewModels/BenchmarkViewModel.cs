@@ -31,6 +31,11 @@ public class BenchmarkViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
+            if (ServiceLocator.Instance.CurrentMode == RunMode.Local)
+            {
+                ErrorMessage = "Indisponível no modo Local";
+                return;
+            }
             Data = await _kernelClient.GetBenchmarkSummaryAsync();
         }
         catch (Exception ex)

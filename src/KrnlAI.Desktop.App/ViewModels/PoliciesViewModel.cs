@@ -30,8 +30,8 @@ public class PoliciesViewModel : ViewModelBase
     {
         _kernelClient = kernelClient;
         LoadPoliciesCommand = new AsyncRelayCommand(LoadAsync);
-        LoadVersionsCommand = new AsyncRelayCommand(async () => PolicyVersions = await _kernelClient.GetPolicyVersionsAsync(SelectedPolicyDomain ?? ""));
-        LoadRollbacksCommand = new AsyncRelayCommand(async () => { var l = await _kernelClient.GetPolicyRollbacksAsync(SelectedPolicyDomain ?? ""); PolicyRollbacks.Clear(); foreach (var r in l) PolicyRollbacks.Add(r); });
+        LoadVersionsCommand = new AsyncRelayCommand(async () => { if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return; PolicyVersions = await _kernelClient.GetPolicyVersionsAsync(SelectedPolicyDomain ?? ""); });
+        LoadRollbacksCommand = new AsyncRelayCommand(async () => { if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return; var l = await _kernelClient.GetPolicyRollbacksAsync(SelectedPolicyDomain ?? ""); PolicyRollbacks.Clear(); foreach (var r in l) PolicyRollbacks.Add(r); });
         ClearVersionsCommand = new RelayCommand(() => PolicyVersions = null);
     }
 
@@ -43,9 +43,14 @@ public class PoliciesViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
+            if (ServiceLocator.Instance.CurrentMode == RunMode.Local)
+            {
+                ErrorMessage = "Indisponível no modo Local";
+                return;
+            }
             var r = await _kernelClient.GetPoliciesAsync(null, 1, 100);
             PolicyList.Clear();
-            foreach (var p in r.Policies) PolicyList.Add(p);
+            if (r?.Policies != null) foreach (var p in r.Policies) PolicyList.Add(p);
         }
         catch (Exception ex)
         {

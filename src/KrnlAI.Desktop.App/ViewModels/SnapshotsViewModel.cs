@@ -27,6 +27,11 @@ public class SnapshotsViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
+            if (ServiceLocator.Instance.CurrentMode == RunMode.Local)
+            {
+                ErrorMessage = "Indisponível no modo Local";
+                return;
+            }
             var r = await _client.GetSnapshotsAsync();
             Snapshots.Clear();
             foreach (var s in r) Snapshots.Add(s);

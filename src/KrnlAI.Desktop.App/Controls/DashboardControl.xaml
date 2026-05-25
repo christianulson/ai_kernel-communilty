@@ -56,7 +56,7 @@
                     <StackPanel>
                         <TextBlock Text="{loc:Loc dashboard_metrics_executions}" FontSize="11" FontWeight="Bold"
                                    Foreground="{DynamicResource TextSecondaryBrush}"/>
-                        <TextBlock Text="{Binding DashVM.MetricsData.Summary.TotalRuns, TargetNullValue=—, StringFormat={}{0:N0}}"
+                        <TextBlock Text="{Binding DashVM.MetricsData.TotalRuns, TargetNullValue=—, StringFormat={}{0:N0}}"
                                    FontSize="28" FontWeight="Bold"
                                    Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,8,0,0"/>
                     </StackPanel>
@@ -71,7 +71,7 @@
                     <StackPanel>
                         <TextBlock Text="{loc:Loc dashboard_metrics_success}" FontSize="11" FontWeight="Bold"
                                    Foreground="{DynamicResource TextSecondaryBrush}"/>
-                        <TextBlock Text="{Binding DashVM.MetricsData.Summary.SuccessRate, TargetNullValue=—, StringFormat={}{0:P1}}"
+                        <TextBlock Text="{Binding DashVM.MetricsData.SuccessRate, TargetNullValue=—, StringFormat={}{0:P1}}"
                                    FontSize="28" FontWeight="Bold"
                                    Foreground="{DynamicResource SuccessBrush}" Margin="0,8,0,0"/>
                     </StackPanel>
@@ -86,7 +86,7 @@
                     <StackPanel>
                         <TextBlock Text="{loc:Loc dashboard_metrics_latency}" FontSize="11" FontWeight="Bold"
                                    Foreground="{DynamicResource TextSecondaryBrush}"/>
-                        <TextBlock Text="{Binding DashVM.MetricsData.Summary.AvgLatencyMs, TargetNullValue=—, StringFormat={}{0:N0}ms}"
+                        <TextBlock Text="{Binding DashVM.MetricsData.AvgLatencyMs, TargetNullValue=—, StringFormat={}{0:N0}ms}"
                                    FontSize="28" FontWeight="Bold"
                                    Foreground="{DynamicResource WarningBrush}" Margin="0,8,0,0"/>
                     </StackPanel>
@@ -101,7 +101,7 @@
                     <StackPanel>
                         <TextBlock Text="{loc:Loc dashboard_metrics_cost}" FontSize="11" FontWeight="Bold"
                                    Foreground="{DynamicResource TextSecondaryBrush}"/>
-                        <TextBlock Text="{Binding DashVM.MetricsData.Summary.TotalCost, TargetNullValue=—, StringFormat={}{0:C}}"
+                        <TextBlock Text="{Binding DashVM.MetricsData.AvgCost, TargetNullValue=—, StringFormat={}{0:C}}"
                                    FontSize="28" FontWeight="Bold"
                                    Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,8,0,0"/>
                     </StackPanel>
@@ -470,8 +470,8 @@
                         </StackPanel>
                         <StackPanel Grid.Column="1">
                             <TextBlock Text="{loc:Loc sidebar_brand}" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                            <TextBlock Text="{Binding DashVM.CrossSummaryData.KrnlAI.Version}" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
-                            <TextBlock Text="{Binding DashVM.CrossSummaryData.KrnlAI.RequestsPerMinute, StringFormat={}{0} req/min}" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                            <TextBlock Text="{Binding DashVM.CrossSummaryData.Kernel.Version}" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                            <TextBlock Text="{Binding DashVM.CrossSummaryData.Kernel.RequestsPerMinute, StringFormat={}{0} req/min}" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
                         </StackPanel>
                     </Grid>
                 </StackPanel>

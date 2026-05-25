@@ -96,11 +96,11 @@
                                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                                                     <Border Padding="4,2" CornerRadius="6"
                                                             Background="#1838BDF8">
-                                                        <TextBlock Text="{Binding ScorePercent, StringFormat={}{0:P0}}" FontSize="10" Foreground="{DynamicResource PrimaryBrush}"/>
+                                                        <TextBlock Text="{Binding Score, StringFormat={}{0:P0}}" FontSize="10" Foreground="{DynamicResource PrimaryBrush}"/>
                                                     </Border>
-                                                    <TextBlock Text="{Binding DocId}" FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="{Binding Id}" FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}" Margin="8,0,0,0" VerticalAlignment="Center"/>
                                                 </StackPanel>
-                                                <TextBlock Text="{Binding Text}" FontSize="12"
+                                                <TextBlock Text="{Binding Content}" FontSize="12"
                                                            Foreground="{DynamicResource TextPrimaryBrush}"
                                                            TextWrapping="Wrap" MaxHeight="80"/>
                                             </StackPanel>
@@ -139,7 +139,7 @@
                                     Background="{DynamicResource PanelBrush}"
                                     BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Margin="4">
                                 <StackPanel>
-                                    <TextBlock Text="{Binding MemoryVM.MemoryMetricsData.TotalRequests, TargetNullValue=—}" FontSize="24" FontWeight="Bold"
+                                    <TextBlock Text="{Binding MemoryVM.MemoryMetricsData.TotalChunks, TargetNullValue=—}" FontSize="24" FontWeight="Bold"
                                                Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     <TextBlock Text="{loc:Loc memory_metrics_total}" FontSize="11"
                                                Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"/>
@@ -149,7 +149,7 @@
                                     Background="{DynamicResource PanelBrush}"
                                     BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Margin="4">
                                 <StackPanel>
-                                    <TextBlock Text="{Binding MemoryVM.MemoryMetricsData.TotalFallbacks, TargetNullValue=—}" FontSize="24" FontWeight="Bold"
+                                    <TextBlock Text="{Binding MemoryVM.MemoryMetricsData.TotalDocuments, TargetNullValue=—}" FontSize="24" FontWeight="Bold"
                                                Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     <TextBlock Text="{loc:Loc memory_metrics_fallbacks}" FontSize="11"
                                                Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"/>
@@ -159,7 +159,7 @@
                                     Background="{DynamicResource PanelBrush}"
                                     BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Margin="4">
                                 <StackPanel>
-                                    <TextBlock Text="{Binding MemoryVM.MemoryMetricsData.AvgCandidates, TargetNullValue=—, StringFormat={}{0:N1}}" FontSize="24" FontWeight="Bold"
+                                    <TextBlock Text="{Binding MemoryVM.MemoryMetricsData.TotalSizeBytes, TargetNullValue=—, StringFormat={}{0:N0}}" FontSize="24" FontWeight="Bold"
                                                Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     <TextBlock Text="{loc:Loc memory_metrics_candidates}" FontSize="11"
                                                Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"/>
@@ -169,7 +169,7 @@
                                     Background="{DynamicResource PanelBrush}"
                                     BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Margin="4">
                                 <StackPanel>
-                                    <TextBlock Text="{Binding MemoryVM.MemoryMetricsData.AvgHits, TargetNullValue=—, StringFormat={}{0:N1}}" FontSize="24" FontWeight="Bold"
+                                    <TextBlock Text="{Binding MemoryVM.MemoryMetricsData.BySource.Count, TargetNullValue=—}" FontSize="24" FontWeight="Bold"
                                                Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     <TextBlock Text="{loc:Loc memory_metrics_hits}" FontSize="11"
                                                Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"/>
@@ -202,7 +202,7 @@
                                                 <ColumnDefinition Width="30"/>
                                                 <ColumnDefinition Width="*"/>
                                             </Grid.ColumnDefinitions>
-                                            <TextBlock Text="{Binding Index, StringFormat={}{0}}" FontSize="11"
+                                            <TextBlock Text="{Binding Key, StringFormat={}{0}}" FontSize="11"
                                                        Foreground="{DynamicResource TextSecondaryBrush}"
                                                        VerticalAlignment="Center"/>
                                             <TextBlock Grid.Column="1" Text="{Binding Content}" FontSize="12"

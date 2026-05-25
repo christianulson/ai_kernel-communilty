@@ -36,9 +36,14 @@ public class EpisodesViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
+            if (ServiceLocator.Instance.CurrentMode == RunMode.Local)
+            {
+                ErrorMessage = "Indisponível no modo Local";
+                return;
+            }
             var r = await _kernelClient.SearchEpisodesAsync(new EpisodeSearchRequest(Page: 1, PageSize: 50));
             EpisodeList.Clear();
-            foreach (var e in r.Episodes) EpisodeList.Add(e);
+            if (r?.Episodes != null) foreach (var e in r.Episodes) EpisodeList.Add(e);
             OnPropertyChanged(nameof(HasNoData));
         }
         catch (Exception ex)
@@ -53,6 +58,7 @@ public class EpisodesViewModel : ViewModelBase
 
     public async Task LoadDetailAsync(string id)
     {
+        if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return;
         try
         {
             EpisodeDetail = await _kernelClient.GetEpisodeAsync(id);

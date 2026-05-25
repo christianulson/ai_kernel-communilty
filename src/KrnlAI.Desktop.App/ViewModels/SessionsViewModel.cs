@@ -28,10 +28,15 @@ public class SessionsViewModel : ViewModelBase
         IsLoading = true;
         try
         {
+            if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return;
             var resp = await _kernelClient.GetSharesAsync();
             Shares.Clear();
-            if (resp != null)
+            if (resp?.Shares != null)
                 foreach (var s in resp.Shares) Shares.Add(s);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"SessionsViewModel.LoadAsync: {ex.Message}");
         }
         finally { IsLoading = false; }
     }

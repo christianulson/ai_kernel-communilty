@@ -30,11 +30,16 @@ public class VersionsViewModel : ViewModelBase
         IsLoading = true;
         try
         {
+            if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return;
             Versions = await _kernelClient.GetVersionsAsync();
             var contractsResp = await _kernelClient.GetContractsAsync();
             Contracts.Clear();
-            if (contractsResp != null)
+            if (contractsResp?.Contracts != null)
                 foreach (var c in contractsResp.Contracts) Contracts.Add(c);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"VersionsViewModel.LoadAsync: {ex.Message}");
         }
         finally { IsLoading = false; }
     }

@@ -75,6 +75,7 @@ public class MainViewModel : ViewModelBase
     public VersionsViewModel VersionsVM { get; }
     public SessionsViewModel SessionsVM { get; }
     public KanbanViewModel KanbanVM { get; }
+    public TrajectoryViewerViewModel TrajectoryVM { get; } = new();
 
     public ObservableCollection<MediaDevice> Microphones => SettingsVM.Microphones;
     public ObservableCollection<MediaDevice> Cameras => SettingsVM.Cameras;
@@ -91,7 +92,7 @@ public class MainViewModel : ViewModelBase
     private string _statusMessage = "Iniciando...";
     public string StatusMessage { get => _statusMessage; set => SetProperty(ref _statusMessage, value); }
     private string _currentScreen = "chat";
-    public string CurrentScreen { get => _currentScreen; set { if (SetProperty(ref _currentScreen, value)) { OnPropertyChanged(nameof(IsChatVisible)); OnPropertyChanged(nameof(IsDashboardVisible)); OnPropertyChanged(nameof(IsPoliciesVisible)); OnPropertyChanged(nameof(IsEpisodesVisible)); OnPropertyChanged(nameof(IsMemoryVisible)); OnPropertyChanged(nameof(IsSettingsVisible)); OnPropertyChanged(nameof(IsBenchmarkVisible)); OnPropertyChanged(nameof(IsCausalVisible)); OnPropertyChanged(nameof(IsProfileVisible)); OnPropertyChanged(nameof(IsDocumentsVisible)); OnPropertyChanged(nameof(IsArchiveVisible)); OnPropertyChanged(nameof(IsModelRegistryVisible)); OnPropertyChanged(nameof(IsVersionsVisible)); OnPropertyChanged(nameof(IsSessionsVisible)); OnPropertyChanged(nameof(IsKanbanVisible)); } } }
+    public string CurrentScreen { get => _currentScreen; set { if (SetProperty(ref _currentScreen, value)) { OnPropertyChanged(nameof(IsChatVisible)); OnPropertyChanged(nameof(IsDashboardVisible)); OnPropertyChanged(nameof(IsPoliciesVisible)); OnPropertyChanged(nameof(IsEpisodesVisible)); OnPropertyChanged(nameof(IsMemoryVisible)); OnPropertyChanged(nameof(IsSettingsVisible)); OnPropertyChanged(nameof(IsBenchmarkVisible)); OnPropertyChanged(nameof(IsCausalVisible)); OnPropertyChanged(nameof(IsProfileVisible)); OnPropertyChanged(nameof(IsDocumentsVisible)); OnPropertyChanged(nameof(IsArchiveVisible)); OnPropertyChanged(nameof(IsModelRegistryVisible)); OnPropertyChanged(nameof(IsVersionsVisible)); OnPropertyChanged(nameof(IsSessionsVisible)); OnPropertyChanged(nameof(IsKanbanVisible)); OnPropertyChanged(nameof(IsTrajectoryVisible)); } } }
     public bool IsChatVisible => _currentScreen == "chat";
     public bool IsDashboardVisible => _currentScreen == "dashboard";
     public bool IsPoliciesVisible => _currentScreen == "policies";
@@ -107,6 +108,7 @@ public class MainViewModel : ViewModelBase
     public bool IsVersionsVisible => _currentScreen == "versions";
     public bool IsSessionsVisible => _currentScreen == "sessions";
     public bool IsKanbanVisible => _currentScreen == "kanban";
+    public bool IsTrajectoryVisible => _currentScreen == "trajectory";
 
     public AgentInfo? SelectedAgent { get; set; }
     private ConversationSession? _activeSession;
@@ -154,6 +156,7 @@ public class MainViewModel : ViewModelBase
     public ICommand NavigateToVersionsCommand { get; }
     public ICommand NavigateToSessionsCommand { get; }
     public ICommand NavigateToKanbanCommand { get; }
+    public ICommand NavigateToTrajectoryCommand { get; }
     public ICommand NavigateToProfileCommand { get; }
     public ICommand ToggleListeningCommand { get; }
     public ICommand LogoutCommand { get; }
@@ -240,6 +243,7 @@ public class MainViewModel : ViewModelBase
         NavigateToSessionsCommand = new RelayCommand(() => CurrentScreen = "sessions");
         NavigateToKanbanCommand = new RelayCommand(() => CurrentScreen = "kanban");
         NavigateToProfileCommand = new RelayCommand(() => CurrentScreen = "profile");
+        NavigateToTrajectoryCommand = new RelayCommand(() => CurrentScreen = "trajectory");
         ToggleListeningCommand = new AsyncRelayCommand(ToggleListeningAsync);
         LogoutCommand = new RelayCommand(ExecuteLogout);
         NewSessionCommand = new RelayCommand(() => { Sessions.Add(new ConversationSession(Guid.NewGuid().ToString(), $"Conversa {Sessions.Count + 1}", DateTime.Now)); ActiveSession = Sessions.Last(); });
@@ -293,15 +297,28 @@ public class MainViewModel : ViewModelBase
     private async Task CheckBackendHealthAsync()
     {
         if (_kernelClient == null) return;
+
+        if (ServiceLocator.Instance.CurrentMode == RunMode.Local)
+        {
+            UiThreadInvoker.Invoke(() =>
+            {
+                IsBackendAvailable = true;
+                StatusMessage = "Modo Local";
+                OnPropertyChanged(nameof(ApiEndpoint));
+            });
+            return;
+        }
+
         _healthCheckCts = new CancellationTokenSource();
         var t = _healthCheckCts.Token;
         while (!t.IsCancellationRequested)
         {
+            if (t.IsCancellationRequested) break;
             var isAvailable = await _kernelClient.CheckHealthAsync(t);
             UiThreadInvoker.Invoke(() =>
             {
                 IsBackendAvailable = isAvailable;
-                StatusMessage = IsBackendAvailable ? "Conectado" : "Servidor indisponível";
+                StatusMessage = isAvailable ? "Conectado" : "Servidor indisponível";
                 OnPropertyChanged(nameof(ApiEndpoint));
             });
             try { await Task.Delay(30000, t); } catch (OperationCanceledException) { break; }
@@ -311,6 +328,7 @@ public class MainViewModel : ViewModelBase
     private async Task PollEmotionalStateAsync()
     {
         if (_kernelClient == null) return;
+        if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return;
         _emotionalPollCts = new CancellationTokenSource();
         var t = _emotionalPollCts.Token;
         while (!t.IsCancellationRequested)
@@ -330,6 +348,7 @@ public class MainViewModel : ViewModelBase
     private void ExecuteLogout()
     {
         if (_kernelClient == null) return;
+        if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return;
         var settings = _settingsService.LoadSettings();
         _settingsService.SaveSettings(settings with { AuthToken = null, RefreshToken = null, IsAuthenticated = false });
         _kernelClient.SetTokens(null, null);
@@ -353,6 +372,8 @@ public class MainViewModel : ViewModelBase
             _listeningService.VoiceLevelChanged -= OnVoiceLevelChanged;
         _themeService.ThemeChanged -= OnThemeChanged;
         ChatVM.Cleanup();
+        (DashVM as IDisposable)?.Dispose();
+        (SettingsVM as IDisposable)?.Dispose();
     }
 
     private void OnVoiceLevelChanged(object? sender, float level) => UiThreadInvoker.Invoke(() => VoiceLevel = level);

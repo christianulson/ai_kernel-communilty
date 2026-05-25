@@ -97,12 +97,13 @@
                                             <Border Grid.Column="0" Padding="6,2" CornerRadius="6" BorderThickness="0" VerticalAlignment="Center" HorizontalAlignment="Left" Background="{Binding Status, Converter={StaticResource StatusToColorConverter}, ConverterParameter=bg}" Opacity="0.15">
                                                 <TextBlock Text="{Binding Status}" FontSize="11" FontWeight="SemiBold" Foreground="{Binding Status, Converter={StaticResource StatusToColorConverter}}"/>
                                             </Border>
-                                            <TextBlock Grid.Column="1" Text="{Binding Domain}" FontSize="12"
-                                                       Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
-                                            <TextBlock Grid.Column="2" Text="{Binding Goal}" FontSize="12"
+                                            <TextBlock Grid.Column="1" Text="{Binding GoalId}" FontSize="12"
+                                                       Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"
+                                                       TextTrimming="CharacterEllipsis" MaxWidth="100"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding Outcome}" FontSize="12"
                                                        Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"
                                                        TextTrimming="CharacterEllipsis" MaxWidth="200"/>
-                                            <TextBlock Grid.Column="3" Text="{Binding Summary}" FontSize="11"
+                                            <TextBlock Grid.Column="3" Text="{Binding Status}" FontSize="11"
                                                        Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"
                                                        TextTrimming="CharacterEllipsis" MaxWidth="200"/>
                                             <TextBlock Grid.Column="4" Text="{Binding CreatedAt, StringFormat={}{0:dd/MM/yyyy HH:mm}}" FontSize="11"
@@ -134,19 +135,13 @@
 
                     <StackPanel>
                         <TextBlock Text="ID" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,2"/>
-                        <TextBlock Text="{Binding EpisodesVM.EpisodeDetail.EpisodeId}" FontSize="12" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,12"/>
-
-                        <TextBlock Text="Usuário" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,2"/>
-                        <TextBlock Text="{Binding EpisodesVM.EpisodeDetail.UserId}" FontSize="12" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,12"/>
-
-                        <TextBlock Text="Domínio" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,2"/>
-                        <TextBlock Text="{Binding EpisodesVM.EpisodeDetail.Domain}" FontSize="12" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,12"/>
+                        <TextBlock Text="{Binding EpisodesVM.EpisodeDetail.Id}" FontSize="12" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,12"/>
 
                         <TextBlock Text="Status" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,2"/>
                         <TextBlock Text="{Binding EpisodesVM.EpisodeDetail.Status}" FontSize="12" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,12"/>
 
-                        <TextBlock Text="Objetivo" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,2"/>
-                        <TextBlock Text="{Binding EpisodesVM.EpisodeDetail.Goal}" FontSize="12" Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,0,0,12"/>
+                        <TextBlock Text="Goal ID" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,2"/>
+                        <TextBlock Text="{Binding EpisodesVM.EpisodeDetail.GoalId}" FontSize="12" Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,0,0,12"/>
 
                         <TextBlock Text="Resumo" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,2"/>
                         <TextBlock Text="{Binding EpisodesVM.EpisodeDetail.Summary}" FontSize="12" Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,0,0,12"/>

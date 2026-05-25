@@ -59,27 +59,8 @@ public class JsonSettingsService : ISettingsService
 
     private static AppSettings NormalizeSettings(AppSettings settings)
     {
-        var isUnauthenticated = string.IsNullOrEmpty(settings.AuthToken)
-            && string.IsNullOrEmpty(settings.RefreshToken);
-
-        if ((IsOldApiDefault(settings.ApiEndpoint) && IsOldApiDefault(settings.ApiBaseUrl))
-            || (isUnauthenticated && IsOldSidecarDefault(settings.ApiEndpoint) && IsOldSidecarDefault(settings.ApiBaseUrl)))
-        {
-            return settings with
-            {
-                ApiEndpoint = GatewayProxyDefaultUrl,
-                ApiBaseUrl = GatewayProxyDefaultUrl
-            };
-        }
-
         return settings;
     }
-
-    private static bool IsOldApiDefault(string? value)
-        => string.Equals(value, "http://localhost:5000", StringComparison.OrdinalIgnoreCase);
-
-    private static bool IsOldSidecarDefault(string? value)
-        => string.Equals(value, "http://127.0.0.1:5001", StringComparison.OrdinalIgnoreCase);
 
     public void SaveSettings(AppSettings settings)
     {

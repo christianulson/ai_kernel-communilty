@@ -41,7 +41,6 @@ public partial class MainWindow : Window
 
     private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
     {
-        _videoTimer?.Dispose();
         StopVideoPreview();
         if (_vm != null)
         {
@@ -55,35 +54,26 @@ public partial class MainWindow : Window
         if (_isVideoRunning) return;
         _isVideoRunning = true;
 
-        _videoTimer = new System.Threading.Timer(_ =>
+        var capture = _services.VideoCapture;
+        if (capture == null) return;
+
+        var devices = capture.GetAvailableDevices();
+        if (devices.Count == 0) return;
+
+        capture.FrameCaptured += OnFrameCaptured;
+        _ = capture.StartCaptureAsync(devices[0].Id);
+    }
+
+    private void OnFrameCaptured(object? sender, VideoCaptureEventArgs args)
+    {
+        Dispatcher.Invoke(() =>
         {
             try
             {
-                var capture = _services.VideoCapture;
-                if (capture == null) return;
-
-                var devices = capture.GetAvailableDevices();
-                if (devices.Count == 0) return;
-
-                // Subscribe to frame capture for live preview
-                void handler(object? s, VideoCaptureEventArgs args)
-                {
-                    Dispatcher.Invoke(() =>
-                    {
-                        try
-                        {
-                            var bitmap = ConvertToBitmapSource(args.ImageData, args.Width, args.Height);
-                            // Camera preview frame received
-                        }
-                        catch (Exception ex) { KrnlLogger.Write(ex); }
-                    });
-                    capture.FrameCaptured -= handler;
-                }
-                capture.FrameCaptured += handler;
-                _ = capture.StartCaptureAsync(devices[0].Id);
+                _ = ConvertToBitmapSource(args.ImageData, args.Width, args.Height);
             }
             catch (Exception ex) { KrnlLogger.Write(ex); }
-        }, null, 0, 100);
+        });
     }
 
     public void StopVideoPreview()
@@ -93,7 +83,10 @@ public partial class MainWindow : Window
         _videoTimer = null;
         var capture = _services.VideoCapture;
         if (capture != null)
+        {
+            capture.FrameCaptured -= OnFrameCaptured;
             _ = capture.StopCaptureAsync();
+        }
     }
 
     public void ToggleAlwaysOnTop()

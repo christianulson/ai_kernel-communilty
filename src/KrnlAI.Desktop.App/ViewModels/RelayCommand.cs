@@ -1,4 +1,5 @@
 using System.Windows.Input;
+using KrnlAI.Desktop.Core.Services;
 
 namespace KrnlAI.Desktop.App.ViewModels;
 
@@ -71,6 +72,10 @@ public class AsyncRelayCommand : ICommand
         try
         {
             await _execute(parameter);
+        }
+        catch (Exception ex)
+        {
+            KrnlLogger.Write($"[AsyncRelayCommand] Unhandled: {ex.GetType().Name}: {ex.Message}");
         }
         finally
         {

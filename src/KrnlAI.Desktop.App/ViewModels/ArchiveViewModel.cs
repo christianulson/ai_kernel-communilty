@@ -26,7 +26,15 @@ public class ArchiveViewModel : ViewModelBase
     public async Task LoadAsync()
     {
         IsLoading = true;
-        try { Stats = await _kernelClient.GetArchiveStatsAsync(); }
+        try
+        {
+            if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return;
+            Stats = await _kernelClient.GetArchiveStatsAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"ArchiveViewModel.LoadAsync: {ex.Message}");
+        }
         finally { IsLoading = false; }
     }
 }

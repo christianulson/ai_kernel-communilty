@@ -30,18 +30,22 @@ public class ListeningService : IListeningService
 
     public bool IsListening => _isListening;
 
+    private readonly bool _isLocalMode;
+
     public ListeningService(
         IAudioCapture audioCapture,
         IKernelAgentClient kernelAgentClient,
         IKernelSpeechClient kernelSpeechClient,
         IAudioPlayback audioPlayback,
-        ILogger<ListeningService> logger)
+        ILogger<ListeningService> logger,
+        bool isLocalMode = false)
     {
         _audioCapture = audioCapture;
         _kernelAgentClient = kernelAgentClient;
         _kernelSpeechClient = kernelSpeechClient;
         _audioPlayback = audioPlayback;
         _logger = logger;
+        _isLocalMode = isLocalMode;
 
         _audioCapture.VoiceLevelChanged += OnVoiceLevelChanged;
     }
@@ -146,6 +150,12 @@ public class ListeningService : IListeningService
 
     private async Task ProcessSpeechAsync()
     {
+        if (_isLocalMode)
+        {
+            _logger.LogInformation("Speech processing skipped (Local mode)");
+            return;
+        }
+
         byte[] audioData;
         lock (_lock)
         {

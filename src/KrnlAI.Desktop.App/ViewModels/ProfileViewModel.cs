@@ -41,6 +41,11 @@ public class ProfileViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
+            if (ServiceLocator.Instance.CurrentMode == RunMode.Local)
+            {
+                ErrorMessage = "Indisponível no modo Local";
+                return;
+            }
             var profile = await _kernelClient.GetUserProfileAsync(UserId);
             if (profile != null)
             {
@@ -62,6 +67,11 @@ public class ProfileViewModel : ViewModelBase
     private async Task SaveAsync()
     {
         if (string.IsNullOrWhiteSpace(UserId)) return;
+        if (ServiceLocator.Instance.CurrentMode == RunMode.Local)
+        {
+            ErrorMessage = "Indisponível no modo Local";
+            return;
+        }
         IsSaving = true;
         ErrorMessage = "";
         try

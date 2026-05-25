@@ -180,6 +180,7 @@ public class LoginViewModel : ViewModelBase
 
             var kernelClient = ServiceLocator.Instance.KernelClient;
             var api = ServiceLocator.Instance.GatewayApi;
+            if (api == null) { ErrorMessage = "API Gateway não disponível"; return; }
             var loginResponse = await api.OAuth2LoginAsync(
                 new OAuth2LoginRequest(
                     provider, redirectUri, _oauthState));
@@ -235,11 +236,11 @@ public class LoginViewModel : ViewModelBase
     private async Task<string?> StartOAuthCallbackListenerAsync(string redirectUri, string callbackPath, Uri browserUri)
     {
         var uri = new Uri(redirectUri);
-        _oauthListener = new HttpListener();
-        _oauthListener.Prefixes.Add($"http://localhost:{uri.Port}/");
 
         try
         {
+            _oauthListener = new HttpListener();
+            _oauthListener.Prefixes.Add($"http://localhost:{uri.Port}/");
             _oauthListener.Start();
 
             Process.Start(new ProcessStartInfo(browserUri.ToString())
@@ -266,8 +267,14 @@ public class LoginViewModel : ViewModelBase
 
             return code;
         }
-        catch
+        catch (HttpListenerException ex) when (ex.ErrorCode == 5)
         {
+            ErrorMessage = $"OAuth requer privilégios de administrador. Execute como admin ou use login manual. (Erro: acesso negado ao HttpListener)";
+            return null;
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Erro no callback OAuth: {ex.Message}";
             return null;
         }
         finally

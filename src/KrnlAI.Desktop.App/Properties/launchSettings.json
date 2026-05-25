@@ -6,10 +6,10 @@
         "KRNL__RUN_MODE": "Local"
       }
     },
-    "KrnlAI.Desktop.App-API": {
+    "KrnlAI.Desktop.App-Api": {
       "commandName": "Project",
       "environmentVariables": {
-        "KRNL__RUN_MODE": "API",
+        "KRNL__RUN_MODE": "Api",
         "KRNL__API_BASE_URL": "http://localhost:5235"
       }
     }

@@ -32,13 +32,18 @@ public class ModelRegistryViewModel : ViewModelBase
         IsLoading = true;
         try
         {
+            if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return;
             var detail = await _kernelClient.GetModelRegistryAsync(ModelId);
-            if (detail != null)
+            if (detail?.Models != null)
             {
                 Models.Clear();
                 foreach (var m in detail.Models) Models.Add(m);
                 Active = detail.Active;
             }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"ModelRegistryViewModel.LoadAsync: {ex.Message}");
         }
         finally { IsLoading = false; }
     }

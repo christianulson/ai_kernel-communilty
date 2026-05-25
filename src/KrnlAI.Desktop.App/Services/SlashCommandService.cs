@@ -127,7 +127,7 @@ public sealed class SlashCommandHandler
 
 public sealed class SlashCommandService
 {
-    public static readonly SlashCommandInfo[] Commands =
+    private static readonly SlashCommandInfo[] AllCommands =
     {
         new("/undo", "Undo last action", "\U0001f519"),
         new("/diff", "Show last changes diff", "\U0001f4cb"),
@@ -143,13 +143,20 @@ public sealed class SlashCommandService
         new("/sessions", "List sessions", "\U0001f4cb"),
     };
 
+    public static readonly SlashCommandInfo[] Commands = AllCommands;
+
     private readonly List<SlashCommandInfo> _all;
     public ReadOnlyCollection<SlashCommandInfo> All => _all.AsReadOnly();
     private List<SlashCommandInfo> _filtered = new();
 
+    private static readonly HashSet<string> LocalCommands = new(StringComparer.OrdinalIgnoreCase) { "/clear", "/help" };
+
     public SlashCommandService()
     {
-        _all = new List<SlashCommandInfo>(Commands);
+        var isLocal = Environment.GetEnvironmentVariable("KRNL__RUN_MODE")?.Equals("Local", StringComparison.OrdinalIgnoreCase) == true;
+        _all = isLocal
+            ? new List<SlashCommandInfo>(Commands.Where(c => LocalCommands.Contains(c.Command)))
+            : new List<SlashCommandInfo>(Commands);
     }
 
     public IReadOnlyList<SlashCommandInfo> Filter(string input)

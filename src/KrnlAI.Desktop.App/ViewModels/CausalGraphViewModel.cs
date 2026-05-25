@@ -38,8 +38,8 @@ public class CausalGraphViewModel : ViewModelBase
     public CausalGraphViewModel(IKernelClient kernelClient)
     {
         _kernelClient = kernelClient;
-        SearchCommand = new AsyncRelayCommand(SearchAsync);
-        PredictCommand = new AsyncRelayCommand(PredictAsync);
+        SearchCommand = new AsyncRelayCommand(async () => { if (ServiceLocator.Instance.CurrentMode == RunMode.Local) { ErrorMessage = "Indisponível no modo Local"; return; } await SearchAsync(); });
+        PredictCommand = new AsyncRelayCommand(async () => { if (ServiceLocator.Instance.CurrentMode == RunMode.Local) { ErrorMessage = "Indisponível no modo Local"; return; } await PredictAsync(); });
         SetQueryTabCommand = new RelayCommand(() => Tab = "query");
         SetPredictTabCommand = new RelayCommand(() => Tab = "predict");
     }

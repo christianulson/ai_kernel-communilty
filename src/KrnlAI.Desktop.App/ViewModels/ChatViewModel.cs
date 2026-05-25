@@ -17,7 +17,7 @@ namespace KrnlAI.Desktop.App.ViewModels;
 public class ChatViewModel : ViewModelBase
 {
     private readonly IKernelClient _kernelClient;
-    private readonly EmbeddedKrnlAI? _embeddedKernel;
+    private EmbeddedKrnlAI? _embeddedKernel;
     private readonly IAudioCapture _audioCapture;
     private readonly IAudioPlayback _audioPlayback;
     private readonly IVideoCapture _videoCapture;
@@ -316,9 +316,16 @@ public class ChatViewModel : ViewModelBase
         ServiceLocator.Instance.VideoCapture,
         ServiceLocator.Instance.LocalizationService,
         ServiceLocator.Instance.SlashCommandExecutor,
-        ServiceLocator.Instance.CognitiveStreamProvider,
-        ServiceLocator.Instance.EmbeddedKernel)
+        ServiceLocator.Instance.CognitiveStreamProvider)
     { }
+
+    private EmbeddedKrnlAI? GetOrCreateKernel()
+    {
+        if (_embeddedKernel != null) return _embeddedKernel;
+        if (ServiceLocator.Instance.CurrentMode != RunMode.Local) return null;
+        _embeddedKernel = ServiceLocator.Instance.EmbeddedKernel;
+        return _embeddedKernel;
+    }
 
     public async Task SendMessageAsync()
     {
@@ -375,9 +382,9 @@ public class ChatViewModel : ViewModelBase
             var imageBytes = _lastFrameJpeg;
             _lastFrameJpeg = null;
 
-            if (_embeddedKernel != null)
+            if (GetOrCreateKernel() is { } kernel)
             {
-                var result = await _embeddedKernel.RunAsync(text ?? "");
+                var result = await kernel.RunAsync(text ?? "");
 
                 Messages.Add(new ChatMessage(
                     Guid.NewGuid().ToString(),
@@ -393,16 +400,19 @@ public class ChatViewModel : ViewModelBase
                     ImageBytes: imageBytes,
                     ImageFormat: imageBytes != null ? "jpeg" : null));
 
+                var narration = response?.Narration;
+                var error = response?.Error;
+
                 Messages.Add(new ChatMessage(
                     Guid.NewGuid().ToString(),
-                    response.Narration ?? response.Error ?? "Sem resposta",
+                    narration ?? error ?? "Sem resposta",
                     MessageRole.Assistant,
                     DateTime.Now,
-                    string.IsNullOrEmpty(response.Error) ? MessageStatus.Completed : MessageStatus.Error));
+                    string.IsNullOrEmpty(error) ? MessageStatus.Completed : MessageStatus.Error));
 
-                if (!string.IsNullOrEmpty(response.Narration))
+                if (!string.IsNullOrEmpty(narration))
                 {
-                    var audio = await _kernelClient.GenerateSpeechAsync(response.Narration);
+                    var audio = await _kernelClient.GenerateSpeechAsync(narration);
                     if (_isTtsEnabled && audio.Length > 0) await _audioPlayback.PlayAsync(audio);
                 }
             }
@@ -547,6 +557,7 @@ public class ChatViewModel : ViewModelBase
 
     public Task ConnectCognitiveStreamAsync()
     {
+        if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return Task.CompletedTask;
         return _cognitiveStream.ConnectAsync();
     }
 
@@ -554,5 +565,10 @@ public class ChatViewModel : ViewModelBase
     {
         if (IsCameraOn) StopCamera();
         _cognitiveStream.Disconnect();
+        if (_embeddedKernel != null)
+        {
+            _embeddedKernel.DisposeAsync().AsTask().GetAwaiter().GetResult();
+            _embeddedKernel = null;
+        }
     }
 }

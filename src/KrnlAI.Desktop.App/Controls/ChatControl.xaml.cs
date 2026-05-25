@@ -16,8 +16,6 @@ public partial class ChatControl : UserControl
         {
             var chatVm = mainVm.ChatVM;
 
-            // Start cognitive stream when processing starts
-            chatVm.SendMessageCommand.Execute(null);
             await chatVm.ConnectCognitiveStreamAsync();
         }
     }

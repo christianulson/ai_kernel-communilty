@@ -24,7 +24,15 @@ public class InvestigationsViewModel : ViewModelBase
     public async Task LoadAsync()
     {
         IsLoading = true; ErrorMessage = "";
-        try { var r = await _client.GetInvestigationsAsync(); Investigations.Clear(); foreach (var i in r) Investigations.Add(i); OnPropertyChanged(nameof(HasNoData)); }
+        try
+        {
+            if (ServiceLocator.Instance.CurrentMode == RunMode.Local)
+            {
+                ErrorMessage = "Indisponível no modo Local";
+                return;
+            }
+            var r = await _client.GetInvestigationsAsync(); Investigations.Clear(); foreach (var i in r) Investigations.Add(i); OnPropertyChanged(nameof(HasNoData));
+        }
         catch (Exception ex) { ErrorMessage = $"Erro ao carregar investigações: {ex.Message}"; }
         finally { IsLoading = false; }
     }

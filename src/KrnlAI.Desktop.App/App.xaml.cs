@@ -51,8 +51,12 @@ public partial class App : Application
         
         if (!double.IsNaN(settings.WindowLeft) && !double.IsNaN(settings.WindowTop))
         {
-            _mainWindow.Left = settings.WindowLeft;
-            _mainWindow.Top = settings.WindowTop;
+            var screenWidth = SystemParameters.PrimaryScreenWidth;
+            var screenHeight = SystemParameters.PrimaryScreenHeight;
+            var clampedLeft = Math.Max(0, Math.Min(settings.WindowLeft, screenWidth - 100));
+            var clampedTop = Math.Max(0, Math.Min(settings.WindowTop, screenHeight - 100));
+            _mainWindow.Left = clampedLeft;
+            _mainWindow.Top = clampedTop;
         }
         if (settings.WindowWidth > 0) _mainWindow.Width = settings.WindowWidth;
         if (settings.WindowHeight > 0) _mainWindow.Height = settings.WindowHeight;
@@ -157,7 +161,7 @@ public partial class App : Application
         {
             _hotkeyService = new GlobalHotkeyService(_mainWindow);
 
-            _hotkeyService.RegisterHotkey(
+            if (!_hotkeyService.RegisterHotkey(
                 ModifierKeys.Control | ModifierKeys.Shift,
                 Key.K,
                 () =>
@@ -174,9 +178,12 @@ public partial class App : Application
                         _trayIcon?.ShowBalloonTip("Krnl-AI", "Escuta contínua iniciada", BalloonIcon.Info);
                     }
                 }
-            );
+            ))
+            {
+                KrnlLogger.Write("Hotkey Ctrl+Shift+K falhou ao registrar");
+            }
 
-            _hotkeyService.RegisterHotkey(
+            if (!_hotkeyService.RegisterHotkey(
                 ModifierKeys.Control | ModifierKeys.Shift,
                 Key.T,
                 () =>
@@ -185,7 +192,10 @@ public partial class App : Application
                     _mainWindow?.SetAlwaysOnTop(_isAlwaysOnTop);
                     _trayIcon?.ShowBalloonTip("Krnl-AI", _isAlwaysOnTop ? "Sempre no topo: ON" : "Sempre no topo: OFF", BalloonIcon.Info);
                 }
-            );
+            ))
+            {
+                KrnlLogger.Write("Hotkey Ctrl+Shift+T falhou ao registrar");
+            }
 
             _trayIcon?.ShowBalloonTip("Krnl-AI", "Hotkeys: Ctrl+Shift+K (escuta), Ctrl+Shift+T (topo)", BalloonIcon.Info);
         }

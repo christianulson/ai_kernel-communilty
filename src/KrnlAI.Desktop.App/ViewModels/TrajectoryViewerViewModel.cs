@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Windows.Input;
+using KrnlAI.Desktop.App.Services;
 
 namespace KrnlAI.Desktop.App.ViewModels;
 
@@ -62,7 +63,12 @@ public sealed class TrajectoryViewerViewModel : ViewModelBase
     public string SearchText
     {
         get => _searchText;
-        set { SetProperty(ref _searchText, value); _ = LoadSessionsAsync(); }
+        set
+        {
+            SetProperty(ref _searchText, value);
+            if (ServiceLocator.Instance.CurrentMode != RunMode.Local)
+                _ = LoadSessionsAsync();
+        }
     }
 
     public ICommand RefreshCommand { get; }
@@ -70,18 +76,22 @@ public sealed class TrajectoryViewerViewModel : ViewModelBase
 
     public TrajectoryViewerViewModel()
     {
-        _http = new HttpClient { BaseAddress = new Uri("http://localhost:5235"), Timeout = TimeSpan.FromSeconds(10) };
+        var baseUrl = Environment.GetEnvironmentVariable("KRNL__API_BASE_URL") ?? "http://localhost:5235";
+        _http = new HttpClient { BaseAddress = new Uri(baseUrl), Timeout = TimeSpan.FromSeconds(10) };
         RefreshCommand = new AsyncRelayCommand(LoadSessionsAsync);
         LoadSessionCommand = new AsyncRelayCommand(async () =>
         {
+            if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return;
             if (Sessions.FirstOrDefault() is TrajectorySessionSummary s)
                 await LoadSessionAsync(s.Id);
         });
-        _ = LoadSessionsAsync();
+        if (ServiceLocator.Instance.CurrentMode != RunMode.Local)
+            _ = LoadSessionsAsync();
     }
 
     public async Task LoadSessionsAsync()
     {
+        if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return;
         try
         {
             var url = "/api/trajectories?page=1&pageSize=50";
@@ -103,6 +113,7 @@ public sealed class TrajectoryViewerViewModel : ViewModelBase
 
     public async Task LoadSessionAsync(string sessionId)
     {
+        if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return;
         try
         {
             var response = await _http.GetAsync($"/api/trajectories/{sessionId}");

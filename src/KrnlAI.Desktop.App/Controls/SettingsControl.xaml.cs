@@ -1,11 +1,22 @@
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using KrnlAI.Desktop.App.ViewModels;
 using KrnlAI.Desktop.Core.Services;
+using KrnlAI.Desktop.Core.Models;
 namespace KrnlAI.Desktop.App.Controls;
 public partial class SettingsControl : UserControl
 {
     public SettingsControl() { InitializeComponent(); }
+
+    private async void OnMcpToggled(object sender, RoutedEventArgs e)
+    {
+        if (sender is CheckBox { DataContext: McpServerInfo server } check)
+        {
+            if (DataContext is MainViewModel mainVm)
+                await mainVm.SettingsVM.ToggleMcpServerAsync(server.ServerId, check.IsChecked ?? false);
+        }
+    }
 
     private void OnOpenLogsFolder(object sender, RoutedEventArgs e)
     {

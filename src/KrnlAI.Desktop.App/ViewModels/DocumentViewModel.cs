@@ -36,6 +36,11 @@ public class DocumentViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
+            if (ServiceLocator.Instance.CurrentMode == RunMode.Local)
+            {
+                ErrorMessage = "Indisponível no modo Local";
+                return;
+            }
             var docs = await _kernelClient.GetDocumentsAsync(50);
             DocumentList.Clear();
             foreach (var d in docs) DocumentList.Add(d);

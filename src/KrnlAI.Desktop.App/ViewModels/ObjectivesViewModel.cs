@@ -27,13 +27,22 @@ public class ObjectivesViewModel : ViewModelBase
     public async Task LoadAsync()
     {
         IsLoading = true; ErrorMessage = "";
-        try { var r = await _client.GetObjectivesAsync(); Objectives.Clear(); foreach (var o in r) Objectives.Add(o); OnPropertyChanged(nameof(HasNoData)); }
+        try
+        {
+            if (ServiceLocator.Instance.CurrentMode == RunMode.Local)
+            {
+                ErrorMessage = "Indisponível no modo Local";
+                return;
+            }
+            var r = await _client.GetObjectivesAsync(); Objectives.Clear(); foreach (var o in r) Objectives.Add(o); OnPropertyChanged(nameof(HasNoData));
+        }
         catch (Exception ex) { ErrorMessage = $"Erro ao carregar objetivos: {ex.Message}"; }
         finally { IsLoading = false; }
     }
 
     public async Task LoadDetailAsync(string id)
     {
+        if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return;
         try { SelectedObjective = await _client.GetObjectiveDetailAsync(id); }
         catch (Exception ex) { ErrorMessage = $"Erro ao carregar detalhe: {ex.Message}"; }
     }

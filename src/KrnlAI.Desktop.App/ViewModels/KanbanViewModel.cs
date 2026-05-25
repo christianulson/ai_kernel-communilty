@@ -8,7 +8,8 @@ namespace KrnlAI.Desktop.App.ViewModels;
 
 public class KanbanViewModel : ViewModelBase
 {
-    private readonly KanbanService _kanbanService;
+    private readonly KanbanService? _httpKanban;
+    private readonly EmbeddedKanbanService? _embeddedKanban;
     private bool _isLoading;
     private int _daysBack = 10;
     private string? _selectedDomain;
@@ -28,11 +29,19 @@ public class KanbanViewModel : ViewModelBase
     public ICommand MoveCardCommand { get; }
     public ICommand SearchCommand { get; }
 
-    public KanbanViewModel() : this(ServiceLocator.Instance.KanbanService) { }
+    public KanbanViewModel() : this(
+        ServiceLocator.Instance.CurrentMode == RunMode.Local
+            ? null
+            : ServiceLocator.Instance.KanbanService,
+        ServiceLocator.Instance.CurrentMode == RunMode.Local
+            ? new EmbeddedKanbanService(ServiceLocator.Instance.EmbeddedKernel!)
+            : null)
+    { }
 
-    public KanbanViewModel(KanbanService kanbanService)
+    public KanbanViewModel(KanbanService? httpKanban, EmbeddedKanbanService? embeddedKanban = null)
     {
-        _kanbanService = kanbanService;
+        _httpKanban = httpKanban;
+        _embeddedKanban = embeddedKanban;
         LoadCommand = new AsyncRelayCommand(LoadAsync);
         MoveCardCommand = new AsyncRelayCommand(async p =>
         {
@@ -48,10 +57,26 @@ public class KanbanViewModel : ViewModelBase
         ErrorMessage = null;
         try
         {
-            var data = await _kanbanService.GetKanbanAsync(
-                DaysBack, SelectedDomain,
-                MinPriority > 0 ? MinPriority : null,
-                string.IsNullOrWhiteSpace(SearchText) ? null : SearchText);
+            KanbanDisplay data;
+            if (_embeddedKanban != null)
+            {
+                data = await _embeddedKanban.GetKanbanAsync(
+                    DaysBack, SelectedDomain,
+                    MinPriority > 0 ? MinPriority : null,
+                    string.IsNullOrWhiteSpace(SearchText) ? null : SearchText);
+            }
+            else if (_httpKanban != null)
+            {
+                data = await _httpKanban.GetKanbanAsync(
+                    DaysBack, SelectedDomain,
+                    MinPriority > 0 ? MinPriority : null,
+                    string.IsNullOrWhiteSpace(SearchText) ? null : SearchText);
+            }
+            else
+            {
+                ErrorMessage = "Indisponível no modo Local";
+                return;
+            }
             Columns.Clear();
             foreach (var col in data.Columns)
                 Columns.Add(col);
@@ -70,7 +95,14 @@ public class KanbanViewModel : ViewModelBase
     {
         try
         {
-            var ok = await _kanbanService.MoveCardAsync(cardId, toColumn);
+            bool ok;
+            if (_embeddedKanban != null)
+                ok = await _embeddedKanban.MoveCardAsync(cardId, toColumn);
+            else if (_httpKanban != null)
+                ok = await _httpKanban.MoveCardAsync(cardId, toColumn);
+            else
+                return;
+
             if (ok) await LoadAsync();
         }
         catch (Exception ex)

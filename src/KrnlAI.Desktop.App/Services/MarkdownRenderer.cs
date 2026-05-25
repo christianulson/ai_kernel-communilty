@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Media;
 
 namespace KrnlAI.Desktop.App.Services;
@@ -60,47 +61,40 @@ public sealed class MarkdownRenderer
             // Headers
             if (line.StartsWith("### "))
             {
-                stack.Children.Add(new TextBlock
-                {
-                    Text = FormattedText(line[4..]),
-                    FontSize = 15,
-                    FontWeight = FontWeights.SemiBold,
-                    Margin = new Thickness(0, 8, 0, 4)
-                });
+                var tb = FormattedText(line[4..]);
+                tb.FontSize = 15;
+                tb.FontWeight = FontWeights.SemiBold;
+                tb.Margin = new Thickness(0, 8, 0, 4);
+                stack.Children.Add(tb);
                 continue;
             }
             if (line.StartsWith("## "))
             {
-                stack.Children.Add(new TextBlock
-                {
-                    Text = FormattedText(line[3..]),
-                    FontSize = 17,
-                    FontWeight = FontWeights.Bold,
-                    Margin = new Thickness(0, 10, 0, 4)
-                });
+                var tb = FormattedText(line[3..]);
+                tb.FontSize = 17;
+                tb.FontWeight = FontWeights.Bold;
+                tb.Margin = new Thickness(0, 10, 0, 4);
+                stack.Children.Add(tb);
                 continue;
             }
             if (line.StartsWith("# "))
             {
-                stack.Children.Add(new TextBlock
-                {
-                    Text = FormattedText(line[2..]),
-                    FontSize = 20,
-                    FontWeight = FontWeights.Bold,
-                    Margin = new Thickness(0, 12, 0, 6)
-                });
+                var tb = FormattedText(line[2..]);
+                tb.FontSize = 20;
+                tb.FontWeight = FontWeights.Bold;
+                tb.Margin = new Thickness(0, 12, 0, 6);
+                stack.Children.Add(tb);
                 continue;
             }
 
             // Unordered list
             if (line.StartsWith("- ") || line.StartsWith("* "))
             {
-                stack.Children.Add(new TextBlock
-                {
-                    Text = "  \u2022  " + FormattedText(line[2..]),
-                    TextWrapping = TextWrapping.Wrap,
-                    Margin = new Thickness(0, 1, 0, 1)
-                });
+                var tb = FormattedText(line[2..]);
+                tb.Text = "  \u2022  " + tb.Text;
+                tb.TextWrapping = TextWrapping.Wrap;
+                tb.Margin = new Thickness(0, 1, 0, 1);
+                stack.Children.Add(tb);
                 continue;
             }
 
@@ -129,13 +123,11 @@ public sealed class MarkdownRenderer
             }
 
             // Regular paragraph
-            stack.Children.Add(new TextBlock
-            {
-                Text = FormattedText(line),
-                TextWrapping = TextWrapping.Wrap,
-                Margin = new Thickness(0, 2, 0, 2),
-                LineHeight = 24
-            });
+            var paragraph = FormattedText(line);
+            paragraph.TextWrapping = TextWrapping.Wrap;
+            paragraph.Margin = new Thickness(0, 2, 0, 2);
+            paragraph.LineHeight = 24;
+            stack.Children.Add(paragraph);
         }
 
         // Close unclosed code block
@@ -147,15 +139,35 @@ public sealed class MarkdownRenderer
         return stack;
     }
 
-    private static string FormattedText(string text)
+    private static TextBlock FormattedText(string text)
     {
-        // Bold
-        text = System.Text.RegularExpressions.Regex.Replace(text, @"\*\*(.+?)\*\*", "$1");
-        // Italic
-        text = System.Text.RegularExpressions.Regex.Replace(text, @"\*(.+?)\*", "$1");
-        // Inline code
-        text = System.Text.RegularExpressions.Regex.Replace(text, @"`(.+?)`", "$1");
-        return text;
+        var tb = new TextBlock { TextWrapping = TextWrapping.Wrap };
+        var regex = new System.Text.RegularExpressions.Regex(@"(\*\*(.+?)\*\*|\*(.+?)\*|`(.+?)`)");
+        int lastIndex = 0;
+
+        foreach (System.Text.RegularExpressions.Match match in regex.Matches(text))
+        {
+            if (match.Index > lastIndex)
+                tb.Inlines.Add(new Run(text[lastIndex..match.Index]));
+
+            if (match.Groups[2].Success)
+                tb.Inlines.Add(new Run(match.Groups[2].Value) { FontWeight = FontWeights.Bold });
+            else if (match.Groups[3].Success)
+                tb.Inlines.Add(new Run(match.Groups[3].Value) { FontStyle = FontStyles.Italic });
+            else if (match.Groups[4].Success)
+                tb.Inlines.Add(new Run(match.Groups[4].Value)
+                {
+                    FontFamily = new FontFamily("Cascadia Code, Consolas, Courier New"),
+                    Background = CodeBg
+                });
+
+            lastIndex = match.Index + match.Length;
+        }
+
+        if (lastIndex < text.Length)
+            tb.Inlines.Add(new Run(text[lastIndex..]));
+
+        return tb;
     }
 
     private static Border RenderCodeBlock(string code, string lang)

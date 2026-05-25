@@ -125,7 +125,8 @@
                                             </TextBlock>
                                         </StackPanel>
                                         <CheckBox Grid.Column="1" IsChecked="{Binding Enabled}"
-                                                  VerticalAlignment="Center" Margin="8,0,0,0"/>
+                                                  VerticalAlignment="Center" Margin="8,0,0,0"
+                                                  Checked="OnMcpToggled" Unchecked="OnMcpToggled"/>
                                     </Grid>
                                 </Border>
                             </DataTemplate>

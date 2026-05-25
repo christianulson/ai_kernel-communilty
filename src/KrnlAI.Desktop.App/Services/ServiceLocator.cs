@@ -30,11 +30,20 @@ public class ServiceLocator : IDisposable, IAsyncDisposable
 
     private readonly ServiceProvider _provider;
     private volatile bool _disposed;
-    private IAsyncDisposable? _embeddedKernel;
+    private Lazy<EmbeddedKrnlAI>? _embeddedKernelLazy = new(() =>
+        new EmbeddedKrnlAI(new EmbeddedKernelOptions
+        {
+            StoreMode = "InMemory",
+            VectorMode = "InMemory",
+            CacheMode = "Memory",
+            LLmProvider = Environment.GetEnvironmentVariable("KRNL__LLM_PROVIDER") ?? "ollama",
+            OllamaEndpoint = Environment.GetEnvironmentVariable("KRNL__OLLAMA_ENDPOINT") ?? "http://localhost:11434"
+        }),
+        LazyThreadSafetyMode.ExecutionAndPublication);
 
     public RunMode CurrentMode { get; }
     public IKernelClient KernelClient => Resolve<IKernelClient>()!;
-    public IGatewayApi GatewayApi => Resolve<IGatewayApi>()!;
+    public IGatewayApi? GatewayApi => Resolve<IGatewayApi>();
     public IAudioCapture AudioCapture => Resolve<IAudioCapture>()!;
     public IAudioPlayback AudioPlayback => Resolve<IAudioPlayback>()!;
     public IVideoCapture VideoCapture => Resolve<IVideoCapture>()!;
@@ -44,7 +53,7 @@ public class ServiceLocator : IDisposable, IAsyncDisposable
     public ILocalizationService LocalizationService => Resolve<ILocalizationService>()!;
     public ISlashCommandExecutor SlashCommandExecutor => Resolve<ISlashCommandExecutor>()!;
     public ICognitiveStreamProvider CognitiveStreamProvider => Resolve<ICognitiveStreamProvider>()!;
-    public EmbeddedKrnlAI? EmbeddedKernel => Resolve<EmbeddedKrnlAI>();
+    public EmbeddedKrnlAI? EmbeddedKernel => _embeddedKernelLazy?.Value;
 
     public ILogger<T> GetLogger<T>() => _provider!.GetRequiredService<ILogger<T>>();
     public Func<WebRtcService> WebRtcServiceFactory => () => new WebRtcService(GetLogger<WebRtcService>());
@@ -57,70 +66,83 @@ public class ServiceLocator : IDisposable, IAsyncDisposable
 
     private ServiceLocator()
     {
-        var modeEnv = Environment.GetEnvironmentVariable("KRNL__RUN_MODE");
-        CurrentMode = string.Equals(modeEnv, "Local", StringComparison.OrdinalIgnoreCase)
-            ? RunMode.Local
-            : RunMode.Api;
-
-        var loggerFactory = LoggerFactory.Create(b => b.AddConsole().SetMinimumLevel(LogLevel.Warning));
-
-        var settingsService = new JsonSettingsService();
-        var settings = settingsService.LoadSettings();
-        var baseUrl = Environment.GetEnvironmentVariable("KRNL__API_BASE_URL")
-                       ?? settings.ApiEndpoint
-                       ?? settings.ApiBaseUrl
-                       ?? "http://localhost:5235";
-
-        var services = new ServiceCollection();
-        services.AddSingleton(loggerFactory);
-        services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
-        services.AddSingleton<ISettingsService>(settingsService);
-        services.AddSingleton<ISessionPersistenceService>(_ => new SessionPersistenceService());
-
-        if (CurrentMode == RunMode.Local)
+        try
         {
-            RegisterLocalMode(services, loggerFactory);
+            var modeEnv = Environment.GetEnvironmentVariable("KRNL__RUN_MODE");
+            CurrentMode = string.Equals(modeEnv, "Local", StringComparison.OrdinalIgnoreCase)
+                ? RunMode.Local
+                : RunMode.Api;
+
+            var loggerFactory = LoggerFactory.Create(b => b.SetMinimumLevel(LogLevel.Warning));
+
+            var settingsService = new JsonSettingsService();
+            var settings = settingsService.LoadSettings();
+            var baseUrl = Environment.GetEnvironmentVariable("KRNL__API_BASE_URL")
+                           ?? settings.ApiEndpoint
+                           ?? settings.ApiBaseUrl
+                           ?? "http://localhost:5235";
+
+            var services = new ServiceCollection();
+            services.AddSingleton(loggerFactory);
+            services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
+            services.AddSingleton<ISettingsService>(settingsService);
+            services.AddSingleton<ISessionPersistenceService>(_ => new SessionPersistenceService());
+
+            if (CurrentMode == RunMode.Local)
+            {
+                RegisterLocalMode(services, loggerFactory);
+            }
+            else
+            {
+                RegisterApiMode(services, loggerFactory, baseUrl, settings);
+            }
+
+            services.AddSingleton<IAudioCapture>(_ => new AudioCaptureService(loggerFactory.CreateLogger<AudioCaptureService>()));
+            services.AddSingleton<IAudioPlayback>(_ => new AudioPlaybackService(loggerFactory.CreateLogger<AudioPlaybackService>()));
+            services.AddSingleton<IVideoCapture>(_ => new VideoCaptureService(loggerFactory.CreateLogger<VideoCaptureService>()));
+            var isLocal = CurrentMode == RunMode.Local;
+            services.AddSingleton<IListeningService>(sp => new ListeningService(
+                sp.GetRequiredService<IAudioCapture>(),
+                sp.GetRequiredService<IKernelAgentClient>(),
+                sp.GetRequiredService<IKernelSpeechClient>(),
+                sp.GetRequiredService<IAudioPlayback>(),
+                sp.GetRequiredService<ILogger<ListeningService>>(),
+                isLocalMode: isLocal));
+            services.AddSingleton<IThemeService, ThemeService>();
+            var localizationService = new LocalizationService();
+            services.AddSingleton<ILocalizationService>(localizationService);
+            ServiceLocatorAccess.SetLocalizationService(localizationService);
+            services.AddSingleton<IOfflineService, OfflineService>();
+            services.AddSingleton<ThemeManager>();
+            services.AddSingleton(new HttpClient { BaseAddress = new Uri(baseUrl), Timeout = TimeSpan.FromSeconds(30) });
+            services.AddSingleton<KanbanService>();
+
+            _provider = services.BuildServiceProvider();
+
+            _provider.GetRequiredService<ThemeManager>();
+
+            if (CurrentMode == RunMode.Api
+                && (!string.IsNullOrEmpty(settings.AuthToken) || !string.IsNullOrEmpty(settings.RefreshToken)))
+            {
+                KernelClient.SetTokens(settings.AuthToken, settings.RefreshToken);
+            }
         }
-        else
+        catch (Exception ex)
         {
-            RegisterApiMode(services, loggerFactory, baseUrl, settings);
-        }
-
-        services.AddSingleton<IAudioCapture>(_ => new AudioCaptureService(loggerFactory.CreateLogger<AudioCaptureService>()));
-        services.AddSingleton<IAudioPlayback>(_ => new AudioPlaybackService(loggerFactory.CreateLogger<AudioPlaybackService>()));
-        services.AddSingleton<IVideoCapture>(_ => new VideoCaptureService(loggerFactory.CreateLogger<VideoCaptureService>()));
-        services.AddSingleton<IThemeService, ThemeService>();
-        var localizationService = new LocalizationService();
-        services.AddSingleton<ILocalizationService>(localizationService);
-        ServiceLocatorAccess.SetLocalizationService(localizationService);
-        services.AddSingleton<IOfflineService, OfflineService>();
-        services.AddSingleton<ThemeManager>();
-        services.AddSingleton(new HttpClient { BaseAddress = new Uri(baseUrl), Timeout = TimeSpan.FromSeconds(30) });
-        services.AddSingleton<KanbanService>();
-
-        _provider = services.BuildServiceProvider();
-
-        _provider.GetRequiredService<ThemeManager>();
-
-        if (CurrentMode == RunMode.Api
-            && (!string.IsNullOrEmpty(settings.AuthToken) || !string.IsNullOrEmpty(settings.RefreshToken)))
-        {
-            KernelClient.SetTokens(settings.AuthToken, settings.RefreshToken);
+            KrnlLogger.Write(ex);
+            throw;
         }
     }
 
     private void RegisterLocalMode(ServiceCollection services, ILoggerFactory loggerFactory)
     {
-        var embedded = new EmbeddedKrnlAI(new EmbeddedKernelOptions
-        {
-            LLmProvider = Environment.GetEnvironmentVariable("KRNL__LLM_PROVIDER") ?? "ollama",
-            OllamaEndpoint = Environment.GetEnvironmentVariable("KRNL__OLLAMA_ENDPOINT") ?? "http://localhost:11434"
-        });
-        _embeddedKernel = embedded;
-        services.AddSingleton(embedded);
+        var noopKernel = NullObject.Create<IKernelClient>();
+        services.AddSingleton<IKernelClient>(noopKernel);
+        services.AddSingleton<IKernelAgentClient>(noopKernel);
+        services.AddSingleton<IKernelSpeechClient>(noopKernel);
 
         services.AddSingleton<ISlashCommandExecutor>(
-            _ => new EmbeddedSlashCommandExecutor(embedded));
+            _ => new LocalSlashCommandExecutor());
 
         var cognitiveStreamer = new CognitiveStreamer(
             loggerFactory.CreateLogger<CognitiveStreamer>(),
@@ -186,14 +208,6 @@ public class ServiceLocator : IDisposable, IAsyncDisposable
             _ => new HttpSlashCommandExecutor(baseUrl));
         services.AddSingleton<ICognitiveStreamProvider>(
             _ => new HttpCognitiveStreamProvider(baseUrl));
-
-        services.AddSingleton<IListeningService>(sp => new ListeningService(
-            sp.GetRequiredService<IAudioCapture>(),
-            sp.GetRequiredService<IKernelAgentClient>(),
-            sp.GetRequiredService<IKernelSpeechClient>(),
-            sp.GetRequiredService<IAudioPlayback>(),
-            sp.GetRequiredService<ILogger<ListeningService>>()));
-
     }
 
     public static void ConfigureForTests(IServiceProvider provider)
@@ -220,21 +234,18 @@ public class ServiceLocator : IDisposable, IAsyncDisposable
         _provider = (ServiceProvider)provider;
     }
 
-    public async ValueTask DisposeAsync()
-    {
-        if (_disposed) return;
-        _disposed = true;
-        if (_embeddedKernel is not null)
-            await _embeddedKernel.DisposeAsync();
-        _provider?.Dispose();
-    }
-
     public void Dispose()
     {
         if (_disposed) return;
-        _disposed = true;
-        if (_embeddedKernel is not null)
-            _ = _embeddedKernel.DisposeAsync().AsTask();
+        DisposeAsync().AsTask().GetAwaiter().GetResult();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_disposed) return;
+        if (_embeddedKernelLazy?.IsValueCreated == true)
+            await _embeddedKernelLazy.Value.DisposeAsync().ConfigureAwait(false);
         _provider?.Dispose();
+        _disposed = true;
     }
 }
