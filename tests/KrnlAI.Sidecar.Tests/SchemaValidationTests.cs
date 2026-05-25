@@ -44,3 +44,40 @@ public sealed class SchemaValidationTests(SidecarWebAppFactory factory) : IClass
         body.Should().ContainKey("hits");
     }
 }
+
+public sealed class SchemaValidationTests_CommunityMode : IClassFixture<CommunitySidecarWebAppFactory>
+{
+    private readonly HttpClient _http;
+
+    public SchemaValidationTests_CommunityMode(CommunitySidecarWebAppFactory factory)
+    {
+        _http = factory.CreateClient();
+    }
+
+    [Fact]
+    public async Task MemorySearch_Community_WithUnexpectedFields_ShouldReturn400()
+    {
+        var payload = new { query = "test", extraField = "hack" };
+        var res = await _http.PostAsJsonAsync("/memory/search", payload, TestContext.Current.CancellationToken);
+
+        res.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task MemorySearch_Community_WithEmptyQuery_ShouldReturn400()
+    {
+        var payload = new { query = "" };
+        var res = await _http.PostAsJsonAsync("/memory/search", payload, TestContext.Current.CancellationToken);
+
+        res.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task MemorySearch_Community_WithValidQuery_ShouldReturn200()
+    {
+        var payload = new { query = "test" };
+        var res = await _http.PostAsJsonAsync("/memory/search", payload, TestContext.Current.CancellationToken);
+
+        res.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+    }
+}

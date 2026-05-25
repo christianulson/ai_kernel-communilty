@@ -1,17 +1,26 @@
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.Options;
-
 namespace KrnlAI.Sidecar;
 
 public static class WebApplicationExtensions
 {
     public static WebApplication ConfigureSidecarPipeline(this WebApplication app)
     {
-        // Prometheus
         app.MapPrometheusScrapingEndpoint();
+        app.UseExceptionHandling();
+        app.UseCorrelationId();
+        app.UseApiVersionHeader();
+        app.UseSecurityHeaders();
+        app.UseCors();
+        app.UseRateLimiter();
+        app.UseAuth();
+        app.UseRateLimitHeaders();
+        return app;
+    }
 
-        // Global exception handler
+    public static WebApplication UseExceptionHandling(this WebApplication app)
+    {
         app.UseExceptionHandler(appError =>
         {
             appError.Run(async ctx =>
@@ -22,11 +31,11 @@ public static class WebApplicationExtensions
                 await ctx.Response.WriteAsJsonAsync(new ErrorResponse("internal_error", "An unexpected error occurred.", reqId));
             });
         });
+        return app;
+    }
 
-        app.UseCors();
-        app.UseRateLimiter();
-
-        // Correlation ID
+    public static WebApplication UseCorrelationId(this WebApplication app)
+    {
         app.Use(async (ctx, next) =>
         {
             var requestId = ctx.Request.Headers["X-Request-ID"].FirstOrDefault()
@@ -41,15 +50,21 @@ public static class WebApplicationExtensions
                 await next();
             }
         });
+        return app;
+    }
 
-        // X-API-Version header
+    public static WebApplication UseApiVersionHeader(this WebApplication app)
+    {
         app.Use(async (ctx, next) =>
         {
             ctx.Response.Headers["X-API-Version"] = "1.0";
             await next();
         });
+        return app;
+    }
 
-        // Security headers
+    public static WebApplication UseSecurityHeaders(this WebApplication app)
+    {
         app.Use(async (ctx, next) =>
         {
             ctx.Response.Headers["X-Content-Type-Options"] = "nosniff";
@@ -59,8 +74,11 @@ public static class WebApplicationExtensions
             ctx.Response.Headers["Referrer-Policy"] = "no-referrer";
             await next();
         });
+        return app;
+    }
 
-        // Auth
+    public static WebApplication UseAuth(this WebApplication app)
+    {
         app.Use(async (ctx, next) =>
         {
             if (!ctx.Request.Path.StartsWithSegments("/health"))
@@ -85,15 +103,17 @@ public static class WebApplicationExtensions
             }
             await next();
         });
+        return app;
+    }
 
-        // Rate limit headers — Retry-After on 429
+    public static WebApplication UseRateLimitHeaders(this WebApplication app)
+    {
         app.Use(async (ctx, next) =>
         {
             await next();
             if (ctx.Response.StatusCode == 429 && !ctx.Response.Headers.ContainsKey("Retry-After"))
                 ctx.Response.Headers["Retry-After"] = "60";
         });
-
         return app;
     }
 }

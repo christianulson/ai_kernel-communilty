@@ -1,4 +1,3 @@
-#pragma warning disable ASP0000
 using KrnlAI.Embedded;
 using KrnlAI.Sidecar;
 using KrnlAI.Sidecar.Rpc;
@@ -9,6 +8,7 @@ var stdioMode = args.Any(a => a == "--stdio");
 
 if (stdioMode)
 {
+#pragma warning disable ASP0000
     var services = new ServiceCollection();
     services.AddLogging(b => b.AddConsole().SetMinimumLevel(LogLevel.Warning));
     services.AddSingleton(new EmbeddedKrnlAI());
@@ -22,21 +22,20 @@ if (stdioMode)
     var logger = sp.GetRequiredService<ILogger<Program>>();
     logger.LogInformation("KrnlAI.Sidecar started in stdio/RPC mode");
 
-    // Keep process alive until the RPC connection closes
     await jsonRpc.Completion;
     logger.LogInformation("KrnlAI.Sidecar stdio mode shutting down...");
     return;
+#pragma warning restore ASP0000
 }
 
-// HTTP mode (existing logic)
+// HTTP mode
 var builder = WebApplication.CreateBuilder(args);
-builder.WebHost.UseKestrel(o => o.Limits.MaxRequestBodySize = 1024 * 1024);
 
 var sidecarMode = builder.Configuration.GetValue<string>("Sidecar:Mode", "Legacy");
 var communityMode = string.Equals(sidecarMode, "Community", StringComparison.OrdinalIgnoreCase);
 
 if (communityMode)
-    builder.Services.AddSidecarCommunityServices(builder.Configuration);
+    builder.Services.AddSidecarCommunityServices(builder.Configuration, builder.Environment);
 else
     builder.Services.AddSidecarServices(builder.Configuration, builder.Environment);
 

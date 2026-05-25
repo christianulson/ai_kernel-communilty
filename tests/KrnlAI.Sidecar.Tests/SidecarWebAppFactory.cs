@@ -18,3 +18,15 @@ public sealed class AuthSidecarWebAppFactory : SidecarWebAppFactory
         builder.UseSetting("Sidecar:Auth:Token", "test-secret-123");
     }
 }
+
+public sealed class AuthCommunitySidecarWebAppFactory : WebApplicationFactory<Program>
+{
+    protected override void ConfigureWebHost(IWebHostBuilder builder)
+    {
+        builder.UseSetting("Sidecar:Mode", "Community");
+        builder.UseSetting("Sidecar:Auth:Token", "test-secret-123");
+        builder.UseSetting("Store:Mode", "InMemory");
+        builder.UseSetting("Vector:Mode", "InMemory");
+        builder.UseSetting("Cache:Mode", "Memory");
+    }
+}

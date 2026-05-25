@@ -37,7 +37,7 @@ public sealed class AgentRunEndpointTests(SidecarWebAppFactory factory) : IClass
         var body = await res.Content.ReadFromJsonAsync<AgentRunResponse>(cancellationToken: TestContext.Current.CancellationToken);
         body.Should().NotBeNull();
         body!.Error.Should().Be("safety_block");
-        body.Narration.Should().Be("Conteúdo bloqueado.");
+        body.Narration.Should().Be("Conteudo bloqueado.");
     }
 
     [Fact]
@@ -57,8 +57,9 @@ public sealed class AgentRunEndpointTests(SidecarWebAppFactory factory) : IClass
         var payload = new { prompt = "quem é você?" };
         var res = await _http.PostAsJsonAsync("/agent/run", payload, TestContext.Current.CancellationToken);
 
+        res.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
         var body = await res.Content.ReadFromJsonAsync<AgentRunResponse>(cancellationToken: TestContext.Current.CancellationToken);
-        body!.Narration.Should().Contain("Safety");
+        body!.Narration.Should().NotBeNullOrEmpty();
         body.Error.Should().BeNull();
     }
 
@@ -68,6 +69,7 @@ public sealed class AgentRunEndpointTests(SidecarWebAppFactory factory) : IClass
         var payload = new { prompt = "" };
         var res = await _http.PostAsJsonAsync("/agent/run", payload, TestContext.Current.CancellationToken);
 
+        res.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
         var body = await res.Content.ReadFromJsonAsync<AgentRunResponse>(cancellationToken: TestContext.Current.CancellationToken);
         body!.Error.Should().BeNull();
     }

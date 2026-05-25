@@ -16,22 +16,28 @@ public sealed class RateLimitingTests : IClassFixture<RateLimitSidecarWebAppFact
     public async Task RateLimiting_AgentRun_AfterExceedingLimit_ShouldReturn429()
     {
         var payload = new { prompt = "hello" };
-        var tasks = Enumerable.Range(0, 5).Select(_ =>
-            _http.PostAsJsonAsync("/agent/run", payload, TestContext.Current.CancellationToken));
-        var results = await Task.WhenAll(tasks);
 
-        var has429 = results.Any(r => r.StatusCode == System.Net.HttpStatusCode.TooManyRequests);
-        has429.Should().BeTrue("rate limiting should block excess requests");
+        // First request consumes 1 of 2 permits
+        var res1 = await _http.PostAsJsonAsync("/agent/run", payload, TestContext.Current.CancellationToken);
+        res1.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+
+        // Second request consumes 2nd permit
+        var res2 = await _http.PostAsJsonAsync("/agent/run", payload, TestContext.Current.CancellationToken);
+        res2.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+
+        // Third request exceeds limit
+        var res3 = await _http.PostAsJsonAsync("/agent/run", payload, TestContext.Current.CancellationToken);
+        res3.StatusCode.Should().Be(System.Net.HttpStatusCode.TooManyRequests);
     }
 
     [Fact]
     public async Task RateLimiting_Health_ShouldNotBeRateLimited()
     {
-        var tasks = Enumerable.Range(0, 20).Select(_ =>
-            _http.GetAsync("/health", TestContext.Current.CancellationToken));
-        var results = await Task.WhenAll(tasks);
-
-        results.All(r => r.IsSuccessStatusCode).Should().BeTrue("health endpoint should not be rate limited");
+        for (var i = 0; i < 20; i++)
+        {
+            var res = await _http.GetAsync("/health", TestContext.Current.CancellationToken);
+            res.IsSuccessStatusCode.Should().BeTrue($"health request {i + 1} should succeed");
+        }
     }
 }
 

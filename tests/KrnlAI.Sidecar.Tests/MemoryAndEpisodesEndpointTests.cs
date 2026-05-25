@@ -22,11 +22,11 @@ public sealed class MemoryAndEpisodesEndpointTests(SidecarWebAppFactory factory)
         var res = await _http.GetAsync("/memory/metrics", TestContext.Current.CancellationToken);
 
         res.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
-        var body = await res.Content.ReadFromJsonAsync<Dictionary<string, int>>(cancellationToken: TestContext.Current.CancellationToken);
+        var body = await res.Content.ReadFromJsonAsync<Dictionary<string, object>>(cancellationToken: TestContext.Current.CancellationToken);
         body.Should().NotBeNull();
-        body!["totalChunks"].Should().Be(0);
-        body["totalDocuments"].Should().Be(0);
-        body["totalSizeBytes"].Should().Be(0);
+        body!["totalChunks"].ToString().Should().Be("0");
+        body["totalDocuments"].ToString().Should().Be("0");
+        body["totalSizeBytes"].ToString().Should().Be("0");
     }
 
     [Fact]
