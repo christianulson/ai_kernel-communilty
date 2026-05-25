@@ -3,6 +3,7 @@ using KrnlAI.Core.Abstractions;
 using KrnlAI.Core.Services.Safety;
 using KrnlAI.Infrastructure.InMemory;
 using KrnlAI.Core.Services;
+using KrnlAI.Embedded;
 using Microsoft.Extensions.Options;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -18,8 +19,6 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IRiskScorer, SimpleRiskScorer>();
         services.AddSingleton<IPolicyStore, InMemoryPolicyStore>();
         services.AddSingleton<IStateStore, InMemoryStateStore>();
-        services.Configure<RiskScorerOptions>(_ => { });
-
         // Options with validation
         services.AddOptions<SidecarOptions>()
             .Bind(configuration.GetSection(SidecarOptions.SectionName))
@@ -54,9 +53,9 @@ public static class ServiceCollectionExtensions
                 t.AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
                     .SetSampler(new AlwaysOnSampler());
-                if (hasOtlp)
-                    t.AddOtlpExporter(o =>
-                    {
+                    if (hasOtlp)
+                        t.AddOtlpExporter(o =>
+                        {
                         o.Endpoint = new Uri(otlpEndpoint!);
                         var headers = configuration.GetValue<string>("Sidecar:Otlp:Headers");
                         if (!string.IsNullOrWhiteSpace(headers))
@@ -97,6 +96,9 @@ public static class ServiceCollectionExtensions
 
         // Memory cache for proxy fallback
         services.AddMemoryCache();
+
+        // EmbeddedKrnlAI for local fallback when proxy is unavailable
+        services.AddSingleton<EmbeddedKrnlAI>();
 
         // KrnlAI API proxy (optional — for proxying to remote KrnlAI API)
         services.AddHttpClient("kernel")

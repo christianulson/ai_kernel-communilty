@@ -1,7 +1,5 @@
-using System.Security.Cryptography;
 using KrnlAI.Embedded;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Options;
 
 namespace KrnlAI.Sidecar;
 
@@ -9,43 +7,7 @@ public static class CommunityEndpoints
 {
     public static WebApplication MapCommunityEndpoints(this WebApplication app)
     {
-        // Security headers
-        app.Use(async (ctx, next) =>
-        {
-            ctx.Response.Headers["X-Content-Type-Options"] = "nosniff";
-            ctx.Response.Headers["X-Frame-Options"] = "DENY";
-            ctx.Response.Headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'";
-            ctx.Response.Headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()";
-            ctx.Response.Headers["Referrer-Policy"] = "no-referrer";
-            await next();
-        });
-
-        // Auth (if configured) — constant-time comparison
-        app.Use(async (ctx, next) =>
-        {
-            var options = ctx.RequestServices.GetRequiredService<IOptions<SidecarOptions>>();
-            var authToken = options.Value.Auth.Token;
-            if (!string.IsNullOrEmpty(authToken) && !ctx.Request.Path.StartsWithSegments("/health"))
-            {
-                var auth = ctx.Request.Headers["Authorization"].FirstOrDefault() ?? "";
-                var expected = $"Bearer {authToken}";
-                var authBytes = System.Text.Encoding.UTF8.GetBytes(auth);
-                var expectedBytes = System.Text.Encoding.UTF8.GetBytes(expected);
-                if (!CryptographicOperations.FixedTimeEquals(authBytes, expectedBytes))
-                {
-                    var logger = ctx.RequestServices.GetRequiredService<ILogger<Program>>();
-                    logger.LogWarning("Community: unauthorized access to {Path}", ctx.Request.Path);
-                    ctx.Response.StatusCode = 401;
-                    await ctx.Response.WriteAsJsonAsync(new ErrorResponse("unauthorized", null, null), cancellationToken: ctx.RequestAborted);
-                    return;
-                }
-            }
-            await next();
-        });
-
-        // CORS
-        app.UseCors();
-        app.UseRateLimiter();
+        app.ConfigureSidecarPipeline();
 
         app.MapPost("/agent/run", async (HttpContext ctx, AgentRunRequest request, EmbeddedKrnlAI kernel, ILogger<Program> logger, CancellationToken ct) =>
         {
@@ -140,7 +102,6 @@ public static class CommunityEndpoints
         app.MapGet("/investigations", () => Results.Ok(Array.Empty<object>()));
         app.MapGet("/api/documents", (int? limit) => Results.Ok(Array.Empty<object>()));
 
-        // Community proxy-only endpoints
         app.MapGet("/agent/status", () => Results.Ok(new { status = "idle", mode = "community" }));
         app.MapGet("/goals/list", () => Results.Ok(new { goals = Array.Empty<object>(), totalCount = 0 }));
         app.MapGet("/goals/{id}", (string id) => Results.Ok(new { id, status = "community", description = "" }));

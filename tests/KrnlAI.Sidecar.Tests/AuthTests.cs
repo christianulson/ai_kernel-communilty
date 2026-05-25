@@ -59,3 +59,25 @@ public sealed class AuthTests_WithToken(AuthSidecarWebAppFactory factory) : ICla
         res.StatusCode.Should().Be(System.Net.HttpStatusCode.Unauthorized);
     }
 }
+
+public sealed class AuthTests_Community_WithToken(AuthCommunitySidecarWebAppFactory factory) : IClassFixture<AuthCommunitySidecarWebAppFactory>
+{
+    [Fact]
+    public async Task AgentRun_Community_ShouldReturn401_WhenAuthTokenMissing()
+    {
+        var http = factory.CreateClient();
+        var payload = new { prompt = "hello" };
+        var res = await http.PostAsJsonAsync("/agent/run", payload, TestContext.Current.CancellationToken);
+        res.StatusCode.Should().Be(System.Net.HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task AgentRun_Community_ShouldReturn200_WhenAuthTokenMatches()
+    {
+        var http = factory.CreateClient();
+        http.DefaultRequestHeaders.Add("Authorization", "Bearer test-secret-123");
+        var payload = new { prompt = "hello" };
+        var res = await http.PostAsJsonAsync("/agent/run", payload, TestContext.Current.CancellationToken);
+        res.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+    }
+}
