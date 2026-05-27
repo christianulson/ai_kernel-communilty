@@ -11,25 +11,47 @@ export interface MemoryHit { id: string; content: string; source: string; score:
 export interface MemoryMetrics { totalChunks?: number; totalDocuments?: number; totalSizeBytes?: number; }
 export interface EmotionalState { valence: number; arousal: number; motivation: number; updatedAt: string; }
 export interface PendingApprovalDTO { id: string; action: string; details: string[]; createdAt: string; }
+export type RuntimeMode = 'embedded' | 'localApi' | 'remoteApi';
 
 export class KernelClient {
+    private getRuntimeMode(): RuntimeMode {
+        const config = vscode.workspace.getConfiguration('krnlai');
+        const mode = config.get<string>('mode');
+        if (mode === 'embedded' || mode === 'localApi' || mode === 'remoteApi') {
+            return mode;
+        }
+
+        return config.get<boolean>('standalone', false) ? 'embedded' : 'localApi';
+    }
+
     getBaseUrl(): string {
         const config = vscode.workspace.getConfiguration('krnlai');
-        if (config.get<boolean>('standalone', false)) {
+        const mode = this.getRuntimeMode();
+
+        if (mode === 'embedded') {
             return `http://localhost:${config.get<number>('sidecarPort', 5001)}`;
         }
+
         const endpoint = config.get<string>('endpoint', 'http://localhost:5000');
         try {
             const url = new URL(endpoint);
-            if (url.hostname !== 'localhost' && url.hostname !== '127.0.0.1' && url.hostname !== '::1') {
+            const isLoopback = url.hostname === 'localhost' || url.hostname === '127.0.0.1' || url.hostname === '::1';
+
+            if (mode === 'localApi' && !isLoopback) {
                 console.warn(`[Krnl-AI] Endpoint rejeitado (não é loopback): ${endpoint}. Usando default.`);
                 return 'http://localhost:5000';
+            }
+
+            if ((url.protocol === 'http:' || url.protocol === 'https:') && (mode === 'remoteApi' || isLoopback)) {
+                return endpoint.replace(/\/+$/, '');
             }
         } catch {
             console.warn(`[Krnl-AI] Endpoint inválido: ${endpoint}. Usando default.`);
             return 'http://localhost:5000';
         }
-        return endpoint;
+
+        console.warn(`[Krnl-AI] Endpoint inválido para modo ${mode}: ${endpoint}. Usando default.`);
+        return 'http://localhost:5000';
     }
 
     private async fetchJson<T>(path: string, options?: RequestInit): Promise<T | null> {
@@ -70,7 +92,10 @@ export class KernelClient {
     }
     async getEpisode(id: string): Promise<EpisodeDetail | null> { return this.fetchJson(`/episodes/${id}`); }
     async searchMemory(query: string): Promise<{ hits: MemoryHit[]; totalCount: number } | null> {
-        return this.fetchJson(`/memory/search?q=${encodeURIComponent(query)}&topK=20`);
+        return this.fetchJson('/memory/search', {
+            method: 'POST',
+            body: JSON.stringify({ query, limit: 20 })
+        });
     }
     async getMemoryMetrics(): Promise<MemoryMetrics | null> { return this.fetchJson('/memory/metrics'); }
 

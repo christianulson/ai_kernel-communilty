@@ -1,13 +1,14 @@
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Embedded;
+using KrnlAI.Embedded.Abstractions;
 
 namespace KrnlAI.Desktop.App.Services;
 
 public sealed class EmbeddedSlashCommandExecutor : ISlashCommandExecutor
 {
-    private readonly EmbeddedKrnlAI _kernel;
+    private readonly IEmbeddedKrnlAI _kernel;
 
-    public EmbeddedSlashCommandExecutor(EmbeddedKrnlAI kernel)
+    public EmbeddedSlashCommandExecutor(IEmbeddedKrnlAI kernel)
     {
         _kernel = kernel;
     }

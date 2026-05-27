@@ -28,7 +28,7 @@ public sealed class DashboardService : IDashboardService, IDisposable
         {
             var settings = new SettingsService();
             settings.Load();
-            _baseUrl = settings.Endpoint.TrimEnd('/');
+            _baseUrl = KernelEndpointResolver.Resolve(settings.RuntimeMode, settings.Endpoint, settings.SidecarPort);
         }
         catch (Exception ex)
         {
@@ -45,12 +45,15 @@ public sealed class DashboardService : IDashboardService, IDisposable
 
         try
         {
-            var response = await _http.GetAsync($"{GetBaseUrl()}/dashboard/scorecard", ct);
+            var response = await _http.GetAsync($"{GetBaseUrl()}/agent/metrics/scorecard", ct);
             if (!response.IsSuccessStatusCode)
                 return _cachedScorecard;
 
-            var result = await response.Content
-                .ReadFromJsonAsync<DashboardScorecard>(JsonOpts, ct);
+            var dto = await response.Content
+                .ReadFromJsonAsync<ScorecardDto>(JsonOpts, ct);
+            var result = dto is null
+                ? null
+                : new DashboardScorecard(dto.Reliability, dto.Efficiency, dto.Safety, dto.AntiLoop, dto.Governance);
 
             if (result is not null)
             {
@@ -82,8 +85,16 @@ public sealed class DashboardService : IDashboardService, IDisposable
                 await response.Content.ReadAsStreamAsync(), cancellationToken: ct);
             var root = doc.RootElement;
 
+            var status = root.TryGetProperty("ok", out var ok) && ok.ValueKind == JsonValueKind.True
+                ? "OK"
+                : root.TryGetProperty("status", out var statusProp)
+                    && (string.Equals(statusProp.GetString(), "ok", StringComparison.OrdinalIgnoreCase)
+                        || string.Equals(statusProp.GetString(), "healthy", StringComparison.OrdinalIgnoreCase))
+                    ? "OK"
+                    : "Warning";
+
             return new SystemHealth(
-                root.TryGetProperty("ok", out var ok) && ok.GetBoolean() ? "OK" : "Warning",
+                status,
                 root.TryGetProperty("ts", out var ts) ? ts.GetString() : null,
                 null,
                 sw.ElapsedMilliseconds
@@ -127,4 +138,12 @@ public sealed class DashboardService : IDashboardService, IDisposable
     {
         _http.Dispose();
     }
+
+    private sealed record ScorecardDto(
+        double Reliability,
+        double Efficiency,
+        double Safety,
+        double AntiLoop,
+        double Governance,
+        double Overall);
 }

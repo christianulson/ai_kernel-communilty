@@ -17,6 +17,18 @@ public sealed class MemoryAndEpisodesEndpointTests(SidecarWebAppFactory factory)
     }
 
     [Fact]
+    public async Task MemorySearch_WithTopK_ShouldAcceptSdkContract()
+    {
+        var payload = new { query = "test", topK = 10 };
+        var res = await _http.PostAsJsonAsync("/memory/search", payload, TestContext.Current.CancellationToken);
+
+        res.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+        var body = await res.Content.ReadFromJsonAsync<Dictionary<string, object>>(cancellationToken: TestContext.Current.CancellationToken);
+        body.Should().NotBeNull();
+        body!["ok"].ToString().Should().Be("True");
+    }
+
+    [Fact]
     public async Task MemoryMetrics_ShouldReturnZeros()
     {
         var res = await _http.GetAsync("/memory/metrics", TestContext.Current.CancellationToken);

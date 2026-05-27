@@ -9,6 +9,6 @@ public sealed class InteractiveCommandTests
     {
         var cmd = new InteractiveCommand().Build();
 
-        cmd.Options.Select(o => o.Name).Should().Contain(["--local", "--model"]);
+        cmd.Options.Select(o => o.Name).Should().Contain(["--local", "--model", "--mode"]);
     }
 }

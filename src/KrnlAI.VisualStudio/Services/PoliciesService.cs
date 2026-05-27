@@ -28,7 +28,7 @@ public sealed class PoliciesService : IPoliciesService, IDisposable
         {
             var settings = new SettingsService();
             settings.Load();
-            _baseUrl = settings.Endpoint.TrimEnd('/');
+            _baseUrl = KernelEndpointResolver.Resolve(settings.RuntimeMode, settings.Endpoint, settings.SidecarPort);
         }
         catch (Exception ex)
         {
@@ -45,16 +45,22 @@ public sealed class PoliciesService : IPoliciesService, IDisposable
 
         try
         {
-            var response = await _http.GetAsync($"{GetBaseUrl()}/policies", ct);
+            var response = await _http.GetAsync($"{GetBaseUrl()}/policy/list", ct);
             if (!response.IsSuccessStatusCode)
                 return _cached ?? Array.Empty<Policy>();
 
             var result = await response.Content
-                .ReadFromJsonAsync<List<Policy>>(JsonOpts, ct);
+                .ReadFromJsonAsync<PolicyListDto>(JsonOpts, ct);
 
             if (result is not null)
             {
-                _cached = result;
+                _cached = result.Policies.Select(p => new Policy(
+                    p.Id,
+                    p.Name,
+                    p.Description ?? p.Content ?? "",
+                    p.Domain,
+                    p.IsActive,
+                    p.Score ?? 0)).ToList();
                 _lastFetch = DateTime.UtcNow;
             }
 
@@ -73,7 +79,7 @@ public sealed class PoliciesService : IPoliciesService, IDisposable
         {
             var payload = new { active };
             var response = await _http.PutAsJsonAsync(
-                $"{GetBaseUrl()}/policies/{policyId}", payload, JsonOpts, ct);
+                $"{GetBaseUrl()}/policy/{policyId}", payload, JsonOpts, ct);
             if (response.IsSuccessStatusCode)
                 _cached = null;
             return response.IsSuccessStatusCode;
@@ -89,4 +95,14 @@ public sealed class PoliciesService : IPoliciesService, IDisposable
     {
         _http.Dispose();
     }
+
+    private sealed record PolicyListDto(List<PolicyDto> Policies, int TotalCount);
+    private sealed record PolicyDto(
+        string Id,
+        string Name,
+        string Domain,
+        bool IsActive,
+        string? Description,
+        string? Content,
+        double? Score);
 }

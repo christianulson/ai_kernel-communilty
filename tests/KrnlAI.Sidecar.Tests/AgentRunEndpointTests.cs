@@ -64,6 +64,18 @@ public sealed class AgentRunEndpointTests(SidecarWebAppFactory factory) : IClass
     }
 
     [Fact]
+    public async Task AgentRun_WithGoalBody_ShouldUseGoalAsPrompt()
+    {
+        var payload = new { goal = "executar via sdk" };
+        var res = await _http.PostAsJsonAsync("/agent/run", payload, TestContext.Current.CancellationToken);
+
+        res.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+        var body = await res.Content.ReadFromJsonAsync<AgentRunResponse>(cancellationToken: TestContext.Current.CancellationToken);
+        body!.Narration.Should().Contain("executar via sdk");
+        body.Error.Should().BeNull();
+    }
+
+    [Fact]
     public async Task AgentRun_EmptyPrompt_ShouldNotBeBlocked()
     {
         var payload = new { prompt = "" };

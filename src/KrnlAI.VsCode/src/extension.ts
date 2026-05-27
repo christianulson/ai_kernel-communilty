@@ -145,6 +145,7 @@ function registerCodingAgentFeatures(context: vscode.ExtensionContext, client: K
 
     const ctxProvider = new EditorContextProvider();
     const approvalManager = new ApprovalManager();
+    codingAgentDisposables.push({ dispose: () => approvalManager.dispose() });
     const terminalEnabled = vscode.workspace.getConfiguration('krnlai').get<boolean>('codingAgent.terminal', false);
     const terminalManager = terminalEnabled ? new TerminalManager() : undefined;
     const gitEnabled = vscode.workspace.getConfiguration('krnlai').get<boolean>('codingAgent.git', false);

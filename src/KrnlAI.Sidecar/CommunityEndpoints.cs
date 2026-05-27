@@ -11,9 +11,10 @@ public static class CommunityEndpoints
 
         app.MapPost("/agent/run", async (HttpContext ctx, AgentRunRequest request, IEmbeddedKrnlAI kernel, ILogger<Program> logger, CancellationToken ct) =>
         {
-            logger.LogInformation("Community agent/run: prompt={PromptLen}chars, ip={RemoteIp}", request.Prompt?.Length ?? 0, ctx.Connection.RemoteIpAddress);
+            var prompt = request.Prompt ?? request.Goal ?? string.Empty;
+            logger.LogInformation("Community agent/run: prompt={PromptLen}chars, ip={RemoteIp}", prompt.Length, ctx.Connection.RemoteIpAddress);
             var sw = System.Diagnostics.Stopwatch.StartNew();
-            var result = await kernel.RunAsync(request.Prompt ?? string.Empty, ct);
+            var result = await kernel.RunAsync(prompt, ct);
             sw.Stop();
             logger.LogInformation("Community agent/run completed: duration={Duration}ms, error={Error}", sw.ElapsedMilliseconds, result.Error);
             return Results.Ok(new AgentRunResponse
@@ -30,7 +31,7 @@ public static class CommunityEndpoints
             if (body is null)
                 return Results.BadRequest(new { error = "invalid_request" });
 
-            var allowed = new[] { "query", "limit", "offset", "domain" };
+            var allowed = new[] { "query", "limit", "topK", "offset", "domain" };
             if (body.Keys.Except(allowed).Any())
                 return Results.BadRequest(new { error = "unexpected_fields", allowed });
 
@@ -43,7 +44,17 @@ public static class CommunityEndpoints
             var hits = await kernel.SearchMemoryAsync(queryStr, ct);
             sw.Stop();
             logger.LogInformation("Community memory/search completed: hits={HitCount}, duration={Duration}ms", hits.Count, sw.ElapsedMilliseconds);
-            return Results.Ok(new { hits, totalCount = hits.Count, queryTimeMs = sw.Elapsed.TotalMilliseconds, mode = "community" });
+            var mappedHits = hits.Select(h => new
+            {
+                id = h.Id,
+                content = h.Payload ?? "",
+                source = "embedded",
+                score = h.Score,
+                docId = h.Id,
+                chunkId = h.Id,
+                text = h.Payload ?? ""
+            }).ToArray();
+            return Results.Ok(new { ok = true, hits = mappedHits, totalCount = mappedHits.Length, queryTimeMs = sw.Elapsed.TotalMilliseconds, mode = "community" });
         });
 
         app.MapGet("/policy/list", (ILogger<Program> logger) =>

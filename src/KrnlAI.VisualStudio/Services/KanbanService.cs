@@ -26,7 +26,7 @@ public sealed class KanbanService : IKanbanService, IDisposable
         {
             var settings = new SettingsService();
             settings.Load();
-            return settings.Endpoint.TrimEnd('/');
+            return KernelEndpointResolver.Resolve(settings.RuntimeMode, settings.Endpoint, settings.SidecarPort);
         }
         catch (Exception ex)
         {

@@ -5,7 +5,8 @@ namespace KrnlAI.Sidecar;
 /// </summary>
 /// <param name="Prompt">Texto de entrada do usuário</param>
 /// <param name="Mode">Modo de operação (default: "standalone")</param>
-public record AgentRunRequest(string? Prompt, string? Mode = "standalone");
+/// <param name="Goal">Compatibilidade com SDK .NET, que envia goal em vez de prompt.</param>
+public record AgentRunRequest(string? Prompt, string? Mode = "standalone", string? Goal = null);
 
 /// <summary>
 /// Resposta da execução de um agente no modo standalone.

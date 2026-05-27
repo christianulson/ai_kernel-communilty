@@ -102,7 +102,8 @@ public partial class KrnlAIToolWindowControl : UserControl
         ErrorText.Text = "";
         _settings.Load();
 
-        var ok = await _clientService.ConnectAsync(_settings.Endpoint, _cts.Token);
+        var endpoint = KernelEndpointResolver.Resolve(_settings.RuntimeMode, _settings.Endpoint, _settings.SidecarPort);
+        var ok = await _clientService.ConnectAsync(endpoint, _cts.Token);
         if (!ok && !_cts.IsCancellationRequested)
         {
             ErrorText.Text = "Could not connect to Krnl-AI. Ensure the API is running.";

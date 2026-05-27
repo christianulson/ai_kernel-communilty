@@ -13,11 +13,11 @@ public sealed class PoliciesServiceTests
     {
         using var handler = new MockHttpHandler(req =>
         {
-            if (req.RequestUri?.AbsolutePath == "/policies")
+            if (req.RequestUri?.AbsolutePath == "/policy/list")
                 return new HttpResponseMessage(HttpStatusCode.OK)
                 {
                     Content = new StringContent(
-                        """[{"id":"1","name":"Review before merge","description":"Require review","domain":"Safety","isActive":true,"score":0.95},{"id":"2","name":"Auto-format","description":"Auto format code","domain":"Code","isActive":false,"score":0.6}]"""),
+                        """{"policies":[{"id":"1","name":"Review before merge","description":"Require review","domain":"Safety","isActive":true,"score":0.95},{"id":"2","name":"Auto-format","description":"Auto format code","domain":"Code","isActive":false,"score":0.6}],"totalCount":2}"""),
                 };
             return new HttpResponseMessage(HttpStatusCode.NotFound);
         });
@@ -53,7 +53,7 @@ public sealed class PoliciesServiceTests
     {
         using var handler = new MockHttpHandler(req =>
         {
-            if (req.RequestUri?.AbsolutePath == "/policies/p1" && req.Method == HttpMethod.Put)
+            if (req.RequestUri?.AbsolutePath == "/policy/p1" && req.Method == HttpMethod.Put)
                 return new HttpResponseMessage(HttpStatusCode.OK);
             return new HttpResponseMessage(HttpStatusCode.NotFound);
         });

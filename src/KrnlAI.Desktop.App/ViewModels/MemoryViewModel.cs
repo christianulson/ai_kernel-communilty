@@ -38,13 +38,11 @@ public class MemoryViewModel : ViewModelBase
         SearchMemoryCommand = new AsyncRelayCommand(SearchAsync);
         LoadMetricsCommand = new AsyncRelayCommand(async () =>
         {
-            if (ServiceLocator.Instance.CurrentMode == RunMode.Local) { ErrorMessage = "Indisponível no modo Local"; return; }
             try { MemoryMetricsData = await _kernelClient.GetMemoryMetricsAsync(); }
             catch (Exception ex) { ErrorMessage = $"Erro ao carregar métricas: {ex.Message}"; }
         });
         LoadWorkingCommand = new AsyncRelayCommand(async () =>
         {
-            if (ServiceLocator.Instance.CurrentMode == RunMode.Local) { ErrorMessage = "Indisponível no modo Local"; return; }
             try
             {
                 var s = await _kernelClient.GetWorkingMemoryAsync();
@@ -64,11 +62,6 @@ public class MemoryViewModel : ViewModelBase
     private async Task SearchAsync()
     {
         if (string.IsNullOrWhiteSpace(MemoryQuery)) return;
-        if (ServiceLocator.Instance.CurrentMode == RunMode.Local)
-        {
-            ErrorMessage = "Indisponível no modo Local";
-            return;
-        }
         IsLoading = true;
         ErrorMessage = "";
         try

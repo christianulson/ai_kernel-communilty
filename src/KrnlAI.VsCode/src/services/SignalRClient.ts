@@ -8,8 +8,27 @@ export interface CognitiveEvent {
 
 export type SignalRStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
 
+interface SignalRConnection {
+    on<T>(eventName: string, callback: (event: T) => void): void;
+    onreconnecting(callback: () => void): void;
+    onreconnected(callback: () => void): void;
+    onclose(callback: () => void): void;
+    start(): Promise<void>;
+    stop(): Promise<void>;
+}
+
+interface SignalRModule {
+    HubConnectionBuilder: new () => {
+        withUrl(url: string): {
+            withAutomaticReconnect(delays: number[]): {
+                build(): SignalRConnection;
+            };
+        };
+    };
+}
+
 export class SignalRClient implements vscode.Disposable {
-    private _connection: unknown = null;
+    private _connection: SignalRConnection | null = null;
     private _status: SignalRStatus = 'disconnected';
     private _statusBarItem: vscode.StatusBarItem;
     private _reconnectTimer: ReturnType<typeof setTimeout> | null = null;
@@ -101,7 +120,7 @@ export class SignalRClient implements vscode.Disposable {
         }
         if (this._connection) {
             try {
-                await (this._connection as { stop: () => Promise<void> }).stop();
+                await this._connection.stop();
             } catch { /* ignore */ }
             this._connection = null;
         }
@@ -156,13 +175,21 @@ export class SignalRClient implements vscode.Disposable {
         this._statusBarItem.tooltip = 'SignalR unavailable — using REST polling';
     }
 
-    private async loadSignalRLibrary(): Promise<{ HubConnectionBuilder: unknown } | null> {
+    private async loadSignalRLibrary(): Promise<SignalRModule | null> {
         try {
-            // Try dynamic import of @microsoft/signalr
-            const mod = await import('@microsoft/signalr');
-            return mod;
+            // Keep SignalR optional: load it only when bundled/installed by the extension host.
+            const importModule = new Function('moduleName', 'return import(moduleName)') as
+                (moduleName: string) => Promise<unknown>;
+            const mod = await importModule('@microsoft/signalr');
+            return this.isSignalRModule(mod) ? mod : null;
         } catch {
             return null;
         }
+    }
+
+    private isSignalRModule(value: unknown): value is SignalRModule {
+        return typeof value === 'object'
+            && value !== null
+            && typeof (value as { HubConnectionBuilder?: unknown }).HubConnectionBuilder === 'function';
     }
 }

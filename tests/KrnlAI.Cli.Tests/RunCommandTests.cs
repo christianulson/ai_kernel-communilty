@@ -32,6 +32,20 @@ public sealed class RunCommandTests
         Assert.Empty(result.Errors);
     }
 
+    [Theory]
+    [InlineData("embedded")]
+    [InlineData("local-api")]
+    [InlineData("remote-api")]
+    public void RunCommand_ShouldHaveModeOption(string mode)
+    {
+        var cmd = new RunCommand().Build();
+        var root = new RootCommand { cmd };
+
+        var result = root.Parse($"run \"test\" --mode {mode}");
+
+        Assert.Empty(result.Errors);
+    }
+
     [Fact]
     public void RunCommand_WithNoInput_ShouldBeParseable()
     {

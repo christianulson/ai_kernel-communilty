@@ -17,8 +17,27 @@ export interface ChatMessage {
 
 export type TeleportStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
 
+interface SignalRConnection {
+    on<T>(eventName: string, callback: (event: T) => void): void;
+    onreconnecting(callback: () => void): void;
+    onreconnected(callback: () => void): void;
+    onclose(callback: () => void): void;
+    start(): Promise<void>;
+    stop(): Promise<void>;
+}
+
+interface SignalRModule {
+    HubConnectionBuilder: new () => {
+        withUrl(url: string): {
+            withAutomaticReconnect(delays: number[]): {
+                build(): SignalRConnection;
+            };
+        };
+    };
+}
+
 export class SessionTeleport implements vscode.Disposable {
-    private _connection: unknown = null;
+    private _connection: SignalRConnection | null = null;
     private _status: TeleportStatus = 'disconnected';
     private _relayUrl = '';
     private _sessionHandler: ((session: TeleportSession) => void) | null = null;
@@ -92,7 +111,7 @@ export class SessionTeleport implements vscode.Disposable {
 
         if (this._connection) {
             try {
-                await (this._connection as { stop: () => Promise<void> }).stop();
+                await this._connection.stop();
             } catch {
                 /* ignore */
             }
@@ -107,7 +126,7 @@ export class SessionTeleport implements vscode.Disposable {
         this.disconnect();
     }
 
-    private async connectSignalR(signalR: { HubConnectionBuilder: new () => { withUrl: (url: string) => { withAutomaticReconnect: (delays: number[]) => { build: () => unknown } } } }): Promise<void> {
+    private async connectSignalR(signalR: SignalRModule): Promise<void> {
         try {
             const connection = new signalR.HubConnectionBuilder()
                 .withUrl(`${this._relayUrl}/hubs/session-relay`)
@@ -223,11 +242,20 @@ export class SessionTeleport implements vscode.Disposable {
         }, this._reconnectDelayMs);
     }
 
-    private async tryLoadSignalR(): Promise<{ HubConnectionBuilder: unknown } | null> {
+    private async tryLoadSignalR(): Promise<SignalRModule | null> {
         try {
-            return await import('@microsoft/signalr');
+            const importModule = new Function('moduleName', 'return import(moduleName)') as
+                (moduleName: string) => Promise<unknown>;
+            const mod = await importModule('@microsoft/signalr');
+            return this.isSignalRModule(mod) ? mod : null;
         } catch {
             return null;
         }
+    }
+
+    private isSignalRModule(value: unknown): value is SignalRModule {
+        return typeof value === 'object'
+            && value !== null
+            && typeof (value as { HubConnectionBuilder?: unknown }).HubConnectionBuilder === 'function';
     }
 }

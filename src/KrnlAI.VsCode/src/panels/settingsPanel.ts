@@ -26,16 +26,25 @@ export class SettingsPanel {
             this._panel.webview.postMessage({
                 type: 'config',
                 endpoint: config.get('endpoint'),
+                mode: config.get('mode'),
                 standalone: config.get('standalone'),
                 sidecarPort: config.get('sidecarPort')
             });
         }
         if (msg.type === 'save') {
             if (typeof msg.endpoint !== 'string') return;
+            const mode = msg.mode === 'embedded' || msg.mode === 'localApi' || msg.mode === 'remoteApi'
+                ? msg.mode
+                : (msg.standalone ? 'embedded' : 'localApi');
             try {
                 const url = new URL(msg.endpoint);
-                if (url.hostname !== 'localhost' && url.hostname !== '127.0.0.1' && url.hostname !== '::1') {
-                    vscode.window.showErrorMessage('Endpoint deve ser um endereço local (localhost, 127.0.0.1)');
+                const isLoopback = url.hostname === 'localhost' || url.hostname === '127.0.0.1' || url.hostname === '::1';
+                if (mode === 'localApi' && !isLoopback) {
+                    vscode.window.showErrorMessage('Endpoint em modo API Local deve ser localhost, 127.0.0.1 ou ::1');
+                    return;
+                }
+                if (mode === 'remoteApi' && url.protocol !== 'http:' && url.protocol !== 'https:') {
+                    vscode.window.showErrorMessage('Endpoint remoto deve usar http ou https');
                     return;
                 }
             } catch {
@@ -59,7 +68,8 @@ export class SettingsPanel {
                 }
             }
             config.update('endpoint', msg.endpoint, vscode.ConfigurationTarget.Global);
-            config.update('standalone', !!msg.standalone, vscode.ConfigurationTarget.Global);
+            config.update('mode', mode, vscode.ConfigurationTarget.Global);
+            config.update('standalone', mode === 'embedded', vscode.ConfigurationTarget.Global);
             config.update('sidecarPort', port || 5001, vscode.ConfigurationTarget.Global);
             vscode.window.showInformationMessage('Configurações salvas!');
         }
@@ -78,7 +88,7 @@ button{padding:10px 24px;background:var(--vscode-button-background);color:var(--
 </style></head><body>
 <h1>⚙️ Configurações</h1>
 <div class="card"><h2>🔌 Conexão</h2>
-<label><span>Modo</span><select id="mode"><option value="remote">API Remota</option><option value="standalone">Standalone</option></select></label>
+<label><span>Modo</span><select id="mode"><option value="embedded">Embedded local (Sidecar)</option><option value="localApi">API Local</option><option value="remoteApi">API Remota</option></select></label>
 <label><span>Endpoint</span><input type="text" id="endpoint" placeholder="http://localhost:5000" /></label>
 <label><span>Porta Sidecar</span><input type="number" id="sidecarPort" /></label></div>
 <button onclick="save()">💾 Salvar</button><div id="status"></div>
@@ -87,12 +97,12 @@ const vscode=acquireVsCodeApi();vscode.postMessage({type:'load'});
 window.addEventListener('message',e=>{const m=e.data;if(m.type==='config'){
 (document.getElementById('endpoint')as HTMLInputElement).value=m.endpoint||'http://localhost:5000';
 (document.getElementById('sidecarPort')as HTMLInputElement).value=String(m.sidecarPort||5001);
-(document.getElementById('mode')as HTMLSelectElement).value=m.standalone?'standalone':'remote';}});
+(document.getElementById('mode')as HTMLSelectElement).value=m.mode||(m.standalone?'embedded':'localApi');}});
 function save(){
 const mode=(document.getElementById('mode')as HTMLSelectElement).value;
 const endpoint=(document.getElementById('endpoint')as HTMLInputElement).value;
 const port=parseInt((document.getElementById('sidecarPort')as HTMLInputElement).value)||5001;
-vscode.postMessage({type:'save',endpoint,standalone:mode==='standalone',sidecarPort:port});
+vscode.postMessage({type:'save',endpoint,mode,standalone:mode==='embedded',sidecarPort:port});
 document.getElementById('status')!.textContent='Salvo!';}
 })();</script></body></html>`; }
 

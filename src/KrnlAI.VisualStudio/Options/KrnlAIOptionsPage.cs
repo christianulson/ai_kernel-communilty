@@ -14,6 +14,16 @@ public sealed class KrnlAIOptionsPage : DialogPage
     public string Endpoint { get; set; } = "http://localhost:65335";
 
     [Category("Krnl-AI")]
+    [DisplayName("Runtime Mode")]
+    [Description("Embedded uses local Sidecar, LocalApi requires loopback, RemoteApi allows remote API endpoints")]
+    public Services.KernelRuntimeMode RuntimeMode { get; set; } = Services.KernelRuntimeMode.LocalApi;
+
+    [Category("Krnl-AI")]
+    [DisplayName("Sidecar Port")]
+    [Description("Port used by Embedded mode through the local Sidecar")]
+    public int SidecarPort { get; set; } = 5001;
+
+    [Category("Krnl-AI")]
     [DisplayName("Timeout (seconds)")]
     [Description("Request timeout in seconds")]
     public int TimeoutSeconds { get; set; } = 30;
@@ -91,6 +101,8 @@ public sealed class KrnlAIOptionsPage : DialogPage
     public void ApplyTo(ISettingsService settings)
     {
         settings.Endpoint = Endpoint;
+        settings.RuntimeMode = RuntimeMode;
+        settings.SidecarPort = SidecarPort;
         settings.TimeoutSeconds = TimeoutSeconds;
         settings.MaxRetries = MaxRetries;
         settings.DefaultProvider = DefaultProvider;
@@ -110,6 +122,8 @@ public sealed class KrnlAIOptionsPage : DialogPage
     public void LoadFrom(ISettingsService settings)
     {
         Endpoint = settings.Endpoint;
+        RuntimeMode = settings.RuntimeMode;
+        SidecarPort = settings.SidecarPort;
         TimeoutSeconds = settings.TimeoutSeconds;
         MaxRetries = settings.MaxRetries;
         DefaultProvider = settings.DefaultProvider;

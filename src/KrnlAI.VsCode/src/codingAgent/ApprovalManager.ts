@@ -33,6 +33,8 @@ const ALLOWED_TOOLS = [
 export class ApprovalManager {
     private _mode: ApprovalMode = ApprovalMode.Chat;
     private _pending: Map<string, PendingApproval> = new Map();
+    private _pendingResolvers: Map<string, (decision: ApprovalDecision) => void> = new Map();
+    private _pendingTimeouts: Map<string, ReturnType<typeof setTimeout>> = new Map();
     private _auditLog: AuditEntry[] = [];
     private _listeners: ApprovalListener[] = [];
     private readonly _timeoutMs = 30000;
@@ -77,15 +79,14 @@ export class ApprovalManager {
     }
 
     respond(id: string, decision: ApprovalDecision): void {
-        const pending = this._pending.get(id);
-        if (!pending || pending.status !== 'pending') return;
-        const mapped = decision === 'allowed' ? 'approved' as const : 'rejected' as const;
-        pending.status = mapped;
-        this._auditLog.push({
-            action: pending.action, mode: this._mode,
-            decision: mapped, timestamp: Date.now(),
-            details: pending.details
-        });
+        this._completePendingApproval(id, decision);
+    }
+
+    dispose(): void {
+        for (const id of Array.from(this._pending.keys())) {
+            this._completePendingApproval(id, 'rejected');
+        }
+        this._listeners = [];
     }
 
     private _promptForApproval(
@@ -105,26 +106,32 @@ export class ApprovalManager {
             for (const cb of this._listeners) cb(approval);
 
             const timeout = setTimeout(() => {
-                if (approval.status === 'pending') {
-                    approval.status = 'rejected';
-                    this._auditLog.push({
-                        action, mode: this._mode, decision: 'rejected' as const,
-                        timestamp: Date.now(), details
-                    });
-                    this._pending.delete(id);
-                    resolve('rejected');
-                }
+                this._completePendingApproval(id, 'rejected');
             }, this._timeoutMs);
-
-            const checkInterval = setInterval(() => {
-                if (approval.status !== 'pending') {
-                    clearInterval(checkInterval);
-                    clearTimeout(timeout);
-                    const result: ApprovalDecision = approval.status === 'approved' ? 'allowed' : 'rejected';
-                    this._pending.delete(id);
-                    resolve(result);
-                }
-            }, 100);
+            this._pendingTimeouts.set(id, timeout);
+            this._pendingResolvers.set(id, resolve);
         });
+    }
+
+    private _completePendingApproval(id: string, decision: ApprovalDecision): void {
+        const pending = this._pending.get(id);
+        if (!pending || pending.status !== 'pending') return;
+
+        const mapped = decision === 'allowed' ? 'approved' as const : 'rejected' as const;
+        pending.status = mapped;
+        this._auditLog.push({
+            action: pending.action, mode: this._mode,
+            decision: mapped, timestamp: Date.now(),
+            details: pending.details
+        });
+
+        const timeout = this._pendingTimeouts.get(id);
+        if (timeout) clearTimeout(timeout);
+        this._pendingTimeouts.delete(id);
+        this._pending.delete(id);
+
+        const resolve = this._pendingResolvers.get(id);
+        this._pendingResolvers.delete(id);
+        resolve?.(decision);
     }
 }

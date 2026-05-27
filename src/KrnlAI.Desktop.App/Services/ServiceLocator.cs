@@ -12,6 +12,7 @@ using KrnlAI.Desktop.Infrastructure.Settings;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using KrnlAI.Embedded;
+using KrnlAI.Embedded.Abstractions;
 
 namespace KrnlAI.Desktop.App.Services;
 
@@ -136,13 +137,14 @@ public class ServiceLocator : IDisposable, IAsyncDisposable
 
     private void RegisterLocalMode(ServiceCollection services, ILoggerFactory loggerFactory)
     {
-        var noopKernel = NullObject.Create<IKernelClient>();
-        services.AddSingleton<IKernelClient>(noopKernel);
-        services.AddSingleton<IKernelAgentClient>(noopKernel);
-        services.AddSingleton<IKernelSpeechClient>(noopKernel);
+        var kernel = EmbeddedKernel ?? throw new InvalidOperationException("Embedded kernel is not available.");
+        services.AddSingleton<IEmbeddedKrnlAI>(kernel);
+        services.AddSingleton<IKernelClient, EmbeddedKernelClient>();
+        services.AddSingleton<IKernelAgentClient>(sp => sp.GetRequiredService<IKernelClient>());
+        services.AddSingleton<IKernelSpeechClient>(sp => sp.GetRequiredService<IKernelClient>());
 
         services.AddSingleton<ISlashCommandExecutor>(
-            _ => new LocalSlashCommandExecutor());
+            sp => new EmbeddedSlashCommandExecutor(sp.GetRequiredService<IEmbeddedKrnlAI>()));
 
         var cognitiveStreamer = new CognitiveStreamer(
             loggerFactory.CreateLogger<CognitiveStreamer>(),

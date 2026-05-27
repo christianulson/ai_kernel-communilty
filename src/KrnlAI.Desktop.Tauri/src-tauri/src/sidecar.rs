@@ -28,6 +28,7 @@ impl SidecarManager {
         let sidecar_path = find_sidecar_binary()?;
         let child = Command::new(&sidecar_path)
             .args(["--port", &state.port.to_string()])
+            .env("Sidecar__Mode", "Community")
             .stdout(std::process::Stdio::piped())
             .stderr(std::process::Stdio::piped())
             .spawn()
@@ -125,4 +126,3 @@ mod tests {
         assert!(result.unwrap_err().to_string().contains("Sidecar binary not found"));
     }
 }
-

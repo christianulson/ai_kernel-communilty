@@ -9,6 +9,8 @@ public sealed class CloudDelegationServiceTests
     private sealed class MockSettings : ISettingsService
     {
         public string Endpoint { get; set; } = "";
+        public KernelRuntimeMode RuntimeMode { get; set; } = KernelRuntimeMode.LocalApi;
+        public int SidecarPort { get; set; } = 5001;
         public int TimeoutSeconds { get; set; } = 30;
         public int MaxRetries { get; set; } = 3;
         public string? DefaultProvider { get; set; }

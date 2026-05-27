@@ -13,11 +13,11 @@ public sealed class EpisodesServiceTests
     {
         using var handler = new MockHttpHandler(req =>
         {
-            if (req.RequestUri?.AbsolutePath == "/episodes")
+            if (req.RequestUri?.AbsolutePath == "/episodes/search")
                 return new HttpResponseMessage(HttpStatusCode.OK)
                 {
                     Content = new StringContent(
-                        """[{"id":"e1","goal":"Refactor module","status":"Completed","timestamp":"2026-01-01T12:00:00","stepCount":5,"duration":"00:02:30"},{"id":"e2","goal":"Fix bug","status":"Failed","timestamp":"2026-01-01T13:00:00","stepCount":2,"duration":"00:01:00"}]"""),
+                        """{"episodes":[{"id":"e1","goalId":"Refactor module","status":"Completed","createdAt":"2026-01-01T12:00:00","durationMs":150000},{"id":"e2","goalId":"Fix bug","status":"Failed","createdAt":"2026-01-01T13:00:00","durationMs":60000}],"totalCount":2}"""),
                 };
             return new HttpResponseMessage(HttpStatusCode.NotFound);
         });

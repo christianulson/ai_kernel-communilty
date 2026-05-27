@@ -54,14 +54,14 @@ public static class EndpointRouteExtensions
             catch { body = null; }
             var reqId = ctx.Items["RequestId"]?.ToString();
             if (body == null) return Results.BadRequest(new ErrorResponse("invalid_request", null, reqId));
-            if (body.Keys.Except(new[] { "query", "limit", "offset", "domain" }).Any())
-                return Results.BadRequest(new ErrorResponse("unexpected_fields", "Allowed: query, limit, offset, domain", reqId));
+            if (body.Keys.Except(new[] { "query", "limit", "topK", "offset", "domain" }).Any())
+                return Results.BadRequest(new ErrorResponse("unexpected_fields", "Allowed: query, limit, topK, offset, domain", reqId));
 
             var proxyResult = await kernel.ProxyPostAsync<Dictionary<string, object>, object>("/memory/search", body, ctx.RequestAborted);
             if (proxyResult != null) return Results.Ok(proxyResult);
 
             logger.LogInformation("Memory search returned locally (no KrnlAI API)");
-            return Results.Ok(new { hits = Array.Empty<object>(), totalCount = 0 });
+            return Results.Ok(new { ok = true, hits = Array.Empty<object>(), totalCount = 0 });
         }).RequireRateLimiting("memory-read");
 
         app.MapGet("/memory/metrics", async (HttpContext ctx, KernelApiProxy kernel, ILogger<Program> logger) =>
@@ -182,7 +182,7 @@ public static class EndpointRouteExtensions
             var reqId = ctx.Items["RequestId"]?.ToString();
             if (body == null) return Results.BadRequest(new ErrorResponse("invalid_request", null, reqId));
 
-            var prompt = body.Prompt ?? "";
+            var prompt = body.Prompt ?? body.Goal ?? "";
             var transportSteps = new List<TransportStepDto>();
 
             // Layer 1: Adversarial input guard

@@ -194,10 +194,20 @@
           "default": "http://localhost:5000",
           "description": "Endpoint do backend Krnl-AI"
         },
+        "krnlai.mode": {
+          "type": "string",
+          "default": "localApi",
+          "enum": [
+            "embedded",
+            "localApi",
+            "remoteApi"
+          ],
+          "description": "Modo de runtime: embedded via Sidecar, API local ou API remota"
+        },
         "krnlai.standalone": {
           "type": "boolean",
           "default": false,
-          "description": "Usar Sidecar local em vez da API remota"
+          "description": "Compatibilidade: usar Sidecar local em vez da API. Prefira krnlai.mode=embedded."
         },
         "krnlai.sidecarPort": {
           "type": "number",

@@ -13,11 +13,11 @@ public sealed class DashboardServiceTests
     {
         using var handler = new MockHttpHandler(req =>
         {
-            if (req.RequestUri?.AbsolutePath == "/dashboard/scorecard")
+            if (req.RequestUri?.AbsolutePath == "/agent/metrics/scorecard")
                 return new HttpResponseMessage(HttpStatusCode.OK)
                 {
                     Content = new StringContent(
-                        """{"goalAutonomy":0.8,"executionAutonomy":0.6,"safetyAutonomy":0.9,"learningAutonomy":0.5,"metaCognitionAutonomy":0.7}"""),
+                        """{"reliability":0.8,"efficiency":0.6,"safety":0.9,"antiLoop":0.5,"governance":0.7,"overall":0.75}"""),
                 };
             return new HttpResponseMessage(HttpStatusCode.NotFound);
         });

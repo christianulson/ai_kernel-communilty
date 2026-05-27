@@ -14,16 +14,23 @@ public sealed class InteractiveCommand
             DefaultValueFactory = _ => "http://localhost:5000"
         };
         var local = new Option<bool>("--local") { Description = "Use EmbeddedKrnlAI in-process" };
+        var mode = new Option<string>("--mode")
+        {
+            Description = "Runtime mode: embedded, local-api, remote-api",
+            DefaultValueFactory = _ => "remote-api"
+        };
         var model = new Option<string>("--model") { Description = "LLM provider for local mode", DefaultValueFactory = _ => "ollama" };
         var cmd = new Command("chat", "Modo interativo (TUI) no terminal")
         {
             endpoint,
             local,
+            mode,
             model
         };
         cmd.SetAction(async (ParseResult r, CancellationToken ct) =>
         {
-            var useLocal = r.GetValue(local);
+            var runtimeMode = r.GetValue(mode) ?? "remote-api";
+            var useLocal = r.GetValue(local) || string.Equals(runtimeMode, "embedded", StringComparison.OrdinalIgnoreCase);
             var engine = useLocal
                 ? new TuiEngine(new EmbeddedKrnlAI(new EmbeddedKernelOptions { LLmProvider = r.GetValue(model) ?? "ollama" }))
                 : new TuiEngine(r.GetValue(endpoint) ?? "http://localhost:5000");

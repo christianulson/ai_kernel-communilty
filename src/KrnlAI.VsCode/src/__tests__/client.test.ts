@@ -29,7 +29,7 @@ const mockFetchError = () => {
 describe('KernelClient', () => {
     beforeEach(() => {
         jest.clearAllMocks();
-        mockGetConfiguration({ endpoint: 'http://test:5000' });
+        mockGetConfiguration({ endpoint: 'http://localhost:5000' });
     });
 
     // ── Health ──
@@ -162,11 +162,15 @@ describe('KernelClient', () => {
             expect(result?.totalCount).toBe(1);
         });
 
-        it('should URL-encode query', async () => {
+        it('should POST memory search using the shared runtime contract', async () => {
             const fetchMock = jest.fn().mockResolvedValue({ ok: true, headers: { get: () => 'application/json' }, json: jest.fn().mockResolvedValue({ hits: [], totalCount: 0 }) });
             (global as any).fetch = fetchMock;
             await new KernelClient().searchMemory('test query with spaces');
-            expect(fetchMock.mock.calls[0][0]).toContain('q=test%20query%20with%20spaces');
+            expect(fetchMock.mock.calls[0][0]).toContain('/memory/search');
+            expect(fetchMock.mock.calls[0][1]).toMatchObject({ method: 'POST' });
+            const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+            expect(body.query).toBe('test query with spaces');
+            expect(body.limit).toBe(20);
         });
 
         it('should return null on error', async () => {
@@ -222,22 +226,28 @@ describe('KernelClient', () => {
 
     // ── getBaseUrl ──
     describe('base URL', () => {
-        it('should reject non-loopback endpoint and fall back to default', () => {
-            mockGetConfiguration({ endpoint: 'http://evil.com:8080' });
+        it('should reject non-loopback endpoint in localApi mode and fall back to default', () => {
+            mockGetConfiguration({ mode: 'localApi', endpoint: 'http://evil.com:8080' });
             const client = new KernelClient() as any;
             expect((client as any).getBaseUrl()).toBe('http://localhost:5000');
         });
 
-        it('should use sidecar port when standalone', () => {
-            mockGetConfiguration({ standalone: true, sidecarPort: 9000 });
+        it('should use sidecar port in embedded mode', () => {
+            mockGetConfiguration({ mode: 'embedded', sidecarPort: 9000 });
             const client = new KernelClient();
             expect((client as any).getBaseUrl()).toBe('http://localhost:9000');
         });
 
-        it('should default to 5001 when standalone without port', () => {
+        it('should default to 5001 when legacy standalone is enabled without port', () => {
             mockGetConfiguration({ standalone: true });
             const client = new KernelClient();
             expect((client as any).getBaseUrl()).toBe('http://localhost:5001');
+        });
+
+        it('should allow non-loopback endpoint in remoteApi mode', () => {
+            mockGetConfiguration({ mode: 'remoteApi', endpoint: 'https://api.krnlai.dev' });
+            const client = new KernelClient();
+            expect((client as any).getBaseUrl()).toBe('https://api.krnlai.dev');
         });
     });
 

@@ -45,14 +45,14 @@ jest.mock('vscode', () => ({
     },
     // Note: mockConfigValues is used by coding tests below
     commands: {
-        registerCommand: jest.fn()
+        registerCommand: jest.fn(() => ({ dispose: jest.fn() }))
     },
     EventEmitter: jest.fn(() => ({
         event: jest.fn()
     })),
     TreeItem: jest.fn(),
     TreeItemCollapsibleState: { None: 0 },
-    Disposable: jest.fn(() => ({ dispose: jest.fn() })),
+    Disposable: jest.fn((dispose?: () => void) => ({ dispose: jest.fn(() => dispose?.()) })),
     StatusBarAlignment: { Right: 1 },
     CodeLens: jest.fn(),
     CodeLensProvider: jest.fn(),
@@ -66,29 +66,44 @@ jest.mock('vscode', () => ({
 
 import * as vscode from 'vscode';
 
+function createMockContext(): vscode.ExtensionContext {
+    return {
+        subscriptions: [],
+        extensionPath: '',
+        extensionUri: null as any,
+        extensionMode: 1,
+        globalState: null as any,
+        workspaceState: null as any,
+        secrets: null as any,
+        globalStorageUri: null as any,
+        logUri: null as any,
+        storageUri: null as any,
+        asAbsolutePath: jest.fn(),
+        extension: null as any,
+        environmentVariableCollection: null as any,
+        globalStoragePath: '',
+        logPath: '',
+        storagePath: ''
+    } as any;
+}
+
+function disposeContext(context: vscode.ExtensionContext | undefined): void {
+    for (const subscription of context?.subscriptions ?? []) {
+        subscription.dispose();
+    }
+}
+
 describe('Extension', () => {
     let context: vscode.ExtensionContext;
 
     beforeEach(() => {
         jest.clearAllMocks();
-        context = {
-            subscriptions: [],
-            extensionPath: '',
-            extensionUri: null as any,
-            extensionMode: 1,
-            globalState: null as any,
-            workspaceState: null as any,
-            secrets: null as any,
-            globalStorageUri: null as any,
-            logUri: null as any,
-            storageUri: null as any,
-            asAbsolutePath: jest.fn(),
-            extension: null as any,
-            environmentVariableCollection: null as any,
-            globalStoragePath: '',
-            logPath: '',
-            storagePath: ''
-        } as any;
+        context = createMockContext();
+    });
+
+    afterEach(() => {
+        disposeContext(context);
+        require('../extension').deactivate();
     });
 
     it('should register all 8 commands on activation', async () => {
@@ -190,27 +205,12 @@ describe('Extension with Coding Agent Enabled', () => {
 
     beforeEach(() => {
         mockConfigValues = { 'codingAgent.enabled': true };
-        context = {
-            subscriptions: [],
-            extensionPath: '',
-            extensionUri: null as any,
-            extensionMode: 1,
-            globalState: null as any,
-            workspaceState: null as any,
-            secrets: null as any,
-            globalStorageUri: null as any,
-            logUri: null as any,
-            storageUri: null as any,
-            asAbsolutePath: jest.fn(),
-            extension: null as any,
-            environmentVariableCollection: null as any,
-            globalStoragePath: '',
-            logPath: '',
-            storagePath: ''
-        } as any;
+        context = createMockContext();
     });
 
     afterEach(() => {
+        disposeContext(context);
+        require('../extension').deactivate();
         mockConfigValues = {};
     });
 
@@ -242,28 +242,15 @@ describe('Extension with Coding Agent Enabled', () => {
         const calls1 = (vscode.commands.registerCommand as jest.Mock).mock.calls;
         const codingIds1 = calls1.filter(c => c[0].startsWith('krnlai.coding')).map(c => c[0]);
 
-        const ctx2 = {
-            subscriptions: [],
-            extensionPath: '',
-            extensionUri: null as any,
-            extensionMode: 1,
-            globalState: null as any,
-            workspaceState: null as any,
-            secrets: null as any,
-            globalStorageUri: null as any,
-            logUri: null as any,
-            storageUri: null as any,
-            asAbsolutePath: jest.fn(),
-            extension: null as any,
-            environmentVariableCollection: null as any,
-            globalStoragePath: '',
-            logPath: '',
-            storagePath: ''
-        } as any;
-        await mod.activate(ctx2);
-        const calls2 = (vscode.commands.registerCommand as jest.Mock).mock.calls;
-        const codingIds2 = calls2.filter(c => c[0].startsWith('krnlai.coding')).map(c => c[0]);
+        const ctx2 = createMockContext();
+        try {
+            await mod.activate(ctx2);
+            const calls2 = (vscode.commands.registerCommand as jest.Mock).mock.calls;
+            const codingIds2 = calls2.filter(c => c[0].startsWith('krnlai.coding')).map(c => c[0]);
 
-        expect(codingIds2.length).toBe(codingIds1.length);
+            expect(codingIds2.length).toBe(codingIds1.length);
+        } finally {
+            disposeContext(ctx2);
+        }
     });
 });

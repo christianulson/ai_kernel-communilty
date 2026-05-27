@@ -1,10 +1,13 @@
 namespace KrnlAI.VisualStudio.Services;
 
 public enum ApprovalMode { ChatOnly, Confirm, FullApproval }
+public enum KernelRuntimeMode { Embedded, LocalApi, RemoteApi }
 
 public interface ISettingsService
 {
     string Endpoint { get; set; }
+    KernelRuntimeMode RuntimeMode { get; set; }
+    int SidecarPort { get; set; }
     int TimeoutSeconds { get; set; }
     int MaxRetries { get; set; }
     string? DefaultProvider { get; set; }

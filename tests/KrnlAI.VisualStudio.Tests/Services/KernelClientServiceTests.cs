@@ -9,6 +9,30 @@ namespace KrnlAI.VisualStudio.Tests.Services;
 public sealed class KernelClientServiceTests
 {
     [Fact]
+    public void KernelEndpointResolver_EmbeddedMode_ShouldUseSidecarEndpoint()
+    {
+        var endpoint = KernelEndpointResolver.Resolve(KernelRuntimeMode.Embedded, "https://api.krnlai.dev", 9100);
+
+        endpoint.Should().Be("http://127.0.0.1:9100");
+    }
+
+    [Fact]
+    public void KernelEndpointResolver_LocalApiMode_ShouldRejectRemoteEndpoint()
+    {
+        var endpoint = KernelEndpointResolver.Resolve(KernelRuntimeMode.LocalApi, "https://api.krnlai.dev", 5001);
+
+        endpoint.Should().Be("http://localhost:65335");
+    }
+
+    [Fact]
+    public void KernelEndpointResolver_RemoteApiMode_ShouldAllowRemoteEndpoint()
+    {
+        var endpoint = KernelEndpointResolver.Resolve(KernelRuntimeMode.RemoteApi, "https://api.krnlai.dev", 5001);
+
+        endpoint.Should().Be("https://api.krnlai.dev");
+    }
+
+    [Fact]
     public void State_AfterConstruction_ShouldBeDisconnected()
     {
         using var service = new KernelClientService();

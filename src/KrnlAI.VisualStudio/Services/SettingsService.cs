@@ -10,6 +10,8 @@ public sealed class SettingsService : ISettingsService
     private WritableSettingsStore? _store;
 
     public string Endpoint { get; set; } = "http://localhost:65335";
+    public KernelRuntimeMode RuntimeMode { get; set; } = KernelRuntimeMode.LocalApi;
+    public int SidecarPort { get; set; } = 5001;
     public int TimeoutSeconds { get; set; } = 30;
     public int MaxRetries { get; set; } = 3;
     public string? DefaultProvider { get; set; }
@@ -33,6 +35,8 @@ public sealed class SettingsService : ISettingsService
             if (_store is null) return;
 
             Endpoint = ReadString("Endpoint", "http://localhost:65335");
+            RuntimeMode = (KernelRuntimeMode)ReadInt("RuntimeMode", (int)KernelRuntimeMode.LocalApi);
+            SidecarPort = ReadInt("SidecarPort", 5001);
             TimeoutSeconds = ReadInt("TimeoutSeconds", 30);
             MaxRetries = ReadInt("MaxRetries", 3);
             DefaultProvider = ReadString("DefaultProvider", null);
@@ -65,6 +69,8 @@ public sealed class SettingsService : ISettingsService
                 _store.CreateCollection(CollectionPath);
 
             _store.SetString(CollectionPath, "Endpoint", Endpoint);
+            _store.SetInt32(CollectionPath, "RuntimeMode", (int)RuntimeMode);
+            _store.SetInt32(CollectionPath, "SidecarPort", SidecarPort);
             _store.SetInt32(CollectionPath, "TimeoutSeconds", TimeoutSeconds);
             _store.SetInt32(CollectionPath, "MaxRetries", MaxRetries);
 

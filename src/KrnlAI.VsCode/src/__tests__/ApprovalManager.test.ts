@@ -7,6 +7,10 @@ describe('ApprovalManager', () => {
         manager = new ApprovalManager();
     });
 
+    afterEach(() => {
+        manager.dispose();
+    });
+
     describe('initial state', () => {
         it('ShouldDefaultToChatMode', () => {
             expect(manager.getMode()).toBe(ApprovalMode.Chat);
@@ -77,6 +81,17 @@ describe('ApprovalManager', () => {
 
             const result = await promise;
             expect(result).toBe('rejected');
+        });
+
+        it('Dispose_ShouldRejectPendingApprovalAndClearPendingApprovals', async () => {
+            manager.setMode(ApprovalMode.SafeAgent);
+            const promise = manager.requestApproval('edit_file test.ts', ['Edit']);
+
+            expect(manager.getPendingApprovals()).toHaveLength(1);
+            manager.dispose();
+
+            await expect(promise).resolves.toBe('rejected');
+            expect(manager.getPendingApprovals()).toHaveLength(0);
         });
     });
 

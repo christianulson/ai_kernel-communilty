@@ -112,10 +112,10 @@ public class DashboardViewModel : ViewModelBase, IDisposable
         PauseGoalCommand = new AsyncRelayCommand(() => UpdateGoalAsync("pause"));
         ResumeGoalCommand = new AsyncRelayCommand(() => UpdateGoalAsync("resume"));
         CompleteGoalCommand = new AsyncRelayCommand(() => UpdateGoalAsync("complete"));
-        LoadCognitiveCommand = new AsyncRelayCommand(async () => { if (_kernelClient == null) return; if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return; CognitiveData = await _kernelClient.GetCognitiveDashboardAsync(); });
-        LoadBenchmarkCommand = new AsyncRelayCommand(async () => { if (_kernelClient == null) return; if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return; BenchmarkData = await _kernelClient.GetBenchmarkSummaryAsync(); });
-        LoadCrossSummaryCommand = new AsyncRelayCommand(async () => { if (_kernelClient == null) return; if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return; CrossSummaryData = await _kernelClient.GetCrossSummaryAsync(); });
-        LoadMetricsByGoalCommand = new AsyncRelayCommand(async () => { if (_kernelClient == null) return; if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return; MetricsByGoalData = await _kernelClient.GetMetricsByGoalAsync(); });
+        LoadCognitiveCommand = new AsyncRelayCommand(async () => { if (_kernelClient == null) return; CognitiveData = await _kernelClient.GetCognitiveDashboardAsync(); });
+        LoadBenchmarkCommand = new AsyncRelayCommand(async () => { if (_kernelClient == null) return; BenchmarkData = await _kernelClient.GetBenchmarkSummaryAsync(); });
+        LoadCrossSummaryCommand = new AsyncRelayCommand(async () => { if (_kernelClient == null) return; CrossSummaryData = await _kernelClient.GetCrossSummaryAsync(); });
+        LoadMetricsByGoalCommand = new AsyncRelayCommand(async () => { if (_kernelClient == null) return; MetricsByGoalData = await _kernelClient.GetMetricsByGoalAsync(); });
         ShowCreateGoalCommand = new RelayCommand(() => IsGoalCreateVisible = true);
         HideCreateGoalCommand = new RelayCommand(() => { IsGoalCreateVisible = false; NewGoalDescription = ""; });
         _ = PollEmotionalStateAsync();
@@ -131,7 +131,6 @@ public class DashboardViewModel : ViewModelBase, IDisposable
     private async Task PollEmotionalStateAsync()
     {
         if (_kernelClient == null) return;
-        if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return;
         _emotionalPollCts = new CancellationTokenSource();
         var t = _emotionalPollCts.Token;
         var consecutiveFailures = 0;
@@ -166,16 +165,6 @@ public class DashboardViewModel : ViewModelBase, IDisposable
     public async Task LoadDashboardDataAsync()
     {
         if (_kernelClient == null) return;
-
-        if (ServiceLocator.Instance.CurrentMode == RunMode.Local)
-        {
-            UiThreadInvoker.Invoke(() =>
-            {
-                Status = "Indisponível no modo Local";
-                IsLoading = false;
-            });
-            return;
-        }
 
         UiThreadInvoker.Invoke(() =>
         {
@@ -233,7 +222,6 @@ public class DashboardViewModel : ViewModelBase, IDisposable
     private async Task LoadGoalsDataAsync()
     {
         if (_kernelClient == null) return;
-        if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return;
         try
         {
             var r = await _kernelClient.GetActiveGoalsAsync();
@@ -250,7 +238,6 @@ public class DashboardViewModel : ViewModelBase, IDisposable
     private async Task CreateNewGoalAsync()
     {
         if (_kernelClient == null || string.IsNullOrWhiteSpace(NewGoalDescription)) return;
-        if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return;
         await _kernelClient.CreateGoalAsync(new CreateGoalRequest(NewGoalDescription, NewGoalPriority));
         UiThreadInvoker.Invoke(() =>
         {
@@ -263,7 +250,6 @@ public class DashboardViewModel : ViewModelBase, IDisposable
     private async Task UpdateGoalAsync(string a)
     {
         if (_kernelClient == null || SelectedGoal == null) return;
-        if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return;
         await _kernelClient.UpdateGoalStatusAsync(SelectedGoal.GoalId, a);
         await LoadGoalsDataAsync();
     }
@@ -271,7 +257,6 @@ public class DashboardViewModel : ViewModelBase, IDisposable
     private async Task LoadGoalDetailSafeAsync(string id)
     {
         if (_kernelClient == null) return;
-        if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return;
         try
         {
             var detail = await _kernelClient.GetGoalAsync(id);
@@ -291,7 +276,6 @@ public class DashboardViewModel : ViewModelBase, IDisposable
     private async Task LoadGoalDetailAsync(string id)
     {
         if (_kernelClient == null) return;
-        if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return;
         var detail = await _kernelClient.GetGoalAsync(id);
         var cycles = await _kernelClient.GetGoalCyclesAsync(id);
         UiThreadInvoker.Invoke(() =>
