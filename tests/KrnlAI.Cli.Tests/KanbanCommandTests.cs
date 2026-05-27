@@ -74,9 +74,11 @@ public sealed class KanbanCommandTests
                 CancellationToken.None).GetAwaiter().GetResult();
             return store;
         });
+        services.AddSingleton<ISystemClock>(new FrozenClock(FixedNow));
         services.AddSingleton<IKanbanService>(sp =>
             new KrnlAI.LLMGateway.Core.Services.Goals.KanbanService(
-                sp.GetRequiredService<IGoalStore>()));
+                sp.GetRequiredService<IGoalStore>(),
+                sp.GetRequiredService<ISystemClock>()));
         services.AddSingleton<ISafetyCaseStore, InMemorySafetyCaseStore>();
         services.AddSingleton<FundamentalRulesEngine>();
         services.AddSingleton<KrnlAI.Core.Abstractions.Mcp.IMcpServerRegistry>(new KrnlAI.Infrastructure.Mcp.McpServerRegistry());
@@ -96,7 +98,7 @@ public sealed class KanbanCommandTests
             FixedNow, null, [], [], new Dictionary<string, string>()),
             CancellationToken.None);
 
-        var service = new KrnlAI.LLMGateway.Core.Services.Goals.KanbanService(store);
+        var service = new KrnlAI.LLMGateway.Core.Services.Goals.KanbanService(store, new FrozenClock(FixedNow));
         var result = await service.GetKanbanAsync(ct: CancellationToken.None);
 
         result.Should().NotBeNull();
@@ -195,9 +197,11 @@ public sealed class KanbanCommandTests
         services.AddSingleton<IAnticipationService>(sp =>
             new AnticipationService(Enumerable.Empty<IProjectionSource>(), sp.GetRequiredService<IAnticipationStore>()));
         services.AddSingleton<IGoalStore>(_ => new InMemoryGoalStore());
+        services.AddSingleton<ISystemClock>(new FrozenClock(FixedNow));
         services.AddSingleton<IKanbanService>(sp =>
             new KrnlAI.LLMGateway.Core.Services.Goals.KanbanService(
-                sp.GetRequiredService<IGoalStore>()));
+                sp.GetRequiredService<IGoalStore>(),
+                sp.GetRequiredService<ISystemClock>()));
         services.AddSingleton<ISafetyCaseStore, InMemorySafetyCaseStore>();
         services.AddSingleton<FundamentalRulesEngine>();
         services.AddSingleton<KrnlAI.Core.Abstractions.Mcp.IMcpServerRegistry>(new KrnlAI.Infrastructure.Mcp.McpServerRegistry());
@@ -226,5 +230,15 @@ public sealed class KanbanCommandTests
 
         result.Should().Be(0);
         console.Output.Should().Contain("Domain: testing");
+    }
+
+    private sealed class FrozenClock : ISystemClock
+    {
+        public FrozenClock(DateTimeOffset utcNow)
+        {
+            UtcNow = utcNow;
+        }
+
+        public DateTimeOffset UtcNow { get; }
     }
 }

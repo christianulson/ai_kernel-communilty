@@ -103,7 +103,9 @@
                 <!-- Navigation Menu -->
                 <StackPanel Grid.Row="3" Margin="12,8,12,0">
                     <TextBlock Text="{loc:Loc sidebar_nav_title}" FontSize="10" FontWeight="Bold"                               Foreground="{DynamicResource TextSecondaryBrush}"                               Margin="4,0,0,8"/>
-                    <Button Command="{Binding NavigateToChatCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2">
+                    <Button Command="{Binding NavigateToChatCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.Name="Chat"
+                            AutomationProperties.AutomationId="ChatButton">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="💬" FontSize="14" Margin="0,0,10,0"/>
                             <TextBlock Text="{loc:Loc nav_chat}"/>
@@ -121,7 +123,9 @@
                             <TextBlock Text="{loc:Loc nav_policies}"/>
                         </StackPanel>
                     </Button>
-                    <Button Command="{Binding NavigateToKanbanCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2">
+                    <Button Command="{Binding NavigateToKanbanCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.Name="Kanban"
+                            AutomationProperties.AutomationId="KanbanButton">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="📌" FontSize="14" Margin="0,0,10,0"/>
                             <TextBlock Text="Kanban"/>

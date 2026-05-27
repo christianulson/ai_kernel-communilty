@@ -7,6 +7,7 @@ using KrnlAI.Core.Services.Memory;
 using KrnlAI.Core.Services.ModelRegistry;
 using KrnlAI.Core.Services.Safety;
 using KrnlAI.Executive;
+using KrnlAI.Infrastructure;
 using KrnlAI.Infrastructure.InMemory;
 using KrnlAI.LLMGateway.Core.Abstractions;
 using KrnlAI.LLMGateway.Core.Services.Goals;
@@ -105,6 +106,7 @@ public static class CliServiceExtensions
 
         // Kanban
         services.AddSingleton<KanbanRenderer>();
+        services.AddSingleton<ISystemClock, SystemClock>();
         services.AddSingleton<IKanbanService, KanbanService>();
 
         return services;

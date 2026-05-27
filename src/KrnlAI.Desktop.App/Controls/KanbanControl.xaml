@@ -27,7 +27,9 @@
                                Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
                     <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="0,0,0,0">
                         <Button Content="Refresh" Command="{Binding LoadCommand}"
-                                Style="{StaticResource PrimaryButton}" Margin="0,0,8,0"/>
+                                Style="{StaticResource PrimaryButton}" Margin="0,0,8,0"
+                                AutomationProperties.Name="Refresh"
+                                AutomationProperties.AutomationId="RefreshButton"/>
                     </StackPanel>
                 </Grid>
 
@@ -69,7 +71,8 @@
                            Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,16"/>
 
                 <!-- Columns -->
-                <ItemsControl ItemsSource="{Binding Columns}">
+                <ItemsControl ItemsSource="{Binding Columns}"
+                              AutomationProperties.AutomationId="ColumnsControl">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <StackPanel Orientation="Horizontal"/>
