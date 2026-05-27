@@ -11,7 +11,7 @@
   "categories": [
     "AI",
     "Programming Languages",
-    "Development",
+    "Other",
     "Machine Learning"
   ],
   "galleryBanner": {
@@ -20,12 +20,6 @@
   },
   "icon": "icon.png",
   "pricing": "Free",
-  "activationEvents": [
-    "onCommand:krnlai.start",
-    "onCommand:krnlai.chat",
-    "onCommand:krnlai.coding.chat",
-    "onView:krnlai.nav"
-  ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
@@ -174,7 +168,7 @@
         {
           "id": "krnlai",
           "title": "Krnl-AI",
-          "icon": "$(hubot)"
+          "icon": "icon.png"
         }
       ]
     },
