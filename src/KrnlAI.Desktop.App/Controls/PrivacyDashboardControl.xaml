@@ -3,23 +3,55 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             mc:Ignorable="d" d:DesignHeight="400" d:DesignWidth="500">
-  <Grid Margin="12">
-    <Grid.RowDefinitions>
-      <RowDefinition Height="Auto" />
-      <RowDefinition Height="Auto" />
-      <RowDefinition Height="Auto" />
-      <RowDefinition Height="*" />
-    </Grid.RowDefinitions>
-    <TextBlock Grid.Row="0" Text="Privacy Dashboard (LGPD)" FontSize="18" FontWeight="Bold" Margin="0,0,0,16" />
-    <Button Grid.Row="1" Content="Request Data Deletion" Width="200" Height="36" Margin="0,0,0,8" Click="OnRequestDeletion" />
-    <Button Grid.Row="2" Content="Request Data Export" Width="200" Height="36" Margin="0,0,0,16" Click="OnRequestExport" />
-    <DataGrid x:Name="RequestsGrid" Grid.Row="3" IsReadOnly="True" AutoGenerateColumns="False">
-      <DataGrid.Columns>
-        <DataGridTextColumn Header="Request ID" Binding="{Binding RequestId}" Width="*" />
-        <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="100" />
-        <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="100" />
-      </DataGrid.Columns>
-    </DataGrid>
-  </Grid>
+             mc:Ignorable="d" d:DesignHeight="420" d:DesignWidth="560"
+             Loaded="OnLoaded">
+  <Border Background="{DynamicResource PanelBrush}" CornerRadius="24"
+          BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+          Padding="24">
+    <StackPanel>
+      <TextBlock Text="Privacidade e Telemetria" FontSize="15" FontWeight="SemiBold"
+                 Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+      <TextBlock Text="Controle o nível de coleta e acesse os fluxos de LGPD."
+                 FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,16"/>
+
+      <TextBlock Text="{Binding StatusMessage}" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,12"/>
+
+      <Grid Margin="0,0,0,12">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <RadioButton x:Name="NoneConsentRadio" Grid.Column="0" Content="Não coletar" GroupName="TelemetryConsent"
+                     Tag="None" Style="{StaticResource TabRadioStyle}" Checked="OnConsentChecked"/>
+        <RadioButton x:Name="AnonymousConsentRadio" Grid.Column="1" Content="Coleta anônima" GroupName="TelemetryConsent"
+                     Tag="Anonymous" Style="{StaticResource TabRadioStyle}" Checked="OnConsentChecked"/>
+        <RadioButton x:Name="FullConsentRadio" Grid.Column="2" Content="Coleta completa" GroupName="TelemetryConsent"
+                     Tag="Full" Style="{StaticResource TabRadioStyle}" Checked="OnConsentChecked"/>
+      </Grid>
+
+      <TextBlock Text="{Binding ConsentTitle}" FontSize="13" FontWeight="SemiBold"
+                 Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+      <TextBlock Text="{Binding ConsentDescription}" FontSize="11"
+                 Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,12"/>
+
+      <StackPanel Margin="0,0,0,12">
+        <TextBlock Text="{Binding GrantedAt, StringFormat=Concedido em: {0:dd/MM/yyyy HH:mm:ss}}" FontSize="11"
+                   Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,2"/>
+        <TextBlock Text="{Binding RevokedAt, StringFormat=Revogado em: {0:dd/MM/yyyy HH:mm:ss}}" FontSize="11"
+                   Foreground="{DynamicResource TextSecondaryBrush}" />
+      </StackPanel>
+
+      <WrapPanel>
+        <Button Content="Salvar consentimento" Width="180" Height="36" Margin="0,0,8,8"
+                Command="{Binding SaveConsentCommand}"/>
+        <Button Content="Exportar meus dados" Width="180" Height="36" Margin="0,0,8,8"
+                Command="{Binding RequestExportCommand}"/>
+        <Button Content="Solicitar exclusão" Width="180" Height="36" Margin="0,0,8,8"
+                Command="{Binding RequestDeletionCommand}"/>
+        <Button Content="Atualizar" Width="120" Height="36" Margin="0,0,8,8"
+                Command="{Binding RefreshCommand}"/>
+      </WrapPanel>
+    </StackPanel>
+  </Border>
 </UserControl>

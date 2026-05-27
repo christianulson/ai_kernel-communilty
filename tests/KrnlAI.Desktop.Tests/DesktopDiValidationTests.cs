@@ -1,3 +1,4 @@
+using KrnlAI.Desktop.App.Services;
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Services;
 using KrnlAI.Desktop.Infrastructure.Abstractions;
@@ -102,6 +103,7 @@ public sealed class DesktopDiValidationTests
         services.AddSingleton<IOfflineService, OfflineService>();
         services.AddSingleton<IWebRtcService, WebRtcService>();
         services.AddSingleton<ILocalizationService, LocalizationService>();
+        services.AddSingleton<ITelemetryPrivacyService, NullTelemetryPrivacyService>();
         services.AddSingleton<ISessionPersistenceService>(_ => new SessionPersistenceService(System.IO.Path.GetTempPath()));
 
         var registered = services

@@ -54,6 +54,7 @@ public class ServiceLocator : IDisposable, IAsyncDisposable
     public ILocalizationService LocalizationService => Resolve<ILocalizationService>()!;
     public ISlashCommandExecutor SlashCommandExecutor => Resolve<ISlashCommandExecutor>()!;
     public ICognitiveStreamProvider CognitiveStreamProvider => Resolve<ICognitiveStreamProvider>()!;
+    public ITelemetryPrivacyService TelemetryPrivacyService => Resolve<ITelemetryPrivacyService>()!;
     public EmbeddedKrnlAI? EmbeddedKernel => _embeddedKernelLazy?.Value;
 
     public ILogger<T> GetLogger<T>() => _provider!.GetRequiredService<ILogger<T>>();
@@ -89,14 +90,14 @@ public class ServiceLocator : IDisposable, IAsyncDisposable
             services.AddSingleton<ISettingsService>(settingsService);
             services.AddSingleton<ISessionPersistenceService>(_ => new SessionPersistenceService());
 
-            if (CurrentMode == RunMode.Local)
+        if (CurrentMode == RunMode.Local)
+        {
+            RegisterLocalMode(services, loggerFactory);
+        }
+        else
             {
-                RegisterLocalMode(services, loggerFactory);
-            }
-            else
-            {
-                RegisterApiMode(services, loggerFactory, baseUrl, settings);
-            }
+            RegisterApiMode(services, loggerFactory, baseUrl, settings);
+        }
 
             services.AddSingleton<IAudioCapture>(_ => new AudioCaptureService(loggerFactory.CreateLogger<AudioCaptureService>()));
             services.AddSingleton<IAudioPlayback>(_ => new AudioPlaybackService(loggerFactory.CreateLogger<AudioPlaybackService>()));
@@ -142,6 +143,7 @@ public class ServiceLocator : IDisposable, IAsyncDisposable
         services.AddSingleton<IKernelClient, EmbeddedKernelClient>();
         services.AddSingleton<IKernelAgentClient>(sp => sp.GetRequiredService<IKernelClient>());
         services.AddSingleton<IKernelSpeechClient>(sp => sp.GetRequiredService<IKernelClient>());
+        services.AddSingleton<ITelemetryPrivacyService, NullTelemetryPrivacyService>();
 
         services.AddSingleton<ISlashCommandExecutor>(
             sp => new EmbeddedSlashCommandExecutor(sp.GetRequiredService<IEmbeddedKrnlAI>()));
@@ -205,6 +207,12 @@ public class ServiceLocator : IDisposable, IAsyncDisposable
         services.AddSingleton<IKernelClient, KernelClient>();
         services.AddSingleton<IKernelAgentClient>(sp => sp.GetRequiredService<IKernelClient>());
         services.AddSingleton<IKernelSpeechClient>(sp => sp.GetRequiredService<IKernelClient>());
+        services.AddSingleton<ITelemetryPrivacyService>(sp =>
+            new HttpTelemetryPrivacyService(new HttpClient(new AuthTokenHandler(sp.GetRequiredService<AuthTokenProvider>()))
+            {
+                BaseAddress = new Uri(baseUrl),
+                Timeout = TimeSpan.FromSeconds(30)
+            }));
 
         services.AddSingleton<ISlashCommandExecutor>(
             _ => new HttpSlashCommandExecutor(baseUrl));

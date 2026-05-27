@@ -1,5 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
+using KrnlAI.Desktop.App.ViewModels;
+using KrnlAI.Desktop.Core.Models;
 
 namespace KrnlAI.Desktop.App.Controls;
 
@@ -8,15 +10,34 @@ public partial class PrivacyDashboardControl : UserControl
     public PrivacyDashboardControl()
     {
         InitializeComponent();
+        DataContext ??= new PrivacyDashboardViewModel();
     }
 
-    private void OnRequestDeletion(object sender, RoutedEventArgs e)
+    private async void OnLoaded(object sender, RoutedEventArgs e)
     {
-        MessageBox.Show("Data deletion request submitted.", "Privacy", MessageBoxButton.OK, MessageBoxImage.Information);
+        if (DataContext is PrivacyDashboardViewModel vm)
+        {
+            await vm.LoadAsync();
+            SyncSelection(vm.SelectedConsentLevel);
+        }
     }
 
-    private void OnRequestExport(object sender, RoutedEventArgs e)
+    private void OnConsentChecked(object sender, RoutedEventArgs e)
     {
-        MessageBox.Show("Data export request submitted.", "Privacy", MessageBoxButton.OK, MessageBoxImage.Information);
+        if (sender is not RadioButton radio || DataContext is not PrivacyDashboardViewModel vm)
+            return;
+
+        if (Enum.TryParse<TelemetryConsentLevel>(radio.Tag?.ToString(), out var level))
+        {
+            vm.SelectedConsentLevel = level;
+            SyncSelection(level);
+        }
+    }
+
+    private void SyncSelection(TelemetryConsentLevel level)
+    {
+        NoneConsentRadio.IsChecked = level == TelemetryConsentLevel.None;
+        AnonymousConsentRadio.IsChecked = level == TelemetryConsentLevel.Anonymous;
+        FullConsentRadio.IsChecked = level == TelemetryConsentLevel.Full;
     }
 }

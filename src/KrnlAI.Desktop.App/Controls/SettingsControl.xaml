@@ -1,7 +1,8 @@
 <UserControl x:Class="KrnlAI.Desktop.App.Controls.SettingsControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:loc="clr-namespace:KrnlAI.Desktop.App.Converters">
+             xmlns:loc="clr-namespace:KrnlAI.Desktop.App.Converters"
+             xmlns:controls="clr-namespace:KrnlAI.Desktop.App.Controls">
     <ScrollViewer Padding="28" VerticalScrollBarVisibility="Auto">
         <StackPanel MaxWidth="640" HorizontalAlignment="Left">
             <TextBlock Text="{loc:Loc nav_settings}" FontSize="24" FontWeight="Bold"
@@ -146,6 +147,9 @@
                             Click="OnOpenLogsFolder" HorizontalAlignment="Left"/>
                 </StackPanel>
             </Border>
+
+            <!-- Privacy -->
+            <controls:PrivacyDashboardControl Margin="0,16,0,0"/>
         </StackPanel>
     </ScrollViewer>
 </UserControl>
