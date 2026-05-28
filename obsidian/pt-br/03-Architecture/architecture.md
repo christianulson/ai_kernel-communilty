@@ -41,10 +41,10 @@ Krnl-AI Community e organizado em torno de uma separacao estrita entre estado de
 | Componente | Responsabilidade |
 |-----------|----------------|
 | **Kernel Embutido** | Gerenciamento de estado, memoria, seguranca, politicas, aprendizado |
-| **Sidecar** | API HTTP com pipeline de seguranca e proxy empresarial opcional |
+| **Sidecar** | API HTTP com pipeline de seguranca, proxy empresarial opcional e sinalizacao P2P |
 | **CLI** | Interface de terminal com TUI para sessoes interativas |
 | **SDK (Python/.NET)** | Acesso programatico ao runtime cognitivo |
-| **Apps Desktop** | Aplicativos desktop nativos WPF e Tauri |
+| **Apps Desktop** | Aplicativos desktop nativos WPF e Tauri com auth, privacidade e superficies P2P/WebRTC |
 | **Extensoes de Editor** | Integracoes VS Code e Visual Studio IDE |
 
 ## Fluxo de Dados
@@ -64,6 +64,15 @@ Toda execucao de agente passa por verificacoes de seguranca em camadas:
 4. **Limitacao de Taxa** — Previne abuso e exaustao de recursos
 
 Para documentacao detalhada de seguranca, veja [Sistema de Seguranca](../06-Safety/safety-system.md).
+
+## P2P / WebRTC no Desktop
+
+As superficies desktop agora incluem suporte local a chamadas de video peer-to-peer.
+
+- `VideoCallViewModel` gerencia estado da chamada e selecao de peer no WPF
+- `WebRtcService` abre uma sessao WebSocket de sinalizacao em `/signaling/webrtc`
+- `SettingsViewModel` expõe configuracao STUN/TURN
+- A superficie Tauri persiste o estado de auth e complementa o fluxo visual de chamadas do WPF
 
 ## Pilha de Tecnologia
 

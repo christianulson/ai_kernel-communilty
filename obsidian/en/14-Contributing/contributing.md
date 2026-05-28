@@ -44,10 +44,13 @@ pip install -e .
 pytest
 ```
 
-### Web/Tauri (in development)
+### Web/Tauri
+
+- `Community/src/KrnlAI.Desktop.Tauri` contains the cross-platform desktop surface
+- Desktop work now includes auth state, API keys, privacy controls, and P2P/WebRTC signaling docs
 
 ```bash
-# See docs/webapp/ for the React frontend
+# See `Community/src/KrnlAI.Desktop.Tauri/` for the React frontend
 ```
 
 ## Pull Request Checklist
