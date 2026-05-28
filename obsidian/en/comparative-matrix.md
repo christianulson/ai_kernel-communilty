@@ -112,6 +112,7 @@
 | | Executable Plugins | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Desktop** | Windows Desktop (WPF) | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | | Cross-Platform Desktop (Tauri) | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
+| | P2P / WebRTC Signaling | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | | System Tray | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | | Native Notifications | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | | Multi-language UI | ✅ (en, pt-BR) | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ |
@@ -443,6 +444,7 @@ These features are **unique to Krnl-AI** — no other tool (open source or comme
 - **You need causal investigation** — root cause analysis with hypothesis testing and evidence collection
 - **You need future simulation** — anticipation/projection with confidence, risk, and accuracy tracking
 - **You're in the .NET ecosystem** — C#, Visual Studio, Windows desktop
+- **You need local peer-to-peer desktop collaboration** — WebRTC signaling for video/audio sessions inside the desktop surface
 - **You need policy learning** — agents that learn and adapt policies from outcomes
 - **You want a comprehensive CLI** — 35 commands covering memory, goals, safety, anticipation, snapshots, experiments
 - **You need emotional/personality modeling** — VAD-based emotional system

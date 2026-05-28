@@ -1,6 +1,6 @@
 # API Sidecar
 
-O Krnl-AI Sidecar e um servidor HTTP local que expoe o runtime cognitivo para integracoes com editores e automacao.
+O Krnl-AI Sidecar e um servidor HTTP local que expoe o runtime cognitivo para integracoes com editores, aplicativos desktop, automacao e sinalizacao peer-to-peer.
 
 ## Iniciando o Sidecar
 
@@ -62,6 +62,25 @@ Resposta:
   "activeStages": ["standalone"]
 }
 ```
+
+### Sinalizacao P2P / WebRTC
+
+O cliente desktop usa um endpoint WebSocket de sinalizacao em `/signaling/webrtc` para inicializar chamadas peer-to-peer.
+
+```text
+ws://127.0.0.1:5001/signaling/webrtc
+```
+
+Mensagens de sinalizacao suportadas:
+
+- `join`
+- `offer`
+- `answer`
+- `leave`
+- `audio`
+- `video`
+
+Os clientes desktop usam esse canal para trocar offers e metadados de sessao enquanto a midia de audio/video permanece peer-to-peer. Os valores de STUN/TURN sao configurados na superficie de configuracoes do desktop.
 
 ### Pesquisa de Memoria
 

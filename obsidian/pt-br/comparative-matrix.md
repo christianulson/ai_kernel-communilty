@@ -112,6 +112,7 @@
 | | Plugins Executaveis | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Desktop** | Desktop Windows (WPF) | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | | Desktop Multiplataforma (Tauri) | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
+| | Sinalizacao P2P / WebRTC | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | | Bandeja do Sistema | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | | Notificacoes Nativas | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | | Interface Multilingue | ✅ (en, pt-BR) | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ |
@@ -443,6 +444,7 @@ Estes recursos sao **unicos do Krnl-AI** — nenhuma outra ferramenta (codigo ab
 - **Voce precisa de investigacao causal** — analise de causa raiz com teste de hipoteses e coleta de evidencias
 - **Voce precisa de simulacao futura** — antecipacao/projecao com confianca, risco e rastreamento de precisao
 - **Voce esta no ecossistema .NET** — C#, Visual Studio, desktop Windows
+- **Voce precisa de colaboracao desktop peer-to-peer local** — sinalizacao WebRTC para sessoes de video/audio dentro da superficie desktop
 - **Voce precisa de aprendizado de politicas** — agentes que aprendem e adaptam politicas a partir de resultados
 - **Voce quer uma CLI abrangente** — 35 comandos cobrindo memoria, metas, seguranca, antecipacao, snapshots, experimentos
 - **Voce precisa de modelagem emocional/personalidade** — sistema emocional baseado em VAD

@@ -60,10 +60,10 @@ The kernel is composed of specialized cognitive modules:
 | Component | Responsibility |
 |-----------|----------------|
 | **Embedded Kernel** | State management, memory, cognitive cycle, safety, policies, learning, emotions |
-| **Sidecar** | HTTP API with safety pipeline and optional enterprise proxy |
+| **Sidecar** | HTTP API with safety pipeline, optional enterprise proxy, and P2P signaling |
 | **CLI** | Terminal interface with TUI for interactive sessions |
 | **SDK (Python/.NET)** | Programmatic access to the cognitive runtime |
-| **Desktop Apps** | WPF and Tauri native desktop applications |
+| **Desktop Apps** | WPF and Tauri native desktop applications with auth, privacy, and P2P/WebRTC surfaces |
 | **Editor Extensions** | VS Code and Visual Studio IDE integrations |
 
 ## Data Flow
@@ -86,6 +86,15 @@ Every agent run flows through layered safety checks:
 6. **Rate Limiting** — Prevents abuse and resource exhaustion
 
 For detailed safety documentation, see [Safety System](../06-Safety/safety-system.md).
+
+## Desktop P2P / WebRTC
+
+The desktop surfaces now include local peer-to-peer video calling support.
+
+- `VideoCallViewModel` manages call state and peer selection in WPF
+- `WebRtcService` opens a WebSocket signaling session at `/signaling/webrtc`
+- `SettingsViewModel` exposes STUN/TURN configuration
+- Tauri settings persist auth state and expose the desktop UI surfaces that complement the WPF call flow
 
 ## Technology Stack
 

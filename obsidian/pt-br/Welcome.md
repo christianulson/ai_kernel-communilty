@@ -1,6 +1,6 @@
 # Comunidade Krnl-AI
 
-> Um runtime cognitivo para construir agentes locais com memória persistente, verificações de segurança, habilidades em evolução e ferramentas de desenvolvimento.
+> Um runtime cognitivo para construir agentes locais com memória persistente, verificações de segurança, habilidades em evolução, ferramentas de desenvolvimento e superficies desktop P2P.
 
 Krnl-AI Community é a edição aberta e local-first do Krnl-AI. Ela roda inteiramente em sua máquina sem exigir infraestrutura hospedada. Todo o estado é armazenado localmente via SQLite, e você pode trazer seu próprio provedor LLM (OpenAI, Ollama, Anthropic, etc.).
 
@@ -20,6 +20,7 @@ krnlai chat --local
 - Execução consciente de segurança com 20 regras fundamentais (R01-R20)
 - Integrações com editores VS Code e Visual Studio
 - Aplicativos desktop multiplataforma via WPF e Tauri
+- Sessões de video peer-to-peer via sinalização WebRTC
 
 ## Pacotes
 
@@ -49,8 +50,8 @@ krnlai chat --local
 | [Sistema de Segurança](06-Safety/safety-system.md) | 20 regras fundamentais, guarda adversarial, ética |
 | [Sistema Emocional](07-Emotions/emotion-system.md) | Modelo VAD, dor/recompensa, memória emocional |
 | [Guia do SDK](08-SDK/sdk-guide.md) | Documentação dos SDKs Python e .NET |
-| [API Sidecar](09-API/sidecar-api.md) | Referência dos endpoints da API HTTP |
-| [Aplicativos Desktop](10-Desktop/desktop-apps.md) | Aplicativos desktop WPF e Tauri |
+| [API Sidecar](09-API/sidecar-api.md) | Referência dos endpoints da API HTTP e sinalização P2P |
+| [Aplicativos Desktop](10-Desktop/desktop-apps.md) | Aplicativos desktop WPF e Tauri, API keys, privacidade e P2P |
 | [Extensões de Editor](11-Editors/editor-extensions.md) | Extensões para VS Code e Visual Studio |
 | [Exemplos](12-Samples/samples.md) | Projetos de exemplo e padrões |
 | [Integrações](13-Integrations/integrations.md) | LangChain, CrewAI, AutoGen, FastAPI |
