@@ -149,6 +149,18 @@
                             <TextBlock Text="{loc:Loc nav_settings}"/>
                         </StackPanel>
                     </Button>
+                    <Button Command="{Binding NavigateToApiKeysCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🔑" FontSize="14" Margin="0,0,10,0"/>
+                            <TextBlock Text="API Keys"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding NavigateToPrivacyCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🛡️" FontSize="14" Margin="0,0,10,0"/>
+                            <TextBlock Text="Privacidade"/>
+                        </StackPanel>
+                    </Button>
                     <Button Command="{Binding NavigateToDocumentsCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="📄" FontSize="14" Margin="0,0,10,0"/>
@@ -250,6 +262,8 @@
             <controls:KanbanControl DataContext="{Binding KanbanVM}" Visibility="{Binding DataContext.IsKanbanVisible, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:CausalGraphControl Visibility="{Binding IsCausalVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:ProfileControl Visibility="{Binding IsProfileVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:ApiKeysControl Visibility="{Binding IsApiKeysVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:PrivacyControl Visibility="{Binding IsPrivacyVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:DocumentControl Visibility="{Binding IsDocumentsVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:ArchiveControl Visibility="{Binding IsArchiveVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:ModelRegistryControl Visibility="{Binding IsModelRegistryVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>

@@ -295,6 +295,8 @@ public partial class App : Application
         newSettings = newSettings with { AuthToken = loginWindow.Token, RefreshToken = loginWindow.RefreshToken, Username = loginWindow.Username, IsAuthenticated = true };
         settingsService.SaveSettings(newSettings);
         ServiceLocator.Instance.KernelClient.SetTokens(loginWindow.Token, loginWindow.RefreshToken);
+        if (_mainWindow?.DataContext is ViewModels.MainViewModel mainVm)
+            mainVm.RefreshAuthState();
 
         _mainWindow?.Show();
     }

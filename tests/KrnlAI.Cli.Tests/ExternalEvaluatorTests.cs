@@ -22,10 +22,19 @@ public sealed class ExternalEvaluatorTests
     [Fact]
     public async Task OpenAiSafetyEvaluator_NoApiKey_ShouldReturnSkipped()
     {
-        var eval = new OpenAiSafetyEvaluator();
-        var result = await eval.EvaluateAsync("test prompt", "TEST-001");
-        Assert.Equal("skipped", result.RiskLevel);
-        Assert.False(result.Blocked);
+        var previous = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
+        Environment.SetEnvironmentVariable("OPENAI_API_KEY", null);
+        try
+        {
+            var eval = new OpenAiSafetyEvaluator();
+            var result = await eval.EvaluateAsync("test prompt", "TEST-001");
+            Assert.Equal("skipped", result.RiskLevel);
+            Assert.False(result.Blocked);
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("OPENAI_API_KEY", previous);
+        }
     }
 
     [Fact]
@@ -41,6 +50,7 @@ public sealed class ExternalEvaluatorTests
     public async Task OpenAiSafetyEvaluator_ApiKeySet_ShouldNotThrow()
     {
         // Temporarily set a dummy key to test the HTTP flow fails gracefully
+        var previous = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
         Environment.SetEnvironmentVariable("OPENAI_API_KEY", "sk-test-dummy");
         try
         {
@@ -51,7 +61,7 @@ public sealed class ExternalEvaluatorTests
         }
         finally
         {
-            Environment.SetEnvironmentVariable("OPENAI_API_KEY", null);
+            Environment.SetEnvironmentVariable("OPENAI_API_KEY", previous);
         }
     }
 

@@ -70,6 +70,7 @@ public class MainViewModel : ViewModelBase
     public BenchmarkViewModel BenchmarkVM { get; }
     public CausalGraphViewModel CausalVM { get; }
     public ProfileViewModel ProfileVM { get; }
+    public ApiKeysViewModel ApiKeysVM { get; }
     public ArchiveViewModel ArchiveVM { get; }
     public ModelRegistryViewModel ModelRegistryVM { get; }
     public VersionsViewModel VersionsVM { get; }
@@ -92,13 +93,15 @@ public class MainViewModel : ViewModelBase
     private string _statusMessage = "Iniciando...";
     public string StatusMessage { get => _statusMessage; set => SetProperty(ref _statusMessage, value); }
     private string _currentScreen = "chat";
-    public string CurrentScreen { get => _currentScreen; set { if (SetProperty(ref _currentScreen, value)) { OnPropertyChanged(nameof(IsChatVisible)); OnPropertyChanged(nameof(IsDashboardVisible)); OnPropertyChanged(nameof(IsPoliciesVisible)); OnPropertyChanged(nameof(IsEpisodesVisible)); OnPropertyChanged(nameof(IsMemoryVisible)); OnPropertyChanged(nameof(IsSettingsVisible)); OnPropertyChanged(nameof(IsBenchmarkVisible)); OnPropertyChanged(nameof(IsCausalVisible)); OnPropertyChanged(nameof(IsProfileVisible)); OnPropertyChanged(nameof(IsDocumentsVisible)); OnPropertyChanged(nameof(IsArchiveVisible)); OnPropertyChanged(nameof(IsModelRegistryVisible)); OnPropertyChanged(nameof(IsVersionsVisible)); OnPropertyChanged(nameof(IsSessionsVisible)); OnPropertyChanged(nameof(IsKanbanVisible)); OnPropertyChanged(nameof(IsTrajectoryVisible)); } } }
+    public string CurrentScreen { get => _currentScreen; set { if (SetProperty(ref _currentScreen, value)) { OnPropertyChanged(nameof(IsChatVisible)); OnPropertyChanged(nameof(IsDashboardVisible)); OnPropertyChanged(nameof(IsPoliciesVisible)); OnPropertyChanged(nameof(IsEpisodesVisible)); OnPropertyChanged(nameof(IsMemoryVisible)); OnPropertyChanged(nameof(IsSettingsVisible)); OnPropertyChanged(nameof(IsApiKeysVisible)); OnPropertyChanged(nameof(IsPrivacyVisible)); OnPropertyChanged(nameof(IsBenchmarkVisible)); OnPropertyChanged(nameof(IsCausalVisible)); OnPropertyChanged(nameof(IsProfileVisible)); OnPropertyChanged(nameof(IsDocumentsVisible)); OnPropertyChanged(nameof(IsArchiveVisible)); OnPropertyChanged(nameof(IsModelRegistryVisible)); OnPropertyChanged(nameof(IsVersionsVisible)); OnPropertyChanged(nameof(IsSessionsVisible)); OnPropertyChanged(nameof(IsKanbanVisible)); OnPropertyChanged(nameof(IsTrajectoryVisible)); } } }
     public bool IsChatVisible => _currentScreen == "chat";
     public bool IsDashboardVisible => _currentScreen == "dashboard";
     public bool IsPoliciesVisible => _currentScreen == "policies";
     public bool IsEpisodesVisible => _currentScreen == "episodes";
     public bool IsMemoryVisible => _currentScreen == "memory";
     public bool IsSettingsVisible => _currentScreen == "settings";
+    public bool IsApiKeysVisible => _currentScreen == "api-keys";
+    public bool IsPrivacyVisible => _currentScreen == "privacy";
     public bool IsBenchmarkVisible => _currentScreen == "benchmark";
     public bool IsCausalVisible => _currentScreen == "causal";
     public bool IsProfileVisible => _currentScreen == "profile";
@@ -148,6 +151,8 @@ public class MainViewModel : ViewModelBase
     public ICommand NavigateToEpisodesCommand { get; }
     public ICommand NavigateToMemoryCommand { get; }
     public ICommand NavigateToSettingsCommand { get; }
+    public ICommand NavigateToApiKeysCommand { get; }
+    public ICommand NavigateToPrivacyCommand { get; }
     public ICommand NavigateToBenchmarkCommand { get; }
     public ICommand NavigateToCausalCommand { get; }
     public ICommand NavigateToDocumentsCommand { get; }
@@ -171,6 +176,9 @@ public class MainViewModel : ViewModelBase
 
     public event EventHandler? LogoutRequested;
 
+    public string AuthenticationStatus => BuildAuthenticationStatus(_settingsService.LoadSettings());
+    public string AuthenticationSource => BuildAuthenticationSource(_settingsService.LoadSettings());
+
     public MainViewModel()
         : this(
             ServiceLocator.Instance.KernelClient,
@@ -182,7 +190,7 @@ public class MainViewModel : ViewModelBase
             new ChatViewModel(), new DashboardViewModel(), new SettingsViewModel(),
             new MemoryViewModel(), new EpisodesViewModel(), new DocumentViewModel(),
             new PoliciesViewModel(), new BenchmarkViewModel(), new CausalGraphViewModel(),
-            new ProfileViewModel(), new ArchiveViewModel(), new ModelRegistryViewModel(),
+            new ProfileViewModel(), new ApiKeysViewModel(), new ArchiveViewModel(), new ModelRegistryViewModel(),
             new VersionsViewModel(), new SessionsViewModel(), new KanbanViewModel())
     { }
 
@@ -196,7 +204,7 @@ public class MainViewModel : ViewModelBase
         ChatViewModel chatVM, DashboardViewModel dashVM, SettingsViewModel settingsVM,
         MemoryViewModel memoryVM, EpisodesViewModel episodesVM, DocumentViewModel documentVM,
         PoliciesViewModel policiesVM, BenchmarkViewModel benchmarkVM, CausalGraphViewModel causalVM,
-        ProfileViewModel profileVM, ArchiveViewModel archiveVM, ModelRegistryViewModel modelRegistryVM,
+        ProfileViewModel profileVM, ApiKeysViewModel apiKeysVM, ArchiveViewModel archiveVM, ModelRegistryViewModel modelRegistryVM,
         VersionsViewModel versionsVM, SessionsViewModel sessionsVM, KanbanViewModel kanbanVM)
     {
         ChatVM = chatVM;
@@ -209,6 +217,7 @@ public class MainViewModel : ViewModelBase
         BenchmarkVM = benchmarkVM;
         CausalVM = causalVM;
         ProfileVM = profileVM;
+        ApiKeysVM = apiKeysVM;
         ArchiveVM = archiveVM;
         ModelRegistryVM = modelRegistryVM;
         VersionsVM = versionsVM;
@@ -234,6 +243,8 @@ public class MainViewModel : ViewModelBase
         NavigateToEpisodesCommand = new RelayCommand(() => CurrentScreen = "episodes");
         NavigateToMemoryCommand = new RelayCommand(() => CurrentScreen = "memory");
         NavigateToSettingsCommand = new RelayCommand(() => CurrentScreen = "settings");
+        NavigateToApiKeysCommand = new RelayCommand(() => CurrentScreen = "api-keys");
+        NavigateToPrivacyCommand = new RelayCommand(() => CurrentScreen = "privacy");
         NavigateToBenchmarkCommand = new RelayCommand(() => CurrentScreen = "benchmark");
         NavigateToCausalCommand = new RelayCommand(() => CurrentScreen = "causal");
         NavigateToDocumentsCommand = new RelayCommand(() => CurrentScreen = "documents");
@@ -259,6 +270,7 @@ public class MainViewModel : ViewModelBase
             _listeningService.VoiceLevelChanged += OnVoiceLevelChanged;
         _themeService.ThemeChanged += OnThemeChanged;
         UpdateThemeDisplay(_themeService.CurrentTheme);
+        RefreshAuthState();
         _ = CheckBackendHealthAsync();
         _ = PollEmotionalStateAsync();
     }
@@ -352,7 +364,38 @@ public class MainViewModel : ViewModelBase
         var settings = _settingsService.LoadSettings();
         _settingsService.SaveSettings(settings with { AuthToken = null, RefreshToken = null, IsAuthenticated = false });
         _kernelClient.SetTokens(null, null);
+        RefreshAuthState();
         LogoutRequested?.Invoke(this, EventArgs.Empty);
+    }
+
+    public void RefreshAuthState()
+    {
+        OnPropertyChanged(nameof(AuthenticationStatus));
+        OnPropertyChanged(nameof(AuthenticationSource));
+    }
+
+    private string BuildAuthenticationStatus(AppSettings settings)
+    {
+        if (ServiceLocator.Instance.CurrentMode == RunMode.Local)
+            return "Modo local com autenticação embutida.";
+
+        return settings.IsAuthenticated
+            ? "Sessão autenticada via JWT."
+            : "Sem sessão autenticada.";
+    }
+
+    private string BuildAuthenticationSource(AppSettings settings)
+    {
+        if (ServiceLocator.Instance.CurrentMode == RunMode.Local)
+            return "Embedded / local";
+
+        if (!string.IsNullOrWhiteSpace(settings.AuthToken))
+            return "JWT persistido";
+
+        if (!string.IsNullOrWhiteSpace(settings.RefreshToken))
+            return "Refresh token persistido";
+
+        return "Sem token persistido";
     }
 
     public void StopHealthCheck()

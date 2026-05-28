@@ -1,0 +1,143 @@
+<UserControl x:Class="KrnlAI.Desktop.App.Controls.ApiKeysControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:loc="clr-namespace:KrnlAI.Desktop.App.Converters"
+             Loaded="OnLoaded">
+    <ScrollViewer Padding="28" VerticalScrollBarVisibility="Auto">
+        <StackPanel MaxWidth="860">
+            <TextBlock Text="API Keys" FontSize="24" FontWeight="Bold"
+                       Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,10"/>
+            <TextBlock Text="Crie, copie e revogue chaves sem sair do desktop."
+                       FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,18"/>
+
+            <Border Background="{DynamicResource PanelBrush}" CornerRadius="24"
+                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                    Padding="20" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="{Binding AuthenticationStatus}" FontSize="13" FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding AuthenticationSource}" FontSize="11"
+                               Foreground="{DynamicResource TextSecondaryBrush}"/>
+                </StackPanel>
+            </Border>
+
+            <Border Background="{DynamicResource PanelBrush}" CornerRadius="24"
+                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                    Padding="24" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="Nova chave" FontSize="16" FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+
+                    <TextBlock Text="Nome" FontSize="11" FontWeight="Bold"
+                               Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,6"/>
+                    <TextBox Text="{Binding ApiKeysVM.NameInput, UpdateSourceTrigger=PropertyChanged}" Height="42" Margin="0,0,0,12"/>
+
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Margin="0,0,12,0">
+                            <TextBlock Text="Escopo" FontSize="11" FontWeight="Bold"
+                                       Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,6"/>
+                            <ComboBox ItemsSource="{Binding ApiKeysVM.AvailableScopes}"
+                                      SelectedItem="{Binding ApiKeysVM.SelectedScope}"
+                                      Height="42"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Margin="0,0,12,0">
+                            <TextBlock Text="TTL (dias)" FontSize="11" FontWeight="Bold"
+                                       Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,6"/>
+                            <TextBox Text="{Binding ApiKeysVM.TtlDaysInput, UpdateSourceTrigger=PropertyChanged}" Height="42"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" VerticalAlignment="Bottom">
+                            <Button Content="Criar chave" Height="42" Command="{Binding ApiKeysVM.CreateCommand}"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <TextBlock Text="{Binding ApiKeysVM.StatusMessage}" FontSize="11"
+                               Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,6"/>
+                    <TextBlock Text="{Binding ApiKeysVM.ErrorMessage}" FontSize="11"
+                               Foreground="{DynamicResource ErrorBrush}" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+            <Border Background="{DynamicResource PanelBrush}" CornerRadius="24"
+                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                    Padding="24" Margin="0,0,0,16"
+                    Visibility="{Binding ApiKeysVM.CreatedFullKey, Converter={StaticResource StringToVisibilityConverter}}">
+                <StackPanel>
+                    <TextBlock Text="Chave criada" FontSize="16" FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,12"/>
+                    <TextBlock Text="{Binding ApiKeysVM.CreatedWarning}" FontSize="11"
+                               Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+                    <TextBox Text="{Binding ApiKeysVM.CreatedFullKey}" IsReadOnly="True" Height="42" Margin="0,0,0,10"/>
+                    <TextBlock Text="{Binding ApiKeysVM.CreatedExpiresAt, StringFormat=Expira em: {0:dd/MM/yyyy HH:mm:ss}}"
+                               FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,10"/>
+                    <Button Content="Copiar chave" Width="140" Height="36" HorizontalAlignment="Left" Click="OnCopyClicked"/>
+                </StackPanel>
+            </Border>
+
+            <Border Background="{DynamicResource PanelBrush}" CornerRadius="24"
+                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                    Padding="24">
+                <StackPanel>
+                    <Grid Margin="0,0,0,14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="Chaves ativas" FontSize="16" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            <TextBlock Text="{Binding ApiKeysVM.StatusMessage}" FontSize="11"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
+                        </StackPanel>
+                        <Button Grid.Column="1" Content="Atualizar" Width="110" Height="36"
+                                Command="{Binding ApiKeysVM.RefreshCommand}"/>
+                    </Grid>
+
+                    <ItemsControl ItemsSource="{Binding ApiKeysVM.Keys}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="{DynamicResource PanelSoftBrush}" CornerRadius="16"
+                                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                                        Padding="16" Margin="0,0,0,10">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                            <TextBlock FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,2,0,0">
+                                                <Run Text="{Binding DisplayPrefix}"/>
+                                                <Run Text=" · "/>
+                                                <Run Text="{Binding Scope}"/>
+                                                <Run Text=" · "/>
+                                                <Run Text="{Binding Active, StringFormat=Ativa: {0}}"/>
+                                            </TextBlock>
+                                            <TextBlock FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}">
+                                                <Run Text="{Binding CreatedAt, StringFormat=Criada em: {0:dd/MM/yyyy HH:mm:ss}}"/>
+                                                <Run Text=" · "/>
+                                                <Run Text="{Binding ExpiresAt, StringFormat=Expira em: {0:dd/MM/yyyy HH:mm:ss}}"/>
+                                            </TextBlock>
+                                            <TextBlock FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"
+                                                       Text="{Binding LastUsedAt, StringFormat=Último uso: {0:dd/MM/yyyy HH:mm:ss}}"/>
+                                        </StackPanel>
+                                        <Button Grid.Column="1" Content="Revogar"
+                                                Tag="{Binding KeyId}"
+                                                Style="{StaticResource DangerButton}"
+                                                Width="110" Height="36" VerticalAlignment="Center"
+                                                Click="OnRevokeClicked"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

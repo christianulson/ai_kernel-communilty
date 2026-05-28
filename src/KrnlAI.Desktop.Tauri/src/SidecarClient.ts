@@ -1,5 +1,3 @@
-const SIDECAR_BASE = "http://127.0.0.1:5001";
-
 export type RuntimeMode = "embedded" | "localApi" | "remoteApi";
 
 export interface RuntimeConfig {

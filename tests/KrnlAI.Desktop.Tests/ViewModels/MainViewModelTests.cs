@@ -107,6 +107,26 @@ public sealed class MainViewModelTests
     }
 
     [Fact]
+    public void NavigateToApiKeys_ShouldUpdateVisibility()
+    {
+        var vm = CreateVm();
+        if (vm == null) return;
+        vm.CurrentScreen = "api-keys";
+        Assert.True(vm.IsApiKeysVisible);
+        Assert.False(vm.IsSettingsVisible);
+    }
+
+    [Fact]
+    public void NavigateToPrivacy_ShouldUpdateVisibility()
+    {
+        var vm = CreateVm();
+        if (vm == null) return;
+        vm.CurrentScreen = "privacy";
+        Assert.True(vm.IsPrivacyVisible);
+        Assert.False(vm.IsSettingsVisible);
+    }
+
+    [Fact]
     public void EmotionalMood_WhenNull_ShouldReturnDash()
     {
         var vm = CreateVm();
@@ -158,6 +178,7 @@ public sealed class MainViewModelTests
         Assert.NotNull(vm.EpisodesVM);
         Assert.NotNull(vm.PoliciesVM);
         Assert.NotNull(vm.ProfileVM);
+        Assert.NotNull(vm.ApiKeysVM);
         Assert.NotNull(vm.BenchmarkVM);
         Assert.NotNull(vm.CausalVM);
         Assert.NotNull(vm.DocumentVM);
