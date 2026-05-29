@@ -117,6 +117,16 @@ public sealed class MainViewModelTests
     }
 
     [Fact]
+    public void NavigateToPeerRanking_ShouldUpdateVisibility()
+    {
+        var vm = CreateVm();
+        if (vm == null) return;
+        vm.CurrentScreen = "peer-ranking";
+        Assert.True(vm.IsPeerRankingVisible);
+        Assert.False(vm.IsApiKeysVisible);
+    }
+
+    [Fact]
     public void NavigateToPrivacy_ShouldUpdateVisibility()
     {
         var vm = CreateVm();
@@ -179,6 +189,7 @@ public sealed class MainViewModelTests
         Assert.NotNull(vm.PoliciesVM);
         Assert.NotNull(vm.ProfileVM);
         Assert.NotNull(vm.ApiKeysVM);
+        Assert.NotNull(vm.PeerRankingVM);
         Assert.NotNull(vm.BenchmarkVM);
         Assert.NotNull(vm.CausalVM);
         Assert.NotNull(vm.DocumentVM);

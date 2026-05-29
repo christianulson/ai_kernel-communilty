@@ -104,6 +104,7 @@ public sealed class DesktopDiValidationTests
         services.AddSingleton<IWebRtcService, WebRtcService>();
         services.AddSingleton<ILocalizationService, LocalizationService>();
         services.AddSingleton<IApiKeyManagementService, NullApiKeyManagementService>();
+        services.AddSingleton<IPeerRankingManagementService, NullPeerRankingManagementService>();
         services.AddSingleton<ITelemetryPrivacyService, NullTelemetryPrivacyService>();
         services.AddSingleton<ISessionPersistenceService>(_ => new SessionPersistenceService(System.IO.Path.GetTempPath()));
 

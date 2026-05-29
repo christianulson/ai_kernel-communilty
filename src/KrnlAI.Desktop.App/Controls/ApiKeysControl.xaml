@@ -71,7 +71,7 @@
                                Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,12"/>
                     <TextBlock Text="{Binding ApiKeysVM.CreatedWarning}" FontSize="11"
                                Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,8"/>
-                    <TextBox Text="{Binding ApiKeysVM.CreatedFullKey}" IsReadOnly="True" Height="42" Margin="0,0,0,10"/>
+                    <TextBox Text="{Binding ApiKeysVM.CreatedFullKey, Mode=OneWay}" IsReadOnly="True" Height="42" Margin="0,0,0,10"/>
                     <TextBlock Text="{Binding ApiKeysVM.CreatedExpiresAt, StringFormat=Expira em: {0:dd/MM/yyyy HH:mm:ss}}"
                                FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,10"/>
                     <Button Content="Copiar chave" Width="140" Height="36" HorizontalAlignment="Left" Click="OnCopyClicked"/>

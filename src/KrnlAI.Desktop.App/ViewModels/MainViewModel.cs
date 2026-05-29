@@ -71,6 +71,7 @@ public class MainViewModel : ViewModelBase
     public CausalGraphViewModel CausalVM { get; }
     public ProfileViewModel ProfileVM { get; }
     public ApiKeysViewModel ApiKeysVM { get; }
+    public PeerRankingViewModel PeerRankingVM { get; }
     public ArchiveViewModel ArchiveVM { get; }
     public ModelRegistryViewModel ModelRegistryVM { get; }
     public VersionsViewModel VersionsVM { get; }
@@ -93,7 +94,7 @@ public class MainViewModel : ViewModelBase
     private string _statusMessage = "Iniciando...";
     public string StatusMessage { get => _statusMessage; set => SetProperty(ref _statusMessage, value); }
     private string _currentScreen = "chat";
-    public string CurrentScreen { get => _currentScreen; set { if (SetProperty(ref _currentScreen, value)) { OnPropertyChanged(nameof(IsChatVisible)); OnPropertyChanged(nameof(IsDashboardVisible)); OnPropertyChanged(nameof(IsPoliciesVisible)); OnPropertyChanged(nameof(IsEpisodesVisible)); OnPropertyChanged(nameof(IsMemoryVisible)); OnPropertyChanged(nameof(IsSettingsVisible)); OnPropertyChanged(nameof(IsApiKeysVisible)); OnPropertyChanged(nameof(IsPrivacyVisible)); OnPropertyChanged(nameof(IsBenchmarkVisible)); OnPropertyChanged(nameof(IsCausalVisible)); OnPropertyChanged(nameof(IsProfileVisible)); OnPropertyChanged(nameof(IsDocumentsVisible)); OnPropertyChanged(nameof(IsArchiveVisible)); OnPropertyChanged(nameof(IsModelRegistryVisible)); OnPropertyChanged(nameof(IsVersionsVisible)); OnPropertyChanged(nameof(IsSessionsVisible)); OnPropertyChanged(nameof(IsKanbanVisible)); OnPropertyChanged(nameof(IsTrajectoryVisible)); } } }
+    public string CurrentScreen { get => _currentScreen; set { if (SetProperty(ref _currentScreen, value)) { OnPropertyChanged(nameof(IsChatVisible)); OnPropertyChanged(nameof(IsDashboardVisible)); OnPropertyChanged(nameof(IsPoliciesVisible)); OnPropertyChanged(nameof(IsEpisodesVisible)); OnPropertyChanged(nameof(IsMemoryVisible)); OnPropertyChanged(nameof(IsSettingsVisible)); OnPropertyChanged(nameof(IsApiKeysVisible)); OnPropertyChanged(nameof(IsPeerRankingVisible)); OnPropertyChanged(nameof(IsPrivacyVisible)); OnPropertyChanged(nameof(IsBenchmarkVisible)); OnPropertyChanged(nameof(IsCausalVisible)); OnPropertyChanged(nameof(IsProfileVisible)); OnPropertyChanged(nameof(IsDocumentsVisible)); OnPropertyChanged(nameof(IsArchiveVisible)); OnPropertyChanged(nameof(IsModelRegistryVisible)); OnPropertyChanged(nameof(IsVersionsVisible)); OnPropertyChanged(nameof(IsSessionsVisible)); OnPropertyChanged(nameof(IsKanbanVisible)); OnPropertyChanged(nameof(IsTrajectoryVisible)); } } }
     public bool IsChatVisible => _currentScreen == "chat";
     public bool IsDashboardVisible => _currentScreen == "dashboard";
     public bool IsPoliciesVisible => _currentScreen == "policies";
@@ -101,6 +102,7 @@ public class MainViewModel : ViewModelBase
     public bool IsMemoryVisible => _currentScreen == "memory";
     public bool IsSettingsVisible => _currentScreen == "settings";
     public bool IsApiKeysVisible => _currentScreen == "api-keys";
+    public bool IsPeerRankingVisible => _currentScreen == "peer-ranking";
     public bool IsPrivacyVisible => _currentScreen == "privacy";
     public bool IsBenchmarkVisible => _currentScreen == "benchmark";
     public bool IsCausalVisible => _currentScreen == "causal";
@@ -152,6 +154,7 @@ public class MainViewModel : ViewModelBase
     public ICommand NavigateToMemoryCommand { get; }
     public ICommand NavigateToSettingsCommand { get; }
     public ICommand NavigateToApiKeysCommand { get; }
+    public ICommand NavigateToPeerRankingCommand { get; }
     public ICommand NavigateToPrivacyCommand { get; }
     public ICommand NavigateToBenchmarkCommand { get; }
     public ICommand NavigateToCausalCommand { get; }
@@ -190,7 +193,7 @@ public class MainViewModel : ViewModelBase
             new ChatViewModel(), new DashboardViewModel(), new SettingsViewModel(),
             new MemoryViewModel(), new EpisodesViewModel(), new DocumentViewModel(),
             new PoliciesViewModel(), new BenchmarkViewModel(), new CausalGraphViewModel(),
-            new ProfileViewModel(), new ApiKeysViewModel(), new ArchiveViewModel(), new ModelRegistryViewModel(),
+            new ProfileViewModel(), new ApiKeysViewModel(), new PeerRankingViewModel(), new ArchiveViewModel(), new ModelRegistryViewModel(),
             new VersionsViewModel(), new SessionsViewModel(), new KanbanViewModel())
     { }
 
@@ -204,7 +207,7 @@ public class MainViewModel : ViewModelBase
         ChatViewModel chatVM, DashboardViewModel dashVM, SettingsViewModel settingsVM,
         MemoryViewModel memoryVM, EpisodesViewModel episodesVM, DocumentViewModel documentVM,
         PoliciesViewModel policiesVM, BenchmarkViewModel benchmarkVM, CausalGraphViewModel causalVM,
-        ProfileViewModel profileVM, ApiKeysViewModel apiKeysVM, ArchiveViewModel archiveVM, ModelRegistryViewModel modelRegistryVM,
+        ProfileViewModel profileVM, ApiKeysViewModel apiKeysVM, PeerRankingViewModel peerRankingVM, ArchiveViewModel archiveVM, ModelRegistryViewModel modelRegistryVM,
         VersionsViewModel versionsVM, SessionsViewModel sessionsVM, KanbanViewModel kanbanVM)
     {
         ChatVM = chatVM;
@@ -218,6 +221,7 @@ public class MainViewModel : ViewModelBase
         CausalVM = causalVM;
         ProfileVM = profileVM;
         ApiKeysVM = apiKeysVM;
+        PeerRankingVM = peerRankingVM;
         ArchiveVM = archiveVM;
         ModelRegistryVM = modelRegistryVM;
         VersionsVM = versionsVM;
@@ -244,6 +248,7 @@ public class MainViewModel : ViewModelBase
         NavigateToMemoryCommand = new RelayCommand(() => CurrentScreen = "memory");
         NavigateToSettingsCommand = new RelayCommand(() => CurrentScreen = "settings");
         NavigateToApiKeysCommand = new RelayCommand(() => CurrentScreen = "api-keys");
+        NavigateToPeerRankingCommand = new RelayCommand(() => CurrentScreen = "peer-ranking");
         NavigateToPrivacyCommand = new RelayCommand(() => CurrentScreen = "privacy");
         NavigateToBenchmarkCommand = new RelayCommand(() => CurrentScreen = "benchmark");
         NavigateToCausalCommand = new RelayCommand(() => CurrentScreen = "causal");

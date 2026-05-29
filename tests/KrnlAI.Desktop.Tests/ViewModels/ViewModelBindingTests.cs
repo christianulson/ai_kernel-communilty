@@ -52,6 +52,46 @@ public class ViewModelBindingTests
     }
 
     [Fact]
+    public void TextBoxBindings_ToReadOnlyProperties_ShouldUseOneWay()
+    {
+        var issues = new List<string>();
+        var controlFiles = Directory.GetFiles(Path.Combine(AppRoot, "Controls"), "*.xaml");
+
+        foreach (var file in controlFiles)
+        {
+            var content = File.ReadAllText(file);
+            var textBindings = Regex.Matches(content,
+                @"<TextBox[^>]*Text=""\{Binding\s+([^,}]+)(,[^}]*)?\}""");
+
+            foreach (Match m in textBindings)
+            {
+                var binding = m.Groups[1].Value.Trim();
+                var fullBinding = m.Groups[0].Value;
+
+                var propName = binding.Split('.').Last();
+                var viewModelType = ResolveViewModelType(binding);
+
+                if (viewModelType == null) continue;
+
+                var prop = viewModelType.GetProperty(propName, BindingFlags.Public | BindingFlags.Instance);
+                if (prop == null)
+                {
+                    issues.Add($"{Path.GetFileName(file)}: binding '{binding}' — property '{propName}' not found on {viewModelType.Name}");
+                    continue;
+                }
+
+                if (!prop.CanWrite && !fullBinding.Contains("Mode=OneWay") && !fullBinding.Contains("Mode=OneTime"))
+                {
+                    issues.Add($"{Path.GetFileName(file)}: '{binding}' is read-only but uses TwoWay binding (add Mode=OneWay)");
+                }
+            }
+        }
+
+        if (issues.Count > 0)
+            Assert.Fail($"Found {issues.Count} binding issue(s):\n  {string.Join("\n  ", issues)}");
+    }
+
+    [Fact]
     public void AllBindings_ReferToExistingProperties()
     {
         var issues = new List<string>();

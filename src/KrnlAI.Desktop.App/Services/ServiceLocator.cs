@@ -55,6 +55,7 @@ public class ServiceLocator : IDisposable, IAsyncDisposable
     public ISlashCommandExecutor SlashCommandExecutor => Resolve<ISlashCommandExecutor>()!;
     public ICognitiveStreamProvider CognitiveStreamProvider => Resolve<ICognitiveStreamProvider>()!;
     public IApiKeyManagementService ApiKeyManagementService => Resolve<IApiKeyManagementService>()!;
+    public IPeerRankingManagementService PeerRankingManagementService => Resolve<IPeerRankingManagementService>()!;
     public ITelemetryPrivacyService TelemetryPrivacyService => Resolve<ITelemetryPrivacyService>()!;
     public EmbeddedKrnlAI? EmbeddedKernel => _embeddedKernelLazy?.Value;
 
@@ -145,6 +146,7 @@ public class ServiceLocator : IDisposable, IAsyncDisposable
         services.AddSingleton<IKernelAgentClient>(sp => sp.GetRequiredService<IKernelClient>());
         services.AddSingleton<IKernelSpeechClient>(sp => sp.GetRequiredService<IKernelClient>());
         services.AddSingleton<IApiKeyManagementService, NullApiKeyManagementService>();
+        services.AddSingleton<IPeerRankingManagementService, NullPeerRankingManagementService>();
         services.AddSingleton<ITelemetryPrivacyService, NullTelemetryPrivacyService>();
 
         services.AddSingleton<ISlashCommandExecutor>(
@@ -211,6 +213,12 @@ public class ServiceLocator : IDisposable, IAsyncDisposable
         services.AddSingleton<IKernelSpeechClient>(sp => sp.GetRequiredService<IKernelClient>());
         services.AddSingleton<IApiKeyManagementService>(sp =>
             new HttpApiKeyManagementService(new HttpClient(new AuthTokenHandler(sp.GetRequiredService<AuthTokenProvider>()))
+            {
+                BaseAddress = new Uri(baseUrl),
+                Timeout = TimeSpan.FromSeconds(30)
+            }));
+        services.AddSingleton<IPeerRankingManagementService>(sp =>
+            new HttpPeerRankingManagementService(new HttpClient(new AuthTokenHandler(sp.GetRequiredService<AuthTokenProvider>()))
             {
                 BaseAddress = new Uri(baseUrl),
                 Timeout = TimeSpan.FromSeconds(30)
