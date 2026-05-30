@@ -205,6 +205,24 @@
                             <TextBlock Text="Trajectories"/>
                         </StackPanel>
                     </Button>
+                    <Button Command="{Binding NavigateToP2PPaymentsCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="💰" FontSize="14" Margin="0,0,10,0"/>
+                            <TextBlock Text="Pagamentos P2P"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding NavigateToDisputesCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="⚖️" FontSize="14" Margin="0,0,10,0"/>
+                            <TextBlock Text="Disputas"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding NavigateToSidecarCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🖥️" FontSize="14" Margin="0,0,10,0"/>
+                            <TextBlock Text="Sidecar"/>
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
                 <!-- Sessions -->
                 <Border Grid.Row="4" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0"                        Padding="12,12,12,8">
@@ -279,6 +297,15 @@
             <controls:VersionsControl Visibility="{Binding IsVersionsVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:SessionsControl Visibility="{Binding IsSessionsVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:TrajectoryControl Visibility="{Binding IsTrajectoryVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:P2PPaymentsControl Visibility="{Binding IsP2PPaymentsVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:DisputesControl Visibility="{Binding IsDisputesVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:SidecarConfigControl Visibility="{Binding IsSidecarVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <!-- Welcome Wizard Overlay -->
+            <Border Visibility="{Binding ShowWelcomeWizard, Converter={StaticResource BoolToVisibilityConverter}}"
+                    Panel.ZIndex="200" Background="#CC000000">
+                <controls:WelcomeWizardControl DataContext="{Binding WelcomeVM}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
             <!-- Video Call Overlay -->
             <Grid Visibility="{Binding IsInVideoCall, Converter={StaticResource BoolToVisibilityConverter}}" Panel.ZIndex="100">
                 <Border Background="#CC000000"/>

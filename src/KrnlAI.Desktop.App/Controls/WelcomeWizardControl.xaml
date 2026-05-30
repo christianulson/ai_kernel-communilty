@@ -1,0 +1,131 @@
+<UserControl x:Class="KrnlAI.Desktop.App.Controls.WelcomeWizardControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Width="640" Height="480">
+    <Border Background="{DynamicResource PanelBrush}" CornerRadius="24"
+            BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+            Padding="32">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Step Indicator -->
+            <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,24">
+                <Border Width="32" Height="32" CornerRadius="16"
+                        Background="{Binding Step1Active, Converter={StaticResource BoolToColorConverter}}"
+                        BorderBrush="{DynamicResource AccentBrush}" BorderThickness="2" Margin="0,0,4,0">
+                    <TextBlock Text="1" HorizontalAlignment="Center" VerticalAlignment="Center"
+                               Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="Bold"/>
+                </Border>
+                <Rectangle Width="40" Height="2" Fill="{DynamicResource BorderBrush}" Margin="0,16,4,0"/>
+                <Border Width="32" Height="32" CornerRadius="16"
+                        Background="{Binding Step2Active, Converter={StaticResource BoolToColorConverter}}"
+                        BorderBrush="{DynamicResource AccentBrush}" BorderThickness="2" Margin="0,0,4,0">
+                    <TextBlock Text="2" HorizontalAlignment="Center" VerticalAlignment="Center"
+                               Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="Bold"/>
+                </Border>
+                <Rectangle Width="40" Height="2" Fill="{DynamicResource BorderBrush}" Margin="0,16,4,0"/>
+                <Border Width="32" Height="32" CornerRadius="16"
+                        Background="{Binding Step3Active, Converter={StaticResource BoolToColorConverter}}"
+                        BorderBrush="{DynamicResource AccentBrush}" BorderThickness="2" Margin="0,0,4,0">
+                    <TextBlock Text="3" HorizontalAlignment="Center" VerticalAlignment="Center"
+                               Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="Bold"/>
+                </Border>
+            </StackPanel>
+
+            <!-- Step 1: Welcome -->
+            <StackPanel Grid.Row="1" Visibility="{Binding IsStep1Visible, Converter={StaticResource BoolToVisibilityConverter}}"
+                        VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Bem-vindo ao Krnl-AI!" FontSize="28" FontWeight="Bold"
+                           Foreground="{DynamicResource TextPrimaryBrush}" HorizontalAlignment="Center"/>
+                <TextBlock Text="Seu assistente cognitivo com engine de decisão local e gateway para LLMs."
+                           FontSize="14" Foreground="{DynamicResource TextSecondaryBrush}"
+                           HorizontalAlignment="Center" TextWrapping="Wrap" Margin="0,12,0,0"/>
+                <Border Background="{DynamicResource PanelSoftBrush}" CornerRadius="16" Padding="20" Margin="0,24,0,0">
+                    <TextBlock TextWrapping="Wrap" FontSize="13" Foreground="{DynamicResource TextPrimaryBrush}">
+⚙️ <Bold>Engine cognitivo local</Bold> — decisões, políticas e segurança rodam offline.
+🌐 <Bold>Gateway de LLM</Bold> — traduz comandos para OpenAI, Anthropic, Ollama e outros.
+🔒 <Bold>Safety primeiro</Bold> — R01-R25, todas as ações passam pelo SafetyChecker.
+📊 <Bold>Painéis</Bold> — dashboard, memória, episódios, causal graph e mais.
+                    </TextBlock>
+                </Border>
+            </StackPanel>
+
+            <!-- Step 2: Mode Selection -->
+            <StackPanel Grid.Row="1" Visibility="{Binding IsStep2Visible, Converter={StaticResource BoolToVisibilityConverter}}"
+                        VerticalAlignment="Center">
+                <TextBlock Text="Modo de operação" FontSize="22" FontWeight="Bold"
+                           Foreground="{DynamicResource TextPrimaryBrush}" HorizontalAlignment="Center"/>
+                <TextBlock Text="Escolha como o Krnl-AI se conecta ao backend."
+                           FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}"
+                           HorizontalAlignment="Center" Margin="0,8,0,20"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" CornerRadius="16" Padding="20" Margin="0,0,8,0" Cursor="Hand"
+                            BorderBrush="{DynamicResource BorderBrush}" BorderThickness="2"
+                            Background="{Binding IsLocalModeSelected, Converter={StaticResource BoolToPanelConverter}}">
+                        <StackPanel>
+                            <TextBlock Text="💻" FontSize="32" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Local" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"
+                                       Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,8,0,4"/>
+                            <TextBlock Text="Tudo roda localmente. Ideal para desenvolvimento e testes."
+                                       FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"
+                                       TextWrapping="Wrap" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="1" CornerRadius="16" Padding="20" Margin="8,0,0,0" Cursor="Hand"
+                            BorderBrush="{DynamicResource BorderBrush}" BorderThickness="2"
+                            Background="{Binding IsCloudModeSelected, Converter={StaticResource BoolToPanelConverter}}">
+                        <StackPanel>
+                            <TextBlock Text="☁️" FontSize="32" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Conectado" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"
+                                       Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,8,0,4"/>
+                            <TextBlock Text="Conecta a uma instância remota do KrnlAI API. Para uso em produção."
+                                       FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"
+                                       TextWrapping="Wrap" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </StackPanel>
+
+            <!-- Step 3: Done -->
+            <StackPanel Grid.Row="1" Visibility="{Binding IsStep3Visible, Converter={StaticResource BoolToVisibilityConverter}}"
+                        VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="🎉" FontSize="64" HorizontalAlignment="Center"/>
+                <TextBlock Text="Pronto!" FontSize="28" FontWeight="Bold"
+                           Foreground="{DynamicResource TextPrimaryBrush}" HorizontalAlignment="Center" Margin="0,16,0,8"/>
+                <TextBlock Text="Você já pode começar a usar o Krnl-AI."
+                           FontSize="14" Foreground="{DynamicResource TextSecondaryBrush}"
+                           HorizontalAlignment="Center"/>
+                <TextBlock Text="Explore o chat, o dashboard e as ferramentas de memória e análise."
+                           FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}"
+                           HorizontalAlignment="Center" TextWrapping="Wrap" Margin="0,8,0,0"/>
+            </StackPanel>
+
+            <!-- Navigation -->
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,24,0,0">
+                <Button Content="Anterior" Height="36" Width="100" Margin="0,0,8,0"
+                        Command="{Binding PreviousStepCommand}"
+                        Visibility="{Binding IsNotFirstStep, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                <Button Content="{Binding NextButtonText}" Height="36" Width="140"
+                        Command="{Binding NextStepCommand}"/>
+            </StackPanel>
+
+            <!-- Skip -->
+            <TextBlock Grid.Row="3" Text="Pular tour →" FontSize="11"
+                       Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center"
+                       Cursor="Hand" Margin="0,12,0,0">
+                <TextBlock.InputBindings>
+                    <MouseBinding Gesture="LeftClick" Command="{Binding SkipCommand}"/>
+                </TextBlock.InputBindings>
+            </TextBlock>
+        </Grid>
+    </Border>
+</UserControl>

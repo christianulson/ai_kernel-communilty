@@ -78,6 +78,10 @@ public class MainViewModel : ViewModelBase
     public SessionsViewModel SessionsVM { get; }
     public KanbanViewModel KanbanVM { get; }
     public TrajectoryViewerViewModel TrajectoryVM { get; } = new();
+    public P2PPaymentsViewModel P2PVM { get; }
+    public DisputesViewModel DisputesVM { get; }
+    public SidecarViewModel SidecarVM { get; }
+    public WelcomeWizardViewModel WelcomeVM { get; } = new();
 
     public ObservableCollection<MediaDevice> Microphones => SettingsVM.Microphones;
     public ObservableCollection<MediaDevice> Cameras => SettingsVM.Cameras;
@@ -94,7 +98,9 @@ public class MainViewModel : ViewModelBase
     private string _statusMessage = "Iniciando...";
     public string StatusMessage { get => _statusMessage; set => SetProperty(ref _statusMessage, value); }
     private string _currentScreen = "chat";
-    public string CurrentScreen { get => _currentScreen; set { if (SetProperty(ref _currentScreen, value)) { OnPropertyChanged(nameof(IsChatVisible)); OnPropertyChanged(nameof(IsDashboardVisible)); OnPropertyChanged(nameof(IsPoliciesVisible)); OnPropertyChanged(nameof(IsEpisodesVisible)); OnPropertyChanged(nameof(IsMemoryVisible)); OnPropertyChanged(nameof(IsSettingsVisible)); OnPropertyChanged(nameof(IsApiKeysVisible)); OnPropertyChanged(nameof(IsPeerRankingVisible)); OnPropertyChanged(nameof(IsPrivacyVisible)); OnPropertyChanged(nameof(IsBenchmarkVisible)); OnPropertyChanged(nameof(IsCausalVisible)); OnPropertyChanged(nameof(IsProfileVisible)); OnPropertyChanged(nameof(IsDocumentsVisible)); OnPropertyChanged(nameof(IsArchiveVisible)); OnPropertyChanged(nameof(IsModelRegistryVisible)); OnPropertyChanged(nameof(IsVersionsVisible)); OnPropertyChanged(nameof(IsSessionsVisible)); OnPropertyChanged(nameof(IsKanbanVisible)); OnPropertyChanged(nameof(IsTrajectoryVisible)); } } }
+    public string CurrentScreen { get => _currentScreen; set { if (SetProperty(ref _currentScreen, value)) { OnPropertyChanged(nameof(IsChatVisible)); OnPropertyChanged(nameof(IsDashboardVisible)); OnPropertyChanged(nameof(IsPoliciesVisible)); OnPropertyChanged(nameof(IsEpisodesVisible)); OnPropertyChanged(nameof(IsMemoryVisible)); OnPropertyChanged(nameof(IsSettingsVisible)); OnPropertyChanged(nameof(IsApiKeysVisible)); OnPropertyChanged(nameof(IsPeerRankingVisible)); OnPropertyChanged(nameof(IsPrivacyVisible)); OnPropertyChanged(nameof(IsBenchmarkVisible)); OnPropertyChanged(nameof(IsCausalVisible)); OnPropertyChanged(nameof(IsProfileVisible)); OnPropertyChanged(nameof(IsDocumentsVisible)); OnPropertyChanged(nameof(IsArchiveVisible)); OnPropertyChanged(nameof(IsModelRegistryVisible)); OnPropertyChanged(nameof(IsVersionsVisible)); OnPropertyChanged(nameof(IsSessionsVisible)); OnPropertyChanged(nameof(IsKanbanVisible)); OnPropertyChanged(nameof(IsTrajectoryVisible)); OnPropertyChanged(nameof(IsP2PPaymentsVisible)); OnPropertyChanged(nameof(IsDisputesVisible)); OnPropertyChanged(nameof(IsSidecarVisible)); } } }
+    private bool _showWelcomeWizard = true;
+    public bool ShowWelcomeWizard { get => _showWelcomeWizard; set => SetProperty(ref _showWelcomeWizard, value); }
     public bool IsChatVisible => _currentScreen == "chat";
     public bool IsDashboardVisible => _currentScreen == "dashboard";
     public bool IsPoliciesVisible => _currentScreen == "policies";
@@ -114,6 +120,9 @@ public class MainViewModel : ViewModelBase
     public bool IsSessionsVisible => _currentScreen == "sessions";
     public bool IsKanbanVisible => _currentScreen == "kanban";
     public bool IsTrajectoryVisible => _currentScreen == "trajectory";
+    public bool IsP2PPaymentsVisible => _currentScreen == "p2p-payments";
+    public bool IsDisputesVisible => _currentScreen == "disputes";
+    public bool IsSidecarVisible => _currentScreen == "sidecar";
 
     public AgentInfo? SelectedAgent { get; set; }
     private ConversationSession? _activeSession;
@@ -165,6 +174,9 @@ public class MainViewModel : ViewModelBase
     public ICommand NavigateToSessionsCommand { get; }
     public ICommand NavigateToKanbanCommand { get; }
     public ICommand NavigateToTrajectoryCommand { get; }
+    public ICommand NavigateToP2PPaymentsCommand { get; }
+    public ICommand NavigateToDisputesCommand { get; }
+    public ICommand NavigateToSidecarCommand { get; }
     public ICommand NavigateToProfileCommand { get; }
     public ICommand ToggleListeningCommand { get; }
     public ICommand LogoutCommand { get; }
@@ -194,7 +206,8 @@ public class MainViewModel : ViewModelBase
             new MemoryViewModel(), new EpisodesViewModel(), new DocumentViewModel(),
             new PoliciesViewModel(), new BenchmarkViewModel(), new CausalGraphViewModel(),
             new ProfileViewModel(), new ApiKeysViewModel(), new PeerRankingViewModel(), new ArchiveViewModel(), new ModelRegistryViewModel(),
-            new VersionsViewModel(), new SessionsViewModel(), new KanbanViewModel())
+            new VersionsViewModel(), new SessionsViewModel(), new KanbanViewModel(),
+            new P2PPaymentsViewModel(), new DisputesViewModel(), new SidecarViewModel())
     { }
 
     public MainViewModel(
@@ -208,7 +221,8 @@ public class MainViewModel : ViewModelBase
         MemoryViewModel memoryVM, EpisodesViewModel episodesVM, DocumentViewModel documentVM,
         PoliciesViewModel policiesVM, BenchmarkViewModel benchmarkVM, CausalGraphViewModel causalVM,
         ProfileViewModel profileVM, ApiKeysViewModel apiKeysVM, PeerRankingViewModel peerRankingVM, ArchiveViewModel archiveVM, ModelRegistryViewModel modelRegistryVM,
-        VersionsViewModel versionsVM, SessionsViewModel sessionsVM, KanbanViewModel kanbanVM)
+        VersionsViewModel versionsVM, SessionsViewModel sessionsVM, KanbanViewModel kanbanVM,
+        P2PPaymentsViewModel p2pVM, DisputesViewModel disputesVM, SidecarViewModel sidecarVM)
     {
         ChatVM = chatVM;
         DashVM = dashVM;
@@ -227,6 +241,9 @@ public class MainViewModel : ViewModelBase
         VersionsVM = versionsVM;
         SessionsVM = sessionsVM;
         KanbanVM = kanbanVM;
+        P2PVM = p2pVM;
+        DisputesVM = disputesVM;
+        SidecarVM = sidecarVM;
 
         _kernelClient = kernelClient;
         _settingsService = settingsService;
@@ -260,6 +277,9 @@ public class MainViewModel : ViewModelBase
         NavigateToKanbanCommand = new RelayCommand(() => CurrentScreen = "kanban");
         NavigateToProfileCommand = new RelayCommand(() => CurrentScreen = "profile");
         NavigateToTrajectoryCommand = new RelayCommand(() => CurrentScreen = "trajectory");
+        NavigateToP2PPaymentsCommand = new RelayCommand(() => CurrentScreen = "p2p-payments");
+        NavigateToDisputesCommand = new RelayCommand(() => CurrentScreen = "disputes");
+        NavigateToSidecarCommand = new RelayCommand(() => CurrentScreen = "sidecar");
         ToggleListeningCommand = new AsyncRelayCommand(ToggleListeningAsync);
         LogoutCommand = new RelayCommand(ExecuteLogout);
         NewSessionCommand = new RelayCommand(() => { Sessions.Add(new ConversationSession(Guid.NewGuid().ToString(), $"Conversa {Sessions.Count + 1}", DateTime.Now)); ActiveSession = Sessions.Last(); });
