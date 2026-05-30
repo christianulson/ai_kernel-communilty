@@ -23,6 +23,7 @@ public static class EndpointRouteExtensions
 
         MapHealthEndpoints(app, "");
         MapAgentRunEndpoint(app, "");
+        MapDiagnosticsEndpoints(app);
 
         if (hasPrefix)
         {
@@ -129,6 +130,35 @@ public static class EndpointRouteExtensions
         });
 
         return app;
+    }
+
+    private static void MapDiagnosticsEndpoints(WebApplication app)
+    {
+        app.MapGet("/sidecar/diagnostics", (IOptions<SidecarOptions> opts) =>
+        {
+            var o = opts.Value;
+            return Results.Ok(new
+            {
+                mode = o.EffectiveMode,
+                auth = new
+                {
+                    token_configured = !string.IsNullOrWhiteSpace(o.Auth.Token),
+                    api_key_configured = !string.IsNullOrWhiteSpace(o.Enterprise.ApiKey),
+                    endpoint = o.Auth.Endpoint ?? o.Enterprise.AuthEndpoint ?? "local",
+                },
+                enterprise = o.Enterprise.Enabled ? new
+                {
+                    enabled = true,
+                    gateway = o.Enterprise.GatewayEndpoint,
+                    tenant = o.Enterprise.TenantId,
+                } : null,
+                kernel_api = new
+                {
+                    base_url = o.KernelApi.BaseUrl,
+                    configured = !string.IsNullOrWhiteSpace(o.KernelApi.BaseUrl),
+                },
+            });
+        });
     }
 
     private static void MapHealthEndpoints(WebApplication app, string prefix)

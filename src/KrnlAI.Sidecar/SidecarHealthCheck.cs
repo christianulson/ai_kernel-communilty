@@ -19,7 +19,21 @@ public sealed class SidecarHealthCheck : IHealthCheck
 
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken)
     {
-        var data = new Dictionary<string, object>();
+        var options = _options.Value;
+        var mode = options.EffectiveMode;
+        var data = new Dictionary<string, object>
+        {
+            ["mode"] = mode,
+            ["auth_configured"] = !string.IsNullOrWhiteSpace(options.Auth.Token) || !string.IsNullOrWhiteSpace(options.Enterprise.ApiKey),
+            ["auth_endpoint"] = options.Auth.Endpoint ?? options.Enterprise.AuthEndpoint ?? "local",
+            ["gateway_endpoint"] = options.Enterprise.GatewayEndpoint ?? "local",
+        };
+
+        if (mode == "enterprise")
+        {
+            data["enterprise_tenant"] = options.Enterprise.TenantId ?? "default";
+            data["enterprise_api_key_configured"] = !string.IsNullOrWhiteSpace(options.Enterprise.ApiKey);
+        }
 
         // Self-check: safety guard
         try
@@ -50,6 +64,6 @@ public sealed class SidecarHealthCheck : IHealthCheck
             }
         }
 
-        return HealthCheckResult.Healthy("Sidecar operational", data: data);
+        return HealthCheckResult.Healthy($"Sidecar operational ({mode} mode)", data: data);
     }
 }

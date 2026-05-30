@@ -13,11 +13,25 @@ public sealed class SidecarOptions
     public AgentRunOptions AgentRun { get; init; } = new();
     public OtlpOptions Otlp { get; init; } = new();
     public ApiVersionOptions ApiVersion { get; init; } = new();
+    public EnterpriseOptions Enterprise { get; set; } = new();
+
+    public string EffectiveMode => Enterprise.Enabled ? "enterprise" : "community";
 }
 
 public sealed class AuthOptions
 {
     public string? Token { get; init; }
+    public string? Endpoint { get; init; }
+    public string? ApiKeyHeader { get; init; }
+}
+
+public sealed class EnterpriseOptions
+{
+    public bool Enabled { get; init; }
+    public string? AuthEndpoint { get; init; }
+    public string? GatewayEndpoint { get; init; }
+    public string? ApiKey { get; init; }
+    public string? TenantId { get; init; }
 }
 
 public sealed class RateLimitingOptions

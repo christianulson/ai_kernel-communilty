@@ -42,11 +42,12 @@ public static class ServiceCollectionExtensions
             {
                 r.AddService("KrnlAI.Sidecar", "1.0.0",
                     autoGenerateServiceInstanceId: false);
+                var mode = configuration.GetValue<string>("Sidecar:Enterprise:Enabled") == "true" ? "enterprise" : "community";
                 r.AddAttributes(new Dictionary<string, object>
                 {
                     ["deployment.environment"] = environment.EnvironmentName,
                     ["host.name"] = Environment.MachineName,
-                    ["sidecar.mode"] = "Legacy",
+                    ["sidecar.mode"] = mode,
                 });
             })
             .WithTracing(t =>

@@ -1,5 +1,6 @@
 using KrnlAI.Embedded.Abstractions;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Options;
 
 namespace KrnlAI.Sidecar;
 
@@ -120,7 +121,25 @@ public static class CommunityEndpoints
         app.MapGet("/emotions/history", () => Results.Ok(new { entries = Array.Empty<object>(), mode = "community" }));
         app.MapGet("/metacognition/status", () => Results.Ok(new { overallHealth = 1.0, mode = "community" }));
 
-        app.MapGet("/health", (IEmbeddedKrnlAI kernel) => Results.Ok(new { status = "healthy", mode = "community", store = kernel.Options.StoreMode, vector = kernel.Options.VectorMode, skills = kernel.Options.SkillsStoreMode, llm = kernel.Provider }));
+        app.MapGet("/health", (IEmbeddedKrnlAI kernel, IOptions<SidecarOptions> opts) =>
+        {
+            var o = opts.Value;
+            return Results.Ok(new
+            {
+                status = "healthy",
+                mode = o.EffectiveMode,
+                store = kernel.Options.StoreMode,
+                vector = kernel.Options.VectorMode,
+                skills = kernel.Options.SkillsStoreMode,
+                llm = kernel.Provider,
+                auth_configured = !string.IsNullOrWhiteSpace(o.Auth.Token) || !string.IsNullOrWhiteSpace(o.Enterprise.ApiKey),
+                auth_endpoint = o.Auth.Endpoint ?? o.Enterprise.AuthEndpoint ?? "local",
+                gateway_endpoint = o.Enterprise.GatewayEndpoint ?? "local",
+                enterprise_tenant = o.Enterprise.Enabled ? o.Enterprise.TenantId ?? "default" : null,
+            });
+        });
+
+
 
         app.MapHealthChecks("/health/ready", new HealthCheckOptions { Predicate = check => check.Tags.Contains("ready") });
         app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = check => check.Tags.Contains("live") });
