@@ -114,6 +114,10 @@ root.Add(new ExperimentCommand(cliCtx, renderer).Build());
 var sessionStore = host.Services.GetRequiredService<InMemorySessionStore>();
 root.Add(new SessionCommand(console, sessionStore).Build());
 
+// Lifecycle hooks management
+var lifecycleOrchestrator = host.Services.GetRequiredService<KrnlAI.Core.Services.Lifecycle.LifecycleOrchestrator>();
+root.Add(new LifecycleCommand(lifecycleOrchestrator, renderer).Build());
+
 // Checkpoint management
 root.Add(new CheckpointCommand(cliCtx, renderer).Build());
 

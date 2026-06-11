@@ -8,6 +8,9 @@
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <NuGetAudit>false</NuGetAudit>
 
+    <!-- Versão dos pacotes NuGet privados (atualizar ao consumir nova release) -->
+    <PrivatePackagesVersion Condition="'$(PrivatePackagesVersion)' == ''">1.0.0</PrivatePackagesVersion>
+
     <!-- Community é open source: gerar símbolos e docs -->
     <DebugType>portable</DebugType>
     <DebugSymbols>true</DebugSymbols>
