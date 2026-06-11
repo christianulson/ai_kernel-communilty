@@ -26,6 +26,8 @@
             <converters:Base64ToImageConverter x:Key="Base64ToImageConverter"/>
             <converters:PercentToWidthConverter x:Key="PercentToWidthConverter"/>
             <converters:MoodToColorConverter x:Key="MoodToColorConverter"/>
+            <converters:BoolToColorConverter x:Key="BoolToColorConverter"/>
+            <converters:BoolToPanelConverter x:Key="BoolToPanelConverter"/>
 
             <!-- Shadow Effects -->
             <DropShadowEffect x:Key="CardShadow" BlurRadius="24" Opacity="0.3" ShadowDepth="0" Color="#030814"/>

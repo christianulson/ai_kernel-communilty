@@ -155,6 +155,32 @@ public class ListeningButtonConverter : IValueConverter
         => throw new NotSupportedException();
 }
 
+public class BoolToColorConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is bool b && b)
+            return new SolidColorBrush(Color.FromRgb(59, 130, 246));
+        return new SolidColorBrush(Color.FromRgb(71, 85, 105));
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        => throw new NotSupportedException();
+}
+
+public class BoolToPanelConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is bool b && b)
+            return new SolidColorBrush(Color.FromRgb(30, 58, 138));
+        return new SolidColorBrush(Color.FromRgb(30, 41, 59));
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        => throw new NotSupportedException();
+}
+
 public class Base64ToImageConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
