@@ -7,12 +7,14 @@ namespace KrnlAI.Cli.Commands;
 public sealed class ConfigCommand
 {
     private readonly IAnsiConsole _console;
+    private readonly ManagedSettingsChain? _managedChain;
 
     private static readonly YamlConfigLoader Loader = new();
 
-    public ConfigCommand(IAnsiConsole console)
+    public ConfigCommand(IAnsiConsole console, ManagedSettingsChain? managedChain = null)
     {
         _console = console;
+        _managedChain = managedChain;
     }
 
     public Command Build()
@@ -22,8 +24,99 @@ public sealed class ConfigCommand
         cmd.Add(BuildValidate());
         cmd.Add(BuildShow());
         cmd.Add(BuildExport());
+        cmd.Add(BuildManaged());
 
         return cmd;
+    }
+
+    private Command BuildManaged()
+    {
+        var managedCmd = new Command("managed", "Manage managed/enterprise settings");
+
+        var listCmd = new Command("list", "List managed settings with sources");
+        listCmd.SetAction(async (_, ct) =>
+        {
+            if (_managedChain is null)
+            {
+                _console.MarkupLine("[yellow]Managed settings chain not available[/]");
+                return 0;
+            }
+
+            var settings = _managedChain.Current ?? await _managedChain.BuildAsync(ct);
+            var all = settings.All();
+            if (all.Count == 0)
+            {
+                _console.MarkupLine("[yellow]No managed settings loaded[/]");
+                return 0;
+            }
+
+            var table = new Table();
+            table.AddColumns("Setting", "Value", "Source", "Managed");
+            foreach (var (key, setting) in all)
+                table.AddRow(key, setting.Value?.ToString() ?? "(null)", setting.Source, setting.IsManaged ? "✅" : "❌");
+            _console.Write(table);
+            return 0;
+        });
+
+        var auditCmd = new Command("audit", "Audit managed settings compliance");
+        auditCmd.SetAction(async (_, ct) =>
+        {
+            if (_managedChain is null)
+            {
+                _console.MarkupLine("[yellow]Managed settings chain not available[/]");
+                return 0;
+            }
+
+            var settings = _managedChain.Current ?? await _managedChain.BuildAsync(ct);
+            var validator = new ManagedSettingsValidator();
+            var result = validator.Validate(settings);
+
+            if (result.IsValid)
+            {
+                _console.MarkupLine("[green]All settings compliant[/]");
+            }
+            else
+            {
+                _console.MarkupLine("[red]Validation issues found:[/]");
+                foreach (var warning in result.Warnings)
+                    _console.MarkupLine($"  [yellow]⚠[/] {warning}");
+            }
+            return 0;
+        });
+
+        var checkArg = new Argument<string>("setting") { Description = "Setting path (e.g. RateLimiting:MaxRequests)" };
+        var checkCmd = new Command("check", "Check effective value of a setting") { checkArg };
+        checkCmd.SetAction(async (ParseResult r, CancellationToken ct) =>
+        {
+            if (_managedChain is null)
+            {
+                _console.MarkupLine("[yellow]Managed settings chain not available[/]");
+                return 1;
+            }
+
+            var settingKey = r.GetValue(checkArg)!;
+            var settings = _managedChain.Current ?? await _managedChain.BuildAsync(ct);
+            var setting = settings.Get(settingKey);
+
+            if (setting is null)
+            {
+                _console.MarkupLine($"[yellow]Setting '{settingKey}' not found[/]");
+                return 1;
+            }
+
+            _console.MarkupLine($"[green]{settingKey}[/]");
+            _console.MarkupLine($"  Value:   {setting.Value}");
+            _console.MarkupLine($"  Source:  {setting.Source}");
+            _console.MarkupLine($"  Managed: {(setting.IsManaged ? "✅ Yes" : "❌ No")}");
+            if (setting.PolicyId is not null)
+                _console.MarkupLine($"  Policy:  {setting.PolicyId}");
+            return 0;
+        });
+
+        managedCmd.Add(listCmd);
+        managedCmd.Add(auditCmd);
+        managedCmd.Add(checkCmd);
+        return managedCmd;
     }
 
     private Command BuildValidate()

@@ -5,7 +5,10 @@ using Spectre.Console;
 
 namespace KrnlAI.Cli.Commands;
 
-public sealed class McpCommand(CliContext ctx, ConsoleRenderer renderer)
+public sealed class McpCommand(
+    CliContext ctx,
+    ConsoleRenderer renderer,
+    IMcpServerHost? mcpServerHost = null)
 {
     public Command Build()
     {
@@ -14,6 +17,7 @@ public sealed class McpCommand(CliContext ctx, ConsoleRenderer renderer)
         cmd.Add(BuildList());
         cmd.Add(BuildAdd());
         cmd.Add(BuildRemove());
+        cmd.Add(BuildServe());
 
         return cmd;
     }
@@ -125,6 +129,50 @@ public sealed class McpCommand(CliContext ctx, ConsoleRenderer renderer)
 
             await ctx.McpRegistry.RemoveServerAsync(name, ct);
             renderer.Console.MarkupLine($"[green]MCP server '{name}' removed[/]");
+            return 0;
+        });
+
+        return cmd;
+    }
+
+    private Command BuildServe()
+    {
+        var portOpt = new Option<int>("--port")
+        {
+            Description = "Port to listen on",
+            DefaultValueFactory = _ => 5101
+        };
+        var cmd = new Command("serve", "Start KrnlAI MCP server") { portOpt };
+
+        cmd.SetAction(async (ParseResult r, CancellationToken ct) =>
+        {
+            if (mcpServerHost is null)
+            {
+                renderer.Console.MarkupLine("[red]MCP Server Host not available[/]");
+                return 1;
+            }
+
+            var port = r.GetValue(portOpt);
+
+            await mcpServerHost.StartAsync(ct);
+            renderer.Console.MarkupLine($"[green]MCP Server started on port {port}[/]");
+            renderer.Console.MarkupLine("  Endpoints:");
+            renderer.Console.MarkupLine($"    SSE:    http://localhost:{port}/mcp");
+            renderer.Console.MarkupLine($"    JSON-RPC: POST http://localhost:{port}/mcp");
+            renderer.Console.MarkupLine($"    Health: GET  http://localhost:{port}/mcp/health");
+
+            renderer.Console.MarkupLine("[yellow]Press Ctrl+C to stop[/]");
+
+            try
+            {
+                await Task.Delay(Timeout.Infinite, ct);
+            }
+            catch (OperationCanceledException)
+            {
+                await mcpServerHost.StopAsync(ct);
+                renderer.Console.MarkupLine("[green]MCP Server stopped[/]");
+            }
+
             return 0;
         });
 

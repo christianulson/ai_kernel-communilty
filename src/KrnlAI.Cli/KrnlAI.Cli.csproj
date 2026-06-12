@@ -6,7 +6,6 @@
     <ToolCommandName>krnlai</ToolCommandName>
     <PackageOutputPath>./nupkg</PackageOutputPath>
     <PackageId>KrnlAI.Cli</PackageId>
-    <Version>1.0.0</Version>
     <Description>Krnl-AI CLI - Developer Interface for scaffolding and managing cognitive agents</Description>
     <Authors>Krnl-AI</Authors>
   </PropertyGroup>

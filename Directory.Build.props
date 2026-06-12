@@ -1,4 +1,7 @@
 <Project>
+  <!-- Quando executado como submodule do krnlai, importa a versão centralizada -->
+  <Import Project="..\version.props" Condition="Exists('..\version.props')" />
+
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
@@ -8,7 +11,7 @@
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <NuGetAudit>false</NuGetAudit>
 
-    <!-- Versão dos pacotes NuGet privados (atualizar ao consumir nova release) -->
+    <!-- Versão dos pacotes NuGet privados (fallback para standalone) -->
     <PrivatePackagesVersion Condition="'$(PrivatePackagesVersion)' == ''">1.0.0</PrivatePackagesVersion>
 
     <!-- Community é open source: gerar símbolos e docs -->

@@ -54,7 +54,8 @@ root.Add(new InitCommand(templateEngine, console).Build());
 root.Add(new TemplatesCommand(templateEngine).Build());
 
 // Config command (Plano 14 - YAML Config)
-root.Add(new ConfigCommand(console).Build());
+var managedSettingsChain = host.Services.GetService<KrnlAI.Core.Config.ManagedSettingsChain>();
+root.Add(new ConfigCommand(console, managedSettingsChain).Build());
 
 // Safety evaluation (Plano 4)
 var benchRunner = host.Services.GetRequiredService<SafetyBenchRunner>();
@@ -69,10 +70,13 @@ root.Add(new IntegrationCommand(console).Build());
 
 // Plugin management (Plano 37 - Plugin Ecosystem)
 var pluginLoader = host.Services.GetService<KrnlAI.Core.Abstractions.IAssemblyPluginLoader>();
-root.Add(new PluginCommand(console, pluginLoader).Build());
+var pluginCatalog = host.Services.GetService<KrnlAI.Core.Abstractions.IPluginCatalog>();
+var pluginRegistry = host.Services.GetService<KrnlAI.Core.Abstractions.IPluginRegistryService>();
+root.Add(new PluginCommand(console, pluginLoader, pluginCatalog, pluginRegistry).Build());
 
 // MCP management (Track B2)
-root.Add(new McpCommand(cliCtx, renderer).Build());
+var mcpServerHost = host.Services.GetService<KrnlAI.Core.Abstractions.Mcp.IMcpServerHost>();
+root.Add(new McpCommand(cliCtx, renderer, mcpServerHost).Build());
 
 // Plan/Act mode
 root.Add(new PlanCommand(cliCtx, renderer).Build());
@@ -112,7 +116,8 @@ root.Add(new ExperimentCommand(cliCtx, renderer).Build());
 
 // Session management (Track B5)
 var sessionStore = host.Services.GetRequiredService<InMemorySessionStore>();
-root.Add(new SessionCommand(console, sessionStore).Build());
+var cognitiveSessionStore = host.Services.GetRequiredService<KrnlAI.Cognition.Contracts.ISessionStore>();
+root.Add(new SessionCommand(console, sessionStore, cognitiveSessionStore).Build());
 
 // Lifecycle hooks management
 var lifecycleOrchestrator = host.Services.GetRequiredService<KrnlAI.Core.Services.Lifecycle.LifecycleOrchestrator>();

@@ -1,11 +1,15 @@
 using System.CommandLine;
 using System.Text.Json;
 using KrnlAI.Cli.Services;
+using KrnlAI.Cognition.Contracts;
 using Spectre.Console;
 
 namespace KrnlAI.Cli.Commands;
 
-public sealed class SessionCommand(IAnsiConsole console, InMemorySessionStore sessionStore)
+public sealed class SessionCommand(
+    IAnsiConsole console,
+    InMemorySessionStore sessionStore,
+    ISessionStore cognitiveStore)
 {
     public Command Build()
     {
@@ -16,6 +20,10 @@ public sealed class SessionCommand(IAnsiConsole console, InMemorySessionStore se
         cmd.Add(BuildExport());
         cmd.Add(BuildImport());
         cmd.Add(BuildDelete());
+        cmd.Add(BuildFork());
+        cmd.Add(BuildResume());
+        cmd.Add(BuildShow());
+        cmd.Add(BuildTimeline());
 
         return cmd;
     }
@@ -53,6 +61,116 @@ public sealed class SessionCommand(IAnsiConsole console, InMemorySessionStore se
             console.MarkupLine($"  Name: {session.Name}");
             console.MarkupLine($"  Created: {session.CreatedAt:yyyy-MM-dd HH:mm:ss}");
             return Task.FromResult(0);
+        });
+        return cmd;
+    }
+
+    private Command BuildFork()
+    {
+        var idArg = new Argument<string>("id") { Description = "Cognitive session ID to fork" };
+        var cmd = new Command("fork", "Fork a cognitive session") { idArg };
+        cmd.SetAction(async (ParseResult r, CancellationToken ct) =>
+        {
+            var id = r.GetValue(idArg)!;
+            try
+            {
+                var fork = await cognitiveStore.ForkAsync(id, ct: ct);
+                console.MarkupLine($"[green]Session forked:[/] {fork.SessionId}");
+                console.MarkupLine($"  Forked from: {fork.ForkedFrom}");
+                console.MarkupLine($"  Fork depth: {fork.ForkDepth}");
+                console.MarkupLine($"  Cycles: {fork.CycleIds.Count}");
+                return 0;
+            }
+            catch (KeyNotFoundException)
+            {
+                console.MarkupLine($"[red]Session '{id}' not found[/]");
+                return 1;
+            }
+        });
+        return cmd;
+    }
+
+    private Command BuildResume()
+    {
+        var idArg = new Argument<string>("id") { Description = "Cognitive session ID to resume" };
+        var cmd = new Command("resume", "Resume a cognitive session") { idArg };
+        cmd.SetAction(async (ParseResult r, CancellationToken ct) =>
+        {
+            var id = r.GetValue(idArg)!;
+            var ctx = await cognitiveStore.ResumeAsync(id, ct);
+            if (ctx is null)
+            {
+                console.MarkupLine($"[yellow]Session '{id}' has no saved context to resume[/]");
+                return 1;
+            }
+            console.MarkupLine($"[green]Session resumed:[/] {id}");
+            console.MarkupLine($"  Goal: {ctx.Goal}");
+            console.MarkupLine($"  Domain: {ctx.Domain}");
+            console.MarkupLine($"  Cycle: {ctx.CycleId}");
+            return 0;
+        });
+        return cmd;
+    }
+
+    private Command BuildShow()
+    {
+        var idArg = new Argument<string>("id") { Description = "Cognitive session ID" };
+        var cmd = new Command("show", "Show session details") { idArg };
+        cmd.SetAction(async (ParseResult r, CancellationToken ct) =>
+        {
+            var id = r.GetValue(idArg)!;
+            var session = await cognitiveStore.GetAsync(id, ct);
+            if (session is null)
+            {
+                console.MarkupLine($"[red]Session '{id}' not found[/]");
+                return 1;
+            }
+
+            var table = new Table();
+            table.AddColumns("Property", "Value");
+            table.AddRow("Session ID", session.SessionId);
+            table.AddRow("Status", session.Status.ToString());
+            table.AddRow("Started At", session.StartedAt.ToString("yyyy-MM-dd HH:mm:ss"));
+            table.AddRow("Completed At", session.CompletedAt?.ToString("yyyy-MM-dd HH:mm:ss") ?? "-");
+            table.AddRow("Fork Depth", session.ForkDepth.ToString());
+            table.AddRow("Forked From", session.ForkedFrom ?? "(original)");
+            table.AddRow("Cycles", session.CycleIds.Count.ToString());
+            table.AddRow("Summary", session.Summary);
+            console.Write(table);
+            return 0;
+        });
+        return cmd;
+    }
+
+    private Command BuildTimeline()
+    {
+        var idArg = new Argument<string>("id") { Description = "Cognitive session ID" };
+        var cmd = new Command("timeline", "Show session fork timeline") { idArg };
+        cmd.SetAction(async (ParseResult r, CancellationToken ct) =>
+        {
+            var id = r.GetValue(idArg)!;
+            var session = await cognitiveStore.GetAsync(id, ct);
+            if (session is null)
+            {
+                console.MarkupLine($"[red]Session '{id}' not found[/]");
+                return 1;
+            }
+
+            var table = new Table();
+            table.AddColumns("Property", "Value");
+            table.AddRow("Session ID", session.SessionId);
+            table.AddRow("Status", session.Status.ToString());
+            table.AddRow("Fork Depth", session.ForkDepth.ToString());
+            table.AddRow("Forked From", session.ForkedFrom ?? "(original)");
+            table.AddRow("Cycles", session.CycleIds.Count.ToString());
+            table.AddRow("Summary", session.Summary);
+            console.Write(table);
+
+            if (!string.IsNullOrWhiteSpace(session.ForkedFrom))
+            {
+                console.MarkupLine($"\n[yellow]Fork chain:[/] {session.ForkedFrom} → {session.SessionId}");
+            }
+            return 0;
         });
         return cmd;
     }

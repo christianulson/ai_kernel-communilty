@@ -10,18 +10,18 @@ public sealed class ConfigCommandTests
     public void ConfigCommand_Build_ShouldCreateCommand()
     {
         var console = new TestConsole();
-        var cmd = new ConfigCommand(console).Build();
+        var cmd = new ConfigCommand(console, null).Build();
 
         cmd.Name.Should().Be("config");
         cmd.Description.Should().Be("Manage declarative YAML configuration");
-        cmd.Children.Should().HaveCount(3);
+        cmd.Children.Should().HaveCount(4);
     }
 
     [Fact]
     public async Task ConfigCommand_Show_ShouldPrintMessage()
     {
         var console = new TestConsole();
-        var cmd = new ConfigCommand(console).Build();
+        var cmd = new ConfigCommand(console, null).Build();
         var root = new RootCommand { cmd };
 
         var result = await root.Parse("config show").InvokeAsync();
@@ -34,7 +34,7 @@ public sealed class ConfigCommandTests
     public async Task ConfigCommand_Export_ShouldProduceOutput()
     {
         var console = new TestConsole();
-        var cmd = new ConfigCommand(console).Build();
+        var cmd = new ConfigCommand(console, null).Build();
         var root = new RootCommand { cmd };
 
         var result = await root.Parse("config export test-config --format yaml").InvokeAsync();
@@ -47,7 +47,7 @@ public sealed class ConfigCommandTests
     public async Task ConfigCommand_Validate_WithInvalidPath_ShouldFail()
     {
         var console = new TestConsole();
-        var cmd = new ConfigCommand(console).Build();
+        var cmd = new ConfigCommand(console, null).Build();
         var root = new RootCommand { cmd };
 
         var result = await root.Parse("config validate nonexistent.yaml").InvokeAsync();
