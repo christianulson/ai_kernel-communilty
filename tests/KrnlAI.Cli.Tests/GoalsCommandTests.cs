@@ -89,7 +89,7 @@ public sealed class GoalsCommandTests
         output.Should().Contain("GoalId:");
         output.Should().Contain("goal-001");
         output.Should().Contain("Status:");
-        output.Should().Contain("active");
+        output.Should().Contain("Active");
     }
 
     [Fact]
