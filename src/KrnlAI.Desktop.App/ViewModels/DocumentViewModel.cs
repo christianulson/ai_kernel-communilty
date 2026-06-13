@@ -43,7 +43,8 @@ public class DocumentViewModel : ViewModelBase
             }
             var docs = await _kernelClient.GetDocumentsAsync(50);
             DocumentList.Clear();
-            foreach (var d in docs) DocumentList.Add(d);
+            if (docs != null)
+                foreach (var d in docs) DocumentList.Add(d);
             OnPropertyChanged(nameof(HasNoData));
         }
         catch (Exception ex)

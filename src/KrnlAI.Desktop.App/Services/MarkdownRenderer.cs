@@ -10,6 +10,12 @@ public sealed class MarkdownRenderer
     private static readonly Brush CodeBg = new SolidColorBrush(Color.FromArgb(20, 100, 180, 255));
     private static readonly Brush PreBg = new SolidColorBrush(Color.FromArgb(30, 0, 0, 0));
 
+    static MarkdownRenderer()
+    {
+        CodeBg.Freeze();
+        PreBg.Freeze();
+    }
+
     public UIElement Render(string markdown)
     {
         var stack = new StackPanel { Margin = new Thickness(0, 4, 0, 4) };

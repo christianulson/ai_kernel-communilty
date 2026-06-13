@@ -44,8 +44,18 @@ public sealed class WelcomeWizardViewModel : ViewModelBase
     public bool IsLastStep => _currentStep == TotalSteps;
     public string NextButtonText => IsLastStep ? "Começar!" : "Próximo →";
 
-    public bool IsLocalModeSelected { get; set; } = true;
-    public bool IsCloudModeSelected { get; set; }
+    private bool _isLocalModeSelected = true;
+    private bool _isCloudModeSelected;
+    public bool IsLocalModeSelected
+    {
+        get => _isLocalModeSelected;
+        set { if (SetProperty(ref _isLocalModeSelected, value) && value) IsCloudModeSelected = false; }
+    }
+    public bool IsCloudModeSelected
+    {
+        get => _isCloudModeSelected;
+        set { if (SetProperty(ref _isCloudModeSelected, value) && value) IsLocalModeSelected = false; }
+    }
 
     public ICommand NextStepCommand { get; }
     public ICommand PreviousStepCommand { get; }

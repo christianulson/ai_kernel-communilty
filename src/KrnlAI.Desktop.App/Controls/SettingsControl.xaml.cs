@@ -11,11 +11,15 @@ public partial class SettingsControl : UserControl
 
     private async void OnMcpToggled(object sender, RoutedEventArgs e)
     {
-        if (sender is CheckBox { DataContext: McpServerInfo server } check)
+        try
         {
-            if (DataContext is MainViewModel mainVm)
-                await mainVm.SettingsVM.ToggleMcpServerAsync(server.ServerId, check.IsChecked ?? false);
+            if (sender is CheckBox { DataContext: McpServerInfo server } check)
+            {
+                if (DataContext is MainViewModel mainVm)
+                    await mainVm.SettingsVM.ToggleMcpServerAsync(server.ServerId, check.IsChecked ?? false);
+            }
         }
+        catch (Exception ex) { KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"SettingsControl.OnMcpToggled: {ex.Message}"); }
     }
 
     private void OnOpenLogsFolder(object sender, RoutedEventArgs e)

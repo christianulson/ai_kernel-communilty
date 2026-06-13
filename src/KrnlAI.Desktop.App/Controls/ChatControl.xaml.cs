@@ -12,12 +12,16 @@ public partial class ChatControl : UserControl
 
     private async void OnLoaded(object sender, RoutedEventArgs e)
     {
-        if (DataContext is ViewModels.MainViewModel mainVm && mainVm.ChatVM != null)
+        try
         {
-            var chatVm = mainVm.ChatVM;
+            if (DataContext is ViewModels.MainViewModel mainVm && mainVm.ChatVM != null)
+            {
+                var chatVm = mainVm.ChatVM;
 
-            await chatVm.ConnectCognitiveStreamAsync();
+                await chatVm.ConnectCognitiveStreamAsync();
+            }
         }
+        catch (Exception ex) { KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"ChatControl.OnLoaded: {ex.Message}"); }
     }
 
     private void OnChatInputKeyDown(object sender, KeyEventArgs e)

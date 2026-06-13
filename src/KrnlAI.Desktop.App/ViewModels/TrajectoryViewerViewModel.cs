@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Windows.Input;
 using KrnlAI.Desktop.App.Services;
+using Microsoft.Extensions.Logging;
 
 namespace KrnlAI.Desktop.App.ViewModels;
 
@@ -47,6 +48,7 @@ public sealed record TrajectorySessionDetail
 public sealed class TrajectoryViewerViewModel : ViewModelBase
 {
     private readonly HttpClient _http;
+    private readonly ILogger<TrajectoryViewerViewModel> _logger;
     private int _selectedTabIndex;
     private string _searchText = "";
 
@@ -74,8 +76,9 @@ public sealed class TrajectoryViewerViewModel : ViewModelBase
     public ICommand RefreshCommand { get; }
     public ICommand LoadSessionCommand { get; }
 
-    public TrajectoryViewerViewModel()
+    public TrajectoryViewerViewModel(ILogger<TrajectoryViewerViewModel>? logger = null)
     {
+        _logger = logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<TrajectoryViewerViewModel>.Instance;
         var baseUrl = Environment.GetEnvironmentVariable("KRNL__API_BASE_URL") ?? "http://localhost:5235";
         _http = new HttpClient { BaseAddress = new Uri(baseUrl), Timeout = TimeSpan.FromSeconds(10) };
         RefreshCommand = new AsyncRelayCommand(LoadSessionsAsync);
@@ -107,7 +110,7 @@ public sealed class TrajectoryViewerViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Failed to load trajectories: {ex.Message}");
+            _logger.LogWarning(ex, "Failed to load trajectories");
         }
     }
 
@@ -124,7 +127,7 @@ public sealed class TrajectoryViewerViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Failed to load trajectory: {ex.Message}");
+            _logger.LogWarning(ex, "Failed to load trajectory");
         }
     }
 }

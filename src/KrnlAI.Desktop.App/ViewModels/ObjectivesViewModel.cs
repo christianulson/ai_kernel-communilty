@@ -34,7 +34,7 @@ public class ObjectivesViewModel : ViewModelBase
                 ErrorMessage = "Indisponível no modo Local";
                 return;
             }
-            var r = await _client.GetObjectivesAsync(); Objectives.Clear(); foreach (var o in r) Objectives.Add(o); OnPropertyChanged(nameof(HasNoData));
+            var r = await _client.GetObjectivesAsync(); Objectives.Clear(); if (r != null) { foreach (var o in r) Objectives.Add(o); } OnPropertyChanged(nameof(HasNoData));
         }
         catch (Exception ex) { ErrorMessage = $"Erro ao carregar objetivos: {ex.Message}"; }
         finally { IsLoading = false; }

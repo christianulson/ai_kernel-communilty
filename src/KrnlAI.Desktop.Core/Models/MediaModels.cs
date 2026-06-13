@@ -38,4 +38,13 @@ public record AppSettings
     public bool WindowMaximized { get; init; }
     
     public string Theme { get; init; } = "dark";
+    public SidecarSettings? SidecarConfig { get; init; }
 }
+
+public record SidecarSettings(
+    string? Mode,
+    string? AuthEndpoint,
+    string? GatewayEndpoint,
+    string? ApiKey,
+    string? TenantId
+);

@@ -199,7 +199,8 @@ public class DashboardViewModel : ViewModelBase, IDisposable
                 RuntimeData = runtime;
                 MetricsData = metrics;
                 GoalsList.Clear();
-                foreach (var g in goals.Goals) GoalsList.Add(g);
+                if (goals?.Goals != null)
+                    foreach (var g in goals.Goals) GoalsList.Add(g);
                 CognitiveData = cognitive;
                 CrossSummaryData = cross;
                 MetricsByGoalData = metricsByGoal;

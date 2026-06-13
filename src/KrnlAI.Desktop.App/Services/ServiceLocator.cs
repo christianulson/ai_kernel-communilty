@@ -263,15 +263,21 @@ public class ServiceLocator : IDisposable, IAsyncDisposable
     public void Dispose()
     {
         if (_disposed) return;
-        DisposeAsync().AsTask().GetAwaiter().GetResult();
+        _disposed = true;
+        if (_embeddedKernelLazy?.IsValueCreated == true)
+        {
+            try { _embeddedKernelLazy.Value.DisposeAsync().AsTask().ConfigureAwait(false).GetAwaiter().GetResult(); }
+            catch { /* best-effort disposal */ }
+        }
+        _provider?.Dispose();
     }
 
     public async ValueTask DisposeAsync()
     {
         if (_disposed) return;
+        _disposed = true;
         if (_embeddedKernelLazy?.IsValueCreated == true)
             await _embeddedKernelLazy.Value.DisposeAsync().ConfigureAwait(false);
         _provider?.Dispose();
-        _disposed = true;
     }
 }

@@ -55,7 +55,8 @@ public class EpisodesViewModel : ViewModelBase
     {
         try
         {
-            EpisodeDetail = await _kernelClient.GetEpisodeAsync(id);
+            var detail = await _kernelClient.GetEpisodeAsync(id);
+            if (detail != null) EpisodeDetail = detail;
         }
         catch (Exception ex)
         {

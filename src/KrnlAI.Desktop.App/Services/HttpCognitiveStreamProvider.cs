@@ -16,7 +16,7 @@ public sealed class HttpCognitiveStreamProvider : ICognitiveStreamProvider
     public event Action<CognitiveCycleEvent>? OnEvent;
     public event Action<CognitiveStreamState>? OnStateChanged;
 
-    public HttpCognitiveStreamProvider(string baseUrl = "http://localhost:5000")
+    public HttpCognitiveStreamProvider(string baseUrl = "http://localhost:5235")
     {
         _http = new HttpClient { BaseAddress = new Uri(baseUrl.TrimEnd('/')), Timeout = TimeSpan.FromSeconds(30) };
     }
