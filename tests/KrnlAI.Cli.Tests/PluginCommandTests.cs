@@ -30,28 +30,28 @@ public sealed class PluginCommandTests
     }
 
     [Fact]
-    public async Task PluginCommand_Remove_WithBadEndpoint_ShouldShowError()
+    public async Task PluginCommand_Remove_Local_ShouldSucceed()
     {
         var console = new TestConsole();
         var cmd = new PluginCommand(console).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("plugin remove test-plugin --endpoint http://localhost:1").InvokeAsync();
+        var result = await root.Parse("plugin remove test-plugin --local").InvokeAsync();
 
-        result.Should().Be(1);
-        console.Output.Should().Contain("Error");
+        result.Should().Be(0);
+        console.Output.Should().Contain("removed");
     }
 
     [Fact]
-    public async Task PluginCommand_MapType_ShouldHandleDotNetAssembly()
+    public async Task PluginCommand_MapType_ShouldInstallLocalSuccessfully()
     {
         var console = new TestConsole();
         var cmd = new PluginCommand(console).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("plugin install test.dll --type dotnet-assembly --endpoint http://localhost:1").InvokeAsync();
+        var result = await root.Parse("plugin install test.dll --type dotnet-assembly --local").InvokeAsync();
 
-        result.Should().Be(1);
+        result.Should().Be(0);
     }
 
     [Fact]

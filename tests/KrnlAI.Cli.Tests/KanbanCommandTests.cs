@@ -53,23 +53,23 @@ public sealed class KanbanCommandTests
         {
             var store = new InMemoryGoalStore();
             store.UpsertAsync(new PersistentGoal(
-                "g1", null, "Setup infra", "active", 0, 0.8,
+                "g1", null, "Setup infra", GoalStatus.Active, 0, 0.8,
                 FixedNow, FixedNow.AddDays(3), [], [], new Dictionary<string, string>()),
                 CancellationToken.None).GetAwaiter().GetResult();
             store.UpsertAsync(new PersistentGoal(
-                "g2", null, "Optimize cache", "active", 0.5, 0.6,
+                "g2", null, "Optimize cache", GoalStatus.Active, 0.5, 0.6,
                 FixedNow, FixedNow.AddDays(7), [], [], new Dictionary<string, string>()),
                 CancellationToken.None).GetAwaiter().GetResult();
             store.UpsertAsync(new PersistentGoal(
-                "g3", null, "Migration", "blocked", 0.3, 0.7,
+                "g3", null, "Migration", GoalStatus.Blocked, 0.3, 0.7,
                 FixedNow, FixedNow.AddDays(5), [], [], new Dictionary<string, string>()),
                 CancellationToken.None).GetAwaiter().GetResult();
             store.UpsertAsync(new PersistentGoal(
-                "g4", null, "Deploy v2", "completed", 1.0, 0.9,
+                "g4", null, "Deploy v2", GoalStatus.Completed, 1.0, 0.9,
                 FixedNow.AddDays(-2), null, [], [], new Dictionary<string, string>()),
                 CancellationToken.None).GetAwaiter().GetResult();
             store.UpsertAsync(new PersistentGoal(
-                "g5", null, "Experiment X", "failed", 0.4, 0.3,
+                "g5", null, "Experiment X", GoalStatus.Failed, 0.4, 0.3,
                 FixedNow.AddDays(-5), null, [], [], new Dictionary<string, string>()),
                 CancellationToken.None).GetAwaiter().GetResult();
             return store;
@@ -94,7 +94,7 @@ public sealed class KanbanCommandTests
     {
         var store = new InMemoryGoalStore();
         await store.UpsertAsync(new PersistentGoal(
-            "g1", null, "Test", "active", 0, 0.8,
+            "g1", null, "Test", GoalStatus.Active, 0, 0.8,
             FixedNow, null, [], [], new Dictionary<string, string>()),
             CancellationToken.None);
 

@@ -52,11 +52,11 @@ public sealed class KanbanRenderer(IAnsiConsole console)
     {
         var color = card.Status switch
         {
-            "active" when card.Progress is 0 or -0 => "grey",
-            "active" => "yellow",
-            "blocked" => "red",
-            "completed" => "green",
-            "failed" or "abandoned" => "red dim",
+            GoalStatus.Active when card.Progress is 0 or -0 => "grey",
+            GoalStatus.Active => "yellow",
+            GoalStatus.Blocked => "red",
+            GoalStatus.Completed => "green",
+            GoalStatus.Failed or GoalStatus.Abandoned => "red dim",
             _ => "grey"
         };
 

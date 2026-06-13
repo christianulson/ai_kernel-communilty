@@ -45,7 +45,7 @@ public sealed class GoalsCommandTests
         {
             var store = new InMemoryGoalStore();
             store.UpsertAsync(new PersistentGoal(
-                "goal-001", null, "Test goal", "active", 0.5, 0.8,
+                "goal-001", null, "Test goal", GoalStatus.Active, 0.5, 0.8,
                 DateTimeOffset.UtcNow, null, [], [], new Dictionary<string, string>()),
                 CancellationToken.None).GetAwaiter().GetResult();
             return store;
