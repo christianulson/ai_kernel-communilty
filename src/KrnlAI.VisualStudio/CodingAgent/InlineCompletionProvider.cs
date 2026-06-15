@@ -28,7 +28,7 @@ internal sealed class KrnlAIInlineCompletionSession
     private readonly ITextView _textView;
     private readonly HttpClient _http = new();
     private readonly CompletionCacheService _cache = new();
-    private string _baseUrl = "http://localhost:5000";
+    private string _baseUrl = Environment.GetEnvironmentVariable("KRNL__API_BASE_URL") ?? "http://localhost:5235";
     private CancellationTokenSource? _pendingCts;
 
     private static readonly HashSet<char> TriggerChars = new()
@@ -80,7 +80,7 @@ internal sealed class KrnlAIInlineCompletionSession
         var cached = _cache.Get(prefix, language);
         if (cached != null)
         {
-            ShowSuggestion(cached[0]);
+            await ShowSuggestionAsync(cached[0]);
             return;
         }
 
@@ -114,16 +114,31 @@ internal sealed class KrnlAIInlineCompletionSession
             if (result?.Completions == null || result.Completions.Count == 0) return;
 
             _cache.Set(prefix, language, result.Completions);
-            ShowSuggestion(result.Completions[0]);
+            await ShowSuggestionAsync(result.Completions[0]);
         }
         catch (OperationCanceledException) { }
+        catch { }
+    }
+
+    private async System.Threading.Tasks.Task ShowSuggestionAsync(string suggestion)
+    {
+        if (string.IsNullOrEmpty(suggestion)) return;
+        _textView.Properties["KrnlAI_Suggestion"] = suggestion;
+        await Microsoft.VisualStudio.Shell.ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+        try
+        {
+            var caret = _textView.Caret.Position.BufferPosition.Position;
+            using var edit = _textView.TextBuffer.CreateEdit();
+            var insertText = suggestion.Length > 80 ? suggestion[..80] + "..." : suggestion;
+            edit.Insert(caret, $" /* completion: {insertText.Replace("\n", " ")} */");
+            edit.Apply();
+        }
         catch { }
     }
 
     private void ShowSuggestion(string suggestion)
     {
         if (string.IsNullOrEmpty(suggestion)) return;
-
         _textView.Properties["KrnlAI_Suggestion"] = suggestion;
     }
 

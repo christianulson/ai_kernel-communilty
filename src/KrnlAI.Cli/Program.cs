@@ -93,6 +93,9 @@ root.Add(new UpgradeCommand().Build());
 // Provider management (Plano 12)
 root.Add(new ProviderCommand().Build());
 
+// Profile (Gap fix)
+root.Add(new ProfileCommand().Build());
+
 // Export (Plano 11)
 root.Add(new ExportCommand().Build());
 

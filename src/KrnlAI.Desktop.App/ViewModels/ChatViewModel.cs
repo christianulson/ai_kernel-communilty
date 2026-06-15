@@ -292,6 +292,7 @@ public class ChatViewModel : ViewModelBase
     public ICommand SnapCameraCommand { get; }
     public ICommand DismissCameraPreviewCommand { get; }
     public ICommand ExportConversationCommand { get; }
+    public ICommand ExportPdfCommand { get; }
     public ICommand ShareConversationCommand { get; }
     public ICommand EditMessageCommand { get; }
     public ICommand DeleteMessageCommand { get; }
@@ -321,6 +322,7 @@ public class ChatViewModel : ViewModelBase
         SnapCameraCommand = new AsyncRelayCommand(SnapCameraAsync, () => _isCameraOn && _lastFrameJpeg != null);
         DismissCameraPreviewCommand = new RelayCommand(DismissCameraPreview);
         ExportConversationCommand = new AsyncRelayCommand(ExportConversationAsync);
+        ExportPdfCommand = new AsyncRelayCommand(ExportPdfAsync);
         ShareConversationCommand = new RelayCommand(ShareConversation);
         EditMessageCommand = new AsyncRelayCommand(async p => { if (p is string id) await EditMessageAsync(id); });
         DeleteMessageCommand = new RelayCommand(p => { if (p is string id) DeleteMessage(id); });
@@ -658,6 +660,33 @@ public class ChatViewModel : ViewModelBase
     {
         var msg = Messages.FirstOrDefault(m => m.Id == messageId);
         if (msg != null) { Messages.Remove(msg); PersistMessages(); }
+    }
+
+    private async Task ExportPdfAsync()
+    {
+        if (Messages.Count == 0) return;
+        var dialog = new Microsoft.Win32.SaveFileDialog
+        {
+            Filter = "HTML files (*.html)|*.html",
+            DefaultExt = ".html",
+            FileName = $"chat-{DateTime.Now:yyyyMMdd-HHmmss}.html"
+        };
+        if (dialog.ShowDialog() != true) return;
+        try
+        {
+            var html = new System.Text.StringBuilder();
+            html.AppendLine("<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Chat Export</title>");
+            html.AppendLine("<style>body{font-family:system-ui;max-width:800px;margin:auto;padding:20px}");
+            html.AppendLine(".msg{margin:12px 0;padding:12px;border-radius:8px;background:#f5f5f5}");
+            html.AppendLine(".user{background:#e3f2fd}.assistant{background:#f3e5f5}");
+            html.AppendLine(".time{font-size:11px;color:#666}</style></head><body>");
+            html.AppendLine($"<h1>Chat Export</h1><p>{DateTime.Now:dd/MM/yyyy HH:mm}</p>");
+            foreach (var m in Messages)
+                html.AppendLine($"<div class='msg {m.Role.ToString().ToLower()}'><strong>{m.Role}:</strong> {System.Net.WebUtility.HtmlEncode(m.Content ?? "")}</div>");
+            html.AppendLine("</body></html>");
+            await File.WriteAllTextAsync(dialog.FileName, html.ToString());
+        }
+        catch (Exception ex) { KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"ExportPdf: {ex.Message}"); }
     }
 
     private async Task ExportConversationAsync()

@@ -208,6 +208,11 @@
           "default": 5001,
           "description": "Porta do Sidecar local"
         },
+        "krnlai.sidecarPath": {
+          "type": "string",
+          "default": "",
+          "description": "Caminho personalizado para o Sidecar .csproj ou .exe. Se vazio, usa o padrão do projeto."
+        },
         "krnlai.sidecarTransport": {
           "type": "string",
           "default": "http",

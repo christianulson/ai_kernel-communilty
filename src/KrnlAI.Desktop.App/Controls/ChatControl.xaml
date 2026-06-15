@@ -60,6 +60,10 @@
                             ToolTip="Exportar conversa">
                         <TextBlock Text="📥" FontSize="14"/>
                     </Button>
+                    <Button Command="{Binding ChatVM.ExportPdfCommand}" Style="{StaticResource GhostButton}" Padding="12,8" Margin="0,0,4,0"
+                            ToolTip="Exportar como HTML/PDF">
+                        <TextBlock Text="📄" FontSize="14"/>
+                    </Button>
                 </StackPanel>
             </Grid>
         </Border>
@@ -124,8 +128,8 @@
                                     <Image Source="{Binding ImageBase64, Converter={StaticResource Base64ToImageConverter}}"
                                            Cursor="Hand" MouseDown="OnImageClick"/>
                                 </Border>
-                                <TextBlock Text="{Binding Content}" TextWrapping="Wrap"
-                                           Foreground="{DynamicResource TextPrimaryBrush}" LineHeight="26"/>
+                                <ContentControl Content="{Binding Content, Converter={StaticResource MarkdownToFlowConverter}}"
+                                                Focusable="False"/>
                             </StackPanel>
                         </Border>
                     </DataTemplate>

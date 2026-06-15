@@ -54,14 +54,19 @@ export function activate(context: vscode.ExtensionContext) {
     // Sidecar
     context.subscriptions.push(vscode.commands.registerCommand('krnlai.start', async () => {
         if (sidecarProcess) { vscode.window.showInformationMessage('Sidecar já está rodando'); return; }
-        const projectDir = vscode.workspace.workspaceFolders?.[0]?.uri?.fsPath;
-        if (!projectDir) {
-            vscode.window.showErrorMessage('Abra uma pasta do projeto Krnl-AI para iniciar o Sidecar');
-            return;
+
+        // Sidecar path: env var > workspace config > project default
+        let csprojPath = process.env.KRNL_SIDECAR_PATH || vscode.workspace.getConfiguration('krnlai').get<string>('sidecarPath', '');
+        if (!csprojPath) {
+            const projectDir = vscode.workspace.workspaceFolders?.[0]?.uri?.fsPath;
+            if (!projectDir) {
+                vscode.window.showErrorMessage('Configure "krnlai.sidecarPath" ou abra uma pasta do projeto Krnl-AI');
+                return;
+            }
+            csprojPath = path.join(projectDir, 'src', 'KrnlAI.Sidecar', 'KrnlAI.Sidecar.csproj');
         }
-        const csprojPath = path.join(projectDir, 'src', 'KrnlAI.Sidecar', 'KrnlAI.Sidecar.csproj');
         if (!fs.existsSync(csprojPath)) {
-            vscode.window.showErrorMessage(`Sidecar não encontrado em: ${csprojPath}`);
+            vscode.window.showErrorMessage(`Sidecar não encontrado em: ${csprojPath}. Configure "krnlai.sidecarPath" ou a env var KRNL_SIDECAR_PATH`);
             return;
         }
         const transport = vscode.workspace.getConfiguration('krnlai').get<string>('sidecarTransport', 'http');
@@ -106,6 +111,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('krnlai.policies', () => PoliciesPanel.createOrShow()));
     context.subscriptions.push(vscode.commands.registerCommand('krnlai.episodes', () => EpisodesPanel.createOrShow()));
     context.subscriptions.push(vscode.commands.registerCommand('krnlai.memory', () => MemoryPanel.createOrShow()));
+    context.subscriptions.push(vscode.commands.registerCommand('krnlai.kanban', () => KanbanPanel.createOrShow()));
     context.subscriptions.push(vscode.commands.registerCommand('krnlai.settings', () => SettingsPanel.createOrShow()));
 
     // TreeView
@@ -232,6 +238,13 @@ function registerCodingAgentFeatures(context: vscode.ExtensionContext, client: K
         const ctx = ctxProvider;
         return runSlashCommand('/review', ctx.getActiveEditorContent()?.substring(0, 2000) || '');
     }));
+    pushSub(vscode.commands.registerCommand('krnlai.coding.run', async () => {
+        const input = await vscode.window.showInputBox({ prompt: 'Digite um prompt personalizado...', placeHolder: 'Ex: refatore esta função para usar async/await' });
+        if (input) {
+            const content = ctxProvider.getSelection() || ctxProvider.getActiveEditorContent() || '';
+            await runSlashCommand(input, content);
+        }
+    }));
 
     pushSub(vscode.languages.registerCodeLensProvider({ scheme: 'file' }, new CodeLensProvider()));
 
@@ -278,6 +291,7 @@ class NavTreeProvider implements vscode.TreeDataProvider<NavItem> {
             new NavItem('📋 Políticas', 'policies', 'Políticas aprendidas'),
             new NavItem('📜 Episódios', 'episodes', 'Histórico de execuções'),
             new NavItem('🧠 Memória', 'memory', 'Busca semântica'),
+            new NavItem('📌 Kanban', 'kanban', 'Quadro Kanban'),
             new NavItem('⚙️ Configurações', 'settings', 'Configurações'),
         ];
     }

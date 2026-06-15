@@ -8,6 +8,8 @@ public sealed class FakeEmbeddedKrnlAI : IEmbeddedKrnlAI
 {
     public EmbeddedKernelOptions Options { get; } = new();
     public string Provider => "fake";
+    public ICognitiveStreamer? CognitiveStreamer => null;
+    public ICognitiveSnapshotService? Snapshots => null;
 
     public Task<EmbeddedAgentRunResult> RunAsync(string input, CancellationToken ct = default)
     {

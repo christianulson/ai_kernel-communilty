@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using KrnlAI.Desktop.App.Services;
 
 namespace KrnlAI.Desktop.App.Converters;
 
@@ -182,6 +183,18 @@ public class BoolToPanelConverter : IValueConverter
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         => throw new NotSupportedException();
+}
+
+public class MarkdownToFlowConverter : IValueConverter
+{
+    private static readonly MarkdownRenderer Renderer = new();
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is not string markdown || string.IsNullOrEmpty(markdown))
+            return Binding.DoNothing;
+        return Renderer.Render(markdown);
+    }
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException();
 }
 
 public class Base64ToImageConverter : IValueConverter

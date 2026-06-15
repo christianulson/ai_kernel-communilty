@@ -105,7 +105,8 @@ public sealed class KernelClientService : IKernelClientService, IDisposable
 
         try
         {
-            var url = $"{_baseUrl}/profile/emotional?userId=dev-user";
+            var userId = Environment.GetEnvironmentVariable("KRNL_USER_ID") ?? "dev-user";
+            var url = $"{_baseUrl}/profile/emotional?userId={userId}";
             var res = await _http.GetAsync(url, ct);
             if (!res.IsSuccessStatusCode) return null;
 

@@ -41,20 +41,20 @@ else
     builder.Services.AddSidecarServices(builder.Configuration, builder.Environment);
 
 // Swagger (Development only)
-if (builder.Environment.IsDevelopment())
-{
-    builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddSwaggerGen();
-}
+    if (builder.Environment.IsDevelopment() || communityMode)
+    {
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen();
+    }
 
 var app = builder.Build();
 
 // Swagger UI
-if (builder.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "KrnlAI.Sidecar v1"));
-}
+    if (builder.Environment.IsDevelopment() || communityMode)
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "KrnlAI.Sidecar v1"));
+    }
 if (communityMode)
     app.MapCommunityEndpoints();
 else
