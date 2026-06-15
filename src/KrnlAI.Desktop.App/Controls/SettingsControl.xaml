@@ -18,7 +18,8 @@
                     <TextBlock Text="URL base para conexão com o backend."
                                FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,16"/>
                     <TextBox Text="{Binding SettingsVM.ApiEndpoint, UpdateSourceTrigger=PropertyChanged}"
-                             Height="44" FontSize="14"/>
+                             Height="44" FontSize="14"
+                             AutomationProperties.AutomationId="ApiEndpointBox"/>
                 </StackPanel>
             </Border>
 

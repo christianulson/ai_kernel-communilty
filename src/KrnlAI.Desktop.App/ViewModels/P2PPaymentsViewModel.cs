@@ -10,6 +10,7 @@ namespace KrnlAI.Desktop.App.ViewModels;
 public sealed record P2PReceipt(string WorkId, string WorkerNodeId, string Type, decimal PriceCents, bool Success, DateTime ExecutedAt);
 public sealed record P2PBatch(string BatchId, ObservableCollection<P2PReceipt> Receipts, decimal TotalCents, string Status, DateTime CreatedAt);
 
+/// <summary>View model for the P2P payments page, displaying balance, receipts, and payment mode.</summary>
 public sealed class P2PPaymentsViewModel : ViewModelBase
 {
     private readonly ILogger<P2PPaymentsViewModel> _logger;

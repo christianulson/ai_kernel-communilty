@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace KrnlAI.Desktop.App.ViewModels;
 
+/// <summary>View model for the admin users page, displaying and managing user accounts.</summary>
 public sealed class AdminUsersViewModel : ViewModelBase
 {
     private readonly ILogger<AdminUsersViewModel> _logger;

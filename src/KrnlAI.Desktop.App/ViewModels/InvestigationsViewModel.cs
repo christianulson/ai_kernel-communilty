@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace KrnlAI.Desktop.App.ViewModels;
 
+/// <summary>View model for the investigations list page, displaying agent investigation cases.</summary>
 public class InvestigationsViewModel : ViewModelBase
 {
     private readonly IKernelClient _client;

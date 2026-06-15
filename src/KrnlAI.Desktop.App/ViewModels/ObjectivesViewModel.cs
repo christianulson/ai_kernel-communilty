@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace KrnlAI.Desktop.App.ViewModels;
 
+/// <summary>View model for the objectives list page, displaying goals and progress.</summary>
 public class ObjectivesViewModel : ViewModelBase
 {
     private readonly IKernelClient _client;

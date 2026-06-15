@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace KrnlAI.Desktop.App.ViewModels;
 
+/// <summary>View model for the admin configuration page, displaying feature flags and server config.</summary>
 public sealed class AdminConfigViewModel : ViewModelBase
 {
     private readonly ILogger<AdminConfigViewModel> _logger;

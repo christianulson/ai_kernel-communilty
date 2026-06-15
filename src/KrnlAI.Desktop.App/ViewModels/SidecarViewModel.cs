@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 
 namespace KrnlAI.Desktop.App.ViewModels;
 
+/// <summary>View model for the sidecar configuration page, managing community/enterprise runtime settings.</summary>
 public sealed class SidecarViewModel : ViewModelBase
 {
     private readonly ILogger<SidecarViewModel> _logger;

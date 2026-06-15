@@ -11,7 +11,8 @@
                 </Grid.ColumnDefinitions>
                 <StackPanel>
                     <TextBlock Text="Objetivos" FontSize="24" FontWeight="Bold"
-                               Foreground="{DynamicResource TextPrimaryBrush}"/>
+                               Foreground="{DynamicResource TextPrimaryBrush}"
+                               AutomationProperties.AutomationId="ObjectivesHeader"/>
                     <TextBlock Text="Metas e progresso do agente."
                                Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"/>
                 </StackPanel>

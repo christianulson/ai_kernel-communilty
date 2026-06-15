@@ -18,8 +18,9 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel>
-                        <TextBlock Text="{loc:Loc nav_episodes}" FontSize="24" FontWeight="Bold"
-                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    <TextBlock Text="{loc:Loc nav_episodes}" FontSize="24" FontWeight="Bold"
+                               Foreground="{DynamicResource TextPrimaryBrush}"
+                               AutomationProperties.AutomationId="EpisodesHeader"/>
                         <TextBlock Text="Histórico de execuções do agente."
                                    Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"/>
                     </StackPanel>

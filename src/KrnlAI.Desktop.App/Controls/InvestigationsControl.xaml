@@ -11,7 +11,8 @@
                 </Grid.ColumnDefinitions>
                 <StackPanel>
                     <TextBlock Text="Investigações" FontSize="24" FontWeight="Bold"
-                               Foreground="{DynamicResource TextPrimaryBrush}"/>
+                               Foreground="{DynamicResource TextPrimaryBrush}"
+                               AutomationProperties.AutomationId="InvestigationsHeader"/>
                     <TextBlock Text="Casos de investigação do agente."
                                Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"/>
                 </StackPanel>

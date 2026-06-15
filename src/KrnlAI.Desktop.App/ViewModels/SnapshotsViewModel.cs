@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace KrnlAI.Desktop.App.ViewModels;
 
+/// <summary>View model for the snapshots list page, displaying automatic system snapshots.</summary>
 public class SnapshotsViewModel : ViewModelBase
 {
     private readonly IKernelClient _client;

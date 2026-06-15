@@ -9,6 +9,7 @@ namespace KrnlAI.Desktop.App.ViewModels;
 
 public sealed record DisputeItem(string DisputeId, string WorkId, string WorkerNodeId, string Reason, string Status, DateTime OpenedAt);
 
+/// <summary>View model for the disputes page, displaying and resolving P2P payment disputes.</summary>
 public sealed class DisputesViewModel : ViewModelBase
 {
     private readonly ILogger<DisputesViewModel> _logger;
