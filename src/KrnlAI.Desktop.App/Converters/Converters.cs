@@ -56,6 +56,19 @@ public class BoolToStatusConverter : IValueConverter
         => throw new NotSupportedException();
 }
 
+public class ListeningButtonConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is bool b)
+            return b ? "Parar Escuta" : "Iniciar Escuta";
+        return "Escuta";
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        => throw new NotSupportedException();
+}
+
 public class StatusToColorConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
