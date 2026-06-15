@@ -422,4 +422,53 @@ public class KernelClient : IKernelClient
 
     public Task<List<Core.Models.MemoryMoment>> GetMemoryMomentsAsync(int limit = 20, CancellationToken ct = default) =>
         SafeCall.ExecuteAsync(async () => new List<Core.Models.MemoryMoment>(), []);
+
+    public Task<List<Core.Models.ApprovalRequest>> GetPendingApprovalsAsync(string? role = null, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var r = await _api.GetPendingApprovalsAsync(role, ct);
+            return r.Select(MapApprovalRequest).ToList();
+        }, []);
+
+    public Task<Core.Models.ApprovalRequest?> GetApprovalDetailAsync(string requestId, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var r = await _api.GetApprovalDetailAsync(requestId, ct);
+            return MapApprovalRequest(r);
+        }, default(Core.Models.ApprovalRequest?));
+
+    public Task<Core.Models.ApprovalRequest?> ApproveRequestAsync(string requestId, string? comment = null, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var r = await _api.ApproveRequestAsync(requestId, new Abstractions.ApprovalActionDto(comment), ct);
+            return MapApprovalRequest(r);
+        }, default(Core.Models.ApprovalRequest?));
+
+    public Task<Core.Models.ApprovalRequest?> RejectRequestAsync(string requestId, string? comment = null, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var r = await _api.RejectRequestAsync(requestId, new Abstractions.ApprovalActionDto(comment), ct);
+            return MapApprovalRequest(r);
+        }, default(Core.Models.ApprovalRequest?));
+
+    private static Core.Models.ApprovalRequest MapApprovalRequest(Abstractions.ApprovalRequestDto dto)
+    {
+        var status = dto.Status switch
+        {
+            "Pending" => Core.Models.ApprovalStatus.Pending,
+            "Approved" => Core.Models.ApprovalStatus.Approved,
+            "Rejected" => Core.Models.ApprovalStatus.Rejected,
+            "Expired" => Core.Models.ApprovalStatus.Expired,
+            "Escalated" => Core.Models.ApprovalStatus.Escalated,
+            _ => Core.Models.ApprovalStatus.Pending
+        };
+        return new Core.Models.ApprovalRequest(
+            dto.RequestId, dto.ActionId, dto.ActionType, dto.Description,
+            dto.PayloadJson, dto.RiskScore, dto.RequiredApprovers ?? [],
+            dto.CreatedAt, dto.Deadline, status,
+            dto.Responses?.Select(r => new Core.Models.ApprovalResponse(
+                r.ApproverId, r.ApproverName, r.Approved, r.Comment, r.Timestamp
+            )).ToList() ?? [],
+            dto.AgentName, dto.RequestedBy);
+    }
 }

@@ -17,7 +17,7 @@ public sealed class TuiEngine
     private readonly bool _isLocal;
     private bool _running;
 
-    public TuiEngine(string baseUrl = "http://localhost:5000")
+    public TuiEngine(string baseUrl = "http://localhost:5235")
     {
         _baseUrl = baseUrl;
         _http = new HttpClient { BaseAddress = new Uri(baseUrl), Timeout = TimeSpan.FromSeconds(30) };

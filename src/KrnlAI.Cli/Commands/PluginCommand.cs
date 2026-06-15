@@ -34,7 +34,7 @@ public sealed class PluginCommand(
         var endpointOpt = new Option<string>("--endpoint")
         {
             Description = "KrnlAI API endpoint (remote mode)",
-            DefaultValueFactory = _ => "http://localhost:5000"
+            DefaultValueFactory = _ => "http://localhost:5235"
         };
         var typeOpt = new Option<string>("--type")
         {
@@ -88,7 +88,7 @@ public sealed class PluginCommand(
         var endpointOpt = new Option<string>("--endpoint")
         {
             Description = "KrnlAI API endpoint (remote mode)",
-            DefaultValueFactory = _ => "http://localhost:5000"
+            DefaultValueFactory = _ => "http://localhost:5235"
         };
         var localOpt = new Option<bool>("--local")
         {

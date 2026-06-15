@@ -2,7 +2,7 @@ namespace KrnlAI.VisualStudio.Services;
 
 public static class KernelEndpointResolver
 {
-    private const string DefaultLocalApiEndpoint = "http://localhost:65335";
+    private const string DefaultLocalApiEndpoint = "http://localhost:5235";
 
     public static string Resolve(KernelRuntimeMode mode, string? endpoint, int sidecarPort)
     {

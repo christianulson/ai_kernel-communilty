@@ -15,7 +15,7 @@ public sealed class ReviewPrCommand
         var endpointOpt = new Option<string>("--endpoint")
         {
             Description = "Backend endpoint URL",
-            DefaultValueFactory = _ => "http://localhost:5000"
+            DefaultValueFactory = _ => "http://localhost:5235"
         };
         var outputOpt = new Option<string>("--output")
         {
@@ -34,7 +34,7 @@ public sealed class ReviewPrCommand
         cmd.SetAction(async (ParseResult r, CancellationToken ct) =>
         {
             var prNumber = r.GetValue(prArg);
-            var endpoint = r.GetValue(endpointOpt) ?? "http://localhost:5000";
+            var endpoint = r.GetValue(endpointOpt) ?? "http://localhost:5235";
             var output = r.GetValue(outputOpt);
             var repo = r.GetValue(repoOpt);
 

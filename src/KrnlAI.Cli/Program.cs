@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Spectre.Console;
 
-var apiBaseUrl = args.Contains("--endpoint") ? args[Array.IndexOf(args, "--endpoint") + 1] : "http://localhost:5000";
+var apiBaseUrl = args.Contains("--endpoint") ? args[Array.IndexOf(args, "--endpoint") + 1] : "http://localhost:5235";
 
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((ctx, services) =>

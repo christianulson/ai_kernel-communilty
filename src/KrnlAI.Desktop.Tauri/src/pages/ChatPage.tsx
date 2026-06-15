@@ -1,50 +1,61 @@
-import { useState } from "react";
-import { SidecarClient } from "../SidecarClient";
+import { useState } from 'react';
+import { apiPost } from '../api/client';
 
 export default function ChatPage() {
-  const [prompt, setPrompt] = useState("");
-  const [response, setResponse] = useState("");
+  const [input, setInput] = useState('');
+  const [messages, setMessages] = useState<{role: string; content: string}[]>([]);
   const [loading, setLoading] = useState(false);
 
-  async function handleSubmit() {
-    if (!prompt.trim()) return;
+  const sendMessage = async () => {
+    if (!input.trim()) return;
+    const userMsg = { role: 'user', content: input };
+    setMessages(prev => [...prev, userMsg]);
+    setInput('');
     setLoading(true);
-    try {
-      const result = await SidecarClient.runAgent(prompt);
-      setResponse(result.narration || result.error || "No response");
-    } catch (e) {
-      setResponse(`Error: ${e}`);
-    } finally {
-      setLoading(false);
-    }
-  }
+
+    const result = await apiPost<{narration: string}>('/agent/run', {
+      prompt: input,
+    });
+
+    setMessages(prev => [...prev, {
+      role: 'assistant',
+      content: result?.narration || 'Sem resposta do servidor.',
+    }]);
+    setLoading(false);
+  };
 
   return (
-    <div style={{ padding: 16, maxWidth: 800, margin: "0 auto" }}>
-      <h2>Chat</h2>
-      <textarea
-        value={prompt}
-        onChange={(e) => setPrompt(e.target.value)}
-        placeholder="Type your message..."
-        rows={4}
-        style={{ width: "100%", marginBottom: 8, padding: 8 }}
-      />
-      <button onClick={handleSubmit} disabled={loading}>
-        {loading ? "Sending..." : "Send"}
-      </button>
-      {response && (
-        <div
-          style={{
-            marginTop: 16,
-            padding: 12,
-            background: "#f0f0f0",
-            borderRadius: 8,
-            whiteSpace: "pre-wrap",
-          }}
-        >
-          {response}
-        </div>
-      )}
+    <div style={{ maxWidth: 800, margin: '0 auto' }}>
+      <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 4 }}>💬 Chat</h1>
+      <p style={{ color: '#8AA0BC', marginBottom: 20 }}>Converse com o agente Krnl-AI.</p>
+
+      <div className="card" style={{ height: 400, overflow: 'auto', marginBottom: 16 }}>
+        {messages.map((msg, i) => (
+          <div key={i} style={{
+            marginBottom: 12, padding: 12, borderRadius: 10,
+            background: msg.role === 'user' ? '#1E3A5F' : '#1A2E3F',
+          }}>
+            <strong>{msg.role === 'user' ? '👤 Você' : '🤖 Krnl-AI'}</strong>
+            <p style={{ marginTop: 4, lineHeight: 1.5 }}>{msg.content}</p>
+          </div>
+        ))}
+        {loading && <p style={{ color: '#8AA0BC' }}>Processando...</p>}
+      </div>
+
+      <div style={{ display: 'flex', gap: 8 }}>
+        <textarea
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), sendMessage())}
+          placeholder="Digite sua mensagem..."
+          rows={3}
+          style={{ flex: 1, resize: 'none' }}
+        />
+        <button onClick={sendMessage} disabled={loading}
+          style={{ background: '#38BDF8', color: '#03111D', padding: '10px 24px', alignSelf: 'flex-end' }}>
+          Enviar
+        </button>
+      </div>
     </div>
   );
 }

@@ -194,5 +194,18 @@
   "toast_error": "Error saving",
   "toast_connected": "Connected to server",
   "toast_disconnected": "Disconnected from server",
-  "settings_open_logs": "Open logs folder"
+  "settings_open_logs": "Open logs folder",
+
+  "nav_approvals": "Approvals",
+  "approval_title": "Approvals",
+  "approval_subtitle": "Pending human-in-the-loop approvals.",
+  "approval_empty": "No pending approvals.",
+  "approval_pending_list": "Pending Requests",
+  "approval_type": "Type:",
+  "approval_risk": "Risk:",
+  "approval_requested_by": "Requested by:",
+  "approval_approve": "Approve",
+  "approval_reject": "Reject",
+  "refresh": "Refresh",
+  "loading": "Loading..."
 }

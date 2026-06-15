@@ -1,7 +1,7 @@
 namespace KrnlAI.Desktop.Core.Abstractions;
 
 /// <summary>Client for communicating with the Krnl-AI backend API.</summary>
-public interface IKernelClient : IAuthClient, IMemoryClient, IPolicyClient, IEpisodeClient, IDashboardClient, IGoalClient, IAdminClient, IKernelAgentClient, IKernelSpeechClient, ISnapshotClient, IObjectiveClient, IInvestigationClient
+public interface IKernelClient : IAuthClient, IMemoryClient, IPolicyClient, IEpisodeClient, IDashboardClient, IGoalClient, IAdminClient, IKernelAgentClient, IKernelSpeechClient, ISnapshotClient, IObjectiveClient, IInvestigationClient, IApprovalClient
 {
     void SetBaseUrl(string baseUrl);
     Task<Core.Models.FeedbackResponse> SubmitFeedbackAsync(Core.Models.FeedbackRequest request, CancellationToken cancellationToken = default);

@@ -11,7 +11,7 @@ public sealed class InteractiveCommand
         var endpoint = new Option<string>("--endpoint")
         {
             Description = "URL do backend Krnl-AI",
-            DefaultValueFactory = _ => "http://localhost:5000"
+            DefaultValueFactory = _ => "http://localhost:5235"
         };
         var local = new Option<bool>("--local") { Description = "Use EmbeddedKrnlAI in-process" };
         var mode = new Option<string>("--mode")
@@ -33,7 +33,7 @@ public sealed class InteractiveCommand
             var useLocal = r.GetValue(local) || string.Equals(runtimeMode, "embedded", StringComparison.OrdinalIgnoreCase);
             var engine = useLocal
                 ? new TuiEngine(new EmbeddedKrnlAI(new EmbeddedKernelOptions { LLmProvider = r.GetValue(model) ?? "ollama" }))
-                : new TuiEngine(r.GetValue(endpoint) ?? "http://localhost:5000");
+                : new TuiEngine(r.GetValue(endpoint) ?? "http://localhost:5235");
             try
             {
                 await engine.RunAsync(ct);

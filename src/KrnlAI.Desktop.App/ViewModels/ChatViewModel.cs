@@ -355,7 +355,7 @@ public class ChatViewModel : ViewModelBase
                     Messages.Add(m);
             }
         }
-        catch { }
+        catch (Exception ex) { KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"LoadMessages: {ex.Message}"); }
     }
 
     private void PersistMessages()
@@ -370,7 +370,7 @@ public class ChatViewModel : ViewModelBase
             store.Conversations.Add(new ConversationData(2, _sessionId, _sessionId, Messages.ToList(), DateTime.UtcNow, DateTime.UtcNow));
             _sessionStore.Save(store with { ActiveConversationId = _sessionId });
         }
-        catch { }
+        catch (Exception ex) { KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"PersistMessages: {ex.Message}"); }
     }
 
     private EmbeddedKrnlAI? GetOrCreateKernel()

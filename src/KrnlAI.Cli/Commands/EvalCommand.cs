@@ -15,7 +15,7 @@ public sealed class EvalCommand
         var endpointOpt = new Option<string>("--endpoint")
         {
             Description = "Backend endpoint URL",
-            DefaultValueFactory = _ => "http://localhost:5000"
+            DefaultValueFactory = _ => "http://localhost:5235"
         };
         var timeoutOpt = new Option<int>("--timeout")
         {
@@ -35,7 +35,7 @@ public sealed class EvalCommand
         cmd.SetAction(async (ParseResult r, CancellationToken ct) =>
         {
             var file = r.GetValue(fileArg);
-            var endpoint = r.GetValue(endpointOpt) ?? "http://localhost:5000";
+            var endpoint = r.GetValue(endpointOpt) ?? "http://localhost:5235";
             var timeout = r.GetValue(timeoutOpt);
             var output = r.GetValue(outputOpt);
 

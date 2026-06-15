@@ -24,7 +24,7 @@ public sealed class RunCommand
         var endpointOpt = new Option<string>("--endpoint")
         {
             Description = "Backend endpoint URL",
-            DefaultValueFactory = _ => "http://localhost:5000"
+            DefaultValueFactory = _ => "http://localhost:5235"
         };
         var modeOpt = new Option<string>("--mode")
         {
@@ -62,7 +62,7 @@ public sealed class RunCommand
         cmd.SetAction(async (ParseResult r, CancellationToken ct) =>
         {
             var prompts = r.GetValue(promptArg);
-            var endpoint = r.GetValue(endpointOpt) ?? "http://localhost:5000";
+            var endpoint = r.GetValue(endpointOpt) ?? "http://localhost:5235";
             var mode = r.GetValue(modeOpt) ?? "remote-api";
             var model = r.GetValue(modelOpt) ?? "ollama";
             var timeout = r.GetValue(timeoutOpt);

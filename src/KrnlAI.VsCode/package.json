@@ -4,6 +4,17 @@
   "description": "Krnl-AI - Cognitive agent for VS Code with coding assistance, memory, safety, and adaptive planning",
   "version": "1.0.0",
   "publisher": "krnlai",
+  "activationEvents": [
+    "onCommand:krnlai.chat",
+    "onCommand:krnlai.dashboard",
+    "onCommand:krnlai.policies",
+    "onCommand:krnlai.episodes",
+    "onCommand:krnlai.memory",
+    "onCommand:krnlai.settings",
+    "onCommand:krnlai.start",
+    "onCommand:krnlai.stop",
+    "onStartupFinished"
+  ],
   "license": "MIT",
   "engines": {
     "vscode": "^1.118.0"
@@ -185,7 +196,7 @@
       "properties": {
         "krnlai.endpoint": {
           "type": "string",
-          "default": "http://localhost:5000",
+          "default": "http://localhost:5235",
           "description": "Endpoint do backend Krnl-AI"
         },
         "krnlai.mode": {

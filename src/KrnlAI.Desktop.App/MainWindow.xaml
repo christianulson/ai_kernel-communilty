@@ -337,8 +337,14 @@
                     <Button Command="{Binding NavigateToTemplatesCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
                             AutomationProperties.AutomationId="TemplatesButton">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="📝" FontSize="14" Margin="0,0,10,0"/>
-                            <TextBlock Text="Templates"/>
+                            <TextBlock Text="{loc:Loc nav_templates}"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding NavigateToApprovalsCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="ApprovalsButton">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="✅" FontSize="14" Margin="0,0,10,0"/>
+                            <TextBlock Text="{loc:Loc nav_approvals}"/>
                         </StackPanel>
                     </Button>
                     <Button Command="{Binding NavigateToCliCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
@@ -360,6 +366,20 @@
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="🧪" FontSize="14" Margin="0,0,10,0"/>
                             <TextBlock Text="Experimentos"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding NavigateToInitWizardCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="InitWizardButton">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🚀" FontSize="14" Margin="0,0,10,0"/>
+                            <TextBlock Text="Novo Projeto"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding NavigateToDebugCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="DebugButton">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🔧" FontSize="14" Margin="0,0,10,0"/>
+                            <TextBlock Text="Diagnóstico"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>
@@ -482,10 +502,13 @@
             <controls:PluginsControl Visibility="{Binding IsPluginsVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:SchedulerControl Visibility="{Binding IsSchedulerVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:TemplatesControl Visibility="{Binding IsTemplatesVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:ApprovalControl Visibility="{Binding IsApprovalVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:CliControl Visibility="{Binding IsCliVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:PluginCatalogControl Visibility="{Binding IsPluginCatalogVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:ExperimentControl Visibility="{Binding IsExperimentVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:LogsViewerControl Visibility="{Binding ShowLogs, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:InitWizardControl Visibility="{Binding IsInitWizardVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:DebugControl Visibility="{Binding IsDebugVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <!-- Welcome Wizard Overlay -->
             <Border Visibility="{Binding ShowWelcomeWizard, Converter={StaticResource BoolToVisibilityConverter}}"
                     Panel.ZIndex="200" Background="#CC000000">

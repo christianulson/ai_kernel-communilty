@@ -194,5 +194,18 @@
   "toast_error": "Erro ao salvar",
   "toast_connected": "Conectado ao servidor",
   "toast_disconnected": "Desconectado do servidor",
-  "settings_open_logs": "Abrir pasta de logs"
+  "settings_open_logs": "Abrir pasta de logs",
+
+  "nav_approvals": "Aprovacoes",
+  "approval_title": "Aprovacoes",
+  "approval_subtitle": "Aprovacoes pendentes com supervisao humana.",
+  "approval_empty": "Nenhuma aprovacao pendente.",
+  "approval_pending_list": "Solicitacoes Pendentes",
+  "approval_type": "Tipo:",
+  "approval_risk": "Risco:",
+  "approval_requested_by": "Solicitado por:",
+  "approval_approve": "Aprovar",
+  "approval_reject": "Rejeitar",
+  "refresh": "Atualizar",
+  "loading": "Carregando..."
 }
