@@ -5,18 +5,30 @@
   "permissions": [
     "core:default",
     "shell:allow-open",
-    "shell:allow-execute",
-    "shell:allow-spawn",
     "notification:default",
     "notification:allow-notify",
     "notification:allow-is-permission-granted",
     "notification:allow-request-permission",
-
     "fs:default",
     "fs:allow-read",
     "fs:allow-write",
+    "fs:allow-exists",
+    "fs:allow-stat",
+    "fs:allow-mkdir",
+    "fs:allow-remove",
+    "fs:allow-rename",
     "process:default",
     "process:allow-exit",
-    "process:allow-restart"
+    "process:allow-restart",
+    "global-shortcut:default",
+    "global-shortcut:allow-register",
+    "global-shortcut:allow-unregister",
+    "global-shortcut:allow-is-registered",
+    "updater:default",
+    "updater:allow-check",
+    "updater:allow-download-and-install",
+    "deep-link:default",
+    "deep-link:allow-is-registered",
+    "deep-link:allow-register"
   ]
 }

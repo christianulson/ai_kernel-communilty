@@ -1,7 +1,9 @@
 mod commands;
+mod hotkey;
 mod notifications;
 mod sidecar;
 mod tray;
+mod updater;
 
 pub fn run() {
     let _ = env_logger::try_init();
@@ -11,9 +13,14 @@ pub fn run() {
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_process::init())
+        .plugin(tauri_plugin_global_shortcut::Builder::new().build())
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_deep_link::init())
         .manage(sidecar::SidecarManager::new())
         .setup(|app| {
             tray::TrayManager::setup(app)?;
+            hotkey::setup_hotkeys(app.handle())?;
+            updater::setup_updater(app)?;
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -23,6 +30,10 @@ pub fn run() {
             commands::stop_sidecar,
             commands::get_sidecar_status,
             commands::get_app_version,
+            commands::get_os_theme,
+            commands::open_external,
+            commands::show_save_dialog,
+            commands::show_open_dialog,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
