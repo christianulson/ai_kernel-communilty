@@ -4,10 +4,10 @@
   "version": "0.1.0",
   "identifier": "com.krnlai.desktop",
   "build": {
-    "frontendDist": "../dist",
-    "devUrl": "http://localhost:5173",
-    "beforeDevCommand": "npm run dev",
-    "beforeBuildCommand": "npm run build"
+    "frontendDist": "../../../webapp/apps/kernel-ui/dist",
+    "devUrl": "http://localhost:4200",
+    "beforeDevCommand": "cd ../../../webapp && npx nx run @krnl-ai/kernel-ui:serve --configuration=local",
+    "beforeBuildCommand": "cd ../../../webapp && npx nx run @krnl-ai/kernel-ui:build"
   },
   "app": {
     "withGlobalTauri": true,
@@ -23,22 +23,42 @@
       }
     ],
     "security": {
-      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'"
+      "csp": "default-src 'self'; connect-src 'self' http://localhost:* http://127.0.0.1:* ws: wss:; img-src 'self' data: blob:; media-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self' data:"
     }
   },
   "bundle": {
     "active": true,
     "targets": "all",
     "icon": ["icons/icon.png"],
-    "externalBin": ["binaries/aikernel-sidecar-x86_64-pc-windows-msvc"],
+    "externalBin": [],
+    "copyright": "Copyright (c) 2026 Krnl-AI Team",
+    "category": "DeveloperTool",
+    "shortDescription": "Krnl-AI Desktop - Cognitive agent client",
+    "longDescription": "Cross-platform desktop client for the Krnl-AI cognitive agent. Features local sidecar execution, peer ranking, kanban board, and full system management.",
+    "publisher": "Krnl-AI",
     "windows": {
       "wix": null,
       "nsis": {
-        "installMode": "currentUser"
+        "installMode": "currentUser",
+        "languages": ["en-US", "pt-BR"]
       }
     },
     "macOS": {
-      "minimumSystemVersion": "12.0"
+      "minimumSystemVersion": "12.0",
+      "frameworks": []
+    }
+  },
+  "updater": {
+    "active": false,
+    "dialog": true,
+    "pubkey": "",
+    "endpoints": []
+  },
+  "plugins": {
+    "deep-link": {
+      "desktop": {
+        "schemes": ["krnl-ai"]
+      }
     }
   }
 }

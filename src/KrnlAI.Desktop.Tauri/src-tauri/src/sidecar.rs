@@ -75,19 +75,18 @@ pub fn find_sidecar_binary() -> Result<String, Box<dyn std::error::Error>> {
     let candidates = [
         exe_dir.join(sidecar_exe),
         exe_dir.join("binaries").join(sidecar_exe),
-        exe_dir.join("binaries").join("aikernel-sidecar-x86_64-pc-windows-msvc.exe"),
         std::path::PathBuf::from("../KrnlAI.Sidecar/bin/Release/net10.0/win-x64/publish").join(sidecar_exe),
         std::path::PathBuf::from("../KrnlAI.Sidecar/bin/Debug/net10.0").join(sidecar_exe),
         std::path::PathBuf::from("../KrnlAI.Sidecar/bin/Debug/net10.0/win-x64").join(sidecar_exe),
     ];
 
     for candidate in &candidates {
-        if candidate.exists() {
+        if candidate.exists() && candidate.metadata().map(|m| m.len() > 0).unwrap_or(false) {
             return Ok(candidate.to_string_lossy().to_string());
         }
     }
 
-    Err("Sidecar binary not found. Build it with: dotnet publish src/KrnlAI.Sidecar -r win-x64 --self-contained".into())
+    Err("Sidecar binary not found or empty. Build it with:\n  cd Community && dotnet publish src/KrnlAI.Sidecar -r win-x64 --self-contained\nThen copy the binary to:\n  Community/src/KrnlAI.Desktop.Tauri/src-tauri/binaries/".into())
 }
 
 #[cfg(test)]

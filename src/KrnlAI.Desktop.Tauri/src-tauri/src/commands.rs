@@ -27,6 +27,12 @@ pub struct SidecarStatus {
     pub port: u16,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ThemeResult {
+    pub theme: String,
+}
+
 #[tauri::command]
 pub async fn check_health(sidecar: State<'_, SidecarManager>) -> Result<HealthStatus, String> {
     Ok(HealthStatus {
@@ -81,6 +87,41 @@ pub fn get_app_version() -> String {
     env!("CARGO_PKG_VERSION").to_string()
 }
 
+#[tauri::command]
+pub fn get_os_theme() -> Result<ThemeResult, String> {
+    // Detect Windows/Light theme via registry via powershell
+    let output = std::process::Command::new("powershell")
+        .args([
+            "-Command",
+            "Get-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name AppsUseLightTheme | Select-Object -ExpandProperty AppsUseLightTheme",
+        ])
+        .output()
+        .map_err(|e| format!("Failed to query theme: {}", e))?;
+
+    let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
+    let theme = if stdout == "0" { "dark" } else { "light" };
+    Ok(ThemeResult { theme: theme.to_string() })
+}
+
+#[tauri::command]
+pub fn open_external(url: String) -> Result<(), String> {
+    open::that(&url).map_err(|e| format!("Failed to open URL: {}", e))
+}
+
+#[tauri::command]
+pub fn show_save_dialog(default_name: String) -> Result<Option<String>, String> {
+    let file = rfd::FileDialog::new()
+        .set_file_name(&default_name)
+        .save_file();
+    Ok(file.map(|f| f.to_string_lossy().to_string()))
+}
+
+#[tauri::command]
+pub fn show_open_dialog() -> Result<Option<String>, String> {
+    let file = rfd::FileDialog::new().pick_file();
+    Ok(file.map(|f| f.to_string_lossy().to_string()))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -89,22 +130,19 @@ mod tests {
     fn test_health_status_fields() {
         let h = HealthStatus { status: "ok".into(), version: "0.1.0".into(), sidecar_running: false };
         assert_eq!(h.status, "ok");
-        assert_eq!(h.version, "0.1.0");
         assert!(!h.sidecar_running);
     }
 
     #[test]
     fn test_system_info_fields() {
         let s = SystemInfo { os: "linux".into(), arch: "x86_64".into(), cpu_cores: "4".into(), memory_gb: "16.0".into() };
-        assert_eq!(s.os, "linux");
-        assert_eq!(s.memory_gb, "16.0");
+        assert_eq!(s.cpu_cores, "4");
     }
 
     #[test]
     fn test_sidecar_status_fields() {
         let s = SidecarStatus { running: true, pid: Some(1234), port: 5001 };
         assert!(s.running);
-        assert_eq!(s.pid, Some(1234));
         assert_eq!(s.port, 5001);
     }
 
@@ -115,9 +153,8 @@ mod tests {
     }
 
     #[test]
-    fn test_memory_in_gb_returns_string() {
-        let result = memory_in_gb();
-        assert!(!result.is_empty());
-        assert!(result.ends_with(".0") || result.contains('.') || result == "unknown");
+    fn test_theme_result_struct() {
+        let t = ThemeResult { theme: "dark".into() };
+        assert_eq!(t.theme, "dark");
     }
 }

@@ -1,6 +1,0 @@
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: system-ui, -apple-system, sans-serif; background: #08111F; color: #E5EEFC; }
-a { color: #38BDF8; }
-input, textarea, select { background: #0E1727; border: 1px solid #1E293B; color: #E5EEFC; border-radius: 8px; padding: 10px 14px; font-size: 14px; width: 100%; }
-button { cursor: pointer; border: none; border-radius: 10px; padding: 10px 20px; font-size: 14px; font-weight: 600; }
-.card { background: #0E1727; border: 1px solid #1E293B; border-radius: 16px; padding: 20px; margin-bottom: 16px; }
