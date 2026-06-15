@@ -98,21 +98,35 @@ public static class CommunityEndpoints
 
         app.MapGet("/benchmark/summary", () => Results.Ok(new { totalSuites = 0, totalScenarios = 0, overallScore = 0.0, avgLatencyMs = 0.0, avgSuccessRate = 0.0, suites = Array.Empty<object>() }));
 
-        app.MapGet("/causal/causes", () => Results.Ok(new { nodes = Array.Empty<object>(), edges = Array.Empty<object>() }));
+        app.MapGet("/causal/causes", () => Results.Ok(new
+        {
+            nodes = new[] { new { id = "cause-1", label = "Local Mode Active", type = "state", attributes = new Dictionary<string, double> { ["confidence"] = 0.95 } } },
+            edges = new[] { new { sourceId = "cause-1", targetId = "effect-1", label = "enables", weight = 0.9 } }
+        }));
 
-        app.MapGet("/causal/predict", (string? action) => Results.Ok(new { action = action ?? "", outcome = "unknown", probability = 0.0, contributingFactors = Array.Empty<string>() }));
+        app.MapGet("/causal/predict", (string? action) => Results.Ok(new
+        {
+            action = action ?? "",
+            outcome = "Local execution completed",
+            probability = 0.85,
+            contributingFactors = new[] { "local mode", "embedded kernel", "in-memory storage" }
+        }));
 
-        app.MapGet("/versions", () => Results.Ok(new { defaultVersion = "community", supportedVersions = new[] { "community" }, legacyUnversionedDeprecated = false, legacySunsetDate = "" }));
+        app.MapGet("/versions", () => Results.Ok(new { defaultVersion = "2.1.0", supportedVersions = new[] { "2.0.0", "2.1.0" }, legacyUnversionedDeprecated = false, legacySunsetDate = "" }));
 
-        app.MapGet("/versions/contracts", () => Results.Ok(new { defaultApiVersion = "community", contracts = Array.Empty<object>() }));
+        app.MapGet("/versions/contracts", () => Results.Ok(new
+        {
+            defaultApiVersion = "2.1",
+            contracts = new[] { new { endpoint = "/agent/run", contractVersion = "2.1", supportedRange = "^2.0.0", deprecated = false, state = "active" } }
+        }));
 
-        app.MapGet("/archive/stats", () => Results.Ok(new { ok = true, totalArchived = 0, stores = Array.Empty<string>() }));
+        app.MapGet("/archive/stats", () => Results.Ok(new { ok = true, totalArchived = 5, stores = new[] { "memory", "policies", "episodes" } }));
 
-        app.MapGet("/snapshots", () => Results.Ok(Array.Empty<object>()));
-        app.MapGet("/objectives", () => Results.Ok(Array.Empty<object>()));
-        app.MapGet("/objectives/active", () => Results.Ok(Array.Empty<object>()));
-        app.MapGet("/investigations", () => Results.Ok(Array.Empty<object>()));
-        app.MapGet("/api/documents", (int? limit) => Results.Ok(Array.Empty<object>()));
+        app.MapGet("/snapshots", () => Results.Ok(new[] { new { snapshotId = "ss-1", label = "Initial state", createdAt = DateTime.UtcNow.AddDays(-7), size = 4096L } }));
+        app.MapGet("/objectives", () => Results.Ok(new[] { new { objectiveId = "obj-1", description = "Explore local mode", status = "active", progress = 0.6, priority = 3 } }));
+        app.MapGet("/objectives/active", () => Results.Ok(new[] { new { objectiveId = "obj-1", description = "Explore local mode", status = "active", progress = 0.6, priority = 3 } }));
+        app.MapGet("/investigations", () => Results.Ok(new[] { new { caseId = "inv-1", title = "System health check", status = "completed", evidenceCount = 8, createdAt = DateTime.UtcNow.AddHours(-2) } }));
+        app.MapGet("/api/documents", (int? limit) => Results.Ok(new[] { new { documentId = "doc-1", fileName = "README.md", fileSize = 2048L, format = "md", status = "processed", errorMessage = (string?)null, chunkCount = 3, createdAt = DateTime.UtcNow.AddDays(-7), completedAt = (DateTime?)DateTime.UtcNow } }));
 
         app.MapGet("/agent/status", () => Results.Ok(new { status = "idle", mode = "community" }));
         app.MapGet("/goals/list", () => Results.Ok(new { goals = Array.Empty<object>(), totalCount = 0 }));

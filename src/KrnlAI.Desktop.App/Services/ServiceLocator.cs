@@ -155,7 +155,7 @@ public class ServiceLocator : IDisposable, IAsyncDisposable
         services.AddSingleton<ISlashCommandExecutor>(
             sp => new EmbeddedSlashCommandExecutor(sp.GetRequiredService<IEmbeddedKrnlAI>()));
 
-        var cognitiveStreamer = new CognitiveStreamer(
+        var cognitiveStreamer = kernel.CognitiveStreamer ?? new CognitiveStreamer(
             loggerFactory.CreateLogger<CognitiveStreamer>(),
             new CognitiveStreamConfig());
         services.AddSingleton<ICognitiveStreamProvider>(

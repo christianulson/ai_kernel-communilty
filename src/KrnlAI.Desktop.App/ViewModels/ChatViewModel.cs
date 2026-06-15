@@ -619,7 +619,6 @@ public class ChatViewModel : ViewModelBase
 
     public Task ConnectCognitiveStreamAsync()
     {
-        if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return Task.CompletedTask;
         return _cognitiveStream.ConnectAsync();
     }
 
