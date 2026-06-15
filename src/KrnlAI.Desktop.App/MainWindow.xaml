@@ -379,9 +379,6 @@
             <controls:P2PPaymentsControl Visibility="{Binding IsP2PPaymentsVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:DisputesControl Visibility="{Binding IsDisputesVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:SidecarConfigControl Visibility="{Binding IsSidecarVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
-            <controls:BenchmarkControl Visibility="{Binding IsBenchmarkVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
-            <controls:CausalGraphControl Visibility="{Binding IsCausalVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
-            <controls:ProfileControl Visibility="{Binding IsProfileVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:ObjectivesControl Visibility="{Binding IsObjectivesVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:InvestigationsControl Visibility="{Binding IsInvestigationsVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:SnapshotsControl Visibility="{Binding IsSnapshotsVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>

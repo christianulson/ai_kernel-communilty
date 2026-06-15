@@ -24,6 +24,13 @@
             <TextBlock Text="{Binding AdminConfigVM.StatusMessage}" FontSize="12"
                        Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,12"/>
 
+            <Border Height="40" CornerRadius="12" Background="{DynamicResource PanelBrush}" Margin="0,0,0,8"
+                    Visibility="{Binding AdminConfigVM.IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
+                <TextBlock Text="⏳ Carregando..." FontSize="13"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+
             <TextBlock Text="Feature Flags" FontSize="16" FontWeight="SemiBold"
                        Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,8"/>
             <ItemsControl ItemsSource="{Binding AdminConfigVM.FeatureFlags}">

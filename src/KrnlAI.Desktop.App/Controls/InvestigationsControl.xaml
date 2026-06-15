@@ -26,6 +26,13 @@
                 <TextBlock Text="{Binding InvestigationsVM.ErrorMessage}" Foreground="#FFDBE1" FontSize="13"/>
             </Border>
 
+            <Border Height="40" CornerRadius="12" Background="{DynamicResource PanelBrush}" Margin="0,0,0,8"
+                    Visibility="{Binding InvestigationsVM.IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
+                <TextBlock Text="⏳ Carregando..." FontSize="13"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+
             <ItemsControl ItemsSource="{Binding InvestigationsVM.Investigations}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>

@@ -137,6 +137,66 @@ public sealed class MainViewModelTests
     }
 
     [Fact]
+    public void NavigateToObjectives_ShouldUpdateVisibility()
+    {
+        var vm = CreateVm();
+        if (vm == null) return;
+        vm.CurrentScreen = "objectives";
+        Assert.True(vm.IsObjectivesVisible);
+        Assert.False(vm.IsChatVisible);
+    }
+
+    [Fact]
+    public void NavigateToInvestigations_ShouldUpdateVisibility()
+    {
+        var vm = CreateVm();
+        if (vm == null) return;
+        vm.CurrentScreen = "investigations";
+        Assert.True(vm.IsInvestigationsVisible);
+        Assert.False(vm.IsChatVisible);
+    }
+
+    [Fact]
+    public void NavigateToSnapshots_ShouldUpdateVisibility()
+    {
+        var vm = CreateVm();
+        if (vm == null) return;
+        vm.CurrentScreen = "snapshots";
+        Assert.True(vm.IsSnapshotsVisible);
+        Assert.False(vm.IsChatVisible);
+    }
+
+    [Fact]
+    public void NavigateToMultimodal_ShouldUpdateVisibility()
+    {
+        var vm = CreateVm();
+        if (vm == null) return;
+        vm.CurrentScreen = "multimodal";
+        Assert.True(vm.IsMultimodalVisible);
+        Assert.False(vm.IsChatVisible);
+    }
+
+    [Fact]
+    public void NavigateToAdminConfig_ShouldUpdateVisibility()
+    {
+        var vm = CreateVm();
+        if (vm == null) return;
+        vm.CurrentScreen = "admin-config";
+        Assert.True(vm.IsAdminConfigVisible);
+        Assert.False(vm.IsChatVisible);
+    }
+
+    [Fact]
+    public void NavigateToAdminUsers_ShouldUpdateVisibility()
+    {
+        var vm = CreateVm();
+        if (vm == null) return;
+        vm.CurrentScreen = "admin-users";
+        Assert.True(vm.IsAdminUsersVisible);
+        Assert.False(vm.IsChatVisible);
+    }
+
+    [Fact]
     public void EmotionalMood_WhenNull_ShouldReturnDash()
     {
         var vm = CreateVm();
@@ -197,5 +257,10 @@ public sealed class MainViewModelTests
         Assert.NotNull(vm.ModelRegistryVM);
         Assert.NotNull(vm.VersionsVM);
         Assert.NotNull(vm.SessionsVM);
+        Assert.NotNull(vm.ObjectivesVM);
+        Assert.NotNull(vm.InvestigationsVM);
+        Assert.NotNull(vm.SnapshotsVM);
+        Assert.NotNull(vm.AdminConfigVM);
+        Assert.NotNull(vm.AdminUsersVM);
     }
 }
