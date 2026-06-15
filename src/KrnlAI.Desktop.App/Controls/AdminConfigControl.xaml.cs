@@ -1,26 +1,35 @@
+using System.Windows;
 using System.Windows.Controls;
 
 namespace KrnlAI.Desktop.App.Controls;
 
-public partial class AdminConfigControl : UserControl
+public sealed partial class AdminConfigControl : UserControl
 {
     public AdminConfigControl()
     {
         InitializeComponent();
-        Loaded += (_, _) => LoadFeatures();
     }
 
-    private void LoadFeatures()
+    private async void OnLoaded(object sender, RoutedEventArgs e)
     {
-        FeaturesGrid.ItemsSource = new List<FeatureFlagItem>
+        try
         {
-            new("Streaming", true, "Chat"),
-            new("Artifact Rendering", true, "Chat"),
-            new("Inline Completions", true, "Editor"),
-            new("CodeLens", true, "Editor"),
-            new("Usage Tracking", true, "Privacy"),
-        };
+            if (DataContext is ViewModels.MainViewModel vm)
+                await vm.AdminConfigVM.LoadAsync();
+        }
+        catch { }
     }
 
-    private sealed record FeatureFlagItem(string Name, bool Enabled, string Category);
+    private async void OnFlagToggled(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            if (DataContext is ViewModels.MainViewModel vm)
+            {
+                vm.AdminConfigVM.StatusMessage = "Toggle via API não implementado. Use o servidor admin.";
+                await vm.AdminConfigVM.LoadAsync();
+            }
+        }
+        catch { }
+    }
 }

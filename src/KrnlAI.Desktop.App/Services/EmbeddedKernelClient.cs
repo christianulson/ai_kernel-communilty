@@ -204,8 +204,8 @@ public sealed class EmbeddedKernelClient : IKernelClient
     public Task<List<ObjectiveInfo>> GetObjectivesAsync(CancellationToken ct = default)
         => Task.FromResult(new List<ObjectiveInfo>());
 
-    public Task<ObjectiveDetail> GetObjectiveDetailAsync(string id, CancellationToken ct = default)
-        => Task.FromResult(new ObjectiveDetail(id, "", "embedded", 0, []));
+    public Task<ObjectiveDetail?> GetObjectiveDetailAsync(string id, CancellationToken ct = default)
+        => Task.FromResult<ObjectiveDetail?>(new ObjectiveDetail(id, "", "embedded", 0, []));
 
     public Task<List<InvestigationInfo>> GetInvestigationsAsync(CancellationToken ct = default)
         => Task.FromResult(new List<InvestigationInfo>());

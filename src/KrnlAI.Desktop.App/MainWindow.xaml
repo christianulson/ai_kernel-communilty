@@ -111,13 +111,15 @@
                             <TextBlock Text="{loc:Loc nav_chat}"/>
                         </StackPanel>
                     </Button>
-                    <Button Command="{Binding NavigateToDashboardCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2">
+                    <Button Command="{Binding NavigateToDashboardCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="DashboardButton">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="📊" FontSize="14" Margin="0,0,10,0"/>
                             <TextBlock Text="{loc:Loc nav_dashboard}"/>
                         </StackPanel>
                     </Button>
-                    <Button Command="{Binding NavigateToPoliciesCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2">
+                    <Button Command="{Binding NavigateToPoliciesCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="PoliciesButton">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="📋" FontSize="14" Margin="0,0,10,0"/>
                             <TextBlock Text="{loc:Loc nav_policies}"/>
@@ -128,31 +130,35 @@
                             AutomationProperties.AutomationId="KanbanButton">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="📌" FontSize="14" Margin="0,0,10,0"/>
-                            <TextBlock Text="Kanban"/>
+                            <TextBlock Text="{loc:Loc nav_kanban}"/>
                         </StackPanel>
                     </Button>
-                    <Button Command="{Binding NavigateToEpisodesCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2">
+                    <Button Command="{Binding NavigateToEpisodesCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="EpisodesButton">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="📜" FontSize="14" Margin="0,0,10,0"/>
                             <TextBlock Text="{loc:Loc nav_episodes}"/>
                         </StackPanel>
                     </Button>
-                    <Button Command="{Binding NavigateToMemoryCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2">
+                    <Button Command="{Binding NavigateToMemoryCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="MemoryButton">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="🧠" FontSize="14" Margin="0,0,10,0"/>
                             <TextBlock Text="{loc:Loc nav_memory}"/>
                         </StackPanel>
                     </Button>
-                    <Button Command="{Binding NavigateToSettingsCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2">
+                    <Button Command="{Binding NavigateToSettingsCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="SettingsButton">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="⚙️" FontSize="14" Margin="0,0,10,0"/>
                             <TextBlock Text="{loc:Loc nav_settings}"/>
                         </StackPanel>
                     </Button>
-                    <Button Command="{Binding NavigateToApiKeysCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2">
+                    <Button Command="{Binding NavigateToApiKeysCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="ApiKeysButton">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="🔑" FontSize="14" Margin="0,0,10,0"/>
-                            <TextBlock Text="API Keys"/>
+                            <TextBlock Text="{loc:Loc nav_api_keys}"/>
                         </StackPanel>
                     </Button>
                     <Button Command="{Binding NavigateToPeerRankingCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
@@ -160,67 +166,140 @@
                             AutomationProperties.AutomationId="PeerRankingButton">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="🏆" FontSize="14" Margin="0,0,10,0"/>
-                            <TextBlock Text="Ranking"/>
+                            <TextBlock Text="{loc:Loc nav_peer_ranking}"/>
                         </StackPanel>
                     </Button>
-                    <Button Command="{Binding NavigateToPrivacyCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2">
+                    <Button Command="{Binding NavigateToBenchmarkCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="BenchmarkButton">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="📊" FontSize="14" Margin="0,0,10,0"/>
+                            <TextBlock Text="{loc:Loc nav_benchmark}"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding NavigateToCausalCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="CausalButton">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🔗" FontSize="14" Margin="0,0,10,0"/>
+                            <TextBlock Text="{loc:Loc nav_causal}"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding NavigateToProfileCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="ProfileButton">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="👤" FontSize="14" Margin="0,0,10,0"/>
+                            <TextBlock Text="{loc:Loc nav_profile}"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding NavigateToPrivacyCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="PrivacyButton">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="🛡️" FontSize="14" Margin="0,0,10,0"/>
-                            <TextBlock Text="Privacidade"/>
+                            <TextBlock Text="{loc:Loc nav_privacy}"/>
                         </StackPanel>
                     </Button>
-                    <Button Command="{Binding NavigateToDocumentsCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2">
+                    <Button Command="{Binding NavigateToDocumentsCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="DocumentsButton">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="📄" FontSize="14" Margin="0,0,10,0"/>
-                            <TextBlock Text="Documentos"/>
+                            <TextBlock Text="{loc:Loc nav_documents}"/>
                         </StackPanel>
                     </Button>
-                    <Button Command="{Binding NavigateToArchiveCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2">
+                    <Button Command="{Binding NavigateToArchiveCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="ArchiveButton">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="📂" FontSize="14" Margin="0,0,10,0"/>
-                            <TextBlock Text="Arquivo"/>
+                            <TextBlock Text="{loc:Loc nav_archive}"/>
                         </StackPanel>
                     </Button>
-                    <Button Command="{Binding NavigateToModelRegistryCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2">
+                    <Button Command="{Binding NavigateToModelRegistryCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="ModelRegistryButton">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="🧠" FontSize="14" Margin="0,0,10,0"/>
-                            <TextBlock Text="Model Registry"/>
+                            <TextBlock Text="{loc:Loc nav_model_registry}"/>
                         </StackPanel>
                     </Button>
-                    <Button Command="{Binding NavigateToVersionsCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2">
+                    <Button Command="{Binding NavigateToVersionsCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="VersionsButton">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="🔖" FontSize="14" Margin="0,0,10,0"/>
-                            <TextBlock Text="Versões"/>
+                            <TextBlock Text="{loc:Loc nav_versions}"/>
                         </StackPanel>
                     </Button>
-                    <Button Command="{Binding NavigateToSessionsCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2">
+                    <Button Command="{Binding NavigateToSessionsCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="SessionsButton">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="🔗" FontSize="14" Margin="0,0,10,0"/>
                             <TextBlock Text="{loc:Loc nav_sessions}"/>
                         </StackPanel>
                     </Button>
-                    <Button Command="{Binding NavigateToTrajectoryCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2">
+                    <Button Command="{Binding NavigateToTrajectoryCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="TrajectoryButton">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="🔍" FontSize="14" Margin="0,0,10,0"/>
-                            <TextBlock Text="Trajectories"/>
+                            <TextBlock Text="{loc:Loc nav_trajectories}"/>
                         </StackPanel>
                     </Button>
-                    <Button Command="{Binding NavigateToP2PPaymentsCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2">
+                    <Button Command="{Binding NavigateToP2PPaymentsCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="P2PPaymentsButton">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="💰" FontSize="14" Margin="0,0,10,0"/>
-                            <TextBlock Text="Pagamentos P2P"/>
+                            <TextBlock Text="{loc:Loc nav_p2p_payments}"/>
                         </StackPanel>
                     </Button>
-                    <Button Command="{Binding NavigateToDisputesCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2">
+                    <Button Command="{Binding NavigateToDisputesCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="DisputesButton">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="⚖️" FontSize="14" Margin="0,0,10,0"/>
-                            <TextBlock Text="Disputas"/>
+                            <TextBlock Text="{loc:Loc nav_disputes}"/>
                         </StackPanel>
                     </Button>
-                    <Button Command="{Binding NavigateToSidecarCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2">
+                    <Button Command="{Binding NavigateToMultimodalCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="MultimodalButton">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🔬" FontSize="14" Margin="0,0,10,0"/>
+                            <TextBlock Text="{loc:Loc nav_multimodal}"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding NavigateToSidecarCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="SidecarButton">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="🖥️" FontSize="14" Margin="0,0,10,0"/>
-                            <TextBlock Text="Sidecar"/>
+                            <TextBlock Text="{loc:Loc nav_sidecar}"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding NavigateToObjectivesCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="ObjectivesButton">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🎯" FontSize="14" Margin="0,0,10,0"/>
+                            <TextBlock Text="{loc:Loc nav_objectives}"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding NavigateToInvestigationsCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="InvestigationsButton">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🔎" FontSize="14" Margin="0,0,10,0"/>
+                            <TextBlock Text="{loc:Loc nav_investigations}"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding NavigateToSnapshotsCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="SnapshotsButton">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="📸" FontSize="14" Margin="0,0,10,0"/>
+                            <TextBlock Text="{loc:Loc nav_snapshots}"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding NavigateToAdminConfigCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="AdminConfigButton">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="⚙️" FontSize="14" Margin="0,0,10,0"/>
+                            <TextBlock Text="{loc:Loc nav_admin_config}"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding NavigateToAdminUsersCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="AdminUsersButton">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="👥" FontSize="14" Margin="0,0,10,0"/>
+                            <TextBlock Text="{loc:Loc nav_admin_users}"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>
@@ -233,7 +312,7 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="{loc:Loc sidebar_sessions_label}" FontSize="10" FontWeight="Bold"                                       Foreground="{DynamicResource TextSecondaryBrush}"                                       VerticalAlignment="Center"/>
-                            <Button Grid.Column="1" Command="{Binding NewSessionCommand}"                                    Style="{StaticResource SmallButton}" Padding="8,4" FontSize="10">+ Nova</Button>
+                            <Button Grid.Column="1" Command="{Binding NewSessionCommand}"                                    Style="{StaticResource SmallButton}" Padding="8,4" FontSize="10"                                    Content="{loc:Loc sidebar_new_session}"/>
                         </Grid>
 
                         <ListBox ItemsSource="{Binding Sessions}" SelectedItem="{Binding ActiveSession}"                                 Background="Transparent" BorderThickness="0" MaxHeight="160">
@@ -300,6 +379,15 @@
             <controls:P2PPaymentsControl Visibility="{Binding IsP2PPaymentsVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:DisputesControl Visibility="{Binding IsDisputesVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:SidecarConfigControl Visibility="{Binding IsSidecarVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:BenchmarkControl Visibility="{Binding IsBenchmarkVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:CausalGraphControl Visibility="{Binding IsCausalVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:ProfileControl Visibility="{Binding IsProfileVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:ObjectivesControl Visibility="{Binding IsObjectivesVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:InvestigationsControl Visibility="{Binding IsInvestigationsVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:SnapshotsControl Visibility="{Binding IsSnapshotsVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:MultimodalControl Visibility="{Binding IsMultimodalVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:AdminConfigControl Visibility="{Binding IsAdminConfigVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:AdminUsersControl Visibility="{Binding IsAdminUsersVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <!-- Welcome Wizard Overlay -->
             <Border Visibility="{Binding ShowWelcomeWizard, Converter={StaticResource BoolToVisibilityConverter}}"
                     Panel.ZIndex="200" Background="#CC000000">

@@ -5,15 +5,16 @@ using Microsoft.Extensions.Logging;
 
 namespace KrnlAI.Desktop.App.ViewModels;
 
-public class VideoCallViewModel : ViewModelBase
+public class VideoCallViewModel : ViewModelBase, IDisposable
 {
     private readonly ILogger<VideoCallViewModel> _logger;
-    private readonly IWebRtcService _webRtc;
+    private readonly IWebRtcService? _webRtc;
 
     private bool _isInCall;
     private string _state = "Idle";
     private bool _muted, _cameraOn = true;
     private string _remotePeerId = "";
+    private bool _disposed;
 
     public bool IsInVideoCall { get => _isInCall; set => SetProperty(ref _isInCall, value); }
     public string VideoCallState { get => _state; set { SetProperty(ref _state, value); OnPropertyChanged(nameof(VideoCallStateText)); } }
@@ -41,7 +42,8 @@ public class VideoCallViewModel : ViewModelBase
         ToggleMuteCommand = new RelayCommand(() => IsVideoCallMuted = !IsVideoCallMuted);
         ToggleCameraCommand = new RelayCommand(() => IsVideoCallCameraOn = !IsVideoCallCameraOn);
 
-        _webRtc.StateChanged += OnWebRtcStateChanged;
+        if (_webRtc != null)
+            _webRtc.StateChanged += OnWebRtcStateChanged;
     }
 
     public VideoCallViewModel() : this(ServiceLocator.Instance.WebRtcServiceFactory()) { }
@@ -49,13 +51,15 @@ public class VideoCallViewModel : ViewModelBase
     private async Task ToggleCallAsync()
     {
         if (IsInVideoCall) { await EndCallAsync(); return; }
+        if (_webRtc == null) { VideoCallState = "Failed"; return; }
 
         IsVideoCallMuted = false;
         IsVideoCallCameraOn = true;
         VideoCallState = "Connecting";
 
         var settings = ServiceLocator.Instance.SettingsService.LoadSettings();
-        var signalingUrl = (settings.ApiBaseUrl ?? "http://localhost:5235").TrimEnd('/') + "/signaling/webrtc";
+        var baseUrl = settings.ApiEndpoint ?? settings.ApiBaseUrl ?? "http://localhost:5235";
+        var signalingUrl = baseUrl.TrimEnd('/') + "/signaling/webrtc";
 
         var initialized = await _webRtc.InitializeAsync(signalingUrl, "stun.l.google.com:19302");
         if (!initialized) { VideoCallState = "Failed"; return; }
@@ -69,6 +73,7 @@ public class VideoCallViewModel : ViewModelBase
 
     private async Task EndCallAsync()
     {
+        if (_webRtc == null) return;
         await _webRtc.DisconnectAsync();
         IsInVideoCall = false;
         VideoCallState = "Ended";
@@ -78,7 +83,15 @@ public class VideoCallViewModel : ViewModelBase
 
     public void Cleanup()
     {
-        _webRtc.StateChanged -= OnWebRtcStateChanged;
+        if (!_disposed) Dispose();
+    }
+
+    public void Dispose()
+    {
+        if (_disposed) return;
+        _disposed = true;
+        if (_webRtc != null)
+            _webRtc.StateChanged -= OnWebRtcStateChanged;
     }
 
     private void OnWebRtcStateChanged(object? sender, WebRtcEventArgs e)

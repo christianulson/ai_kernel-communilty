@@ -15,5 +15,5 @@ public interface ISnapshotClient
 public interface IObjectiveClient
 {
     Task<List<ObjectiveInfo>> GetObjectivesAsync(CancellationToken ct = default);
-    Task<ObjectiveDetail> GetObjectiveDetailAsync(string id, CancellationToken ct = default);
+    Task<ObjectiveDetail?> GetObjectiveDetailAsync(string id, CancellationToken ct = default);
 }

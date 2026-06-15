@@ -210,7 +210,7 @@ public class KernelClient : IKernelClient
             return new CoreModels.CognitiveDashboardData(r.OverallHealth,
                 r.ActiveModules?.Select(m => new CoreModels.CognitiveModule(m.Name, m.HealthScore, m.Status)).ToList() ?? [],
                 r.RecentEvents?.Select(e => new CoreModels.CognitiveEvent(e.Type, e.Description, e.Source, e.Timestamp)).ToList() ?? [],
-                r.Autonomy != null ? new CoreModels.AutonomyStatus(r.Autonomy.Level, r.Autonomy.LastUpdated, r.Autonomy.DomainConfidence) : null!);
+                r.Autonomy != null ? new CoreModels.AutonomyStatus(r.Autonomy.Level, r.Autonomy.LastUpdated, r.Autonomy.DomainConfidence) : null);
         }, default(CoreModels.CognitiveDashboardData?));
 
     public Task<CoreModels.UserProfile?> GetUserProfileAsync(string userId, CancellationToken ct = default) =>
@@ -387,13 +387,13 @@ public class KernelClient : IKernelClient
             return r.Select(o => new Core.Models.ObjectiveInfo(o.ObjectiveId, o.Description, o.Status, o.Progress, o.Priority, o.Deadline)).ToList();
         }, []);
 
-    public Task<Core.Models.ObjectiveDetail> GetObjectiveDetailAsync(string id, CancellationToken ct = default) =>
+    public Task<Core.Models.ObjectiveDetail?> GetObjectiveDetailAsync(string id, CancellationToken ct = default) =>
         SafeCall.ExecuteAsync(async () =>
         {
             var r = await _api.GetObjectiveDetailAsync(id, ct);
             return new Core.Models.ObjectiveDetail(r.ObjectiveId, r.Description, r.Status, r.Progress,
                 r.Targets?.Select(t => new Core.Models.TargetInfo(t.TargetId, t.Description, t.CurrentValue, t.TargetValue, t.Unit)).ToList() ?? []);
-        }, default(Core.Models.ObjectiveDetail)!);
+        }, default(Core.Models.ObjectiveDetail?));
 
     public Task<List<Core.Models.InvestigationInfo>> GetInvestigationsAsync(CancellationToken ct = default) =>
         SafeCall.ExecuteAsync(async () =>

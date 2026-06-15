@@ -1,57 +1,41 @@
 using System.Windows;
 using System.Windows.Controls;
-using KrnlAI.Desktop.Core.Services;
-using KrnlAI.Desktop.Infrastructure.Abstractions;
+using KrnlAI.Desktop.App.ViewModels;
 
 namespace KrnlAI.Desktop.App.Controls;
 
-public partial class AdminUsersControl : UserControl
+public sealed partial class AdminUsersControl : UserControl
 {
-    private List<UserInfo> _users = new();
-
     public AdminUsersControl()
     {
         InitializeComponent();
-        Loaded += OnLoaded;
     }
 
-    private void OnLoaded(object sender, RoutedEventArgs e)
+    private async void OnLoaded(object sender, RoutedEventArgs e)
     {
-        UsersGrid.ItemsSource = _users;
-    }
-
-    private void OnUserSelected(object sender, SelectionChangedEventArgs e)
-    {
-        var selected = UsersGrid.SelectedItem is UserInfo;
-        ActivateButton.IsEnabled = selected;
-        SuspendButton.IsEnabled = selected;
-    }
-
-    private void OnActivate(object sender, RoutedEventArgs e)
-    {
-        if (UsersGrid.SelectedItem is not UserInfo user) return;
         try
         {
-            KrnlLogger.Write($"Activate user: {user.Id}");
-            MessageBox.Show($"User {user.Name} activated.", "Admin", MessageBoxButton.OK, MessageBoxImage.Information);
+            if (DataContext is MainViewModel vm)
+                await vm.AdminUsersVM.LoadAsync();
         }
-        catch (Exception ex)
-        {
-            KrnlLogger.Write(ex);
-        }
+        catch { }
     }
 
-    private void OnSuspend(object sender, RoutedEventArgs e)
+    private void OnActivateClick(object sender, RoutedEventArgs e)
     {
-        if (UsersGrid.SelectedItem is not UserInfo user) return;
-        try
-        {
-            KrnlLogger.Write($"Suspend user: {user.Id}");
-            MessageBox.Show($"User {user.Name} suspended.", "Admin", MessageBoxButton.OK, MessageBoxImage.Information);
-        }
-        catch (Exception ex)
-        {
-            KrnlLogger.Write(ex);
-        }
+        if (DataContext is not MainViewModel vm || vm.AdminUsersVM.SelectedUser == null) return;
+        var user = vm.AdminUsersVM.SelectedUser;
+        if (!ConfirmModal.Show(Window.GetWindow(this), "Ativar usuário",
+                $"Ativar usuário {user.Name} ({user.Email})?", danger: false)) return;
+        vm.AdminUsersVM.ActivateCommand.Execute(null);
+    }
+
+    private void OnSuspendClick(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel vm || vm.AdminUsersVM.SelectedUser == null) return;
+        var user = vm.AdminUsersVM.SelectedUser;
+        if (!ConfirmModal.Show(Window.GetWindow(this), "Suspender usuário",
+                $"Suspender usuário {user.Name} ({user.Email})?", danger: true)) return;
+        vm.AdminUsersVM.SuspendCommand.Execute(null);
     }
 }

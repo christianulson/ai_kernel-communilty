@@ -26,7 +26,18 @@
                     <Button Grid.Column="1" Command="{Binding EpisodesVM.LoadEpisodesCommand}"
                             Style="{StaticResource GhostButton}" Padding="16,10"
                             IsEnabled="{Binding EpisodesVM.IsLoading, Converter={StaticResource InverseBoolConverter}}">
-                        <TextBlock Text="{Binding EpisodesVM.IsLoading, Converter={StaticResource BoolToStatusConverter}}"/>
+                        <TextBlock>
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Text" Value="Atualizar"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding EpisodesVM.IsLoading}" Value="True">
+                                            <Setter Property="Text" Value="Carregando..."/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
                     </Button>
                 </Grid>
 

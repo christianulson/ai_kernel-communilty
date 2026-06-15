@@ -23,7 +23,8 @@ public sealed class P2PPaymentsViewModel : ViewModelBase
     public P2PPaymentsViewModel(ILogger<P2PPaymentsViewModel>? logger = null)
     {
         _logger = logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<P2PPaymentsViewModel>.Instance;
-        var baseUrl = Environment.GetEnvironmentVariable("KRNL__API_BASE_URL") ?? "http://localhost:5235";
+        var settings = ServiceLocator.Instance.SettingsService.LoadSettings();
+        var baseUrl = settings.ApiEndpoint ?? settings.ApiBaseUrl ?? Environment.GetEnvironmentVariable("KRNL__API_BASE_URL") ?? "http://localhost:5235";
         _http = new HttpClient { BaseAddress = new Uri(baseUrl), Timeout = TimeSpan.FromSeconds(10) };
         RefreshCommand = new AsyncRelayCommand(RefreshAsync);
     }

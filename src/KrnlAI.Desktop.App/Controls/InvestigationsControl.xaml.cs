@@ -2,9 +2,9 @@ using System.Windows.Controls;
 
 namespace KrnlAI.Desktop.App.Controls;
 
-public sealed partial class SnapshotsControl : UserControl
+public sealed partial class InvestigationsControl : UserControl
 {
-    public SnapshotsControl()
+    public InvestigationsControl()
     {
         InitializeComponent();
     }
@@ -14,7 +14,7 @@ public sealed partial class SnapshotsControl : UserControl
         try
         {
             if (DataContext is ViewModels.MainViewModel vm)
-                await vm.SnapshotsVM.LoadAsync();
+                await vm.InvestigationsVM.LoadAsync();
         }
         catch { }
     }

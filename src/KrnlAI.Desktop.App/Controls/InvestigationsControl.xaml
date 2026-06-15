@@ -1,4 +1,4 @@
-<UserControl x:Class="KrnlAI.Desktop.App.Controls.SnapshotsControl"
+<UserControl x:Class="KrnlAI.Desktop.App.Controls.InvestigationsControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Loaded="OnLoaded">
@@ -10,23 +10,23 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel>
-                    <TextBlock Text="Snapshots" FontSize="24" FontWeight="Bold"
+                    <TextBlock Text="Investigações" FontSize="24" FontWeight="Bold"
                                Foreground="{DynamicResource TextPrimaryBrush}"/>
-                    <TextBlock Text="Snapshots são criados automaticamente."
+                    <TextBlock Text="Casos de investigação do agente."
                                Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"/>
                 </StackPanel>
-                <Button Grid.Column="1" Command="{Binding SnapshotsVM.LoadCommand}"
+                <Button Grid.Column="1" Command="{Binding InvestigationsVM.LoadCommand}"
                         Style="{StaticResource GhostButton}" Padding="16,10">
                     <TextBlock Text="Atualizar"/>
                 </Button>
             </Grid>
 
             <Border Background="#18FB7185" BorderBrush="#3CFB7185" BorderThickness="1" CornerRadius="16" Padding="14,10" Margin="0,0,0,12"
-                    Visibility="{Binding SnapshotsVM.HasError, Converter={StaticResource BoolToVisibilityConverter}}">
-                <TextBlock Text="{Binding SnapshotsVM.ErrorMessage}" Foreground="#FFDBE1" FontSize="13"/>
+                    Visibility="{Binding InvestigationsVM.HasError, Converter={StaticResource BoolToVisibilityConverter}}">
+                <TextBlock Text="{Binding InvestigationsVM.ErrorMessage}" Foreground="#FFDBE1" FontSize="13"/>
             </Border>
 
-            <ItemsControl ItemsSource="{Binding SnapshotsVM.Snapshots}">
+            <ItemsControl ItemsSource="{Binding InvestigationsVM.Investigations}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Border Background="{DynamicResource PanelBrush}" CornerRadius="16"
@@ -36,20 +36,18 @@
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <Border Width="40" Height="40" CornerRadius="10"
-                                        Background="#2E14B8A6" VerticalAlignment="Center" Margin="0,0,12,0">
-                                    <TextBlock Text="📸" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        Background="#2E38BDF8" VerticalAlignment="Center" Margin="0,0,12,0">
+                                    <TextBlock Text="🔍" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                    <TextBlock Text="{Binding Label}" FontSize="14" FontWeight="SemiBold"
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="{Binding Title}" FontSize="14" FontWeight="SemiBold"
                                                Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                    <TextBlock Text="{Binding CreatedAt, StringFormat=dd/MM/yyyy HH:mm}" FontSize="11"
-                                               Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                    <TextBlock FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0">
+                                        <Run Text="{Binding Status}"/> · <Run Text="{Binding CaseId}"/> · <Run Text="{Binding EvidenceCount, StringFormat={}{0} evidências}"/>
+                                    </TextBlock>
                                 </StackPanel>
-                                <TextBlock Grid.Column="2" Text="{Binding Size, StringFormat={}{0} bytes}" FontSize="11"
-                                           Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"/>
                             </Grid>
                         </Border>
                     </DataTemplate>

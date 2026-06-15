@@ -1,3 +1,4 @@
+using System.Threading;
 using System.Windows.Input;
 using KrnlAI.Desktop.Core.Services;
 
@@ -36,7 +37,9 @@ public class AsyncRelayCommand : ICommand
 {
     private readonly Func<object?, Task> _execute;
     private readonly Predicate<object?>? _canExecute;
-    private bool _isExecuting;
+    private int _isExecutingFlag;
+
+    public static event Action<Exception>? UnhandledException;
 
     public AsyncRelayCommand(Func<object?, Task> execute, Predicate<object?>? canExecute = null)
     {
@@ -55,13 +58,12 @@ public class AsyncRelayCommand : ICommand
         remove => CommandManager.RequerySuggested -= value;
     }
 
-    public bool CanExecute(object? parameter) => !_isExecuting && (_canExecute?.Invoke(parameter) ?? true);
+    public bool CanExecute(object? parameter) => Interlocked.CompareExchange(ref _isExecutingFlag, 0, 0) == 0 && (_canExecute?.Invoke(parameter) ?? true);
 
     public void Execute(object? parameter)
     {
-        if (_isExecuting) return;
+        if (Interlocked.Exchange(ref _isExecutingFlag, 1) != 0) return;
 
-        _isExecuting = true;
         RaiseCanExecuteChanged();
 
         _ = ExecuteAsync(parameter);
@@ -75,11 +77,12 @@ public class AsyncRelayCommand : ICommand
         }
         catch (Exception ex)
         {
-            KrnlLogger.Write($"[AsyncRelayCommand] Unhandled: {ex.GetType().Name}: {ex.Message}");
+            KrnlLogger.Write($"[AsyncRelayCommand] Unhandled: {ex}");
+            UnhandledException?.Invoke(ex);
         }
         finally
         {
-            _isExecuting = false;
+            Interlocked.Exchange(ref _isExecutingFlag, 0);
             RaiseCanExecuteChanged();
         }
     }

@@ -25,7 +25,8 @@ public sealed class SidecarViewModel : ViewModelBase
     public SidecarViewModel(ILogger<SidecarViewModel>? logger = null)
     {
         _logger = logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<SidecarViewModel>.Instance;
-        var baseUrl = Environment.GetEnvironmentVariable("KRNL__API_BASE_URL") ?? "http://localhost:5235";
+        var settings = ServiceLocator.Instance.SettingsService.LoadSettings();
+        var baseUrl = settings.ApiEndpoint ?? settings.ApiBaseUrl ?? Environment.GetEnvironmentVariable("KRNL__API_BASE_URL") ?? "http://localhost:5235";
         _http = new HttpClient { BaseAddress = new Uri(baseUrl), Timeout = TimeSpan.FromSeconds(10) };
         _settings = ServiceLocator.Instance.SettingsService;
 

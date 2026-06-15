@@ -45,6 +45,7 @@ public class ServiceLocator : IDisposable, IAsyncDisposable
     public RunMode CurrentMode { get; }
     public IKernelClient KernelClient => Resolve<IKernelClient>()!;
     public IGatewayApi? GatewayApi => Resolve<IGatewayApi>();
+    public IAdminApi? AdminApi => Resolve<IAdminApi>();
     public IAudioCapture AudioCapture => Resolve<IAudioCapture>()!;
     public IAudioPlayback AudioPlayback => Resolve<IAudioPlayback>()!;
     public IVideoCapture VideoCapture => Resolve<IVideoCapture>()!;
@@ -63,8 +64,11 @@ public class ServiceLocator : IDisposable, IAsyncDisposable
     public Func<WebRtcService> WebRtcServiceFactory => () => new WebRtcService(GetLogger<WebRtcService>());
     public IThemeService ThemeSvc => _provider.GetRequiredService<IThemeService>();
 
-    private T? Resolve<T>() where T : class =>
-        _disposed ? null : _provider?.GetService<T>();
+    private T? Resolve<T>() where T : class
+    {
+        if (_disposed) throw new ObjectDisposedException(nameof(ServiceLocator));
+        return _provider?.GetService<T>();
+    }
 
     public KanbanService KanbanService => _provider.GetRequiredService<KanbanService>();
 
@@ -77,7 +81,7 @@ public class ServiceLocator : IDisposable, IAsyncDisposable
                 ? RunMode.Local
                 : RunMode.Api;
 
-            var loggerFactory = LoggerFactory.Create(b => b.SetMinimumLevel(LogLevel.Warning));
+            var loggerFactory = LoggerFactory.Create(b => b.SetMinimumLevel(LogLevel.Information));
 
             var settingsService = new JsonSettingsService();
             var settings = settingsService.LoadSettings();
@@ -157,6 +161,7 @@ public class ServiceLocator : IDisposable, IAsyncDisposable
             new CognitiveStreamConfig());
         services.AddSingleton<ICognitiveStreamProvider>(
             _ => new EmbeddedCognitiveStreamProvider(cognitiveStreamer));
+        services.AddSingleton<IAdminApi, NullAdminApi>();
     }
 
     private void RegisterApiMode(ServiceCollection services, ILoggerFactory loggerFactory, string baseUrl, AppSettings settings)
@@ -234,6 +239,11 @@ public class ServiceLocator : IDisposable, IAsyncDisposable
             _ => new HttpSlashCommandExecutor(baseUrl));
         services.AddSingleton<ICognitiveStreamProvider>(
             _ => new HttpCognitiveStreamProvider(baseUrl));
+
+        services.AddRefitClient<IAdminApi>()
+            .ConfigureHttpClient(c => { c.BaseAddress = new Uri("http://localhost"); c.Timeout = TimeSpan.FromSeconds(30); })
+            .AddHttpMessageHandler<DynamicBaseUrlHandler>()
+            .AddHttpMessageHandler<AuthTokenHandler>();
     }
 
     public static void ConfigureForTests(IServiceProvider provider)
@@ -257,7 +267,8 @@ public class ServiceLocator : IDisposable, IAsyncDisposable
     private ServiceLocator(IServiceProvider provider)
     {
         CurrentMode = RunMode.Api;
-        _provider = (ServiceProvider)provider;
+        _provider = provider as ServiceProvider
+            ?? throw new ArgumentException($"Expected {nameof(ServiceProvider)}, got {provider.GetType().Name}", nameof(provider));
     }
 
     public void Dispose()

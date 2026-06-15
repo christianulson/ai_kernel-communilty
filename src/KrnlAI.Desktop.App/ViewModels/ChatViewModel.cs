@@ -249,6 +249,7 @@ public class ChatViewModel : ViewModelBase
     }
     public List<StageViewModel> CognitiveStages { get; } = new();
     public List<EventViewModel> CognitiveEvents { get; } = new();
+    public event Action? CognitiveDataChanged;
 
     // TTS toggle
     private bool _isTtsEnabled = true;
@@ -473,6 +474,7 @@ public class ChatViewModel : ViewModelBase
                 StepName = evt.StepName,
                 Content = evt.Content
             });
+            CognitiveDataChanged?.Invoke();
         });
     }
 
@@ -551,7 +553,8 @@ public class ChatViewModel : ViewModelBase
     private void StopCamera()
     {
         _videoCapture.FrameCaptured -= OnFrameCaptured;
-        _ = _videoCapture.StopCaptureAsync();
+        try { _ = _videoCapture.StopCaptureAsync(); }
+        catch (Exception ex) { KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"StopCamera: {ex.Message}"); }
         IsCameraOn = false;
     }
 
@@ -567,8 +570,9 @@ public class ChatViewModel : ViewModelBase
         _cognitiveStream.Disconnect();
         if (_embeddedKernel != null)
         {
-            _embeddedKernel.DisposeAsync().AsTask().GetAwaiter().GetResult();
+            var kernel = _embeddedKernel;
             _embeddedKernel = null;
+            _ = kernel.DisposeAsync().AsTask();
         }
     }
 }

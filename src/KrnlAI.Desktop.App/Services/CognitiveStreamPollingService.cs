@@ -11,6 +11,7 @@ public sealed class CognitiveStreamPollingService
     private readonly HttpClient _http;
     private CancellationTokenSource? _cts;
     private string? _cycleId;
+    private readonly object _connectLock = new();
 
     public CognitiveStreamState State { get; private set; } = CognitiveStreamState.Disconnected;
     public List<CognitiveCycleEvent> Events { get; } = new();
@@ -26,32 +27,50 @@ public sealed class CognitiveStreamPollingService
 
     public async Task ConnectAsync(string? cycleId = null, CancellationToken ct = default)
     {
-        _cycleId = cycleId;
+        lock (_connectLock)
+        {
+            if (_cts != null)
+            {
+                _cts.Cancel();
+                _cts.Dispose();
+            }
+            _cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            _cycleId = cycleId;
+        }
+
         State = CognitiveStreamState.Connecting;
         OnStateChanged?.Invoke(State);
 
-        _cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
         State = CognitiveStreamState.Connected;
         OnStateChanged?.Invoke(State);
 
-        _ = ReadSseAsync(_cts.Token);
+        var token = _cts.Token;
+        _ = Task.Run(() => ReadSseAsync(token), token);
     }
 
     public void Disconnect()
     {
-        _cts?.Cancel();
-        _cts = null;
+        lock (_connectLock)
+        {
+            _cts?.Cancel();
+            _cts?.Dispose();
+            _cts = null;
+            _cycleId = null;
+        }
         State = CognitiveStreamState.Disconnected;
         OnStateChanged?.Invoke(State);
     }
 
     private async Task ReadSseAsync(CancellationToken ct)
     {
-        if (_cycleId == null) return;
+        string? cycleId;
+        lock (_connectLock) { cycleId = _cycleId; }
+
+        if (cycleId == null) return;
         try
         {
             using var response = await _http.GetAsync(
-                $"/api/cognitive/stream/{Uri.EscapeDataString(_cycleId)}",
+                $"/api/cognitive/stream/{Uri.EscapeDataString(cycleId)}",
                 HttpCompletionOption.ResponseHeadersRead,
                 ct);
             if (!response.IsSuccessStatusCode) return;
@@ -78,8 +97,9 @@ public sealed class CognitiveStreamPollingService
             TryPublishSseEvent(eventLines);
         }
         catch (OperationCanceledException) { }
-        catch
+        catch (Exception ex)
         {
+            KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"CognitiveStreamPollingService: {ex.Message}");
             State = CognitiveStreamState.Error;
             OnStateChanged?.Invoke(State);
         }
@@ -96,9 +116,9 @@ public sealed class CognitiveStreamPollingService
             Events.Add(evt);
             OnEvent?.Invoke(evt);
         }
-        catch
+        catch (Exception ex)
         {
-            // Ignore malformed best-effort stream events.
+            KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"CognitiveStreamPollingService: malformed event: {ex.Message}");
         }
     }
 }

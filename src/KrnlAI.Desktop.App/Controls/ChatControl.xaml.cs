@@ -18,10 +18,20 @@ public partial class ChatControl : UserControl
             {
                 var chatVm = mainVm.ChatVM;
 
+                chatVm.CognitiveDataChanged += OnCognitiveDataChanged;
                 await chatVm.ConnectCognitiveStreamAsync();
             }
         }
         catch (Exception ex) { KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"ChatControl.OnLoaded: {ex.Message}"); }
+    }
+
+    private void OnCognitiveDataChanged()
+    {
+        if (DataContext is ViewModels.MainViewModel mainVm && mainVm.ChatVM != null)
+        {
+            StageRail.SetStages(mainVm.ChatVM.CognitiveStages);
+            StepTimeline.SetEvents(mainVm.ChatVM.CognitiveEvents);
+        }
     }
 
     private void OnChatInputKeyDown(object sender, KeyEventArgs e)

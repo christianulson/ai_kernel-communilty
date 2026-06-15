@@ -132,24 +132,17 @@ public sealed class PeerRankingViewModel : ViewModelBase
             ErrorMessage = string.Empty;
         });
 
-    public async Task LoadHistoryAsync(string? nodeId, CancellationToken ct = default)
-    {
-        History.Clear();
-        if (string.IsNullOrWhiteSpace(nodeId))
-            return;
-
-        try
+    public Task LoadHistoryAsync(string? nodeId, CancellationToken ct = default)
+        => ExecuteBusyAsync(async () =>
         {
+            History.Clear();
+            if (string.IsNullOrWhiteSpace(nodeId))
+                return;
+
             var history = await _service.GetHistoryAsync(nodeId, ct);
             foreach (var item in history)
                 History.Add(item);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to load ranking history for {NodeId}", nodeId);
-            ErrorMessage = ex.Message;
-        }
-    }
+        });
 
     public Task SaveWeightsAsync(CancellationToken ct = default)
         => ExecuteBusyAsync(async () =>

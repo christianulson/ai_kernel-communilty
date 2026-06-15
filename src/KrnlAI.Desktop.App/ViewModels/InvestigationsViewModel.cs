@@ -3,12 +3,14 @@ using System.Windows.Input;
 using KrnlAI.Desktop.App.Services;
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
+using Microsoft.Extensions.Logging;
 
 namespace KrnlAI.Desktop.App.ViewModels;
 
 public class InvestigationsViewModel : ViewModelBase
 {
     private readonly IKernelClient _client;
+    private readonly ILogger<InvestigationsViewModel> _logger;
     public ObservableCollection<InvestigationInfo> Investigations { get; } = new();
     private bool _isLoading;
     public bool IsLoading { get => _isLoading; set { SetProperty(ref _isLoading, value); OnPropertyChanged(nameof(HasNoData)); } }
@@ -18,8 +20,13 @@ public class InvestigationsViewModel : ViewModelBase
     public bool HasNoData => !IsLoading && Investigations.Count == 0 && !HasError;
     public ICommand LoadCommand { get; }
 
-    public InvestigationsViewModel() : this(ServiceLocator.Instance.KernelClient) { }
-    public InvestigationsViewModel(IKernelClient client) { _client = client; LoadCommand = new AsyncRelayCommand(LoadAsync); }
+    public InvestigationsViewModel() : this(ServiceLocator.Instance.KernelClient, ServiceLocator.Instance.GetLogger<InvestigationsViewModel>()) { }
+    public InvestigationsViewModel(IKernelClient client, ILogger<InvestigationsViewModel>? logger = null)
+    {
+        _client = client;
+        _logger = logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<InvestigationsViewModel>.Instance;
+        LoadCommand = new AsyncRelayCommand(LoadAsync);
+    }
 
     public async Task LoadAsync()
     {
@@ -31,9 +38,16 @@ public class InvestigationsViewModel : ViewModelBase
                 ErrorMessage = "Indisponível no modo Local";
                 return;
             }
-            var r = await _client.GetInvestigationsAsync(); Investigations.Clear(); if (r != null) { foreach (var i in r) Investigations.Add(i); } OnPropertyChanged(nameof(HasNoData));
+            var r = await _client.GetInvestigationsAsync();
+            Investigations.Clear();
+            if (r != null) { foreach (var i in r) Investigations.Add(i); }
+            OnPropertyChanged(nameof(HasNoData));
         }
-        catch (Exception ex) { ErrorMessage = $"Erro ao carregar investigações: {ex.Message}"; }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Erro ao carregar investigações: {ex.Message}";
+            _logger.LogWarning(ex, "InvestigationsViewModel.LoadAsync failed");
+        }
         finally { IsLoading = false; }
     }
 }

@@ -25,7 +25,7 @@ public partial class ConfirmModal : Window
 
         if (danger)
         {
-            dialog.ConfirmButton.Style = (System.Windows.Style)Application.Current.Resources["DangerButton"];
+            dialog.ConfirmButton.Style = (Style)Application.Current.Resources["DangerButton"];
         }
 
         dialog.ShowDialog();

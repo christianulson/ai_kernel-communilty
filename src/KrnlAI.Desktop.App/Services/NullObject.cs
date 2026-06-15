@@ -74,10 +74,10 @@ public static class NullObject
                 if (ctor != null)
                 {
                     try { return Activator.CreateInstance(type); }
-                    catch { }
+                    catch (Exception ex) when (ex is MissingMethodException or TypeLoadException) { /* expected for some types */ }
                 }
                 try { return RuntimeHelpers.GetUninitializedObject(type); }
-                catch { }
+                catch { /* expected for uninitializable types */ }
             }
 
             if (type.IsGenericType)

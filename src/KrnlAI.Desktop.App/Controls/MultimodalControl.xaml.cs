@@ -12,6 +12,8 @@ public partial class MultimodalControl : UserControl
         InitializeComponent();
     }
 
+    private async void OnLoaded(object sender, RoutedEventArgs e) { try { } catch { } }
+
     private async void OnIngest(object sender, RoutedEventArgs e)
     {
         var text = IngestInput.Text.Trim();
@@ -21,13 +23,13 @@ public partial class MultimodalControl : UserControl
         {
             var client = ServiceLocator.Instance.KernelClient;
             await client.IngestMemoryAsync(new Core.Models.MemoryIngestRequest(text, "multimodal"));
-            MessageBox.Show("Data ingested successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show("Dados ingeridos com sucesso.", "Sucesso", MessageBoxButton.OK, MessageBoxImage.Information);
             IngestInput.Clear();
         }
         catch (Exception ex)
         {
             KrnlLogger.Write(ex);
-            MessageBox.Show($"Ingest failed: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show($"Falha na ingestão: {ex.Message}", "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
@@ -38,7 +40,7 @@ public partial class MultimodalControl : UserControl
 
         try
         {
-            StatusText.Text = "Searching...";
+            StatusText.Text = "Buscando...";
             var client = ServiceLocator.Instance.KernelClient;
             var result = await client.SearchMultimodalAsync(query, 20);
 
@@ -52,11 +54,11 @@ public partial class MultimodalControl : UserControl
             }).ToList();
 
             SearchResultsGrid.ItemsSource = items;
-            StatusText.Text = items is null || items.Count == 0 ? "No results found." : $"{items.Count} results";
+            StatusText.Text = items is null || items.Count == 0 ? "Nenhum resultado." : $"{items.Count} resultados";
         }
         catch (Exception ex)
         {
-            StatusText.Text = $"Search failed: {ex.Message}";
+            StatusText.Text = $"Falha na busca: {ex.Message}";
         }
     }
 }

@@ -19,7 +19,7 @@ public sealed class EmbeddedKanbanService
         string? search = null,
         CancellationToken ct = default)
     {
-        var goals = await _kernel.GetKanbanGoalsAsync(ct);
+        var goals = (await _kernel.GetKanbanGoalsAsync(ct)) ?? [];
 
         if (!string.IsNullOrWhiteSpace(search))
             goals = goals.Where(g => g.Description.Contains(search, StringComparison.OrdinalIgnoreCase)).ToList();

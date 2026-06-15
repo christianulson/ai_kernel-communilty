@@ -18,7 +18,9 @@ public class MainViewModel : ViewModelBase
     private readonly ILogger<MainViewModel> _logger;
     private CancellationTokenSource? _healthCheckCts;
     private CancellationTokenSource? _emotionalPollCts;
+    private CancellationTokenSource? _dashboardRefreshCts;
     private EmotionalState? _emotionalState;
+    private bool _previousBackendAvailable = true;
     public EmotionalState? EmotionalState { get => _emotionalState; set { SetProperty(ref _emotionalState, value); OnPropertyChanged(nameof(EmotionalMood)); OnPropertyChanged(nameof(EmotionalTone)); OnPropertyChanged(nameof(EmotionalMotive)); } }
     public string EmotionalMood
     {
@@ -81,6 +83,11 @@ public class MainViewModel : ViewModelBase
     public P2PPaymentsViewModel P2PVM { get; }
     public DisputesViewModel DisputesVM { get; }
     public SidecarViewModel SidecarVM { get; }
+    public ObjectivesViewModel ObjectivesVM { get; }
+    public InvestigationsViewModel InvestigationsVM { get; }
+    public SnapshotsViewModel SnapshotsVM { get; }
+    public AdminConfigViewModel AdminConfigVM { get; }
+    public AdminUsersViewModel AdminUsersVM { get; }
     public WelcomeWizardViewModel WelcomeVM { get; } = new();
 
     public ObservableCollection<MediaDevice> Microphones => SettingsVM.Microphones;
@@ -98,7 +105,7 @@ public class MainViewModel : ViewModelBase
     private string _statusMessage = "Iniciando...";
     public string StatusMessage { get => _statusMessage; set => SetProperty(ref _statusMessage, value); }
     private string _currentScreen = "chat";
-    public string CurrentScreen { get => _currentScreen; set { if (SetProperty(ref _currentScreen, value)) { OnPropertyChanged(nameof(IsChatVisible)); OnPropertyChanged(nameof(IsDashboardVisible)); OnPropertyChanged(nameof(IsPoliciesVisible)); OnPropertyChanged(nameof(IsEpisodesVisible)); OnPropertyChanged(nameof(IsMemoryVisible)); OnPropertyChanged(nameof(IsSettingsVisible)); OnPropertyChanged(nameof(IsApiKeysVisible)); OnPropertyChanged(nameof(IsPeerRankingVisible)); OnPropertyChanged(nameof(IsPrivacyVisible)); OnPropertyChanged(nameof(IsBenchmarkVisible)); OnPropertyChanged(nameof(IsCausalVisible)); OnPropertyChanged(nameof(IsProfileVisible)); OnPropertyChanged(nameof(IsDocumentsVisible)); OnPropertyChanged(nameof(IsArchiveVisible)); OnPropertyChanged(nameof(IsModelRegistryVisible)); OnPropertyChanged(nameof(IsVersionsVisible)); OnPropertyChanged(nameof(IsSessionsVisible)); OnPropertyChanged(nameof(IsKanbanVisible)); OnPropertyChanged(nameof(IsTrajectoryVisible)); OnPropertyChanged(nameof(IsP2PPaymentsVisible)); OnPropertyChanged(nameof(IsDisputesVisible)); OnPropertyChanged(nameof(IsSidecarVisible)); } } }
+    public string CurrentScreen { get => _currentScreen; set { if (SetProperty(ref _currentScreen, value)) { OnPropertyChanged(nameof(IsChatVisible)); OnPropertyChanged(nameof(IsDashboardVisible)); OnPropertyChanged(nameof(IsPoliciesVisible)); OnPropertyChanged(nameof(IsEpisodesVisible)); OnPropertyChanged(nameof(IsMemoryVisible)); OnPropertyChanged(nameof(IsSettingsVisible)); OnPropertyChanged(nameof(IsApiKeysVisible)); OnPropertyChanged(nameof(IsPeerRankingVisible)); OnPropertyChanged(nameof(IsPrivacyVisible)); OnPropertyChanged(nameof(IsBenchmarkVisible)); OnPropertyChanged(nameof(IsCausalVisible)); OnPropertyChanged(nameof(IsProfileVisible)); OnPropertyChanged(nameof(IsDocumentsVisible)); OnPropertyChanged(nameof(IsArchiveVisible)); OnPropertyChanged(nameof(IsModelRegistryVisible)); OnPropertyChanged(nameof(IsVersionsVisible)); OnPropertyChanged(nameof(IsSessionsVisible)); OnPropertyChanged(nameof(IsKanbanVisible)); OnPropertyChanged(nameof(IsTrajectoryVisible)); OnPropertyChanged(nameof(IsP2PPaymentsVisible)); OnPropertyChanged(nameof(IsDisputesVisible));             OnPropertyChanged(nameof(IsSidecarVisible)); OnPropertyChanged(nameof(IsMultimodalVisible)); OnPropertyChanged(nameof(IsObjectivesVisible)); OnPropertyChanged(nameof(IsInvestigationsVisible)); OnPropertyChanged(nameof(IsSnapshotsVisible)); OnPropertyChanged(nameof(IsAdminConfigVisible)); OnPropertyChanged(nameof(IsAdminUsersVisible)); } } }
     private bool _showWelcomeWizard = true;
     public bool ShowWelcomeWizard { get => _showWelcomeWizard; set => SetProperty(ref _showWelcomeWizard, value); }
     public bool IsChatVisible => _currentScreen == "chat";
@@ -123,6 +130,12 @@ public class MainViewModel : ViewModelBase
     public bool IsP2PPaymentsVisible => _currentScreen == "p2p-payments";
     public bool IsDisputesVisible => _currentScreen == "disputes";
     public bool IsSidecarVisible => _currentScreen == "sidecar";
+    public bool IsMultimodalVisible => _currentScreen == "multimodal";
+    public bool IsObjectivesVisible => _currentScreen == "objectives";
+    public bool IsInvestigationsVisible => _currentScreen == "investigations";
+    public bool IsSnapshotsVisible => _currentScreen == "snapshots";
+    public bool IsAdminConfigVisible => _currentScreen == "admin-config";
+    public bool IsAdminUsersVisible => _currentScreen == "admin-users";
 
     public AgentInfo? SelectedAgent { get; set; }
     private ConversationSession? _activeSession;
@@ -154,7 +167,14 @@ public class MainViewModel : ViewModelBase
     public bool IsVideoCallCameraOn { get => _isVideoCallCameraOn; set { if (SetProperty(ref _isVideoCallCameraOn, value)) OnPropertyChanged(nameof(VideoCallCameraIcon)); } }
     public string VideoCallCameraIcon => IsVideoCallCameraOn ? "📹" : "📵";
 
-    public string ApiEndpoint => _settingsService.LoadSettings().ApiEndpoint ?? "http://localhost:5235";
+    public string ApiEndpoint
+    {
+        get
+        {
+            var s = _settingsService.LoadSettings();
+            return s.ApiEndpoint ?? s.ApiBaseUrl ?? "http://localhost:5235";
+        }
+    }
 
     public ICommand NavigateToChatCommand { get; }
     public ICommand NavigateToDashboardCommand { get; }
@@ -177,6 +197,12 @@ public class MainViewModel : ViewModelBase
     public ICommand NavigateToP2PPaymentsCommand { get; }
     public ICommand NavigateToDisputesCommand { get; }
     public ICommand NavigateToSidecarCommand { get; }
+    public ICommand NavigateToMultimodalCommand { get; }
+    public ICommand NavigateToObjectivesCommand { get; }
+    public ICommand NavigateToInvestigationsCommand { get; }
+    public ICommand NavigateToSnapshotsCommand { get; }
+    public ICommand NavigateToAdminConfigCommand { get; }
+    public ICommand NavigateToAdminUsersCommand { get; }
     public ICommand NavigateToProfileCommand { get; }
     public ICommand ToggleListeningCommand { get; }
     public ICommand LogoutCommand { get; }
@@ -207,7 +233,9 @@ public class MainViewModel : ViewModelBase
             new PoliciesViewModel(), new BenchmarkViewModel(), new CausalGraphViewModel(),
             new ProfileViewModel(), new ApiKeysViewModel(), new PeerRankingViewModel(), new ArchiveViewModel(), new ModelRegistryViewModel(),
             new VersionsViewModel(), new SessionsViewModel(), new KanbanViewModel(),
-            new P2PPaymentsViewModel(), new DisputesViewModel(), new SidecarViewModel())
+            new P2PPaymentsViewModel(), new DisputesViewModel(), new SidecarViewModel(),
+            new ObjectivesViewModel(), new InvestigationsViewModel(), new SnapshotsViewModel(),
+            new AdminConfigViewModel(), new AdminUsersViewModel())
     { }
 
     public MainViewModel(
@@ -222,7 +250,9 @@ public class MainViewModel : ViewModelBase
         PoliciesViewModel policiesVM, BenchmarkViewModel benchmarkVM, CausalGraphViewModel causalVM,
         ProfileViewModel profileVM, ApiKeysViewModel apiKeysVM, PeerRankingViewModel peerRankingVM, ArchiveViewModel archiveVM, ModelRegistryViewModel modelRegistryVM,
         VersionsViewModel versionsVM, SessionsViewModel sessionsVM, KanbanViewModel kanbanVM,
-        P2PPaymentsViewModel p2pVM, DisputesViewModel disputesVM, SidecarViewModel sidecarVM)
+        P2PPaymentsViewModel p2pVM, DisputesViewModel disputesVM, SidecarViewModel sidecarVM,
+        ObjectivesViewModel objectivesVM, InvestigationsViewModel investigationsVM, SnapshotsViewModel snapshotsVM,
+        AdminConfigViewModel adminConfigVM, AdminUsersViewModel adminUsersVM)
     {
         ChatVM = chatVM;
         DashVM = dashVM;
@@ -244,6 +274,11 @@ public class MainViewModel : ViewModelBase
         P2PVM = p2pVM;
         DisputesVM = disputesVM;
         SidecarVM = sidecarVM;
+        ObjectivesVM = objectivesVM;
+        InvestigationsVM = investigationsVM;
+        SnapshotsVM = snapshotsVM;
+        AdminConfigVM = adminConfigVM;
+        AdminUsersVM = adminUsersVM;
 
         _kernelClient = kernelClient;
         _settingsService = settingsService;
@@ -280,6 +315,12 @@ public class MainViewModel : ViewModelBase
         NavigateToP2PPaymentsCommand = new RelayCommand(() => CurrentScreen = "p2p-payments");
         NavigateToDisputesCommand = new RelayCommand(() => CurrentScreen = "disputes");
         NavigateToSidecarCommand = new RelayCommand(() => CurrentScreen = "sidecar");
+        NavigateToMultimodalCommand = new RelayCommand(() => CurrentScreen = "multimodal");
+        NavigateToObjectivesCommand = new RelayCommand(() => CurrentScreen = "objectives");
+        NavigateToInvestigationsCommand = new RelayCommand(() => CurrentScreen = "investigations");
+        NavigateToSnapshotsCommand = new RelayCommand(() => CurrentScreen = "snapshots");
+        NavigateToAdminConfigCommand = new RelayCommand(() => CurrentScreen = "admin-config");
+        NavigateToAdminUsersCommand = new RelayCommand(() => CurrentScreen = "admin-users");
         ToggleListeningCommand = new AsyncRelayCommand(ToggleListeningAsync);
         LogoutCommand = new RelayCommand(ExecuteLogout);
         NewSessionCommand = new RelayCommand(() => { Sessions.Add(new ConversationSession(Guid.NewGuid().ToString(), $"Conversa {Sessions.Count + 1}", DateTime.Now)); ActiveSession = Sessions.Last(); });
@@ -298,6 +339,7 @@ public class MainViewModel : ViewModelBase
         RefreshAuthState();
         _ = CheckBackendHealthAsync();
         _ = PollEmotionalStateAsync();
+        _ = AutoRefreshDashboardAsync();
     }
 
     private void ToggleTheme()
@@ -350,15 +392,43 @@ public class MainViewModel : ViewModelBase
         var t = _healthCheckCts.Token;
         while (!t.IsCancellationRequested)
         {
-            if (t.IsCancellationRequested) break;
             var isAvailable = await _kernelClient.CheckHealthAsync(t);
             UiThreadInvoker.Invoke(() =>
             {
+                if (isAvailable != _previousBackendAvailable)
+                {
+                    if (isAvailable)
+                    {
+                        StatusMessage = "Conectado";
+                        KrnlAI.Desktop.Core.Services.KrnlLogger.Write("Backend reconectado");
+                    }
+                    else
+                    {
+                        StatusMessage = "Servidor indisponível";
+                    }
+                    _previousBackendAvailable = isAvailable;
+                }
                 IsBackendAvailable = isAvailable;
-                StatusMessage = isAvailable ? "Conectado" : "Servidor indisponível";
                 OnPropertyChanged(nameof(ApiEndpoint));
             });
             try { await Task.Delay(30000, t); } catch (OperationCanceledException) { break; }
+        }
+    }
+
+    private async Task AutoRefreshDashboardAsync()
+    {
+        if (_kernelClient == null) return;
+        if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return;
+
+        _dashboardRefreshCts = new CancellationTokenSource();
+        var t = _dashboardRefreshCts.Token;
+        while (!t.IsCancellationRequested)
+        {
+            try { await Task.Delay(30000, t); } catch (OperationCanceledException) { break; }
+            if (IsBackendAvailable && !t.IsCancellationRequested)
+            {
+                await DashVM.LoadDashboardDataAsync();
+            }
         }
     }
 
@@ -431,6 +501,9 @@ public class MainViewModel : ViewModelBase
         _emotionalPollCts?.Cancel();
         _emotionalPollCts?.Dispose();
         _emotionalPollCts = null;
+        _dashboardRefreshCts?.Cancel();
+        _dashboardRefreshCts?.Dispose();
+        _dashboardRefreshCts = null;
     }
 
     public void Cleanup()

@@ -119,12 +119,16 @@ public class MoodToColorConverter : IValueConverter
 
 public class PercentToWidthConverter : IValueConverter
 {
-    private const double MaxWidth = 400;
-
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        if (value is float f) return Math.Max(2, f * MaxWidth);
-        if (value is double d) return Math.Max(2, d * MaxWidth);
+        var maxWidth = parameter switch
+        {
+            string s when double.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out var parsed) => parsed,
+            double p => p,
+            _ => 400.0
+        };
+        if (value is float fv) return Math.Max(2, fv * maxWidth);
+        if (value is double dv) return Math.Max(2, dv * maxWidth);
         return 2.0;
     }
 
@@ -136,20 +140,6 @@ public class StringToVisibilityConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         => !string.IsNullOrEmpty(value as string) ? Visibility.Visible : Visibility.Collapsed;
-
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        => throw new NotSupportedException();
-}
-
-public class ListeningButtonConverter : IValueConverter
-{
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-    {
-        if (value is bool isListening)
-            return isListening ? "Parar Escuta" : "Iniciar Escuta";
-
-        return "Escuta";
-    }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         => throw new NotSupportedException();
@@ -186,7 +176,7 @@ public class Base64ToImageConverter : IValueConverter
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         if (value is not string base64 || string.IsNullOrEmpty(base64))
-            return null!;
+            return Binding.DoNothing;
 
         try
         {
@@ -202,7 +192,7 @@ public class Base64ToImageConverter : IValueConverter
         }
         catch
         {
-            return null!;
+            return Binding.DoNothing;
         }
     }
 

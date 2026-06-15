@@ -8,6 +8,7 @@ public sealed class EmbeddedCognitiveStreamProvider : CoreAbstractions.ICognitiv
 {
     private readonly ICognitiveStreamer _streamer;
     private IDisposable? _subscription;
+    private string? _activeCycleId;
 
     public CoreAbstractions.CognitiveStreamState State { get; private set; } = CoreAbstractions.CognitiveStreamState.Disconnected;
     public event Action<CoreAbstractions.CognitiveCycleEvent>? OnEvent;
@@ -20,13 +21,26 @@ public sealed class EmbeddedCognitiveStreamProvider : CoreAbstractions.ICognitiv
 
     public Task ConnectAsync(string? cycleId = null, CancellationToken ct = default)
     {
+        if (ct.IsCancellationRequested)
+            return Task.FromCanceled(ct);
+
+        _activeCycleId = cycleId;
         State = CoreAbstractions.CognitiveStreamState.Connecting;
         OnStateChanged?.Invoke(State);
 
-        State = CoreAbstractions.CognitiveStreamState.Connected;
-        OnStateChanged?.Invoke(State);
+        try
+        {
+            _subscription = _streamer.Subscribe(new EmbeddedStreamSink(this));
+            State = CoreAbstractions.CognitiveStreamState.Connected;
+            OnStateChanged?.Invoke(State);
+        }
+        catch (Exception ex)
+        {
+            KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"EmbeddedCognitiveStreamProvider: Subscribe failed: {ex.Message}");
+            State = CoreAbstractions.CognitiveStreamState.Error;
+            OnStateChanged?.Invoke(State);
+        }
 
-        _subscription = _streamer.Subscribe(new EmbeddedStreamSink(this));
         return Task.CompletedTask;
     }
 
@@ -34,6 +48,7 @@ public sealed class EmbeddedCognitiveStreamProvider : CoreAbstractions.ICognitiv
     {
         _subscription?.Dispose();
         _subscription = null;
+        _activeCycleId = null;
         State = CoreAbstractions.CognitiveStreamState.Disconnected;
         OnStateChanged?.Invoke(State);
     }
@@ -42,6 +57,9 @@ public sealed class EmbeddedCognitiveStreamProvider : CoreAbstractions.ICognitiv
     {
         public Task OnEventAsync(CoreModel.CognitiveCycleEvent evt, CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+                return Task.FromCanceled(ct);
+
             var desktopEvent = new CoreAbstractions.CognitiveCycleEvent(
                 evt.Type.ToString(),
                 evt.StepName,

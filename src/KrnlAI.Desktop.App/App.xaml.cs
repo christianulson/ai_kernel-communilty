@@ -11,6 +11,7 @@ namespace KrnlAI.Desktop.App;
 public partial class App : Application
 {
     private TaskbarIcon? _trayIcon;
+    private ToastService? _toast;
     private MainWindow? _mainWindow;
     private GlobalHotkeyService? _hotkeyService;
     private bool _isAlwaysOnTop;
@@ -20,6 +21,7 @@ public partial class App : Application
         base.OnStartup(e);
         DispatcherUnhandledException += OnDispatcherUnhandledException;
         TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
+        ViewModels.AsyncRelayCommand.UnhandledException += OnCommandUnhandledException;
 
         var settingsService = ServiceLocator.Instance.SettingsService;
         var settings = settingsService.LoadSettings();
@@ -47,6 +49,7 @@ public partial class App : Application
         }
 
         _mainWindow = new MainWindow();
+        _mainWindow.DataContext = new ViewModels.MainViewModel();
         _mainWindow.LogoutRequested += OnLogoutRequested;
         
         if (!double.IsNaN(settings.WindowLeft) && !double.IsNaN(settings.WindowTop))
@@ -62,7 +65,7 @@ public partial class App : Application
         if (settings.WindowHeight > 0) _mainWindow.Height = settings.WindowHeight;
         if (settings.WindowMaximized) _mainWindow.WindowState = WindowState.Maximized;
         
-        _mainWindow.Closing += (s, e) =>
+        _mainWindow.Closing += (s, args) =>
         {
             var currentSettings = settingsService.LoadSettings();
             var newWindowSettings = currentSettings with
@@ -83,27 +86,28 @@ public partial class App : Application
             IconSource = new BitmapImage(iconUri),
             Visibility = Visibility.Visible
         };
+        _toast = new ToastService(_trayIcon);
 
         var contextMenu = new System.Windows.Controls.ContextMenu();
 
         var openChatItem = new System.Windows.Controls.MenuItem { Header = "Abrir Chat" };
-        openChatItem.Click += (s, e) => ShowMainWindow();
+        openChatItem.Click += (s, args) => ShowMainWindow();
 
         var settingsItem = new System.Windows.Controls.MenuItem { Header = "Configurações" };
-        settingsItem.Click += (s, e) => ShowSettings();
+        settingsItem.Click += (s, args) => ShowSettings();
 
         var separator1 = new System.Windows.Controls.Separator();
 
         var toggleAlwaysOnTopItem = new System.Windows.Controls.MenuItem { Header = "Sempre no Topo", IsCheckable = true };
-        toggleAlwaysOnTopItem.Click += (s, e) =>
+        toggleAlwaysOnTopItem.Click += (s, args) =>
         {
             _isAlwaysOnTop = !_isAlwaysOnTop;
             _mainWindow?.SetAlwaysOnTop(_isAlwaysOnTop);
-            _trayIcon?.ShowBalloonTip("Krnl-AI", _isAlwaysOnTop ? "Janela sempre no topo ativada" : "Janela sempre no topo desativada", BalloonIcon.Info);
+            _toast?.Show("Krnl-AI", _isAlwaysOnTop ? "Janela sempre no topo ativada" : "Janela sempre no topo desativada", ToastType.Info);
         };
 
         var toggleAutoStartItem = new System.Windows.Controls.MenuItem { Header = "Iniciar com Windows", IsCheckable = true };
-        toggleAutoStartItem.Click += (s, e) =>
+        toggleAutoStartItem.Click += (s, args) =>
         {
             SetAutoStart(toggleAutoStartItem.IsChecked);
         };
@@ -113,23 +117,23 @@ public partial class App : Application
         var separator2 = new System.Windows.Controls.Separator();
 
         var startListeningItem = new System.Windows.Controls.MenuItem { Header = "Iniciar Escuta" };
-        startListeningItem.Click += async (s, e) =>
+        startListeningItem.Click += async (s, args) =>
         {
             await ServiceLocator.Instance.ListeningService.StartListeningAsync();
-            _trayIcon?.ShowBalloonTip("Krnl-AI", "Escuta contínua iniciada", BalloonIcon.Info);
+            _toast?.Show("Krnl-AI", "Escuta contínua iniciada", ToastType.Success);
         };
 
         var stopListeningItem = new System.Windows.Controls.MenuItem { Header = "Parar Escuta" };
-        stopListeningItem.Click += async (s, e) =>
+        stopListeningItem.Click += async (s, args) =>
         {
             await ServiceLocator.Instance.ListeningService.StopListeningAsync();
-            _trayIcon?.ShowBalloonTip("Krnl-AI", "Escuta contínua parada", BalloonIcon.Info);
+            _toast?.Show("Krnl-AI", "Escuta contínua parada", ToastType.Info);
         };
 
         var separator3 = new System.Windows.Controls.Separator();
 
         var exitItem = new System.Windows.Controls.MenuItem { Header = "Sair" };
-        exitItem.Click += (s, e) => ExitApplication();
+        exitItem.Click += (s, args) => ExitApplication();
 
         contextMenu.Items.Add(openChatItem);
         contextMenu.Items.Add(settingsItem);
@@ -143,11 +147,11 @@ public partial class App : Application
         contextMenu.Items.Add(exitItem);
 
         _trayIcon.ContextMenu = contextMenu;
-        _trayIcon.TrayMouseDoubleClick += (s, e) => ShowMainWindow();
+        _trayIcon.TrayMouseDoubleClick += (s, args) => ShowMainWindow();
 
         ShowMainWindow();
 
-        _mainWindow.Loaded += (s, e) =>
+        _mainWindow.Loaded += (s, args) =>
         {
             RegisterGlobalHotkeys();
         };
@@ -170,12 +174,12 @@ public partial class App : Application
                     if (listening.IsListening)
                     {
                         _ = listening.StopListeningAsync();
-                        _trayIcon?.ShowBalloonTip("Krnl-AI", "Escuta contínua parada", BalloonIcon.Info);
+                        _toast?.Show("Krnl-AI", "Escuta contínua parada", ToastType.Info);
                     }
                     else
                     {
                         _ = listening.StartListeningAsync();
-                        _trayIcon?.ShowBalloonTip("Krnl-AI", "Escuta contínua iniciada", BalloonIcon.Info);
+                        _toast?.Show("Krnl-AI", "Escuta contínua iniciada", ToastType.Success);
                     }
                 }
             ))
@@ -190,14 +194,14 @@ public partial class App : Application
                 {
                     _isAlwaysOnTop = !_isAlwaysOnTop;
                     _mainWindow?.SetAlwaysOnTop(_isAlwaysOnTop);
-                    _trayIcon?.ShowBalloonTip("Krnl-AI", _isAlwaysOnTop ? "Sempre no topo: ON" : "Sempre no topo: OFF", BalloonIcon.Info);
+                    _toast?.Show("Krnl-AI", _isAlwaysOnTop ? "Sempre no topo: ON" : "Sempre no topo: OFF", ToastType.Info);
                 }
             ))
             {
                 KrnlLogger.Write("Hotkey Ctrl+Shift+T falhou ao registrar");
             }
 
-            _trayIcon?.ShowBalloonTip("Krnl-AI", "Hotkeys: Ctrl+Shift+K (escuta), Ctrl+Shift+T (topo)", BalloonIcon.Info);
+            _toast?.Show("Krnl-AI", "Hotkeys: Ctrl+Shift+K (escuta), Ctrl+Shift+T (topo)", ToastType.Info);
         }
         catch (Exception ex)
         {
@@ -238,7 +242,7 @@ public partial class App : Application
                 key.DeleteValue("KrnlAIDesktop", false);
             }
 
-            _trayIcon?.ShowBalloonTip("Krnl-AI", enable ? "Iniciar com Windows ativado" : "Iniciar com Windows desativado", BalloonIcon.Info);
+            _toast?.Show("Krnl-AI", enable ? "Iniciar com Windows ativado" : "Iniciar com Windows desativado", ToastType.Info);
         }
         catch (Exception ex)
         {
@@ -314,6 +318,7 @@ public partial class App : Application
     private void OnDispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
     {
         KrnlLogger.Write($"Unhandled: {e.Exception}");
+        _toast?.Show("Krnl-AI Desktop", $"Erro não tratado: {e.Exception.Message}", ToastType.Error);
         if (!_errorShown)
         {
             _errorShown = true;
@@ -328,8 +333,15 @@ public partial class App : Application
         e.SetObserved();
     }
 
+    private void OnCommandUnhandledException(Exception ex)
+    {
+        KrnlLogger.Write($"[Command] {ex}");
+        _toast?.Show("Comando", $"Erro: {ex.Message}", ToastType.Error);
+    }
+
     protected override void OnExit(ExitEventArgs e)
     {
+        ViewModels.AsyncRelayCommand.UnhandledException -= OnCommandUnhandledException;
         _hotkeyService?.Dispose();
         _trayIcon?.Dispose();
         ServiceLocator.Instance.Dispose();

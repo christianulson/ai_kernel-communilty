@@ -291,7 +291,10 @@ public class LoginViewModel : ViewModelBase
             _oauthListener?.Close();
             (_oauthListener as IDisposable)?.Dispose();
         }
-        catch { }
+        catch (Exception ex)
+        {
+            KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"StopOAuthCallbackListener: {ex.Message}");
+        }
         _oauthListener = null;
     }
 }
