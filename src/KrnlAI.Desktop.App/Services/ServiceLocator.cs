@@ -120,7 +120,6 @@ public class ServiceLocator : IDisposable, IAsyncDisposable
             var localizationService = new LocalizationService();
             services.AddSingleton<ILocalizationService>(localizationService);
             ServiceLocatorAccess.SetLocalizationService(localizationService);
-            services.AddSingleton<IOfflineService, OfflineService>();
             services.AddSingleton<ThemeManager>();
             services.AddSingleton(new HttpClient { BaseAddress = new Uri(baseUrl), Timeout = TimeSpan.FromSeconds(30) });
             services.AddSingleton<KanbanService>();

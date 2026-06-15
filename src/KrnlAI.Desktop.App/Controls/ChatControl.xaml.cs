@@ -9,6 +9,7 @@ public partial class ChatControl : UserControl
     {
         InitializeComponent();
         Loaded += OnLoaded;
+        Unloaded += (_, _) => { if (DataContext is ViewModels.MainViewModel mvm) mvm.ChatVM.CognitiveDataChanged -= OnCognitiveDataChanged; };
         AllowDrop = true;
         DragEnter += OnDragEnter;
         Drop += OnDrop;

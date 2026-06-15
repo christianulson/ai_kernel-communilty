@@ -18,15 +18,21 @@ public static class SidecarCommunityServices
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
-        services.AddSingleton<IEmbeddedKrnlAI>(new EmbeddedKrnlAI(new EmbeddedKernelOptions
+        services.AddSingleton<IEmbeddedKrnlAI>(sp =>
         {
-            StoreMode = configuration["Store:Mode"] ?? "SQLite",
-            SqliteMode = configuration["Store:SqliteMode"] ?? "Hybrid",
-            VectorMode = configuration["Vector:Mode"] ?? "Sqlite",
-            CacheMode = configuration["Cache:Mode"] ?? "Memory",
-            SkillsStoreMode = configuration["Skills:StoreMode"] ?? "Document",
-            LLmProvider = configuration["LLM:Provider"] ?? "ollama"
-        }));
+            var kernel = new EmbeddedKrnlAI(new EmbeddedKernelOptions
+            {
+                StoreMode = configuration["Store:Mode"] ?? "SQLite",
+                SqliteMode = configuration["Store:SqliteMode"] ?? "Hybrid",
+                VectorMode = configuration["Vector:Mode"] ?? "Sqlite",
+                CacheMode = configuration["Cache:Mode"] ?? "Memory",
+                SkillsStoreMode = configuration["Skills:StoreMode"] ?? "Document",
+                LLmProvider = configuration["LLM:Provider"] ?? "ollama"
+            });
+            var hostLifetime = sp.GetRequiredService<Microsoft.Extensions.Hosting.IHostApplicationLifetime>();
+            hostLifetime.ApplicationStopping.Register(() => kernel.DisposeAsync().AsTask().GetAwaiter().GetResult());
+            return kernel;
+        });
 
         services.AddMemoryCache();
 

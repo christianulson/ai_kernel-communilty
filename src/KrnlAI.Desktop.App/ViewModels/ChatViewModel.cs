@@ -694,6 +694,7 @@ public class ChatViewModel : ViewModelBase
     public void Cleanup()
     {
         if (IsCameraOn) StopCamera();
+        _cognitiveStream.OnEvent -= OnCognitiveEvent;
         _cognitiveStream.Disconnect();
         if (_embeddedKernel != null)
         {

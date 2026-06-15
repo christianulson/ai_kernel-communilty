@@ -35,6 +35,7 @@ public sealed class SidecarViewModel : ViewModelBase
         TestConnectionCommand = new AsyncRelayCommand(TestConnectionAsync);
         SaveConfigCommand = new AsyncRelayCommand(SaveConfigAsync);
         ResetToCommunityCommand = new AsyncRelayCommand(ResetToCommunityAsync);
+        RpcCallCommand = new AsyncRelayCommand(RpcCallAsync);
     }
 
     public string Mode
@@ -59,6 +60,7 @@ public sealed class SidecarViewModel : ViewModelBase
     public ICommand TestConnectionCommand { get; }
     public ICommand SaveConfigCommand { get; }
     public ICommand ResetToCommunityCommand { get; }
+    public ICommand RpcCallCommand { get; }
 
     private async Task RefreshAsync()
     {
@@ -146,6 +148,22 @@ public sealed class SidecarViewModel : ViewModelBase
         {
             ErrorMessage = $"Erro ao salvar: {ex.Message}";
         }
+    }
+
+    private async Task RpcCallAsync()
+    {
+        try
+        {
+            StatusMessage = "Chamando RPC...";
+            ErrorMessage = "";
+            var target = _mode == "enterprise" && !string.IsNullOrWhiteSpace(_gatewayEndpoint) ? _gatewayEndpoint : _http.BaseAddress?.ToString() ?? "http://localhost:5235";
+            using var rpcClient = new HttpClient { Timeout = TimeSpan.FromSeconds(5) };
+            var payload = new { jsonrpc = "2.0", method = "sidecar.health", @params = new { }, id = 1 };
+            var response = await rpcClient.PostAsJsonAsync(target.TrimEnd('/') + "/api/rpc", payload);
+            var body = await response.Content.ReadAsStringAsync();
+            StatusMessage = response.IsSuccessStatusCode ? $"RPC OK: {body[..Math.Min(body.Length, 100)]}" : $"RPC falhou: HTTP {(int)response.StatusCode}";
+        }
+        catch (Exception ex) { ErrorMessage = $"Erro RPC: {ex.Message}"; StatusMessage = "Falha"; }
     }
 
     private async Task ResetToCommunityAsync()

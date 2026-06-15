@@ -21,6 +21,7 @@ public class MainViewModel : ViewModelBase
     private CancellationTokenSource? _emotionalPollCts;
     private CancellationTokenSource? _dashboardRefreshCts;
     private EmotionalState? _emotionalState;
+    private System.ComponentModel.PropertyChangedEventHandler? _chatPropertyChangedHandler;
     private string _executiveMode = "auto";
     public string ExecutiveMode { get => _executiveMode; set => SetProperty(ref _executiveMode, value); }
     public string ExecutiveModeIcon => _executiveMode switch { "focus" => "🎯", "deep" => "🧠", "sleep" => "💤", "crisis" => "🚨", _ => "⚡" };
@@ -95,6 +96,10 @@ public class MainViewModel : ViewModelBase
     public MomentsViewModel MomentsVM { get; }
     public PluginsViewModel PluginsVM { get; }
     public SchedulerViewModel SchedulerVM { get; }
+    public TemplatesViewModel TemplatesVM { get; } = new();
+    public CliViewModel CliVM { get; } = new();
+    public PluginCatalogViewModel PluginCatalogVM { get; } = new();
+    public ExperimentViewModel ExperimentVM { get; } = new();
     public WelcomeWizardViewModel WelcomeVM { get; } = new();
 
     public ObservableCollection<MediaDevice> Microphones => SettingsVM.Microphones;
@@ -126,7 +131,7 @@ public class MainViewModel : ViewModelBase
     private string _statusMessage = "Iniciando...";
     public string StatusMessage { get => _statusMessage; set => SetProperty(ref _statusMessage, value); }
     private string _currentScreen = "chat";
-    public string CurrentScreen { get => _currentScreen; set { if (SetProperty(ref _currentScreen, value)) { OnPropertyChanged(nameof(IsChatVisible)); OnPropertyChanged(nameof(IsDashboardVisible)); OnPropertyChanged(nameof(IsPoliciesVisible)); OnPropertyChanged(nameof(IsEpisodesVisible)); OnPropertyChanged(nameof(IsMemoryVisible)); OnPropertyChanged(nameof(IsSettingsVisible)); OnPropertyChanged(nameof(IsApiKeysVisible)); OnPropertyChanged(nameof(IsPeerRankingVisible)); OnPropertyChanged(nameof(IsPrivacyVisible)); OnPropertyChanged(nameof(IsBenchmarkVisible)); OnPropertyChanged(nameof(IsCausalVisible)); OnPropertyChanged(nameof(IsProfileVisible)); OnPropertyChanged(nameof(IsDocumentsVisible)); OnPropertyChanged(nameof(IsArchiveVisible)); OnPropertyChanged(nameof(IsModelRegistryVisible)); OnPropertyChanged(nameof(IsVersionsVisible)); OnPropertyChanged(nameof(IsSessionsVisible)); OnPropertyChanged(nameof(IsKanbanVisible)); OnPropertyChanged(nameof(IsTrajectoryVisible)); OnPropertyChanged(nameof(IsP2PPaymentsVisible)); OnPropertyChanged(nameof(IsDisputesVisible));             OnPropertyChanged(nameof(IsSidecarVisible)); OnPropertyChanged(nameof(IsMultimodalVisible)); OnPropertyChanged(nameof(IsObjectivesVisible)); OnPropertyChanged(nameof(IsInvestigationsVisible)); OnPropertyChanged(nameof(IsSnapshotsVisible)); OnPropertyChanged(nameof(IsAdminConfigVisible));             OnPropertyChanged(nameof(IsAdminUsersVisible)); OnPropertyChanged(nameof(IsMomentsVisible)); OnPropertyChanged(nameof(IsPluginsVisible)); OnPropertyChanged(nameof(IsSchedulerVisible)); } } }
+    public string CurrentScreen { get => _currentScreen; set { if (SetProperty(ref _currentScreen, value)) { OnPropertyChanged(nameof(IsChatVisible)); OnPropertyChanged(nameof(IsDashboardVisible)); OnPropertyChanged(nameof(IsPoliciesVisible)); OnPropertyChanged(nameof(IsEpisodesVisible)); OnPropertyChanged(nameof(IsMemoryVisible)); OnPropertyChanged(nameof(IsSettingsVisible)); OnPropertyChanged(nameof(IsApiKeysVisible)); OnPropertyChanged(nameof(IsPeerRankingVisible)); OnPropertyChanged(nameof(IsPrivacyVisible)); OnPropertyChanged(nameof(IsBenchmarkVisible)); OnPropertyChanged(nameof(IsCausalVisible)); OnPropertyChanged(nameof(IsProfileVisible)); OnPropertyChanged(nameof(IsDocumentsVisible)); OnPropertyChanged(nameof(IsArchiveVisible)); OnPropertyChanged(nameof(IsModelRegistryVisible)); OnPropertyChanged(nameof(IsVersionsVisible)); OnPropertyChanged(nameof(IsSessionsVisible)); OnPropertyChanged(nameof(IsKanbanVisible)); OnPropertyChanged(nameof(IsTrajectoryVisible)); OnPropertyChanged(nameof(IsP2PPaymentsVisible)); OnPropertyChanged(nameof(IsDisputesVisible));             OnPropertyChanged(nameof(IsSidecarVisible)); OnPropertyChanged(nameof(IsMultimodalVisible)); OnPropertyChanged(nameof(IsObjectivesVisible)); OnPropertyChanged(nameof(IsInvestigationsVisible)); OnPropertyChanged(nameof(IsSnapshotsVisible)); OnPropertyChanged(nameof(IsAdminConfigVisible));             OnPropertyChanged(nameof(IsAdminUsersVisible)); OnPropertyChanged(nameof(IsMomentsVisible)); OnPropertyChanged(nameof(IsPluginsVisible)); OnPropertyChanged(nameof(IsSchedulerVisible)); OnPropertyChanged(nameof(IsTemplatesVisible)); OnPropertyChanged(nameof(IsCliVisible)); OnPropertyChanged(nameof(IsPluginCatalogVisible)); OnPropertyChanged(nameof(IsExperimentVisible)); } } }
     private bool _showWelcomeWizard = true;
     public bool ShowWelcomeWizard { get => _showWelcomeWizard; set => SetProperty(ref _showWelcomeWizard, value); }
     private bool _showSearch;
@@ -172,6 +177,10 @@ public class MainViewModel : ViewModelBase
     public bool IsMomentsVisible => _currentScreen == "moments";
     public bool IsPluginsVisible => _currentScreen == "plugins";
     public bool IsSchedulerVisible => _currentScreen == "scheduler";
+    public bool IsTemplatesVisible => _currentScreen == "templates";
+    public bool IsCliVisible => _currentScreen == "cli";
+    public bool IsPluginCatalogVisible => _currentScreen == "plugin-catalog";
+    public bool IsExperimentVisible => _currentScreen == "experiment";
 
     public AgentInfo? SelectedAgent { get; set; }
     private ConversationSession? _activeSession;
@@ -242,6 +251,10 @@ public class MainViewModel : ViewModelBase
     public ICommand NavigateToMomentsCommand { get; }
     public ICommand NavigateToPluginsCommand { get; }
     public ICommand NavigateToSchedulerCommand { get; }
+    public ICommand NavigateToTemplatesCommand { get; }
+    public ICommand NavigateToCliCommand { get; }
+    public ICommand NavigateToPluginCatalogCommand { get; }
+    public ICommand NavigateToExperimentCommand { get; }
     public ICommand NavigateToProfileCommand { get; }
     public ICommand ToggleListeningCommand { get; }
     public ICommand LogoutCommand { get; }
@@ -376,6 +389,10 @@ public class MainViewModel : ViewModelBase
         NavigateToMomentsCommand = new RelayCommand(() => CurrentScreen = "moments");
         NavigateToPluginsCommand = new RelayCommand(() => CurrentScreen = "plugins");
         NavigateToSchedulerCommand = new RelayCommand(() => CurrentScreen = "scheduler");
+        NavigateToTemplatesCommand = new RelayCommand(() => CurrentScreen = "templates");
+        NavigateToCliCommand = new RelayCommand(() => CurrentScreen = "cli");
+        NavigateToPluginCatalogCommand = new RelayCommand(() => CurrentScreen = "plugin-catalog");
+        NavigateToExperimentCommand = new RelayCommand(() => CurrentScreen = "experiment");
         ToggleListeningCommand = new AsyncRelayCommand(ToggleListeningAsync);
         LogoutCommand = new RelayCommand(ExecuteLogout);
         BackupCommand = new AsyncRelayCommand(async () =>
@@ -411,7 +428,8 @@ public class MainViewModel : ViewModelBase
 
         if (_listeningService != null)
             _listeningService.VoiceLevelChanged += OnVoiceLevelChanged;
-        ChatVM.PropertyChanged += (_, e) => { if (e.PropertyName == nameof(ChatViewModel.IsProcessing)) OnPropertyChanged(nameof(IsAgentProcessing)); };
+        _chatPropertyChangedHandler = (_, e) => { if (e.PropertyName == nameof(ChatViewModel.IsProcessing)) OnPropertyChanged(nameof(IsAgentProcessing)); };
+        ChatVM.PropertyChanged += _chatPropertyChangedHandler;
         _themeService.ThemeChanged += OnThemeChanged;
         UpdateThemeDisplay(_themeService.CurrentTheme);
         RefreshAuthState();
@@ -644,6 +662,8 @@ public class MainViewModel : ViewModelBase
         if (_listeningService != null)
             _listeningService.VoiceLevelChanged -= OnVoiceLevelChanged;
         _themeService.ThemeChanged -= OnThemeChanged;
+        if (_chatPropertyChangedHandler != null)
+            ChatVM.PropertyChanged -= _chatPropertyChangedHandler;
         ChatVM.Cleanup();
         (DashVM as IDisposable)?.Dispose();
         (SettingsVM as IDisposable)?.Dispose();

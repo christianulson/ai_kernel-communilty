@@ -70,7 +70,7 @@ public class SettingsViewModel : ViewModelBase, IDisposable
     public bool NotifyOnComplete { get => _notifyOnComplete; set => SetProperty(ref _notifyOnComplete, value); }
     public List<string> AvailableLlmProviders { get; } = new() { "ollama", "openai", "anthropic", "gemini" };
     private string _selectedLlmProvider = "ollama";
-    public string SelectedLlmProvider { get => _selectedLlmProvider; set { if (SetProperty(ref _selectedLlmProvider, value)) { Save(); } } }
+    public string SelectedLlmProvider { get => _selectedLlmProvider; set { if (SetProperty(ref _selectedLlmProvider, value)) { Environment.SetEnvironmentVariable("KRNL__LLM_PROVIDER", value); Save(); } } }
     // Language
     public List<string> AvailableLanguages { get; } = new() { "pt-BR", "en" };
     private string _selectedLanguage = "pt-BR";
@@ -94,6 +94,12 @@ public class SettingsViewModel : ViewModelBase, IDisposable
     public bool NotificationSound { get => _notifySound; set => SetProperty(ref _notifySound, value); }
     private string _listeningHk = "Ctrl+Shift+K";
     public string ListeningHotkey { get => _listeningHk; set => SetProperty(ref _listeningHk, value); }
+    private string _searchHk = "Ctrl+K";
+    public string SearchHotkey { get => _searchHk; set => SetProperty(ref _searchHk, value); }
+    private string _alwaysOnTopHk = "Ctrl+Shift+T";
+    public string AlwaysOnTopHotkey { get => _alwaysOnTopHk; set => SetProperty(ref _alwaysOnTopHk, value); }
+    private string _paletteHk = "Ctrl+Shift+P";
+    public string PaletteHotkey { get => _paletteHk; set => SetProperty(ref _paletteHk, value); }
     private string _stun = "stun:stun.l.google.com:19302", _turn = "";
     public string StunServer { get => _stun; set => SetProperty(ref _stun, value); }
     public string TurnServer { get => _turn; set => SetProperty(ref _turn, value); }
