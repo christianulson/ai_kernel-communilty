@@ -1,19 +1,40 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using KrnlAI.Desktop.App.Services;
+using KrnlAI.Desktop.Core.Abstractions;
+using KrnlAI.Desktop.Core.Models;
+using Microsoft.Extensions.Logging;
 
 namespace KrnlAI.Desktop.App.ViewModels;
 
 public class PluginCatalogViewModel : ViewModelBase
 {
-    public ObservableCollection<string> Plugins { get; } = new()
-    {
-        "🔌 Local Filesystem - Acessar arquivos locais",
-        "🔌 GitHub - Integração com repositórios",
-        "🔌 SQL Database - Consultar bancos SQL",
-        "🔌 Web Search - Pesquisar na web",
-        "🔌 Slack - Mensagens no Slack",
-        "🔌 Email - Enviar e receber emails"
-    };
+    private readonly IKernelClient _client;
+    private readonly ILogger<PluginCatalogViewModel> _logger;
+    public ObservableCollection<McpServerInfo> Plugins { get; } = new();
+    private bool _isLoading;
+    public bool IsLoading { get => _isLoading; set => SetProperty(ref _isLoading, value); }
     public ICommand RefreshCommand { get; }
-    public PluginCatalogViewModel() { RefreshCommand = new RelayCommand(() => { /* placeholder */ }); }
+
+    public PluginCatalogViewModel() : this(ServiceLocator.Instance.KernelClient, ServiceLocator.Instance.GetLogger<PluginCatalogViewModel>()) { }
+    public PluginCatalogViewModel(IKernelClient client, ILogger<PluginCatalogViewModel>? logger = null)
+    {
+        _client = client;
+        _logger = logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<PluginCatalogViewModel>.Instance;
+        RefreshCommand = new AsyncRelayCommand(LoadAsync);
+    }
+
+    public async Task LoadAsync()
+    {
+        IsLoading = true;
+        try
+        {
+            if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return;
+            var r = await _client.GetPluginsAsync();
+            Plugins.Clear();
+            if (r != null) foreach (var p in r) Plugins.Add(p);
+        }
+        catch (Exception ex) { _logger.LogWarning(ex, "PluginCatalogViewModel.LoadAsync failed"); }
+        finally { IsLoading = false; }
+    }
 }

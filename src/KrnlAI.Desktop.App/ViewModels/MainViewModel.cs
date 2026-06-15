@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Windows.Input;
 using KrnlAI.Desktop.App.Services;
 using KrnlAI.Desktop.Core.Abstractions;
@@ -21,6 +22,9 @@ public class MainViewModel : ViewModelBase
     private CancellationTokenSource? _emotionalPollCts;
     private CancellationTokenSource? _dashboardRefreshCts;
     private EmotionalState? _emotionalState;
+    private string? _updateVersion;
+    public string? UpdateVersion { get => _updateVersion; set { SetProperty(ref _updateVersion, value); OnPropertyChanged(nameof(IsUpdateAvailable)); } }
+    public bool IsUpdateAvailable => _updateVersion != null;
     private System.ComponentModel.PropertyChangedEventHandler? _chatPropertyChangedHandler;
     private string _executiveMode = "auto";
     public string ExecutiveMode { get => _executiveMode; set => SetProperty(ref _executiveMode, value); }
@@ -270,6 +274,9 @@ public class MainViewModel : ViewModelBase
     public ICommand ToggleCommandPaletteCommand { get; }
     public ICommand ToggleLogsCommand { get; }
     public ICommand ToggleKioskCommand { get; }
+    public ICommand CheckUpdateCommand { get; }
+    public ICommand DownloadUpdateCommand { get; }
+    public ICommand StartSidecarCommand { get; }
     public ICommand ToggleShortcutsCommand { get; }
     public ICommand ToggleVideoCallMuteCommand { get; }
     public ICommand ToggleVideoCallCameraCommand { get; }
@@ -421,6 +428,24 @@ public class MainViewModel : ViewModelBase
         ToggleCommandPaletteCommand = new RelayCommand(() => ShowCommandPalette = !ShowCommandPalette);
         ToggleLogsCommand = new RelayCommand(() => ShowLogs = !ShowLogs);
         ToggleKioskCommand = new RelayCommand(() => KioskMode = !KioskMode);
+        CheckUpdateCommand = new AsyncRelayCommand(async () => UpdateVersion = await new Services.UpdateChecker().CheckForUpdatesAsync());
+        DownloadUpdateCommand = new AsyncRelayCommand(async () =>
+        {
+            try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("https://github.com/krnlai/krnl-ai/releases/latest") { UseShellExecute = true }); }
+            catch { }
+        });
+        StartSidecarCommand = new AsyncRelayCommand(async () =>
+        {
+            try
+            {
+                var sidecarPath = Path.Combine(AppContext.BaseDirectory, "..\\..\\..\\..\\..\\..\\Community\\src\\KrnlAI.Sidecar\\bin\\Debug\\net10.0\\KrnlAI.Sidecar.exe");
+                if (File.Exists(sidecarPath))
+                    System.Diagnostics.Process.Start(sidecarPath);
+                else
+                    KrnlAI.Desktop.Core.Services.KrnlLogger.Write("Sidecar not found at: " + sidecarPath);
+            }
+            catch (Exception ex) { KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"StartSidecar: {ex.Message}"); }
+        });
         ToggleShortcutsCommand = new RelayCommand(() => ShowShortcuts = !ShowShortcuts);
         ToggleVideoCallMuteCommand = new RelayCommand(() => IsVideoCallMuted = !IsVideoCallMuted);
         ToggleVideoCallCameraCommand = new RelayCommand(() => IsVideoCallCameraOn = !IsVideoCallCameraOn);

@@ -41,8 +41,19 @@
                         </StackPanel>
                     </StackPanel>
                 </Border>
-                <!-- Backend Status -->
-                <Border Grid.Row="1" Margin="18,0,18,8" Padding="10,8"                        CornerRadius="999"                        Background="#12FFFFFF"                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+        <!-- Update Banner -->
+        <Border Grid.Row="0" Padding="18,0,18,4"
+                Visibility="{Binding IsUpdateAvailable, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Border CornerRadius="12" Padding="10,6" Background="#2EF59E0B">
+                <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <TextBlock VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource TextPrimaryBrush}">
+                        <Run Text="🚀 Atualização disponível: "/><Run Text="{Binding UpdateVersion}" FontWeight="Bold"/></TextBlock>
+                    <Button Grid.Column="1" Command="{Binding DownloadUpdateCommand}" Style="{StaticResource SmallButton}" Padding="8,4" FontSize="10" Content="Baixar"/>
+                </Grid>
+            </Border>
+        </Border>
+        <!-- Backend Status -->
+        <Border Grid.Row="2" Margin="18,0,18,8" Padding="10,8"                        CornerRadius="999"                        Background="#12FFFFFF"                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -391,6 +402,18 @@
                 <!-- Theme Toggle + Logout -->
                 <Border Grid.Row="5" Padding="12,8" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0">
                     <StackPanel>
+                        <Button Command="{Binding ToggleLogsCommand}"                                Style="{StaticResource GhostButton}" HorizontalAlignment="Stretch" Padding="12,8">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="📋" FontSize="14" Margin="0,0,8,0"/>
+                                <TextBlock Text="Logs" FontSize="12"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Command="{Binding StartSidecarCommand}"                                Style="{StaticResource GhostButton}" HorizontalAlignment="Stretch" Padding="12,8" Margin="0,2,0,0">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="🖥️" FontSize="14" Margin="0,0,8,0"/>
+                                <TextBlock Text="Iniciar Sidecar" FontSize="12"/>
+                            </StackPanel>
+                        </Button>
                         <Button Command="{Binding ToggleThemeCommand}"                                Style="{StaticResource GhostButton}" HorizontalAlignment="Stretch" Padding="12,8">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{Binding ThemeIcon}" FontSize="14" Margin="0,0,8,0"/>
@@ -462,6 +485,7 @@
             <controls:CliControl Visibility="{Binding IsCliVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:PluginCatalogControl Visibility="{Binding IsPluginCatalogVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:ExperimentControl Visibility="{Binding IsExperimentVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:LogsViewerControl Visibility="{Binding ShowLogs, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <!-- Welcome Wizard Overlay -->
             <Border Visibility="{Binding ShowWelcomeWizard, Converter={StaticResource BoolToVisibilityConverter}}"
                     Panel.ZIndex="200" Background="#CC000000">
