@@ -35,9 +35,32 @@
                         </StackPanel>
                         <Ellipse Width="8" Height="8" Fill="{Binding EmotionalTone, Converter={StaticResource MoodToColorConverter}}" Margin="16,0,6,0" VerticalAlignment="Center"/>
                         <TextBlock Text="{Binding EmotionalMood}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" Margin="0,0,0,0"/>
+                        <Ellipse Width="8" Height="8" Margin="8,0,4,0" VerticalAlignment="Center">
+                            <Ellipse.Style>
+                                <Style TargetType="Ellipse">
+                                    <Setter Property="Fill" Value="Transparent"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsAgentProcessing}" Value="True">
+                                            <Setter Property="Fill" Value="{DynamicResource AccentBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Ellipse.Style>
+                        </Ellipse>
+                        <TextBlock Text="processando..." FontSize="11" Foreground="{DynamicResource AccentBrush}"
+                                   Visibility="{Binding IsAgentProcessing, Converter={StaticResource BoolToVisibilityConverter}}"/>
                     </StackPanel>
                 </StackPanel>
-                <StackPanel Grid.Column="1" Orientation="Horizontal"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Command="{Binding ChatVM.ShareConversationCommand}" Style="{StaticResource GhostButton}" Padding="12,8" Margin="0,0,4,0"
+                            ToolTip="Copiar conversa">
+                        <TextBlock Text="🔗" FontSize="14"/>
+                    </Button>
+                    <Button Command="{Binding ChatVM.ExportConversationCommand}" Style="{StaticResource GhostButton}" Padding="12,8" Margin="0,0,4,0"
+                            ToolTip="Exportar conversa">
+                        <TextBlock Text="📥" FontSize="14"/>
+                    </Button>
+                </StackPanel>
             </Grid>
         </Border>
 
@@ -50,6 +73,11 @@
 
         <!-- Messages -->
         <ScrollViewer Grid.Row="2" Padding="28,16" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+            <TextBox Text="{Binding ChatVM.SearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                     Height="32" FontSize="12" Margin="0,0,0,8"
+                     ToolTip="Buscar na conversa (Ctrl+F)"
+                     AutomationProperties.AutomationId="ChatSearchBox"/>
             <ItemsControl ItemsSource="{Binding ChatVM.Messages}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
@@ -84,10 +112,17 @@
                                     </TextBlock>
                                     <TextBlock Text="{Binding Timestamp, StringFormat={}{0:HH:mm}}" FontSize="11"
                                                Foreground="{DynamicResource TextSecondaryBrush}" Margin="12,0,0,0"/>
+                                    <Button Command="{Binding DataContext.ChatVM.EditMessageCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                            CommandParameter="{Binding Id}" Style="{StaticResource SmallButton}" Padding="4" FontSize="9"
+                                            Margin="8,0,2,0" Content="✎" ToolTip="Editar" Visibility="Collapsed"/>
+                                    <Button Command="{Binding DataContext.ChatVM.DeleteMessageCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                            CommandParameter="{Binding Id}" Style="{StaticResource DangerSmallButton}" Padding="4" FontSize="9"
+                                            Content="✕" ToolTip="Deletar" Visibility="Collapsed"/>
                                 </StackPanel>
                                 <Border MaxWidth="480" MaxHeight="360" CornerRadius="8" Margin="0,0,0,8" ClipToBounds="True"
                                         Visibility="{Binding ImageBase64, Converter={StaticResource StringToVisibilityConverter}}">
-                                    <Image Source="{Binding ImageBase64, Converter={StaticResource Base64ToImageConverter}}"/>
+                                    <Image Source="{Binding ImageBase64, Converter={StaticResource Base64ToImageConverter}}"
+                                           Cursor="Hand" MouseDown="OnImageClick"/>
                                 </Border>
                                 <TextBlock Text="{Binding Content}" TextWrapping="Wrap"
                                            Foreground="{DynamicResource TextPrimaryBrush}" LineHeight="26"/>
@@ -96,6 +131,7 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
+        </StackPanel>
         </ScrollViewer>
 
         <!-- Cognitive Step Timeline -->

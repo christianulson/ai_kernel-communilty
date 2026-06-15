@@ -315,7 +315,10 @@
                             <Button Grid.Column="1" Command="{Binding NewSessionCommand}"                                    Style="{StaticResource SmallButton}" Padding="8,4" FontSize="10"                                    Content="{loc:Loc sidebar_new_session}"/>
                         </Grid>
 
-                        <ListBox ItemsSource="{Binding Sessions}" SelectedItem="{Binding ActiveSession}"                                 Background="Transparent" BorderThickness="0" MaxHeight="160">
+                        <TextBox Text="{Binding SessionFilter, UpdateSourceTrigger=PropertyChanged}"
+                                 Height="28" FontSize="11" Margin="0,0,0,4"
+                                 ToolTip="Filtrar conversas"/>
+                        <ListBox ItemsSource="{Binding FilteredSessions}" SelectedItem="{Binding ActiveSession}"                                 Background="Transparent" BorderThickness="0" MaxHeight="140">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <Border Padding="10,8" CornerRadius="12"                                            Background="#14FFFFFF" BorderBrush="{DynamicResource BorderBrush}"                                            BorderThickness="1" Margin="0,0,0,4">
@@ -343,6 +346,24 @@
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{Binding ThemeIcon}" FontSize="14" Margin="0,0,8,0"/>
                                 <TextBlock Text="{Binding ThemeLabel}" FontSize="12"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Command="{Binding BackupCommand}"                                Style="{StaticResource GhostButton}" HorizontalAlignment="Stretch" Padding="12,8" Margin="0,2,0,0">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="💾" FontSize="14" Margin="0,0,8,0"/>
+                                <TextBlock Text="Backup" FontSize="12"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Command="{Binding RestoreCommand}"                                Style="{StaticResource GhostButton}" HorizontalAlignment="Stretch" Padding="12,8" Margin="0,2,0,0">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="📂" FontSize="14" Margin="0,0,8,0"/>
+                                <TextBlock Text="Restaurar" FontSize="12"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Command="{Binding FeedbackCommand}"                                Style="{StaticResource GhostButton}" HorizontalAlignment="Stretch" Padding="12,8" Margin="0,2,0,0">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="💬" FontSize="14" Margin="0,0,8,0"/>
+                                <TextBlock Text="Feedback" FontSize="12"/>
                             </StackPanel>
                         </Button>
                         <Button Command="{Binding LogoutCommand}"                                Style="{StaticResource DangerButton}" HorizontalAlignment="Stretch" Padding="12,8" Margin="0,4,0,0">
@@ -445,6 +466,67 @@
                     </Grid>
                 </Border>
             </Grid>
+            <!-- Search Overlay -->
+            <controls:SearchOverlay x:Name="SearchOverlayCtrl" Visibility="{Binding ShowSearch, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <!-- Command Palette -->
+            <Border Visibility="{Binding ShowCommandPalette, Converter={StaticResource BoolToVisibilityConverter}}"
+                    Panel.ZIndex="300" Background="#CC000000">
+                <Border Width="500" Height="Auto" Background="{DynamicResource PanelBrush}" CornerRadius="24"
+                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                        Padding="24" VerticalAlignment="Start" Margin="0,80,0,0">
+                    <StackPanel>
+                        <TextBox x:Name="CommandSearchBox" Height="44" FontSize="16"
+                                 ToolTip="Digite o nome da tela..." KeyDown="OnCommandPaletteKeyDown"
+                                 AutomationProperties.AutomationId="CommandPaletteSearchBox"/>
+                        <ItemsControl x:Name="CommandPaletteResults" Margin="0,8,0,0" MaxHeight="400">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Padding="12,8" CornerRadius="8" Margin="0,2" Cursor="Hand"
+                                            Background="{DynamicResource PanelSoftBrush}">
+                                        <TextBlock Text="{Binding}" FontSize="13"/>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+            </Border>
+            <!-- Shortcuts Dialog -->
+            <Border Visibility="{Binding ShowShortcuts, Converter={StaticResource BoolToVisibilityConverter}}"
+                    Panel.ZIndex="300" Background="#CC000000">
+                <Border Width="500" Height="Auto" Background="{DynamicResource PanelBrush}" CornerRadius="24"
+                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                        Padding="24" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <StackPanel>
+                        <TextBlock Text="Atalhos do Teclado" FontSize="20" FontWeight="Bold"
+                                   Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Row="0" Padding="8,4" CornerRadius="6" Background="{DynamicResource PanelBrush}">
+                                <TextBlock Text="Ctrl+Shift+K" FontWeight="Bold" FontFamily="{StaticResource FontMono}"/></Border>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="Iniciar/Parar escuta" Margin="12,0,0,8" VerticalAlignment="Center"/>
+                            <Border Grid.Row="1" Padding="8,4" CornerRadius="6" Background="{DynamicResource PanelBrush}">
+                                <TextBlock Text="Ctrl+Shift+T" FontWeight="Bold" FontFamily="{StaticResource FontMono}"/></Border>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="Sempre no topo" Margin="12,0,0,8" VerticalAlignment="Center"/>
+                            <Border Grid.Row="2" Padding="8,4" CornerRadius="6" Background="{DynamicResource PanelBrush}">
+                                <TextBlock Text="Ctrl+K" FontWeight="Bold" FontFamily="{StaticResource FontMono}"/></Border>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="Busca global" Margin="12,0,0,8" VerticalAlignment="Center"/>
+                            <Border Grid.Row="3" Padding="8,4" CornerRadius="6" Background="{DynamicResource PanelBrush}">
+                                <TextBlock Text="?" FontWeight="Bold" FontFamily="{StaticResource FontMono}"/></Border>
+                            <TextBlock Grid.Row="3" Grid.Column="1" Text="Mostrar atalhos" Margin="12,0,0,8" VerticalAlignment="Center"/>
+                        </Grid>
+                        <Button Content="Fechar" Height="36" Width="100" Margin="0,16,0,0" HorizontalAlignment="Right"
+                                Command="{Binding ToggleShortcutsCommand}"/>
+                    </StackPanel>
+                </Border>
+            </Border>
         </Grid>
         <!-- ═══════════════════════════ STATUS BAR ═══════════════════════════ -->
         <Border Grid.Column="1" Grid.Row="1"                Background="{DynamicResource PanelBrush}"                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0"                Padding="16,8">

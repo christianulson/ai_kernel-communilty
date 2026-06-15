@@ -62,12 +62,30 @@ public class SettingsViewModel : ViewModelBase, IDisposable
     public bool IsDarkTheme { get => _darkTheme; set { if (_syncingTheme || !value) return; _darkTheme = true; _lightTheme = false; ApplyTheme("dark"); OnPropertyChanged(nameof(IsDarkTheme)); OnPropertyChanged(nameof(IsLightTheme)); } }
     public bool IsLightTheme { get => _lightTheme; set { if (_syncingTheme || !value) return; _lightTheme = true; _darkTheme = false; ApplyTheme("light"); OnPropertyChanged(nameof(IsDarkTheme)); OnPropertyChanged(nameof(IsLightTheme)); } }
 
+    private int _chatFontSize = 14;
+    public int ChatFontSize { get => _chatFontSize; set { if (SetProperty(ref _chatFontSize, Math.Clamp(value, 10, 24))) Save(); } }
+    private bool? _autoDarkMode;
+    public bool? AutoDarkMode { get => _autoDarkMode; set { if (SetProperty(ref _autoDarkMode, value)) Save(); } }
+    private bool _notifyOnComplete = true;
+    public bool NotifyOnComplete { get => _notifyOnComplete; set => SetProperty(ref _notifyOnComplete, value); }
+    public List<string> AvailableLlmProviders { get; } = new() { "ollama", "openai", "anthropic", "gemini" };
+    private string _selectedLlmProvider = "ollama";
+    public string SelectedLlmProvider { get => _selectedLlmProvider; set { if (SetProperty(ref _selectedLlmProvider, value)) { Save(); } } }
     // Language
     public List<string> AvailableLanguages { get; } = new() { "pt-BR", "en" };
     private string _selectedLanguage = "pt-BR";
-    public string SelectedLanguage { get => _selectedLanguage; set { if (SetProperty(ref _selectedLanguage, value)) { ServiceLocator.Instance.LocalizationService.SetCulture(value); Save(); } } }
+    public string SelectedLanguage { get => _selectedLanguage; set { if (SetProperty(ref _selectedLanguage, value)) { ServiceLocator.Instance.LocalizationService.SetCulture(value); UpdateLanguageLabel(value); Save(); } } }
     private string _languageLabel = "Português (Brasil)";
     public string LanguageLabel { get => _languageLabel; set => SetProperty(ref _languageLabel, value); }
+    private void UpdateLanguageLabel(string culture)
+    {
+        LanguageLabel = culture switch
+        {
+            "en" => "English",
+            "pt-BR" => "Português (Brasil)",
+            _ => culture
+        };
+    }
     private bool _minTray = true, _notifyMsg = true, _notifyCall = true, _notifySys = true, _notifySound = true;
     public bool MinimizeToTrayOnClose { get => _minTray; set => SetProperty(ref _minTray, value); }
     public bool NotifyMessages { get => _notifyMsg; set => SetProperty(ref _notifyMsg, value); }
@@ -102,6 +120,8 @@ public class SettingsViewModel : ViewModelBase, IDisposable
         _apiEndpoint = s.ApiEndpoint ?? s.ApiBaseUrl;
         _kernelClient?.SetBaseUrl(_apiEndpoint);
         SyncThemeFromService();
+        UpdateLanguageLabel(s.Language ?? "pt-BR");
+        _selectedLanguage = s.Language ?? "pt-BR";
         _listeningService?.SetThreshold(s.VoiceDetectionThreshold);
         _listeningService?.SetSilenceDuration(s.SilenceDurationMs);
         if (!string.IsNullOrEmpty(s.SelectedSpeakerId)) _audioPlayback.SetDevice(s.SelectedSpeakerId);
@@ -174,7 +194,7 @@ public class SettingsViewModel : ViewModelBase, IDisposable
             SelectedSpeakerId = SelectedSpeaker?.Id, ApiBaseUrl = _apiEndpoint, ApiEndpoint = _apiEndpoint,
             SpeakerVolume = _speakerVol, VoiceDetectionThreshold = _vadThreshold, SilenceDurationMs = _silenceMs,
             Theme = IsDarkTheme ? "dark" : "light", AuthToken = s.AuthToken, Username = s.Username,
-            IsAuthenticated = s.IsAuthenticated
+            IsAuthenticated = s.IsAuthenticated, AutoDarkMode = _autoDarkMode, ChatFontSize = _chatFontSize
         });
     }
 

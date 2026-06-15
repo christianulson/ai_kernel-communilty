@@ -12,8 +12,8 @@ public sealed class MarkdownRenderer
 
     static MarkdownRenderer()
     {
-        CodeBg.Freeze();
-        PreBg.Freeze();
+        CodeBg.Freeze(); PreBg.Freeze(); KeywordBrush.Freeze(); StringBrush.Freeze();
+        CommentBrush.Freeze(); TypeBrush.Freeze(); NumberBrush.Freeze();
     }
 
     public UIElement Render(string markdown)
@@ -176,26 +176,67 @@ public sealed class MarkdownRenderer
         return tb;
     }
 
-    private static Border RenderCodeBlock(string code, string lang)
-    {
-        var scrollViewer = new ScrollViewer
-        {
-            HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
-            MaxHeight = 300
-        };
+    private static readonly Brush KeywordBrush = new SolidColorBrush(Color.FromRgb(86, 156, 214));
+    private static readonly Brush StringBrush = new SolidColorBrush(Color.FromRgb(206, 145, 120));
+    private static readonly Brush CommentBrush = new SolidColorBrush(Color.FromRgb(87, 166, 74));
+    private static readonly Brush TypeBrush = new SolidColorBrush(Color.FromRgb(78, 201, 176));
+    private static readonly Brush NumberBrush = new SolidColorBrush(Color.FromRgb(181, 206, 168));
 
-        var textBlock = new TextBlock
+    private static readonly HashSet<string> KeywordSet = new([
+        "abstract", "as", "base", "bool", "break", "byte", "case", "catch", "char",
+        "class", "const", "continue", "decimal", "default", "delegate", "do", "double",
+        "else", "enum", "event", "explicit", "extern", "false", "finally", "fixed",
+        "float", "for", "foreach", "goto", "if", "implicit", "in", "int", "interface",
+        "internal", "is", "lock", "long", "namespace", "new", "null", "object",
+        "operator", "out", "override", "params", "private", "protected", "public",
+        "readonly", "ref", "return", "sbyte", "sealed", "short", "sizeof", "stackalloc",
+        "static", "string", "struct", "switch", "this", "throw", "true", "try",
+        "typeof", "uint", "ulong", "unchecked", "unsafe", "ushort", "using", "var",
+        "virtual", "void", "volatile", "while", "async", "await", "yield", "record",
+        "init", "file", "required", "global", "select", "from", "where", "let"
+    ]);
+
+    private static TextBlock HighlightSyntax(string code, string lang)
+    {
+        var tb = new TextBlock
         {
-            Text = code,
             FontFamily = new FontFamily("Cascadia Code, Consolas, Courier New"),
             FontSize = 12,
             TextWrapping = TextWrapping.Wrap,
             Padding = new Thickness(12, 10, 12, 10),
-            Foreground = new SolidColorBrush(Color.FromRgb(200, 210, 220))
         };
+        if (string.IsNullOrWhiteSpace(lang)) { tb.Text = code; tb.Foreground = new SolidColorBrush(Color.FromRgb(200, 210, 220)); return tb; }
 
-        scrollViewer.Content = textBlock;
+        var regex = new System.Text.RegularExpressions.Regex(@"(""[^""]*"")|(''[^'']*'')|(@""[^""]*"")|(//.*)|(#.*)|(\b0[xX][0-9a-fA-F]+)|(\b\d+\.?\d*)|(\b\w+\b)|(\S)");
+        int pos = 0;
+        foreach (System.Text.RegularExpressions.Match m in regex.Matches(code))
+        {
+            if (m.Index > pos) tb.Inlines.Add(new Run(code[pos..m.Index]) { Foreground = new SolidColorBrush(Color.FromRgb(200, 210, 220)) });
+            var token = m.Value;
+            if (token.StartsWith("\"") || token.StartsWith("'") || token.StartsWith("@\""))
+                tb.Inlines.Add(new Run(token) { Foreground = StringBrush });
+            else if (token.StartsWith("//") || token.StartsWith("#"))
+                tb.Inlines.Add(new Run(token) { Foreground = CommentBrush });
+            else if (token.Length > 1 && token[0] == '0' && (token[1] == 'x' || token[1] == 'X'))
+                tb.Inlines.Add(new Run(token) { Foreground = NumberBrush });
+            else if (token.Length > 0 && char.IsDigit(token[0]))
+                tb.Inlines.Add(new Run(token) { Foreground = NumberBrush });
+            else if (KeywordSet.Contains(token))
+                tb.Inlines.Add(new Run(token) { Foreground = KeywordBrush });
+            else if (token.Length > 0 && char.IsUpper(token[0]) && token.All(c => char.IsLetterOrDigit(c)))
+                tb.Inlines.Add(new Run(token) { Foreground = TypeBrush });
+            else
+                tb.Inlines.Add(new Run(token) { Foreground = new SolidColorBrush(Color.FromRgb(200, 210, 220)) });
+            pos = m.Index + m.Length;
+        }
+        if (pos < code.Length) tb.Inlines.Add(new Run(code[pos..]) { Foreground = new SolidColorBrush(Color.FromRgb(200, 210, 220)) });
+        return tb;
+    }
 
+    private static Border RenderCodeBlock(string code, string lang)
+    {
+        var scrollViewer = new ScrollViewer { HorizontalScrollBarVisibility = ScrollBarVisibility.Auto, MaxHeight = 300 };
+        scrollViewer.Content = HighlightSyntax(code, lang);
         return new Border
         {
             Child = scrollViewer,

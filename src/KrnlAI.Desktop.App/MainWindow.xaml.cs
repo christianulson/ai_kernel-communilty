@@ -31,6 +31,28 @@ public partial class MainWindow : Window
             _vm.LogoutRequested += _logoutHandler;
         }
 
+        if (SearchOverlayCtrl != null)
+        {
+            SearchOverlayCtrl.SearchRequested += query =>
+            {
+                var results = _vm?.SearchMessages(query) ?? new List<string>();
+                SearchOverlayCtrl.SetResults(results);
+            };
+            SearchOverlayCtrl.DismissRequested += () =>
+            {
+                if (_vm != null) _vm.ShowSearch = false;
+            };
+        }
+
+        Loaded += (_, _) =>
+        {
+            var args = Environment.GetCommandLineArgs();
+            if (args.Length > 1 && args[1] == "--minimized")
+            {
+                WindowState = System.Windows.WindowState.Minimized;
+                Hide();
+            }
+        };
         Closing += MainWindow_Closing;
     }
 
@@ -92,6 +114,11 @@ public partial class MainWindow : Window
     public void ToggleAlwaysOnTop()
     {
         Topmost = !Topmost;
+    }
+
+    private void OnCommandPaletteKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if (e.Key == System.Windows.Input.Key.Escape && _vm != null) { _vm.ShowCommandPalette = false; e.Handled = true; }
     }
 
     private static BitmapSource? ConvertToBitmapSource(byte[] frameData, int width, int height)

@@ -22,6 +22,9 @@ public class ChatViewModel : ViewModelBase
     private readonly IAudioPlayback _audioPlayback;
     private readonly IVideoCapture _videoCapture;
     private readonly ILocalizationService _localization;
+    private readonly ISessionPersistenceService? _sessionStore;
+    private string _sessionId = "default";
+    private readonly bool _persistenceEnabled;
 
     // Message history for up/down navigation
     private readonly List<string> _messageHistory = new();
@@ -83,6 +86,9 @@ public class ChatViewModel : ViewModelBase
     }
 
     public ObservableCollection<ChatMessage> Messages { get; } = new();
+    public ObservableCollection<ChatMessage> FilteredMessages { get; } = new();
+    private string _searchQuery = "";
+    public string SearchQuery { get => _searchQuery; set { if (SetProperty(ref _searchQuery, value)) ApplySearchFilter(); } }
     private string _inputText = "";
     public string InputText
     {
@@ -285,10 +291,14 @@ public class ChatViewModel : ViewModelBase
     public ICommand ToggleCameraCommand { get; }
     public ICommand SnapCameraCommand { get; }
     public ICommand DismissCameraPreviewCommand { get; }
+    public ICommand ExportConversationCommand { get; }
+    public ICommand ShareConversationCommand { get; }
+    public ICommand EditMessageCommand { get; }
+    public ICommand DeleteMessageCommand { get; }
 
 
 
-    public ChatViewModel(IKernelClient kernelClient, IAudioCapture audioCapture, IAudioPlayback audioPlayback, IVideoCapture videoCapture, ILocalizationService localization, ISlashCommandExecutor slashHandler, ICognitiveStreamProvider cognitiveStream, EmbeddedKrnlAI? embeddedKernel = null)
+    public ChatViewModel(IKernelClient kernelClient, IAudioCapture audioCapture, IAudioPlayback audioPlayback, IVideoCapture videoCapture, ILocalizationService localization, ISlashCommandExecutor slashHandler, ICognitiveStreamProvider cognitiveStream, ISessionPersistenceService? sessionStore = null, EmbeddedKrnlAI? embeddedKernel = null)
     {
         _kernelClient = kernelClient;
         _embeddedKernel = embeddedKernel;
@@ -298,6 +308,8 @@ public class ChatViewModel : ViewModelBase
         _localization = localization;
         _slashHandler = slashHandler;
         _cognitiveStream = cognitiveStream;
+        _sessionStore = sessionStore;
+        _persistenceEnabled = sessionStore != null;
         ToggleTtsCommand = new RelayCommand(() => IsTtsEnabled = !IsTtsEnabled);
         _cognitiveStream.OnEvent += OnCognitiveEvent;
         _cognitiveStream.OnStateChanged += state => IsCognitiveStreamVisible = state == CognitiveStreamState.Connected;
@@ -308,6 +320,10 @@ public class ChatViewModel : ViewModelBase
         ToggleCameraCommand = new AsyncRelayCommand(ToggleCameraAsync);
         SnapCameraCommand = new AsyncRelayCommand(SnapCameraAsync, () => _isCameraOn && _lastFrameJpeg != null);
         DismissCameraPreviewCommand = new RelayCommand(DismissCameraPreview);
+        ExportConversationCommand = new AsyncRelayCommand(ExportConversationAsync);
+        ShareConversationCommand = new RelayCommand(ShareConversation);
+        EditMessageCommand = new AsyncRelayCommand(async p => { if (p is string id) await EditMessageAsync(id); });
+        DeleteMessageCommand = new RelayCommand(p => { if (p is string id) DeleteMessage(id); });
     }
 
     public ChatViewModel() : this(
@@ -317,8 +333,43 @@ public class ChatViewModel : ViewModelBase
         ServiceLocator.Instance.VideoCapture,
         ServiceLocator.Instance.LocalizationService,
         ServiceLocator.Instance.SlashCommandExecutor,
-        ServiceLocator.Instance.CognitiveStreamProvider)
+        ServiceLocator.Instance.CognitiveStreamProvider,
+        new KrnlAI.Desktop.Core.Services.SessionPersistenceService())
     { }
+
+    public string SessionId { get => _sessionId; set { if (_sessionId != value) { _sessionId = value; LoadMessagesFromPersistence(); } } }
+
+    private void LoadMessagesFromPersistence()
+    {
+        if (!_persistenceEnabled || _sessionStore == null) return;
+        try
+        {
+            var store = _sessionStore.Load();
+            var conv = store.Conversations.FirstOrDefault(c => c.Id == _sessionId);
+            if (conv != null)
+            {
+                Messages.Clear();
+                foreach (var m in conv.Messages)
+                    Messages.Add(m);
+            }
+        }
+        catch { }
+    }
+
+    private void PersistMessages()
+    {
+        if (!_persistenceEnabled || _sessionStore == null) return;
+        try
+        {
+            var store = _sessionStore.Load();
+            var existing = store.Conversations.FirstOrDefault(c => c.Id == _sessionId);
+            if (existing != null)
+                store.Conversations.Remove(existing);
+            store.Conversations.Add(new ConversationData(2, _sessionId, _sessionId, Messages.ToList(), DateTime.UtcNow, DateTime.UtcNow));
+            _sessionStore.Save(store with { ActiveConversationId = _sessionId });
+        }
+        catch { }
+    }
 
     private EmbeddedKrnlAI? GetOrCreateKernel()
     {
@@ -369,6 +420,7 @@ public class ChatViewModel : ViewModelBase
             MessageStatus.Processing,
             ImageBase64: imageBase64);
         Messages.Add(userMsg);
+        PersistMessages();
 
         InputText = "";
 
@@ -410,6 +462,17 @@ public class ChatViewModel : ViewModelBase
                     MessageRole.Assistant,
                     DateTime.Now,
                     string.IsNullOrEmpty(error) ? MessageStatus.Completed : MessageStatus.Error));
+                PersistMessages();
+
+                if (string.IsNullOrEmpty(error) && !string.IsNullOrEmpty(narration))
+                {
+                    var settings = KrnlAI.Desktop.App.Services.ServiceLocator.Instance.SettingsService.LoadSettings();
+                    if (settings.NotifyOnComplete)
+                    {
+                        try { System.Windows.Application.Current.Dispatcher.Invoke(() => { /* toast done */ }); }
+                        catch { }
+                    }
+                }
 
                 if (!string.IsNullOrEmpty(narration))
                 {
@@ -562,6 +625,74 @@ public class ChatViewModel : ViewModelBase
     {
         if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return Task.CompletedTask;
         return _cognitiveStream.ConnectAsync();
+    }
+
+    private void ApplySearchFilter()
+    {
+        FilteredMessages.Clear();
+        if (string.IsNullOrWhiteSpace(_searchQuery))
+            foreach (var m in Messages) FilteredMessages.Add(m);
+        else
+            foreach (var m in Messages.Where(m => m.Content?.Contains(_searchQuery, StringComparison.OrdinalIgnoreCase) == true))
+                FilteredMessages.Add(m);
+    }
+
+    private void ShareConversation()
+    {
+        if (Messages.Count == 0) return;
+        var text = string.Join("\n\n", Messages.Select(m => $"[{m.Timestamp:HH:mm}] {m.Role}: {m.Content}"));
+        try { System.Windows.Clipboard.SetText(text); }
+        catch (Exception ex) { KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"Share: {ex.Message}"); }
+    }
+
+    private async Task EditMessageAsync(string messageId)
+    {
+        var msg = Messages.FirstOrDefault(m => m.Id == messageId);
+        if (msg == null) return;
+        var newContent = Microsoft.VisualBasic.Interaction.InputBox("Editar mensagem:", "Editar", msg.Content ?? "");
+        if (!string.IsNullOrWhiteSpace(newContent) && newContent != msg.Content)
+        {
+            var idx = Messages.IndexOf(msg);
+            Messages[idx] = msg with { Content = newContent };
+            PersistMessages();
+        }
+        await Task.CompletedTask;
+    }
+
+    private void DeleteMessage(string messageId)
+    {
+        var msg = Messages.FirstOrDefault(m => m.Id == messageId);
+        if (msg != null) { Messages.Remove(msg); PersistMessages(); }
+    }
+
+    private async Task ExportConversationAsync()
+    {
+        if (Messages.Count == 0) return;
+        var dialog = new Microsoft.Win32.SaveFileDialog
+        {
+            Filter = "JSON files (*.json)|*.json|CSV files (*.csv)|*.csv|All files (*.*)|*.*",
+            DefaultExt = ".json",
+            FileName = $"chat-export-{DateTime.Now:yyyyMMdd-HHmmss}.json"
+        };
+        if (dialog.ShowDialog() != true) return;
+        try
+        {
+            var ext = Path.GetExtension(dialog.FileName).ToLower();
+            if (ext == ".csv")
+            {
+                var csv = new System.Text.StringBuilder();
+                csv.AppendLine("Timestamp,Role,Content,ImageBase64");
+                foreach (var m in Messages)
+                    csv.AppendLine($"\"{m.Timestamp:O}\",\"{m.Role}\",\"{m.Content?.Replace("\"", "\"\"")}\",\"{m.ImageBase64 ?? ""}\"");
+                await File.WriteAllTextAsync(dialog.FileName, csv.ToString());
+            }
+            else
+            {
+                var json = System.Text.Json.JsonSerializer.Serialize(Messages.ToList(), new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+                await File.WriteAllTextAsync(dialog.FileName, json);
+            }
+        }
+        catch (Exception ex) { KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"Export: {ex.Message}"); }
     }
 
     public void Cleanup()

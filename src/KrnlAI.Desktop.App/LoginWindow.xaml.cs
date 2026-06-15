@@ -118,12 +118,14 @@ public class LoginViewModel : ViewModelBase
     public ICommand LoginCommand { get; }
     public ICommand LoginWithAzureAdCommand { get; }
     public ICommand LoginWithGoogleCommand { get; }
+    public ICommand LoginWithWindowsHelloCommand { get; }
 
     public LoginViewModel()
     {
         LoginCommand = new RelayCommand(_ => { _ = ExecuteLoginAsync(); }, _ => CanLogin());
         LoginWithAzureAdCommand = new RelayCommand(_ => { _ = ExecuteOAuth2LoginAsync("azure-ad"); });
         LoginWithGoogleCommand = new RelayCommand(_ => { _ = ExecuteOAuth2LoginAsync("google"); });
+        LoginWithWindowsHelloCommand = new AsyncRelayCommand(ExecuteWindowsHelloAsync);
     }
 
     private bool CanLogin() => !IsLoading && !string.IsNullOrWhiteSpace(Username) && !string.IsNullOrWhiteSpace(Password);
@@ -280,6 +282,31 @@ public class LoginViewModel : ViewModelBase
         finally
         {
             StopOAuthCallbackListener();
+        }
+    }
+
+    private async Task ExecuteWindowsHelloAsync()
+    {
+        try
+        {
+            var kernelClient = ServiceLocator.Instance.KernelClient;
+            var settingsService = ServiceLocator.Instance.SettingsService;
+            var settings = settingsService.LoadSettings();
+            if (!string.IsNullOrEmpty(settings.AuthToken))
+            {
+                kernelClient.SetTokens(settings.AuthToken, settings.RefreshToken);
+                _token = settings.AuthToken;
+                _refreshToken = settings.RefreshToken;
+                LoginCompleted?.Invoke(this, EventArgs.Empty);
+            }
+            else
+            {
+                ErrorMessage = "Nenhuma sessão anterior encontrada. Faça login manual primeiro para salvar o token.";
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Erro: {ex.Message}";
         }
     }
 

@@ -201,7 +201,25 @@ public partial class App : Application
                 KrnlLogger.Write("Hotkey Ctrl+Shift+T falhou ao registrar");
             }
 
-            _toast?.Show("Krnl-AI", "Hotkeys: Ctrl+Shift+K (escuta), Ctrl+Shift+T (topo)", ToastType.Info);
+            if (!_hotkeyService.RegisterHotkey(ModifierKeys.Control, Key.K, () =>
+            {
+                if (_mainWindow?.DataContext is ViewModels.MainViewModel vm)
+                    vm.ToggleSearchCommand.Execute(null);
+            }))
+            {
+                KrnlLogger.Write("Hotkey Ctrl+K falhou ao registrar");
+            }
+
+            if (!_hotkeyService.RegisterHotkey(ModifierKeys.Control | ModifierKeys.Shift, Key.P, () =>
+            {
+                if (_mainWindow?.DataContext is ViewModels.MainViewModel vm)
+                    vm.ToggleCommandPaletteCommand.Execute(null);
+            }))
+            {
+                KrnlLogger.Write("Hotkey Ctrl+Shift+P falhou ao registrar");
+            }
+
+            _toast?.Show("Krnl-AI", "Hotkeys: Ctrl+Shift+K (escuta), Ctrl+Shift+T (topo), Ctrl+K (busca)", ToastType.Info);
         }
         catch (Exception ex)
         {

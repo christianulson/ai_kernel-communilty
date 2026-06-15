@@ -1,3 +1,4 @@
+using Microsoft.Win32;
 using System.Windows;
 using System.Windows.Media;
 using KrnlAI.Desktop.Core.Services;
@@ -7,12 +8,43 @@ namespace KrnlAI.Desktop.App.Services;
 public sealed class ThemeManager : IDisposable
 {
     private readonly IThemeService _themeService;
+    private readonly Timer? _scheduleTimer;
 
     public ThemeManager(IThemeService themeService)
     {
         _themeService = themeService;
         _themeService.ThemeChanged += OnThemeChanged;
         ApplyTheme(_themeService.CurrentTheme);
+        SystemEvents.UserPreferenceChanged += OnSystemPreferenceChanged;
+        _scheduleTimer = new Timer(_ => CheckScheduledTheme(), null, TimeSpan.Zero, TimeSpan.FromMinutes(15));
+    }
+
+    private void CheckScheduledTheme()
+    {
+        try
+        {
+            var hour = DateTime.Now.Hour;
+            var settings = KrnlAI.Desktop.App.Services.ServiceLocator.Instance.SettingsService.LoadSettings();
+            if (settings.AutoDarkMode == true)
+            {
+                var shouldBeDark = hour < 6 || hour >= 18;
+                var isDark = _themeService.CurrentTheme == "dark";
+                if (shouldBeDark && !isDark) _themeService.SetTheme("dark");
+                else if (!shouldBeDark && isDark) _themeService.SetTheme("light");
+            }
+        }
+        catch { }
+    }
+
+    private void OnSystemPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
+    {
+        if (e.Category == UserPreferenceCategory.General || e.Category == UserPreferenceCategory.VisualStyle)
+        {
+            var usesLightTheme = Microsoft.Win32.Registry.GetValue(
+                @"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize",
+                "AppsUseLightTheme", "1")?.ToString() == "1";
+            _themeService.SetTheme(usesLightTheme ? "light" : "dark");
+        }
     }
 
     private void OnThemeChanged(object? sender, string themeName)

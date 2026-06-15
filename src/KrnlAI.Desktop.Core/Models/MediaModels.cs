@@ -38,6 +38,10 @@ public record AppSettings
     public bool WindowMaximized { get; init; }
     
     public string Theme { get; init; } = "dark";
+    public bool? AutoDarkMode { get; init; }
+    public int ChatFontSize { get; init; } = 14;
+    public bool NotifyOnComplete { get; init; } = true;
+    public string? Language { get; init; }
     public SidecarSettings? SidecarConfig { get; init; }
 }
 

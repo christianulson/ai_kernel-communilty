@@ -6,6 +6,7 @@ using KrnlAI.Desktop.Core.Models;
 using KrnlAI.Desktop.Core.Services;
 using Microsoft.Extensions.Logging;
 
+
 namespace KrnlAI.Desktop.App.ViewModels;
 
 public class MainViewModel : ViewModelBase
@@ -95,9 +96,23 @@ public class MainViewModel : ViewModelBase
     public ObservableCollection<MediaDevice> Speakers => SettingsVM.Speakers;
     public ObservableCollection<AgentInfo> Agents { get; } = new();
     public ObservableCollection<ConversationSession> Sessions { get; } = new();
+    public ObservableCollection<ConversationSession> FilteredSessions { get; } = new();
+    private string _sessionFilter = "";
+    public string SessionFilter { get => _sessionFilter; set { if (SetProperty(ref _sessionFilter, value)) ApplySessionFilter(); } }
+    private void ApplySessionFilter()
+    {
+        FilteredSessions.Clear();
+        var filtered = string.IsNullOrWhiteSpace(_sessionFilter)
+            ? Sessions
+            : new ObservableCollection<ConversationSession>(Sessions.Where(s => s.Title.Contains(_sessionFilter, StringComparison.OrdinalIgnoreCase)));
+        foreach (var s in filtered) FilteredSessions.Add(s);
+        if (ActiveSession != null && !FilteredSessions.Contains(ActiveSession))
+            ActiveSession = FilteredSessions.FirstOrDefault();
+    }
 
     private bool _isListening;
     public bool IsListening { get => _isListening; set => SetProperty(ref _isListening, value); }
+    public bool IsAgentProcessing => ChatVM?.IsProcessing ?? false;
     private float _voiceLevel;
     public float VoiceLevel { get => _voiceLevel; set => SetProperty(ref _voiceLevel, value); }
     private bool _isBackendAvailable;
@@ -108,6 +123,18 @@ public class MainViewModel : ViewModelBase
     public string CurrentScreen { get => _currentScreen; set { if (SetProperty(ref _currentScreen, value)) { OnPropertyChanged(nameof(IsChatVisible)); OnPropertyChanged(nameof(IsDashboardVisible)); OnPropertyChanged(nameof(IsPoliciesVisible)); OnPropertyChanged(nameof(IsEpisodesVisible)); OnPropertyChanged(nameof(IsMemoryVisible)); OnPropertyChanged(nameof(IsSettingsVisible)); OnPropertyChanged(nameof(IsApiKeysVisible)); OnPropertyChanged(nameof(IsPeerRankingVisible)); OnPropertyChanged(nameof(IsPrivacyVisible)); OnPropertyChanged(nameof(IsBenchmarkVisible)); OnPropertyChanged(nameof(IsCausalVisible)); OnPropertyChanged(nameof(IsProfileVisible)); OnPropertyChanged(nameof(IsDocumentsVisible)); OnPropertyChanged(nameof(IsArchiveVisible)); OnPropertyChanged(nameof(IsModelRegistryVisible)); OnPropertyChanged(nameof(IsVersionsVisible)); OnPropertyChanged(nameof(IsSessionsVisible)); OnPropertyChanged(nameof(IsKanbanVisible)); OnPropertyChanged(nameof(IsTrajectoryVisible)); OnPropertyChanged(nameof(IsP2PPaymentsVisible)); OnPropertyChanged(nameof(IsDisputesVisible));             OnPropertyChanged(nameof(IsSidecarVisible)); OnPropertyChanged(nameof(IsMultimodalVisible)); OnPropertyChanged(nameof(IsObjectivesVisible)); OnPropertyChanged(nameof(IsInvestigationsVisible)); OnPropertyChanged(nameof(IsSnapshotsVisible)); OnPropertyChanged(nameof(IsAdminConfigVisible)); OnPropertyChanged(nameof(IsAdminUsersVisible)); } } }
     private bool _showWelcomeWizard = true;
     public bool ShowWelcomeWizard { get => _showWelcomeWizard; set => SetProperty(ref _showWelcomeWizard, value); }
+    private bool _showSearch;
+    public bool ShowSearch { get => _showSearch; set => SetProperty(ref _showSearch, value); }
+    private bool _showCommandPalette;
+    public bool ShowCommandPalette { get => _showCommandPalette; set => SetProperty(ref _showCommandPalette, value); }
+    private bool _showLogs;
+    public bool ShowLogs { get => _showLogs; set => SetProperty(ref _showLogs, value); }
+    private bool _kioskMode;
+    public bool KioskMode { get => _kioskMode; set => SetProperty(ref _kioskMode, value); }
+    private int _unreadCount;
+    public int UnreadCount { get => _unreadCount; set => SetProperty(ref _unreadCount, value); }
+    private bool _showShortcuts;
+    public bool ShowShortcuts { get => _showShortcuts; set => SetProperty(ref _showShortcuts, value); }
     public bool IsChatVisible => _currentScreen == "chat";
     public bool IsDashboardVisible => _currentScreen == "dashboard";
     public bool IsPoliciesVisible => _currentScreen == "policies";
@@ -206,11 +233,19 @@ public class MainViewModel : ViewModelBase
     public ICommand NavigateToProfileCommand { get; }
     public ICommand ToggleListeningCommand { get; }
     public ICommand LogoutCommand { get; }
+    public ICommand FeedbackCommand { get; }
+    public ICommand BackupCommand { get; }
+    public ICommand RestoreCommand { get; }
     public ICommand NewSessionCommand { get; }
     public ICommand RefreshDevicesCommand { get; }
     public ICommand RenameSessionCommand { get; }
     public ICommand DeleteSessionCommand { get; }
     public ICommand ToggleThemeCommand { get; }
+    public ICommand ToggleSearchCommand { get; }
+    public ICommand ToggleCommandPaletteCommand { get; }
+    public ICommand ToggleLogsCommand { get; }
+    public ICommand ToggleKioskCommand { get; }
+    public ICommand ToggleShortcutsCommand { get; }
     public ICommand ToggleVideoCallMuteCommand { get; }
     public ICommand ToggleVideoCallCameraCommand { get; }
     public ICommand EndVideoCallCommand { get; }
@@ -323,17 +358,40 @@ public class MainViewModel : ViewModelBase
         NavigateToAdminUsersCommand = new RelayCommand(() => CurrentScreen = "admin-users");
         ToggleListeningCommand = new AsyncRelayCommand(ToggleListeningAsync);
         LogoutCommand = new RelayCommand(ExecuteLogout);
+        BackupCommand = new AsyncRelayCommand(async () =>
+        {
+            var dialog = new Microsoft.Win32.SaveFileDialog { Filter = "Backup files (*.zip)|*.zip", FileName = $"krnlai-backup-{DateTime.Now:yyyyMMdd}.zip" };
+            if (dialog.ShowDialog() == true)
+                await new Services.BackupService().BackupAsync(dialog.FileName);
+        });
+        RestoreCommand = new AsyncRelayCommand(async () =>
+        {
+            var dialog = new Microsoft.Win32.OpenFileDialog { Filter = "Backup files (*.zip)|*.zip" };
+            if (dialog.ShowDialog() == true)
+                await new Services.BackupService().RestoreAsync(dialog.FileName);
+        });
+        FeedbackCommand = new RelayCommand(() =>
+        {
+            try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("https://github.com/krnlai/krnl-ai/issues/new") { UseShellExecute = true }); }
+            catch (Exception ex) { KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"Feedback: {ex.Message}"); }
+        });
         NewSessionCommand = new RelayCommand(() => { Sessions.Add(new ConversationSession(Guid.NewGuid().ToString(), $"Conversa {Sessions.Count + 1}", DateTime.Now)); ActiveSession = Sessions.Last(); });
         RefreshDevicesCommand = new RelayCommand(() => SettingsVM.LoadDevices());
-        RenameSessionCommand = new RelayCommand(() => { if (ActiveSession != null) { var i = Sessions.IndexOf(ActiveSession); Sessions[i] = new ConversationSession(ActiveSession.Id, ActiveSession.Title + " *", ActiveSession.CreatedAt); } });
+        RenameSessionCommand = new AsyncRelayCommand(RenameSessionAsync);
         DeleteSessionCommand = new RelayCommand(() => { if (ActiveSession != null && Sessions.Count > 1) { Sessions.Remove(ActiveSession); ActiveSession = Sessions.FirstOrDefault(); } });
         ToggleThemeCommand = new RelayCommand(ToggleTheme);
+        ToggleSearchCommand = new RelayCommand(() => ShowSearch = !ShowSearch);
+        ToggleCommandPaletteCommand = new RelayCommand(() => ShowCommandPalette = !ShowCommandPalette);
+        ToggleLogsCommand = new RelayCommand(() => ShowLogs = !ShowLogs);
+        ToggleKioskCommand = new RelayCommand(() => KioskMode = !KioskMode);
+        ToggleShortcutsCommand = new RelayCommand(() => ShowShortcuts = !ShowShortcuts);
         ToggleVideoCallMuteCommand = new RelayCommand(() => IsVideoCallMuted = !IsVideoCallMuted);
         ToggleVideoCallCameraCommand = new RelayCommand(() => IsVideoCallCameraOn = !IsVideoCallCameraOn);
         EndVideoCallCommand = new RelayCommand(() => IsInVideoCall = false);
 
         if (_listeningService != null)
             _listeningService.VoiceLevelChanged += OnVoiceLevelChanged;
+        ChatVM.PropertyChanged += (_, e) => { if (e.PropertyName == nameof(ChatViewModel.IsProcessing)) OnPropertyChanged(nameof(IsAgentProcessing)); };
         _themeService.ThemeChanged += OnThemeChanged;
         UpdateThemeDisplay(_themeService.CurrentTheme);
         RefreshAuthState();
@@ -418,6 +476,40 @@ public class MainViewModel : ViewModelBase
             catch (Exception ex) { KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"HealthCheck: {ex.Message}"); }
             try { await Task.Delay(30000, t); } catch (OperationCanceledException) { break; }
         }
+    }
+
+    private async Task RenameSessionAsync()
+    {
+        if (ActiveSession == null) return;
+        var window = System.Windows.Application.Current.MainWindow;
+        if (window == null) return;
+        var dialog = new System.Windows.Window
+        {
+            Title = "Renomear conversa",
+            Width = 400, Height = 180,
+            WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner,
+            Owner = window,
+            WindowStyle = System.Windows.WindowStyle.ToolWindow,
+            ResizeMode = System.Windows.ResizeMode.NoResize,
+            ShowInTaskbar = false,
+            Topmost = true
+        };
+        var stack = new System.Windows.Controls.StackPanel { Margin = new System.Windows.Thickness(16) };
+        stack.Children.Add(new System.Windows.Controls.TextBlock { Text = "Novo nome:", Margin = new System.Windows.Thickness(0,0,0,8), FontSize = 13 });
+        var inputBox = new System.Windows.Controls.TextBox { Text = ActiveSession.Title, Height = 36, FontSize = 14 };
+        var confirmBtn = new System.Windows.Controls.Button { Content = "Salvar", Height = 36, Width = 100, Margin = new System.Windows.Thickness(0,12,0,0), HorizontalAlignment = System.Windows.HorizontalAlignment.Right };
+        stack.Children.Add(inputBox);
+        stack.Children.Add(confirmBtn);
+        dialog.Content = stack;
+        confirmBtn.Click += (_, _) => dialog.DialogResult = true;
+        inputBox.KeyDown += (_, e) => { if (e.Key == System.Windows.Input.Key.Enter) dialog.DialogResult = true; };
+        if (dialog.ShowDialog() == true && !string.IsNullOrWhiteSpace(inputBox.Text) && inputBox.Text != ActiveSession.Title)
+        {
+            var i = Sessions.IndexOf(ActiveSession);
+            Sessions[i] = new ConversationSession(ActiveSession.Id, inputBox.Text, ActiveSession.CreatedAt);
+            ActiveSession = Sessions[i];
+        }
+        await Task.CompletedTask;
     }
 
     private async Task AutoRefreshDashboardAsync()
@@ -515,6 +607,15 @@ public class MainViewModel : ViewModelBase
         _dashboardRefreshCts?.Cancel();
         _dashboardRefreshCts?.Dispose();
         _dashboardRefreshCts = null;
+    }
+
+    public List<string> SearchMessages(string query)
+    {
+        if (string.IsNullOrWhiteSpace(query)) return new List<string>();
+        return ChatVM.Messages
+            .Where(m => m.Content?.Contains(query, StringComparison.OrdinalIgnoreCase) == true)
+            .Select(m => $"[{m.Timestamp:HH:mm}] {m.Role}: {m.Content[..Math.Min(m.Content.Length, 120)]}")
+            .ToList();
     }
 
     public void Cleanup()
