@@ -65,18 +65,20 @@ impl SidecarManager {
 }
 
 pub fn find_sidecar_binary() -> Result<String, Box<dyn std::error::Error>> {
-    // Resolve relative to the executable's directory
     let exe_dir = std::env::current_exe()
         .ok()
         .and_then(|p| p.parent().map(|d| d.to_path_buf()))
         .unwrap_or_else(|| std::env::current_dir().unwrap_or_default());
 
+    let sidecar_exe = if cfg!(target_os = "windows") { "KrnlAI.Sidecar.exe" } else { "KrnlAI.Sidecar" };
+
     let candidates = [
-        exe_dir.join("KrnlAI.Sidecar.exe"),
-        exe_dir.join("binaries").join("KrnlAI.Sidecar.exe"),
-        std::path::PathBuf::from("../KrnlAI.Sidecar/bin/Release/net10.0/win-x64/publish/KrnlAI.Sidecar.exe"),
-        std::path::PathBuf::from("../KrnlAI.Sidecar/bin/Debug/net10.0/KrnlAI.Sidecar.exe"),
-        std::path::PathBuf::from("../KrnlAI.Sidecar/bin/Debug/net10.0/win-x64/KrnlAI.Sidecar.exe"),
+        exe_dir.join(sidecar_exe),
+        exe_dir.join("binaries").join(sidecar_exe),
+        exe_dir.join("binaries").join("aikernel-sidecar-x86_64-pc-windows-msvc.exe"),
+        std::path::PathBuf::from("../KrnlAI.Sidecar/bin/Release/net10.0/win-x64/publish").join(sidecar_exe),
+        std::path::PathBuf::from("../KrnlAI.Sidecar/bin/Debug/net10.0").join(sidecar_exe),
+        std::path::PathBuf::from("../KrnlAI.Sidecar/bin/Debug/net10.0/win-x64").join(sidecar_exe),
     ];
 
     for candidate in &candidates {

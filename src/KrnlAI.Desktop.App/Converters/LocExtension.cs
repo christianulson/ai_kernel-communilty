@@ -9,14 +9,14 @@ namespace KrnlAI.Desktop.App.Converters;
 public class LocExtension : MarkupExtension
 {
     public LocExtension() { }
-    public LocExtension(string key) { Key = key; }
+    public LocExtension(string key) { Key = key ?? ""; }
 
     [ConstructorArgument("key")]
-    public string Key { get; set; } = string.Empty;
+    public string Key { get; set; } = "";
 
     public override object ProvideValue(IServiceProvider serviceProvider)
     {
-        if (string.IsNullOrEmpty(Key)) return string.Empty;
+        if (string.IsNullOrEmpty(Key)) return "[MISSING KEY]";
         try
         {
             var service = ServiceLocatorAccess.GetLocalizationService();

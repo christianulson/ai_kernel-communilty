@@ -1,5 +1,5 @@
 use tauri::{
-    menu::{Menu, MenuItem},
+    menu::{Menu, MenuItem, PredefinedMenuItem},
     tray::TrayIconBuilder,
     App, Emitter, Manager,
 };
@@ -12,7 +12,7 @@ impl TrayManager {
     pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
         let open = MenuItem::with_id(app, "open", "Open", true, None::<&str>)?;
         let settings = MenuItem::with_id(app, "settings", "Settings", true, None::<&str>)?;
-        let separator = MenuItem::with_id(app, "separator", "", false, None::<&str>)?;
+        let separator = PredefinedMenuItem::separator(app)?;
         let quit = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
 
         let menu = Menu::with_items(app, &[&open, &settings, &separator, &quit])?;

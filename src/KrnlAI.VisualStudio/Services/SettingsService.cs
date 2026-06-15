@@ -9,7 +9,7 @@ public sealed class SettingsService : ISettingsService
     private const string CollectionPath = "KrnlAI";
     private WritableSettingsStore? _store;
 
-    public string Endpoint { get; set; } = "http://localhost:65335";
+    public string Endpoint { get; set; } = "http://localhost:5235";
     public KernelRuntimeMode RuntimeMode { get; set; } = KernelRuntimeMode.LocalApi;
     public int SidecarPort { get; set; } = 5001;
     public int TimeoutSeconds { get; set; } = 30;
@@ -34,7 +34,7 @@ public sealed class SettingsService : ISettingsService
             _store = CreateStore();
             if (_store is null) return;
 
-            Endpoint = ReadString("Endpoint", "http://localhost:65335");
+            Endpoint = ReadString("Endpoint", "http://localhost:5235");
             RuntimeMode = (KernelRuntimeMode)ReadInt("RuntimeMode", (int)KernelRuntimeMode.LocalApi);
             SidecarPort = ReadInt("SidecarPort", 5001);
             TimeoutSeconds = ReadInt("TimeoutSeconds", 30);

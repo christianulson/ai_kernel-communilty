@@ -31,7 +31,7 @@ public sealed class KanbanService : IKanbanService, IDisposable
         catch (Exception ex)
         {
             KrnlLogger.Write(ex);
-            return "http://localhost:65335";
+            return "http://localhost:5235";
         }
     }
 

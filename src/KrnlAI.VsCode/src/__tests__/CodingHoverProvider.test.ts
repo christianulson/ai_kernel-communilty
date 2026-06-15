@@ -21,7 +21,7 @@ describe('CodingHoverProvider', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
-        provider = new CodingHoverProvider(() => 'http://localhost:5000');
+        provider = new CodingHoverProvider(() => 'http://localhost:5235');
         mockFetch.mockReset();
 
         mockDoc = {

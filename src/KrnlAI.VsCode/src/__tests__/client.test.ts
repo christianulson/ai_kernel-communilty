@@ -29,7 +29,7 @@ const mockFetchError = () => {
 describe('KernelClient', () => {
     beforeEach(() => {
         jest.clearAllMocks();
-        mockGetConfiguration({ endpoint: 'http://localhost:5000' });
+        mockGetConfiguration({ endpoint: 'http://localhost:5235' });
     });
 
     // ── Health ──
@@ -229,7 +229,7 @@ describe('KernelClient', () => {
         it('should reject non-loopback endpoint in localApi mode and fall back to default', () => {
             mockGetConfiguration({ mode: 'localApi', endpoint: 'http://evil.com:8080' });
             const client = new KernelClient() as any;
-            expect((client as any).getBaseUrl()).toBe('http://localhost:5000');
+            expect((client as any).getBaseUrl()).toBe('http://localhost:5235');
         });
 
         it('should use sidecar port in embedded mode', () => {

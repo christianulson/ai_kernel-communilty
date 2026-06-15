@@ -1,0 +1,113 @@
+<UserControl x:Class="KrnlAI.Desktop.App.Controls.CognitiveStudioControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <Grid.ColumnDefinitions><ColumnDefinition Width="160"/><ColumnDefinition Width="*"/><ColumnDefinition Width="280"/></Grid.ColumnDefinitions>
+        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+
+        <!-- Toolbar -->
+        <Border Grid.Column="0" Grid.ColumnSpan="3" Padding="12" Background="#0E1727" BorderBrush="#1E293B" BorderThickness="0,0,0,1">
+            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="200"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal">
+                    <TextBox Text="{Binding StudioVM.FlowName}" Width="160" Height="28" FontSize="12"/>
+                    <Button Content="📁 Templates" Height="28" Margin="8,0,0,0" x:Name="TemplateBtn" Click="OnTemplates" Style="{StaticResource SmallButton}"/>
+                    <Button Content="{Binding StudioVM.ValidationMessage}" Height="28" FontSize="11"
+                            Background="{Binding StudioVM.IsValid, Converter={StaticResource BoolToColorConverter}}" 
+                            IsEnabled="False" Style="{StaticResource SmallButton}"/>
+                    <Button Content="🐛 Debug" Height="28" Command="{Binding StudioVM.ToggleDebugCommand}" Style="{StaticResource SmallButton}"/>
+                    <Button Content="🗑️ Clear" Height="28" Command="{Binding StudioVM.ClearCanvasCommand}" Style="{StaticResource SmallButton}"/>
+                </StackPanel>
+                <Border Grid.Column="2" Padding="8,4" CornerRadius="6"
+                        Background="{Binding StudioVM.IsValid, Converter={StaticResource BoolToColorConverter}}"
+                        Visibility="{Binding StudioVM.HasToast, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <TextBlock Text="{Binding StudioVM.ToastMessage}" FontSize="11"/>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Palette -->
+        <Border Grid.Row="1" Grid.Column="0" Background="#0E1727" BorderBrush="#1E293B" BorderThickness="0,0,1,0" Padding="8">
+            <StackPanel>
+                <TextBlock Text="STEPS" FontSize="9" FontWeight="Bold" Foreground="#8AA0BC" Margin="0,0,0,8"/>
+                <ItemsControl ItemsSource="{Binding StudioVM.PaletteItems}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Padding="8,6" Margin="0,0,0,4" CornerRadius="8" Cursor="Hand"
+                                    Background="#1A2E3F" BorderBrush="#1E293B" BorderThickness="1">
+                                <TextBlock FontSize="12" Foreground="#E5EEFC"
+                                           MouseDown="OnPaletteItemMouseDown"
+                                           Tag="{Binding}">
+                                    <Run Text="{Binding Converter={StaticResource CognitiveStepIconConverter}}"/> 
+                                    <Run Text="{Binding Converter={StaticResource CognitiveStepLabelConverter}}"/>
+                                </TextBlock>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </Border>
+
+        <!-- Canvas -->
+        <ScrollViewer Grid.Row="1" Grid.Column="1" Background="#08111F" Padding="16"
+                      HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
+                      AllowDrop="True" Drop="OnCanvasDrop">
+            <ItemsControl x:Name="CanvasItems" ItemsSource="{Binding StudioVM.Nodes}">
+                <ItemsControl.ItemsPanel><ItemsPanelTemplate><Canvas/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Width="180" Height="80" Canvas.Left="{Binding X}" Canvas.Top="{Binding Y}"
+                                CornerRadius="10" Padding="0" BorderThickness="1" Cursor="Hand"
+                                BorderBrush="#1E293B" Background="#0E1727"
+                                MouseDown="OnNodeMouseDown">
+                            <Grid>
+                                <Grid.RowDefinitions><RowDefinition Height="28"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                <Border Grid.Row="0" CornerRadius="10,10,0,0" Padding="8,4">
+                                    <Border.Background>
+                                        <SolidColorBrush Color="{Binding StepType, Converter={StaticResource CognitiveStepColorConverter}}"/>
+                                    </Border.Background>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding StepType, Converter={StaticResource CognitiveStepIconConverter}}" FontSize="12"/>
+                                        <TextBlock Text="{Binding Label}" FontSize="11" FontWeight="Bold" Margin="6,0,0,0" Foreground="#03111D"/>
+                                    </StackPanel>
+                                </Border>
+                                <StackPanel Grid.Row="1" Margin="8,4">
+                                    <TextBlock Text="{Binding StepType}" FontSize="9" Foreground="#8AA0BC" FontFamily="{StaticResource FontMono}"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <!-- Property Panel -->
+        <Border Grid.Row="1" Grid.Column="2" Background="#0E1727" BorderBrush="#1E293B" BorderThickness="1,0,0,0" Padding="12"
+                Visibility="{Binding StudioVM.HasSelection, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel>
+                <TextBlock Text="PROPERTIES" FontSize="9" FontWeight="Bold" Foreground="#8AA0BC" Margin="0,0,0,12"/>
+                <TextBlock Text="Label" FontSize="10" Foreground="#8AA0BC"/>
+                <TextBox Text="{Binding StudioVM.SelectedNode.Label, UpdateSourceTrigger=PropertyChanged}" Height="28" FontSize="12" Margin="0,2,0,8"/>
+                <TextBlock Text="Step Type" FontSize="10" Foreground="#8AA0BC"/>
+                <TextBlock Text="{Binding StudioVM.SelectedNode.StepType}" FontSize="11" Margin="0,2,0,8" Foreground="#E5EEFC"/>
+                <CheckBox IsChecked="{Binding StudioVM.SelectedNode.Enabled}" Content="Enabled" Margin="0,0,0,8"/>
+                <TextBlock Text="Timeout (s)" FontSize="10" Foreground="#8AA0BC"/>
+                <TextBox Text="{Binding StudioVM.SelectedNode.Timeout}" Height="28" FontSize="12" Margin="0,2,0,8"/>
+                <Button Content="❌ Delete Node" Height="32" Margin="0,8,0,0"
+                        Command="{Binding StudioVM.DeleteNodeCommand}" CommandParameter="{Binding StudioVM.SelectedNode.Id}"
+                        Style="{StaticResource DangerButton}"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Debug Panel -->
+        <Border Grid.Row="1" Grid.Column="2" Background="#0E1727" BorderBrush="#1E293B" BorderThickness="1,0,0,0" Padding="12"
+                Visibility="{Binding StudioVM.ShowDebug, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel>
+                <TextBlock Text="DEBUG" FontSize="9" FontWeight="Bold" Foreground="#8AA0BC" Margin="0,0,0,12"/>
+                <Button Content="▶ Run Preview" Height="32" Command="{Binding StudioVM.RunPreviewCommand}" Style="{StaticResource PrimaryButton}"/>
+                <ScrollViewer MaxHeight="400" Margin="0,8,0,0">
+                    <TextBlock Text="{Binding StudioVM.DebugOutput}" FontFamily="{StaticResource FontMono}" FontSize="11" Foreground="#E5EEFC" TextWrapping="Wrap"/>
+                </ScrollViewer>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

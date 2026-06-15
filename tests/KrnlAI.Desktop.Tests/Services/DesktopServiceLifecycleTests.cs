@@ -298,5 +298,9 @@ public sealed class DesktopServiceLifecycleTests
         public Task<Core.Models.BenchmarkSummary?> GetSafetyReportAsync(CancellationToken ct = default) => Task.FromResult<Core.Models.BenchmarkSummary?>(null);
         public Task<List<Core.Models.ScheduledTask>> GetScheduledTasksAsync(CancellationToken ct = default) => Task.FromResult(new List<Core.Models.ScheduledTask>());
         public Task<List<Core.Models.MemoryMoment>> GetMemoryMomentsAsync(int limit = 20, CancellationToken ct = default) => Task.FromResult(new List<Core.Models.MemoryMoment>());
+        public Task<List<Core.Models.ApprovalRequest>> GetPendingApprovalsAsync(string? role = null, CancellationToken ct = default) => Task.FromResult(new List<Core.Models.ApprovalRequest>());
+        public Task<Core.Models.ApprovalRequest?> GetApprovalDetailAsync(string requestId, CancellationToken ct = default) => Task.FromResult<Core.Models.ApprovalRequest?>(null);
+        public Task<Core.Models.ApprovalRequest?> ApproveRequestAsync(string requestId, string? comment = null, CancellationToken ct = default) => Task.FromResult<Core.Models.ApprovalRequest?>(null);
+        public Task<Core.Models.ApprovalRequest?> RejectRequestAsync(string requestId, string? comment = null, CancellationToken ct = default) => Task.FromResult<Core.Models.ApprovalRequest?>(null);
     }
 }

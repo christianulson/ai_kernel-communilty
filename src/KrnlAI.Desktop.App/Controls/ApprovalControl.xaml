@@ -1,6 +1,7 @@
 <UserControl x:Class="KrnlAI.Desktop.App.Controls.ApprovalControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:loc="clr-namespace:KrnlAI.Desktop.App.Converters">
     <ScrollViewer Padding="28" VerticalScrollBarVisibility="Auto">
         <Grid>
             <StackPanel>

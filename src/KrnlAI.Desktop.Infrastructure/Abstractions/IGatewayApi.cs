@@ -168,7 +168,26 @@ public interface IGatewayApi
 
     [Get("/investigations")]
     Task<List<InvestigationResponseDto>> GetInvestigationsAsync(CancellationToken ct = default);
+
+    // Approvals
+    [Get("/approvals/pending")]
+    Task<List<ApprovalRequestDto>> GetPendingApprovalsAsync(string? role = null, CancellationToken ct = default);
+    [Get("/approvals/{requestId}")]
+    Task<ApprovalRequestDto> GetApprovalDetailAsync(string requestId, CancellationToken ct);
+    [Post("/approvals/{requestId}/approve")]
+    Task<ApprovalRequestDto> ApproveRequestAsync(string requestId, [Body] ApprovalActionDto body, CancellationToken ct);
+    [Post("/approvals/{requestId}/reject")]
+    Task<ApprovalRequestDto> RejectRequestAsync(string requestId, [Body] ApprovalActionDto body, CancellationToken ct);
 }
+
+public sealed record ApprovalActionDto(string? Comment);
+public sealed record ApprovalRequestDto(
+    string RequestId, string ActionId, string ActionType, string Description,
+    string? PayloadJson, double RiskScore, string[] RequiredApprovers,
+    DateTimeOffset CreatedAt, DateTimeOffset Deadline, string Status,
+    List<ApprovalResponseDto>? Responses, string? AgentName, string? RequestedBy);
+public sealed record ApprovalResponseDto(
+    string ApproverId, string ApproverName, bool Approved, string? Comment, DateTimeOffset Timestamp);
 
 public sealed record McpServerStatusDto(string ServerId, string Name, string TransportType, bool Enabled, bool IsConnected, int ToolCount, DateTimeOffset? LastUsedAt);
 public sealed record McpToggleRequest(bool Enabled);
@@ -189,24 +208,3 @@ public sealed record ObjectiveDetailResponseDto(string ObjectiveId, string Descr
 public sealed record TargetResponseDto(string TargetId, string Description, double CurrentValue, double TargetValue, string Unit);
 public sealed record InvestigationResponseDto(string CaseId, string Title, string Status, int EvidenceCount, DateTime CreatedAt);
 
-// Approvals
-[Get("/approvals/pending")]
-Task<List<ApprovalRequestDto>> GetPendingApprovalsAsync(string? role = null, CancellationToken ct = default);
-
-[Get("/approvals/{requestId}")]
-Task<ApprovalRequestDto> GetApprovalDetailAsync(string requestId, CancellationToken ct);
-
-[Post("/approvals/{requestId}/approve")]
-Task<ApprovalRequestDto> ApproveRequestAsync(string requestId, [Body] ApprovalActionDto body, CancellationToken ct);
-
-[Post("/approvals/{requestId}/reject")]
-Task<ApprovalRequestDto> RejectRequestAsync(string requestId, [Body] ApprovalActionDto body, CancellationToken ct);
-
-public sealed record ApprovalActionDto(string? Comment);
-public sealed record ApprovalRequestDto(
-    string RequestId, string ActionId, string ActionType, string Description,
-    string? PayloadJson, double RiskScore, string[] RequiredApprovers,
-    DateTimeOffset CreatedAt, DateTimeOffset Deadline, string Status,
-    List<ApprovalResponseDto>? Responses, string? AgentName, string? RequestedBy);
-public sealed record ApprovalResponseDto(
-    string ApproverId, string ApproverName, bool Approved, string? Comment, DateTimeOffset Timestamp);

@@ -32,14 +32,14 @@ export class KernelClient {
             return `http://localhost:${config.get<number>('sidecarPort', 5001)}`;
         }
 
-        const endpoint = config.get<string>('endpoint', 'http://localhost:5000');
+        const endpoint = config.get<string>('endpoint', 'http://localhost:5235');
         try {
             const url = new URL(endpoint);
             const isLoopback = url.hostname === 'localhost' || url.hostname === '127.0.0.1' || url.hostname === '::1';
 
             if (mode === 'localApi' && !isLoopback) {
                 console.warn(`[Krnl-AI] Endpoint rejeitado (não é loopback): ${endpoint}. Usando default.`);
-                return 'http://localhost:5000';
+                return 'http://localhost:5235';
             }
 
             if ((url.protocol === 'http:' || url.protocol === 'https:') && (mode === 'remoteApi' || isLoopback)) {
@@ -47,11 +47,11 @@ export class KernelClient {
             }
         } catch {
             console.warn(`[Krnl-AI] Endpoint inválido: ${endpoint}. Usando default.`);
-            return 'http://localhost:5000';
+            return 'http://localhost:5235';
         }
 
         console.warn(`[Krnl-AI] Endpoint inválido para modo ${mode}: ${endpoint}. Usando default.`);
-        return 'http://localhost:5000';
+        return 'http://localhost:5235';
     }
 
     private async fetchJson<T>(path: string, options?: RequestInit): Promise<T | null> {

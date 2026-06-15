@@ -10,8 +10,8 @@ public sealed class KrnlAIOptionsPage : DialogPage
 {
     [Category("Krnl-AI")]
     [DisplayName("API Endpoint")]
-    [Description("Base URL of the Krnl-AI API (e.g., http://localhost:65335)")]
-    public string Endpoint { get; set; } = "http://localhost:65335";
+    [Description("Base URL of the Krnl-AI API (e.g., http://localhost:5235)")]
+    public string Endpoint { get; set; } = "http://localhost:5235";
 
     [Category("Krnl-AI")]
     [DisplayName("Runtime Mode")]

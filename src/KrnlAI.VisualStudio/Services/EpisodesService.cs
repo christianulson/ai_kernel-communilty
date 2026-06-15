@@ -33,7 +33,7 @@ public sealed class EpisodesService : IEpisodesService, IDisposable
         catch (Exception ex)
         {
             KrnlLogger.Write(ex);
-            _baseUrl = "http://localhost:65335";
+            _baseUrl = "http://localhost:5235";
         }
         return _baseUrl;
     }

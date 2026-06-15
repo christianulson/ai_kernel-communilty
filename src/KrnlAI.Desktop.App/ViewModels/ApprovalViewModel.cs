@@ -1,3 +1,4 @@
+using System.Windows;
 using System.Windows.Input;
 using KrnlAI.Desktop.App.Services;
 using KrnlAI.Desktop.Core.Abstractions;
@@ -28,8 +29,8 @@ public class ApprovalViewModel : ViewModelBase
         _kernelClient = kernelClient;
         _logger = logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<ApprovalViewModel>.Instance;
         LoadCommand = new AsyncRelayCommand(LoadAsync);
-        ApproveCommand = new AsyncRelayCommand<string>(ApproveAsync);
-        RejectCommand = new AsyncRelayCommand<string>(RejectAsync);
+        ApproveCommand = new AsyncRelayCommand(async p => { if (p is string id) await ApproveAsync(id); });
+        RejectCommand = new AsyncRelayCommand(async p => { if (p is string id) await RejectAsync(id); });
     }
 
     public ApprovalViewModel() : this(ServiceLocator.Instance.KernelClient) { }
@@ -57,6 +58,12 @@ public class ApprovalViewModel : ViewModelBase
 
     private async Task ApproveAsync(string requestId)
     {
+        var request = Approvals?.FirstOrDefault(a => a.RequestId == requestId);
+        var msg = request is not null
+            ? $"Aprovar \"{request.Description}\"?"
+            : "Confirmar aprovacao?";
+        if (MessageBox.Show(msg, "Aprovacao", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+            return;
         try
         {
             await _kernelClient.ApproveRequestAsync(requestId);
@@ -71,6 +78,12 @@ public class ApprovalViewModel : ViewModelBase
 
     private async Task RejectAsync(string requestId)
     {
+        var request = Approvals?.FirstOrDefault(a => a.RequestId == requestId);
+        var msg = request is not null
+            ? $"Rejeitar \"{request.Description}\"?"
+            : "Confirmar rejeicao?";
+        if (MessageBox.Show(msg, "Rejeicao", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+            return;
         try
         {
             await _kernelClient.RejectRequestAsync(requestId);

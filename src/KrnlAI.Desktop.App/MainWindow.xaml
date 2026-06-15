@@ -382,6 +382,13 @@
                             <TextBlock Text="Diagnóstico"/>
                         </StackPanel>
                     </Button>
+                    <Button Command="{Binding NavigateToStudioCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="StudioButton">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🎨" FontSize="14" Margin="0,0,10,0"/>
+                            <TextBlock Text="Studio"/>
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
                 <!-- Sessions -->
                 <Border Grid.Row="4" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0"                        Padding="12,12,12,8">
@@ -509,6 +516,7 @@
             <controls:LogsViewerControl Visibility="{Binding ShowLogs, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:InitWizardControl Visibility="{Binding IsInitWizardVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:DebugControl Visibility="{Binding IsDebugVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:CognitiveStudioControl Visibility="{Binding IsStudioVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <!-- Welcome Wizard Overlay -->
             <Border Visibility="{Binding ShowWelcomeWizard, Converter={StaticResource BoolToVisibilityConverter}}"
                     Panel.ZIndex="200" Background="#CC000000">

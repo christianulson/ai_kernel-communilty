@@ -286,6 +286,10 @@ public sealed class EmbeddedKernelClient : IKernelClient
 
     public Task<List<McpServerInfo>> GetPluginsAsync(CancellationToken ct = default) => GetMcpServersAsync(ct);
     public Task<BenchmarkSummary?> GetSafetyReportAsync(CancellationToken ct = default) => GetBenchmarkSummaryAsync(ct);
+    public Task<List<ApprovalRequest>> GetPendingApprovalsAsync(string? role = null, CancellationToken ct = default) => Task.FromResult(new List<ApprovalRequest>());
+    public Task<ApprovalRequest?> GetApprovalDetailAsync(string requestId, CancellationToken ct = default) => Task.FromResult<ApprovalRequest?>(null);
+    public Task<ApprovalRequest?> ApproveRequestAsync(string requestId, string? comment = null, CancellationToken ct = default) => Task.FromResult<ApprovalRequest?>(null);
+    public Task<ApprovalRequest?> RejectRequestAsync(string requestId, string? comment = null, CancellationToken ct = default) => Task.FromResult<ApprovalRequest?>(null);
     public Task<List<ScheduledTask>> GetScheduledTasksAsync(CancellationToken ct = default) => Task.FromResult(new List<ScheduledTask>());
     public Task<List<MemoryMoment>> GetMemoryMomentsAsync(int limit = 20, CancellationToken ct = default) => Task.FromResult(_memoryMoments.Take(limit).ToList());
 

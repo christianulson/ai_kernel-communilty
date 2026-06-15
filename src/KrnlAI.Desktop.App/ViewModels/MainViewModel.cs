@@ -107,6 +107,7 @@ public class MainViewModel : ViewModelBase
     public ExperimentViewModel ExperimentVM { get; } = new();
     public InitWizardViewModel InitWizardVM { get; } = new();
     public DebugViewModel DebugVM { get; } = new();
+    public CognitiveStudioViewModel StudioVM { get; } = new();
     public WelcomeWizardViewModel WelcomeVM { get; } = new();
 
     public ObservableCollection<MediaDevice> Microphones => SettingsVM.Microphones;
@@ -138,7 +139,7 @@ public class MainViewModel : ViewModelBase
     private string _statusMessage = "Iniciando...";
     public string StatusMessage { get => _statusMessage; set => SetProperty(ref _statusMessage, value); }
     private string _currentScreen = "chat";
-    public string CurrentScreen { get => _currentScreen; set { if (SetProperty(ref _currentScreen, value)) { OnPropertyChanged(nameof(IsChatVisible)); OnPropertyChanged(nameof(IsDashboardVisible)); OnPropertyChanged(nameof(IsPoliciesVisible)); OnPropertyChanged(nameof(IsEpisodesVisible)); OnPropertyChanged(nameof(IsMemoryVisible)); OnPropertyChanged(nameof(IsSettingsVisible)); OnPropertyChanged(nameof(IsApiKeysVisible)); OnPropertyChanged(nameof(IsPeerRankingVisible)); OnPropertyChanged(nameof(IsPrivacyVisible)); OnPropertyChanged(nameof(IsBenchmarkVisible)); OnPropertyChanged(nameof(IsCausalVisible)); OnPropertyChanged(nameof(IsProfileVisible)); OnPropertyChanged(nameof(IsDocumentsVisible)); OnPropertyChanged(nameof(IsArchiveVisible)); OnPropertyChanged(nameof(IsModelRegistryVisible)); OnPropertyChanged(nameof(IsVersionsVisible)); OnPropertyChanged(nameof(IsSessionsVisible)); OnPropertyChanged(nameof(IsKanbanVisible)); OnPropertyChanged(nameof(IsTrajectoryVisible)); OnPropertyChanged(nameof(IsP2PPaymentsVisible)); OnPropertyChanged(nameof(IsDisputesVisible));             OnPropertyChanged(nameof(IsSidecarVisible)); OnPropertyChanged(nameof(IsMultimodalVisible)); OnPropertyChanged(nameof(IsObjectivesVisible)); OnPropertyChanged(nameof(IsInvestigationsVisible)); OnPropertyChanged(nameof(IsSnapshotsVisible)); OnPropertyChanged(nameof(IsAdminConfigVisible));             OnPropertyChanged(nameof(IsAdminUsersVisible)); OnPropertyChanged(nameof(IsMomentsVisible)); OnPropertyChanged(nameof(IsPluginsVisible)); OnPropertyChanged(nameof(IsSchedulerVisible)); OnPropertyChanged(nameof(IsTemplatesVisible)); OnPropertyChanged(nameof(IsApprovalVisible)); OnPropertyChanged(nameof(IsCliVisible)); OnPropertyChanged(nameof(IsPluginCatalogVisible)); OnPropertyChanged(nameof(IsExperimentVisible)); OnPropertyChanged(nameof(IsInitWizardVisible)); OnPropertyChanged(nameof(IsDebugVisible)); } } }
+    public string CurrentScreen { get => _currentScreen; set { if (SetProperty(ref _currentScreen, value)) { OnPropertyChanged(nameof(IsChatVisible)); OnPropertyChanged(nameof(IsDashboardVisible)); OnPropertyChanged(nameof(IsPoliciesVisible)); OnPropertyChanged(nameof(IsEpisodesVisible)); OnPropertyChanged(nameof(IsMemoryVisible)); OnPropertyChanged(nameof(IsSettingsVisible)); OnPropertyChanged(nameof(IsApiKeysVisible)); OnPropertyChanged(nameof(IsPeerRankingVisible)); OnPropertyChanged(nameof(IsPrivacyVisible)); OnPropertyChanged(nameof(IsBenchmarkVisible)); OnPropertyChanged(nameof(IsCausalVisible)); OnPropertyChanged(nameof(IsProfileVisible)); OnPropertyChanged(nameof(IsDocumentsVisible)); OnPropertyChanged(nameof(IsArchiveVisible)); OnPropertyChanged(nameof(IsModelRegistryVisible)); OnPropertyChanged(nameof(IsVersionsVisible)); OnPropertyChanged(nameof(IsSessionsVisible)); OnPropertyChanged(nameof(IsKanbanVisible)); OnPropertyChanged(nameof(IsTrajectoryVisible)); OnPropertyChanged(nameof(IsP2PPaymentsVisible)); OnPropertyChanged(nameof(IsDisputesVisible));             OnPropertyChanged(nameof(IsSidecarVisible)); OnPropertyChanged(nameof(IsMultimodalVisible)); OnPropertyChanged(nameof(IsObjectivesVisible)); OnPropertyChanged(nameof(IsInvestigationsVisible)); OnPropertyChanged(nameof(IsSnapshotsVisible)); OnPropertyChanged(nameof(IsAdminConfigVisible));             OnPropertyChanged(nameof(IsAdminUsersVisible)); OnPropertyChanged(nameof(IsMomentsVisible)); OnPropertyChanged(nameof(IsPluginsVisible)); OnPropertyChanged(nameof(IsSchedulerVisible)); OnPropertyChanged(nameof(IsTemplatesVisible)); OnPropertyChanged(nameof(IsApprovalVisible)); OnPropertyChanged(nameof(IsCliVisible)); OnPropertyChanged(nameof(IsPluginCatalogVisible)); OnPropertyChanged(nameof(IsExperimentVisible)); OnPropertyChanged(nameof(IsInitWizardVisible)); OnPropertyChanged(nameof(IsDebugVisible)); OnPropertyChanged(nameof(IsStudioVisible)); } } }
     private bool _showWelcomeWizard = true;
     public bool ShowWelcomeWizard { get => _showWelcomeWizard; set => SetProperty(ref _showWelcomeWizard, value); }
     private bool _showSearch;
@@ -188,6 +189,7 @@ public class MainViewModel : ViewModelBase
     public bool IsApprovalVisible => _currentScreen == "approvals";
     public bool IsInitWizardVisible => _currentScreen == "init";
     public bool IsDebugVisible => _currentScreen == "debug";
+    public bool IsStudioVisible => _currentScreen == "studio";
     public bool IsCliVisible => _currentScreen == "cli";
     public bool IsPluginCatalogVisible => _currentScreen == "plugin-catalog";
     public bool IsExperimentVisible => _currentScreen == "experiment";
@@ -265,6 +267,7 @@ public class MainViewModel : ViewModelBase
     public ICommand NavigateToApprovalsCommand { get; }
     public ICommand NavigateToInitWizardCommand { get; }
     public ICommand NavigateToDebugCommand { get; }
+    public ICommand NavigateToStudioCommand { get; }
     public ICommand NavigateToCliCommand { get; }
     public ICommand NavigateToPluginCatalogCommand { get; }
     public ICommand NavigateToExperimentCommand { get; }
@@ -412,6 +415,7 @@ public class MainViewModel : ViewModelBase
         NavigateToApprovalsCommand = new RelayCommand(() => CurrentScreen = "approvals");
         NavigateToInitWizardCommand = new RelayCommand(() => CurrentScreen = "init");
         NavigateToDebugCommand = new RelayCommand(() => CurrentScreen = "debug");
+        NavigateToStudioCommand = new RelayCommand(() => CurrentScreen = "studio");
         NavigateToCliCommand = new RelayCommand(() => CurrentScreen = "cli");
         NavigateToPluginCatalogCommand = new RelayCommand(() => CurrentScreen = "plugin-catalog");
         NavigateToExperimentCommand = new RelayCommand(() => CurrentScreen = "experiment");

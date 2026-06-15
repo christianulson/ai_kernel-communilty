@@ -50,7 +50,7 @@ describe('InlineCompletionProvider', () => {
     let baseUrl: string;
 
     beforeEach(() => {
-        baseUrl = 'http://localhost:5000';
+        baseUrl = 'http://localhost:5235';
         cache = new CompletionCache(10, 30_000);
         provider = new InlineCompletionProvider(() => baseUrl, cache);
         mockFetch.mockReset();
@@ -115,7 +115,7 @@ describe('InlineCompletionProvider', () => {
 
         expect(mockFetch).toHaveBeenCalledTimes(1);
         expect(mockFetch).toHaveBeenCalledWith(
-            'http://localhost:5000/api/coding/complete',
+            'http://localhost:5235/api/coding/complete',
             expect.objectContaining({
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

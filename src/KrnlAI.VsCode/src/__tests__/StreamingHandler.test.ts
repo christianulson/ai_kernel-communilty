@@ -30,7 +30,7 @@ describe('StreamingHandler', () => {
             const onError = jest.fn();
 
             await handler.streamFromUrl(
-                'http://localhost:5000/api/stream',
+                'http://localhost:5235/api/stream',
                 { prompt: 'test' },
                 onChunk,
                 onComplete,
@@ -62,7 +62,7 @@ describe('StreamingHandler', () => {
             const onComplete = jest.fn();
 
             await handler.streamFromUrl(
-                'http://localhost:5000/api/stream',
+                'http://localhost:5235/api/stream',
                 { prompt: 'test' },
                 (chunk) => chunks.push(chunk),
                 onComplete,
@@ -83,7 +83,7 @@ describe('StreamingHandler', () => {
             const onError = jest.fn();
 
             await handler.streamFromUrl(
-                'http://localhost:5000/api/stream',
+                'http://localhost:5235/api/stream',
                 { prompt: 'test' },
                 jest.fn(),
                 jest.fn(),
@@ -105,7 +105,7 @@ describe('StreamingHandler', () => {
             const onError = jest.fn();
 
             await handler.streamFromUrl(
-                'http://localhost:5000/api/stream',
+                'http://localhost:5235/api/stream',
                 { prompt: 'test' },
                 jest.fn(),
                 jest.fn(),
@@ -121,7 +121,7 @@ describe('StreamingHandler', () => {
             const onError = jest.fn();
 
             await handler.streamFromUrl(
-                'http://localhost:5000/api/stream',
+                'http://localhost:5235/api/stream',
                 { prompt: 'test' },
                 jest.fn(),
                 jest.fn(),
@@ -148,7 +148,7 @@ describe('StreamingHandler', () => {
             const onError = jest.fn();
 
             handler.streamFromUrl(
-                'http://localhost:5000/api/stream',
+                'http://localhost:5235/api/stream',
                 { prompt: 'test' },
                 onChunk,
                 onComplete,
@@ -176,7 +176,7 @@ describe('StreamingHandler', () => {
             );
 
             const promise = handler.streamFromUrl(
-                'http://localhost:5000/api/stream',
+                'http://localhost:5235/api/stream',
                 { prompt: 'test' },
                 jest.fn(), jest.fn(), jest.fn()
             );
@@ -198,7 +198,7 @@ describe('StreamingHandler', () => {
             const onError = jest.fn();
 
             await handler.streamFromUrl(
-                'http://localhost:5000/api/stream',
+                'http://localhost:5235/api/stream',
                 { prompt: 'test' },
                 jest.fn(),
                 jest.fn(),
@@ -220,7 +220,7 @@ describe('StreamingHandler', () => {
             const onComplete = jest.fn();
 
             await handler.streamFromUrl(
-                'http://localhost:5000/api/stream',
+                'http://localhost:5235/api/stream',
                 { prompt: 'test' },
                 (chunk) => chunks.push(chunk),
                 onComplete,
@@ -250,7 +250,7 @@ describe('StreamingHandler', () => {
             const onComplete = jest.fn();
 
             await handler.streamFromUrl(
-                'http://localhost:5000/api/stream',
+                'http://localhost:5235/api/stream',
                 { prompt: 'test' },
                 (chunk) => chunks.push(chunk),
                 onComplete,

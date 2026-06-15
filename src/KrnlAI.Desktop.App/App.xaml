@@ -28,6 +28,9 @@
             <converters:BoolToColorConverter x:Key="BoolToColorConverter"/>
             <converters:BoolToPanelConverter x:Key="BoolToPanelConverter"/>
             <converters:MarkdownToFlowConverter x:Key="MarkdownToFlowConverter"/>
+            <converters:CognitiveStepIconConverter x:Key="CognitiveStepIconConverter"/>
+            <converters:CognitiveStepLabelConverter x:Key="CognitiveStepLabelConverter"/>
+            <converters:CognitiveStepColorConverter x:Key="CognitiveStepColorConverter"/>
 
             <!-- Shadow Effects -->
             <DropShadowEffect x:Key="CardShadow" BlurRadius="24" Opacity="0.3" ShadowDepth="0" Color="#030814"/>

@@ -89,13 +89,13 @@ button{padding:10px 24px;background:var(--vscode-button-background);color:var(--
 <h1>⚙️ Configurações</h1>
 <div class="card"><h2>🔌 Conexão</h2>
 <label><span>Modo</span><select id="mode"><option value="embedded">Embedded local (Sidecar)</option><option value="localApi">API Local</option><option value="remoteApi">API Remota</option></select></label>
-<label><span>Endpoint</span><input type="text" id="endpoint" placeholder="http://localhost:5000" /></label>
+<label><span>Endpoint</span><input type="text" id="endpoint" placeholder="http://localhost:5235" /></label>
 <label><span>Porta Sidecar</span><input type="number" id="sidecarPort" /></label></div>
 <button onclick="save()">💾 Salvar</button><div id="status"></div>
 <script nonce="${nonce}">(function(){
 const vscode=acquireVsCodeApi();vscode.postMessage({type:'load'});
 window.addEventListener('message',e=>{const m=e.data;if(m.type==='config'){
-(document.getElementById('endpoint')as HTMLInputElement).value=m.endpoint||'http://localhost:5000';
+(document.getElementById('endpoint')as HTMLInputElement).value=m.endpoint||'http://localhost:5235';
 (document.getElementById('sidecarPort')as HTMLInputElement).value=String(m.sidecarPort||5001);
 (document.getElementById('mode')as HTMLSelectElement).value=m.mode||(m.standalone?'embedded':'localApi');}});
 function save(){
