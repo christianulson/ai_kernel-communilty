@@ -136,21 +136,26 @@ public class DashboardViewModel : ViewModelBase, IDisposable
         var consecutiveFailures = 0;
         while (!t.IsCancellationRequested)
         {
-            var state = await _kernelClient.GetEmotionalStateAsync("admin-001", t);
-            if (state != null)
+            try
             {
-                consecutiveFailures = 0;
-                UiThreadInvoker.Invoke(() => EmotionalState = state);
+                var state = await _kernelClient.GetEmotionalStateAsync("admin-001", t);
+                if (state != null)
+                {
+                    consecutiveFailures = 0;
+                    UiThreadInvoker.Invoke(() => EmotionalState = state);
+                }
+                else if (++consecutiveFailures >= MaxPollFailures)
+                {
+                    break;
+                }
+                var affective = await _kernelClient.GetAffectiveStateAsync(t);
+                if (affective != null)
+                {
+                    UiThreadInvoker.Invoke(() => AffectiveState = affective);
+                }
             }
-            else if (++consecutiveFailures >= MaxPollFailures)
-            {
-                break;
-            }
-            var affective = await _kernelClient.GetAffectiveStateAsync(t);
-            if (affective != null)
-            {
-                UiThreadInvoker.Invoke(() => AffectiveState = affective);
-            }
+            catch (OperationCanceledException) { break; }
+            catch (Exception ex) { KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"Dash emotional poll: {ex.Message}"); }
             try { await Task.Delay(15000, t); } catch (OperationCanceledException) { break; }
         }
     }

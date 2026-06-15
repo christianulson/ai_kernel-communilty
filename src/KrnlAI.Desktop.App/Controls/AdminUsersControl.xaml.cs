@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using KrnlAI.Desktop.App.ViewModels;
+using KrnlAI.Desktop.Core.Services;
 
 namespace KrnlAI.Desktop.App.Controls;
 
@@ -18,7 +19,7 @@ public sealed partial class AdminUsersControl : UserControl
             if (DataContext is MainViewModel vm)
                 await vm.AdminUsersVM.LoadAsync();
         }
-        catch { }
+        catch (Exception ex) { KrnlLogger.Write($"AdminUsersControl.OnLoaded: {ex.Message}"); }
     }
 
     private void OnActivateClick(object sender, RoutedEventArgs e)

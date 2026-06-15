@@ -226,12 +226,16 @@ public class SettingsViewModel : ViewModelBase, IDisposable
     {
         if (_kernelClient == null) return;
         if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return;
-        var servers = await _kernelClient.GetMcpServersAsync();
-        UiThreadInvoker.Invoke(() =>
+        try
         {
-            McpServers.Clear();
-            foreach (var s in servers) McpServers.Add(s);
-        });
+            var servers = await _kernelClient.GetMcpServersAsync();
+            UiThreadInvoker.Invoke(() =>
+            {
+                McpServers.Clear();
+                foreach (var s in servers) McpServers.Add(s);
+            });
+        }
+        catch (Exception ex) { _logger.LogWarning(ex, "LoadMcpServersAsync failed"); }
     }
 
     public async Task ToggleMcpServerAsync(string serverId, bool enabled)

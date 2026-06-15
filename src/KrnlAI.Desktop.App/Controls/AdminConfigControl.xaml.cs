@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using KrnlAI.Desktop.Core.Services;
 
 namespace KrnlAI.Desktop.App.Controls;
 
@@ -17,7 +18,7 @@ public sealed partial class AdminConfigControl : UserControl
             if (DataContext is ViewModels.MainViewModel vm)
                 await vm.AdminConfigVM.LoadAsync();
         }
-        catch { }
+        catch (Exception ex) { KrnlLogger.Write($"AdminConfigControl.OnLoaded: {ex.Message}"); }
     }
 
     private async void OnFlagToggled(object sender, RoutedEventArgs e)
@@ -30,6 +31,6 @@ public sealed partial class AdminConfigControl : UserControl
                 await vm.AdminConfigVM.LoadAsync();
             }
         }
-        catch { }
+        catch (Exception ex) { KrnlLogger.Write($"AdminConfigControl.OnFlagToggled: {ex.Message}"); }
     }
 }

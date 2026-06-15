@@ -392,25 +392,30 @@ public class MainViewModel : ViewModelBase
         var t = _healthCheckCts.Token;
         while (!t.IsCancellationRequested)
         {
-            var isAvailable = await _kernelClient.CheckHealthAsync(t);
-            UiThreadInvoker.Invoke(() =>
+            try
             {
-                if (isAvailable != _previousBackendAvailable)
+                var isAvailable = await _kernelClient.CheckHealthAsync(t);
+                UiThreadInvoker.Invoke(() =>
                 {
-                    if (isAvailable)
+                    if (isAvailable != _previousBackendAvailable)
                     {
-                        StatusMessage = "Conectado";
-                        KrnlAI.Desktop.Core.Services.KrnlLogger.Write("Backend reconectado");
+                        if (isAvailable)
+                        {
+                            StatusMessage = "Conectado";
+                            KrnlAI.Desktop.Core.Services.KrnlLogger.Write("Backend reconectado");
+                        }
+                        else
+                        {
+                            StatusMessage = "Servidor indisponível";
+                        }
+                        _previousBackendAvailable = isAvailable;
                     }
-                    else
-                    {
-                        StatusMessage = "Servidor indisponível";
-                    }
-                    _previousBackendAvailable = isAvailable;
-                }
-                IsBackendAvailable = isAvailable;
-                OnPropertyChanged(nameof(ApiEndpoint));
-            });
+                    IsBackendAvailable = isAvailable;
+                    OnPropertyChanged(nameof(ApiEndpoint));
+                });
+            }
+            catch (OperationCanceledException) { break; }
+            catch (Exception ex) { KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"HealthCheck: {ex.Message}"); }
             try { await Task.Delay(30000, t); } catch (OperationCanceledException) { break; }
         }
     }
@@ -427,7 +432,8 @@ public class MainViewModel : ViewModelBase
             try { await Task.Delay(30000, t); } catch (OperationCanceledException) { break; }
             if (IsBackendAvailable && !t.IsCancellationRequested)
             {
-                await DashVM.LoadDashboardDataAsync();
+                try { await DashVM.LoadDashboardDataAsync(); }
+                catch (Exception ex) { KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"Dashboard refresh: {ex.Message}"); }
             }
         }
     }
@@ -440,14 +446,19 @@ public class MainViewModel : ViewModelBase
         var t = _emotionalPollCts.Token;
         while (!t.IsCancellationRequested)
         {
-            if (IsBackendAvailable)
+            try
             {
-                var state = await _kernelClient.GetEmotionalStateAsync(UserId, t);
-                if (state != null)
+                if (IsBackendAvailable)
                 {
-                    UiThreadInvoker.Invoke(() => EmotionalState = state);
+                    var state = await _kernelClient.GetEmotionalStateAsync(UserId, t);
+                    if (state != null)
+                    {
+                        UiThreadInvoker.Invoke(() => EmotionalState = state);
+                    }
                 }
             }
+            catch (OperationCanceledException) { break; }
+            catch (Exception ex) { KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"Emotional poll: {ex.Message}"); }
             try { await Task.Delay(15000, t); } catch (OperationCanceledException) { break; }
         }
     }

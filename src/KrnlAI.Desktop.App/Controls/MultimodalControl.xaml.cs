@@ -12,7 +12,7 @@ public partial class MultimodalControl : UserControl
         InitializeComponent();
     }
 
-    private async void OnLoaded(object sender, RoutedEventArgs e) { try { } catch { } }
+    private async void OnLoaded(object sender, RoutedEventArgs e) { await Task.CompletedTask; }
 
     private async void OnIngest(object sender, RoutedEventArgs e)
     {

@@ -1,4 +1,5 @@
 using System.Windows.Controls;
+using KrnlAI.Desktop.Core.Services;
 
 namespace KrnlAI.Desktop.App.Controls;
 
@@ -16,6 +17,6 @@ public sealed partial class InvestigationsControl : UserControl
             if (DataContext is ViewModels.MainViewModel vm)
                 await vm.InvestigationsVM.LoadAsync();
         }
-        catch { }
+        catch (Exception ex) { KrnlLogger.Write($"InvestigationsControl.OnLoaded: {ex.Message}"); }
     }
 }

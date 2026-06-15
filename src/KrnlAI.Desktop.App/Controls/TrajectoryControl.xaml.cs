@@ -1,5 +1,6 @@
 using System.Windows.Controls;
 using KrnlAI.Desktop.App.ViewModels;
+using KrnlAI.Desktop.Core.Services;
 
 namespace KrnlAI.Desktop.App.Controls;
 
@@ -12,10 +13,14 @@ public partial class TrajectoryControl : UserControl
 
     private async void OnSessionDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
     {
-        if (SessionList.SelectedItem is TrajectorySessionSummary summary)
+        try
         {
-            if (DataContext is ViewModels.MainViewModel mainVm)
-                await mainVm.TrajectoryVM.LoadSessionAsync(summary.Id);
+            if (SessionList.SelectedItem is TrajectorySessionSummary summary)
+            {
+                if (DataContext is MainViewModel mainVm)
+                    await mainVm.TrajectoryVM.LoadSessionAsync(summary.Id);
+            }
         }
+        catch (Exception ex) { KrnlLogger.Write($"TrajectoryControl.OnSessionDoubleClick: {ex.Message}"); }
     }
 }

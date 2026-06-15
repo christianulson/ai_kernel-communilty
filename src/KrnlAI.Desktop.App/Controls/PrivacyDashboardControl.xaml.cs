@@ -1,7 +1,9 @@
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using KrnlAI.Desktop.App.ViewModels;
 using KrnlAI.Desktop.Core.Models;
+using KrnlAI.Desktop.Core.Services;
 
 namespace KrnlAI.Desktop.App.Controls;
 
@@ -15,11 +17,15 @@ public partial class PrivacyDashboardControl : UserControl
 
     private async void OnLoaded(object sender, RoutedEventArgs e)
     {
-        if (DataContext is PrivacyDashboardViewModel vm)
+        try
         {
-            await vm.LoadAsync();
-            SyncSelection(vm.SelectedConsentLevel);
+            if (DataContext is PrivacyDashboardViewModel vm)
+            {
+                await vm.LoadAsync();
+                SyncSelection(vm.SelectedConsentLevel);
+            }
         }
+        catch (Exception ex) { KrnlLogger.Write($"PrivacyDashboardControl.OnLoaded: {ex.Message}"); }
     }
 
     private void OnConsentChecked(object sender, RoutedEventArgs e)
