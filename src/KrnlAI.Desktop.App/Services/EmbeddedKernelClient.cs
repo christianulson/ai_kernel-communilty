@@ -210,6 +210,15 @@ public sealed class EmbeddedKernelClient : IKernelClient
     public Task<List<InvestigationInfo>> GetInvestigationsAsync(CancellationToken ct = default)
         => Task.FromResult(new List<InvestigationInfo>());
 
+    public Task<List<McpServerInfo>> GetPluginsAsync(CancellationToken ct = default)
+        => Task.FromResult(new List<McpServerInfo>());
+    public Task<BenchmarkSummary?> GetSafetyReportAsync(CancellationToken ct = default)
+        => Task.FromResult<BenchmarkSummary?>(new BenchmarkSummary(0, 0, 0, 0, 0, []));
+    public Task<List<ScheduledTask>> GetScheduledTasksAsync(CancellationToken ct = default)
+        => Task.FromResult(new List<ScheduledTask>());
+    public Task<List<MemoryMoment>> GetMemoryMomentsAsync(int limit = 20, CancellationToken ct = default)
+        => Task.FromResult(new List<MemoryMoment>());
+
     private static GoalInfo MapGoal(EmbeddedKanbanGoal goal)
         => new(goal.Id, goal.Description, goal.Status, ToPriority(goal.Priority), goal.CreatedAt.UtcDateTime, null, goal.Deadline?.UtcDateTime, null, 0, 0);
 

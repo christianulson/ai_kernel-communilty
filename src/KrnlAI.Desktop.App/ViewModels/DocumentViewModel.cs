@@ -30,6 +30,13 @@ public class DocumentViewModel : ViewModelBase
 
     public DocumentViewModel() : this(ServiceLocator.Instance.KernelClient) { }
 
+    public async Task CheckStatusAsync(string documentId)
+    {
+        if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return;
+        try { var status = await _kernelClient.GetDocumentStatusAsync(documentId); if (status != null) ErrorMessage = $"Status: {status.Status}"; }
+        catch (Exception ex) { ErrorMessage = $"Erro: {ex.Message}"; }
+    }
+
     public async Task LoadAsync()
     {
         IsLoading = true;

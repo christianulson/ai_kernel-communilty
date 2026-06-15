@@ -21,6 +21,9 @@ public class MainViewModel : ViewModelBase
     private CancellationTokenSource? _emotionalPollCts;
     private CancellationTokenSource? _dashboardRefreshCts;
     private EmotionalState? _emotionalState;
+    private string _executiveMode = "auto";
+    public string ExecutiveMode { get => _executiveMode; set => SetProperty(ref _executiveMode, value); }
+    public string ExecutiveModeIcon => _executiveMode switch { "focus" => "🎯", "deep" => "🧠", "sleep" => "💤", "crisis" => "🚨", _ => "⚡" };
     private bool _previousBackendAvailable = true;
     public EmotionalState? EmotionalState { get => _emotionalState; set { SetProperty(ref _emotionalState, value); OnPropertyChanged(nameof(EmotionalMood)); OnPropertyChanged(nameof(EmotionalTone)); OnPropertyChanged(nameof(EmotionalMotive)); } }
     public string EmotionalMood
@@ -89,6 +92,9 @@ public class MainViewModel : ViewModelBase
     public SnapshotsViewModel SnapshotsVM { get; }
     public AdminConfigViewModel AdminConfigVM { get; }
     public AdminUsersViewModel AdminUsersVM { get; }
+    public MomentsViewModel MomentsVM { get; }
+    public PluginsViewModel PluginsVM { get; }
+    public SchedulerViewModel SchedulerVM { get; }
     public WelcomeWizardViewModel WelcomeVM { get; } = new();
 
     public ObservableCollection<MediaDevice> Microphones => SettingsVM.Microphones;
@@ -120,7 +126,7 @@ public class MainViewModel : ViewModelBase
     private string _statusMessage = "Iniciando...";
     public string StatusMessage { get => _statusMessage; set => SetProperty(ref _statusMessage, value); }
     private string _currentScreen = "chat";
-    public string CurrentScreen { get => _currentScreen; set { if (SetProperty(ref _currentScreen, value)) { OnPropertyChanged(nameof(IsChatVisible)); OnPropertyChanged(nameof(IsDashboardVisible)); OnPropertyChanged(nameof(IsPoliciesVisible)); OnPropertyChanged(nameof(IsEpisodesVisible)); OnPropertyChanged(nameof(IsMemoryVisible)); OnPropertyChanged(nameof(IsSettingsVisible)); OnPropertyChanged(nameof(IsApiKeysVisible)); OnPropertyChanged(nameof(IsPeerRankingVisible)); OnPropertyChanged(nameof(IsPrivacyVisible)); OnPropertyChanged(nameof(IsBenchmarkVisible)); OnPropertyChanged(nameof(IsCausalVisible)); OnPropertyChanged(nameof(IsProfileVisible)); OnPropertyChanged(nameof(IsDocumentsVisible)); OnPropertyChanged(nameof(IsArchiveVisible)); OnPropertyChanged(nameof(IsModelRegistryVisible)); OnPropertyChanged(nameof(IsVersionsVisible)); OnPropertyChanged(nameof(IsSessionsVisible)); OnPropertyChanged(nameof(IsKanbanVisible)); OnPropertyChanged(nameof(IsTrajectoryVisible)); OnPropertyChanged(nameof(IsP2PPaymentsVisible)); OnPropertyChanged(nameof(IsDisputesVisible));             OnPropertyChanged(nameof(IsSidecarVisible)); OnPropertyChanged(nameof(IsMultimodalVisible)); OnPropertyChanged(nameof(IsObjectivesVisible)); OnPropertyChanged(nameof(IsInvestigationsVisible)); OnPropertyChanged(nameof(IsSnapshotsVisible)); OnPropertyChanged(nameof(IsAdminConfigVisible)); OnPropertyChanged(nameof(IsAdminUsersVisible)); } } }
+    public string CurrentScreen { get => _currentScreen; set { if (SetProperty(ref _currentScreen, value)) { OnPropertyChanged(nameof(IsChatVisible)); OnPropertyChanged(nameof(IsDashboardVisible)); OnPropertyChanged(nameof(IsPoliciesVisible)); OnPropertyChanged(nameof(IsEpisodesVisible)); OnPropertyChanged(nameof(IsMemoryVisible)); OnPropertyChanged(nameof(IsSettingsVisible)); OnPropertyChanged(nameof(IsApiKeysVisible)); OnPropertyChanged(nameof(IsPeerRankingVisible)); OnPropertyChanged(nameof(IsPrivacyVisible)); OnPropertyChanged(nameof(IsBenchmarkVisible)); OnPropertyChanged(nameof(IsCausalVisible)); OnPropertyChanged(nameof(IsProfileVisible)); OnPropertyChanged(nameof(IsDocumentsVisible)); OnPropertyChanged(nameof(IsArchiveVisible)); OnPropertyChanged(nameof(IsModelRegistryVisible)); OnPropertyChanged(nameof(IsVersionsVisible)); OnPropertyChanged(nameof(IsSessionsVisible)); OnPropertyChanged(nameof(IsKanbanVisible)); OnPropertyChanged(nameof(IsTrajectoryVisible)); OnPropertyChanged(nameof(IsP2PPaymentsVisible)); OnPropertyChanged(nameof(IsDisputesVisible));             OnPropertyChanged(nameof(IsSidecarVisible)); OnPropertyChanged(nameof(IsMultimodalVisible)); OnPropertyChanged(nameof(IsObjectivesVisible)); OnPropertyChanged(nameof(IsInvestigationsVisible)); OnPropertyChanged(nameof(IsSnapshotsVisible)); OnPropertyChanged(nameof(IsAdminConfigVisible));             OnPropertyChanged(nameof(IsAdminUsersVisible)); OnPropertyChanged(nameof(IsMomentsVisible)); OnPropertyChanged(nameof(IsPluginsVisible)); OnPropertyChanged(nameof(IsSchedulerVisible)); } } }
     private bool _showWelcomeWizard = true;
     public bool ShowWelcomeWizard { get => _showWelcomeWizard; set => SetProperty(ref _showWelcomeWizard, value); }
     private bool _showSearch;
@@ -163,6 +169,9 @@ public class MainViewModel : ViewModelBase
     public bool IsSnapshotsVisible => _currentScreen == "snapshots";
     public bool IsAdminConfigVisible => _currentScreen == "admin-config";
     public bool IsAdminUsersVisible => _currentScreen == "admin-users";
+    public bool IsMomentsVisible => _currentScreen == "moments";
+    public bool IsPluginsVisible => _currentScreen == "plugins";
+    public bool IsSchedulerVisible => _currentScreen == "scheduler";
 
     public AgentInfo? SelectedAgent { get; set; }
     private ConversationSession? _activeSession;
@@ -230,6 +239,9 @@ public class MainViewModel : ViewModelBase
     public ICommand NavigateToSnapshotsCommand { get; }
     public ICommand NavigateToAdminConfigCommand { get; }
     public ICommand NavigateToAdminUsersCommand { get; }
+    public ICommand NavigateToMomentsCommand { get; }
+    public ICommand NavigateToPluginsCommand { get; }
+    public ICommand NavigateToSchedulerCommand { get; }
     public ICommand NavigateToProfileCommand { get; }
     public ICommand ToggleListeningCommand { get; }
     public ICommand LogoutCommand { get; }
@@ -270,7 +282,8 @@ public class MainViewModel : ViewModelBase
             new VersionsViewModel(), new SessionsViewModel(), new KanbanViewModel(),
             new P2PPaymentsViewModel(), new DisputesViewModel(), new SidecarViewModel(),
             new ObjectivesViewModel(), new InvestigationsViewModel(), new SnapshotsViewModel(),
-            new AdminConfigViewModel(), new AdminUsersViewModel())
+            new AdminConfigViewModel(), new AdminUsersViewModel(),
+            new MomentsViewModel(), new PluginsViewModel(), new SchedulerViewModel())
     { }
 
     public MainViewModel(
@@ -287,7 +300,8 @@ public class MainViewModel : ViewModelBase
         VersionsViewModel versionsVM, SessionsViewModel sessionsVM, KanbanViewModel kanbanVM,
         P2PPaymentsViewModel p2pVM, DisputesViewModel disputesVM, SidecarViewModel sidecarVM,
         ObjectivesViewModel objectivesVM, InvestigationsViewModel investigationsVM, SnapshotsViewModel snapshotsVM,
-        AdminConfigViewModel adminConfigVM, AdminUsersViewModel adminUsersVM)
+        AdminConfigViewModel adminConfigVM, AdminUsersViewModel adminUsersVM,
+        MomentsViewModel momentsVM, PluginsViewModel pluginsVM, SchedulerViewModel schedulerVM)
     {
         ChatVM = chatVM;
         DashVM = dashVM;
@@ -314,6 +328,9 @@ public class MainViewModel : ViewModelBase
         SnapshotsVM = snapshotsVM;
         AdminConfigVM = adminConfigVM;
         AdminUsersVM = adminUsersVM;
+        MomentsVM = momentsVM;
+        PluginsVM = pluginsVM;
+        SchedulerVM = schedulerVM;
 
         _kernelClient = kernelClient;
         _settingsService = settingsService;
@@ -356,6 +373,9 @@ public class MainViewModel : ViewModelBase
         NavigateToSnapshotsCommand = new RelayCommand(() => CurrentScreen = "snapshots");
         NavigateToAdminConfigCommand = new RelayCommand(() => CurrentScreen = "admin-config");
         NavigateToAdminUsersCommand = new RelayCommand(() => CurrentScreen = "admin-users");
+        NavigateToMomentsCommand = new RelayCommand(() => CurrentScreen = "moments");
+        NavigateToPluginsCommand = new RelayCommand(() => CurrentScreen = "plugins");
+        NavigateToSchedulerCommand = new RelayCommand(() => CurrentScreen = "scheduler");
         ToggleListeningCommand = new AsyncRelayCommand(ToggleListeningAsync);
         LogoutCommand = new RelayCommand(ExecuteLogout);
         BackupCommand = new AsyncRelayCommand(async () =>

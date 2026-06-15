@@ -294,5 +294,9 @@ public sealed class DesktopServiceLifecycleTests
         public Task<List<Core.Models.ObjectiveInfo>> GetObjectivesAsync(CancellationToken ct = default) => Task.FromResult(new List<Core.Models.ObjectiveInfo>());
         public Task<Core.Models.ObjectiveDetail?> GetObjectiveDetailAsync(string id, CancellationToken ct = default) => Task.FromResult<Core.Models.ObjectiveDetail?>(null);
         public Task<List<Core.Models.InvestigationInfo>> GetInvestigationsAsync(CancellationToken ct = default) => Task.FromResult(new List<Core.Models.InvestigationInfo>());
+        public Task<List<Core.Models.McpServerInfo>> GetPluginsAsync(CancellationToken ct = default) => Task.FromResult(new List<Core.Models.McpServerInfo>());
+        public Task<Core.Models.BenchmarkSummary?> GetSafetyReportAsync(CancellationToken ct = default) => Task.FromResult<Core.Models.BenchmarkSummary?>(null);
+        public Task<List<Core.Models.ScheduledTask>> GetScheduledTasksAsync(CancellationToken ct = default) => Task.FromResult(new List<Core.Models.ScheduledTask>());
+        public Task<List<Core.Models.MemoryMoment>> GetMemoryMomentsAsync(int limit = 20, CancellationToken ct = default) => Task.FromResult(new List<Core.Models.MemoryMoment>());
     }
 }

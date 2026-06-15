@@ -302,6 +302,27 @@
                             <TextBlock Text="{loc:Loc nav_admin_users}"/>
                         </StackPanel>
                     </Button>
+                    <Button Command="{Binding NavigateToMomentsCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="MomentsButton">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🧠" FontSize="14" Margin="0,0,10,0"/>
+                            <TextBlock Text="{loc:Loc nav_moments}"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding NavigateToPluginsCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="PluginsButton">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🔌" FontSize="14" Margin="0,0,10,0"/>
+                            <TextBlock Text="{loc:Loc nav_plugins}"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding NavigateToSchedulerCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="SchedulerButton">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="📅" FontSize="14" Margin="0,0,10,0"/>
+                            <TextBlock Text="{loc:Loc nav_scheduler}"/>
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
                 <!-- Sessions -->
                 <Border Grid.Row="4" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0"                        Padding="12,12,12,8">
@@ -406,6 +427,9 @@
             <controls:MultimodalControl Visibility="{Binding IsMultimodalVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:AdminConfigControl Visibility="{Binding IsAdminConfigVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:AdminUsersControl Visibility="{Binding IsAdminUsersVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:MomentsControl Visibility="{Binding IsMomentsVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:PluginsControl Visibility="{Binding IsPluginsVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:SchedulerControl Visibility="{Binding IsSchedulerVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <!-- Welcome Wizard Overlay -->
             <Border Visibility="{Binding ShowWelcomeWizard, Converter={StaticResource BoolToVisibilityConverter}}"
                     Panel.ZIndex="200" Background="#CC000000">
@@ -539,6 +563,7 @@
                 <Ellipse Width="7" Height="7" Fill="{DynamicResource SuccessBrush}" Margin="0,0,8,0"                         VerticalAlignment="Center"/>
                 <TextBlock Grid.Column="0" Text="{loc:Loc app_title}"                           Foreground="{DynamicResource TextSecondaryBrush}" FontSize="11"                           Margin="15,0,0,0" VerticalAlignment="Center"/>
                 <TextBlock Grid.Column="1" Text="{Binding EmotionalMood}" FontWeight="SemiBold" FontSize="11" Foreground="{DynamicResource AccentBrush}" Margin="24,0,0,0" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="1" Text="{Binding ExecutiveModeIcon}" FontSize="11" Margin="120,0,0,0" VerticalAlignment="Center"/>
                 <TextBlock Grid.Column="2" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="11"                           VerticalAlignment="Center">
                     <TextBlock.Text>
                         <MultiBinding StringFormat="Endpoint: {0}">

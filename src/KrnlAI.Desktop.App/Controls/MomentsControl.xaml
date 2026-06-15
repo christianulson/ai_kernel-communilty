@@ -1,0 +1,44 @@
+<UserControl x:Class="KrnlAI.Desktop.App.Controls.MomentsControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Loaded="OnLoaded">
+    <ScrollViewer Padding="28" VerticalScrollBarVisibility="Auto">
+        <StackPanel MaxWidth="860">
+            <Grid Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="Momentos" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    <TextBlock Text="Memória episódica - momentos capturados." Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                </StackPanel>
+                <Button Grid.Column="1" Command="{Binding MomentsVM.LoadCommand}" Style="{StaticResource GhostButton}" Padding="16,10"><TextBlock Text="Atualizar"/></Button>
+            </Grid>
+            <Border Background="#18FB7185" BorderBrush="#3CFB7185" BorderThickness="1" CornerRadius="16" Padding="14,10" Margin="0,0,0,12"
+                    Visibility="{Binding MomentsVM.HasError, Converter={StaticResource BoolToVisibilityConverter}}">
+                <TextBlock Text="{Binding MomentsVM.ErrorMessage}" Foreground="#FFDBE1" FontSize="13"/>
+            </Border>
+            <ItemsControl ItemsSource="{Binding MomentsVM.Moments}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="{DynamicResource PanelBrush}" CornerRadius="12" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="12" Margin="0,0,0,6">
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <Border Width="36" Height="36" CornerRadius="8" Background="#2E38BDF8" VerticalAlignment="Center" Margin="0,0,12,0">
+                                    <TextBlock Text="🧠" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="{Binding Label}" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                    <TextBlock Text="{Binding Description}" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0">
+                                        <Run Text="{Binding Category}"/> · <Run Text="{Binding CapturedAt, StringFormat=dd/MM HH:mm}"/> · Salience: <Run Text="{Binding Salience, StringFormat={}{0:P1}}"/>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

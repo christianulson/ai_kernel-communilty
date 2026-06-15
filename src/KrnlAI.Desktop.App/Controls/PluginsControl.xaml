@@ -1,0 +1,37 @@
+<UserControl x:Class="KrnlAI.Desktop.App.Controls.PluginsControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Loaded="OnLoaded">
+    <ScrollViewer Padding="28" VerticalScrollBarVisibility="Auto">
+        <StackPanel MaxWidth="860">
+            <Grid Margin="0,0,0,20">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="Plugins" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    <TextBlock Text="Gestão de plugins e extensões MCP." Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                </StackPanel>
+                <Button Grid.Column="1" Command="{Binding PluginsVM.LoadCommand}" Style="{StaticResource GhostButton}" Padding="16,10"><TextBlock Text="Atualizar"/></Button>
+            </Grid>
+            <Border Background="#18FB7185" BorderBrush="#3CFB7185" BorderThickness="1" CornerRadius="16" Padding="14,10" Margin="0,0,0,12"
+                    Visibility="{Binding PluginsVM.HasError, Converter={StaticResource BoolToVisibilityConverter}}">
+                <TextBlock Text="{Binding PluginsVM.ErrorMessage}" Foreground="#FFDBE1" FontSize="13"/>
+            </Border>
+            <ItemsControl ItemsSource="{Binding PluginsVM.Plugins}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="{DynamicResource PanelBrush}" CornerRadius="12" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="12" Margin="0,0,0,6">
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                    <TextBlock Text="{Binding TransportType}" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                </StackPanel>
+                                <CheckBox Grid.Column="1" IsChecked="{Binding Enabled}" IsEnabled="False" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

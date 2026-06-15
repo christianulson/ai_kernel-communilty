@@ -44,6 +44,9 @@
   "nav_snapshots": "Snapshots",
   "nav_admin_config": "Admin Config",
   "nav_admin_users": "Admin Users",
+  "nav_moments": "Moments",
+  "nav_plugins": "Plugins",
+  "nav_scheduler": "Scheduler",
 
   "mode_auto": "Automatic",
   "mode_semi": "Semi-autonomous",

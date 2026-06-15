@@ -8,6 +8,7 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel>
                     <TextBlock Text="Snapshots" FontSize="24" FontWeight="Bold"
@@ -16,11 +17,18 @@
                     <TextBlock Text="Snapshots são criados automaticamente."
                                Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"/>
                 </StackPanel>
-                <Button Grid.Column="1" Command="{Binding SnapshotsVM.LoadCommand}"
+                <Button Grid.Column="1" Command="{Binding SnapshotsVM.CreateSnapshotCommand}"
+                        Style="{StaticResource PrimaryButton}" Padding="16,10" Margin="0,0,8,0">
+                    <TextBlock Text="📸 Criar Snapshot"/>
+                </Button>
+                <Button Grid.Column="2" Command="{Binding SnapshotsVM.LoadCommand}"
                         Style="{StaticResource GhostButton}" Padding="16,10">
                     <TextBlock Text="Atualizar"/>
                 </Button>
             </Grid>
+
+            <TextBlock Text="{Binding SnapshotsVM.StatusMessage}" FontSize="12"
+                       Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,8"/>
 
             <Border Background="#18FB7185" BorderBrush="#3CFB7185" BorderThickness="1" CornerRadius="16" Padding="14,10" Margin="0,0,0,12"
                     Visibility="{Binding SnapshotsVM.HasError, Converter={StaticResource BoolToVisibilityConverter}}">

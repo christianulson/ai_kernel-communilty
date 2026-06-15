@@ -401,4 +401,25 @@ public class KernelClient : IKernelClient
             var r = await _api.GetInvestigationsAsync(ct);
             return r.Select(i => new Core.Models.InvestigationInfo(i.CaseId, i.Title, i.Status, i.EvidenceCount, i.CreatedAt)).ToList();
         }, []);
+
+    public Task<List<Core.Models.McpServerInfo>> GetPluginsAsync(CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var r = await _api.GetMcpServersAsync(ct);
+            return r.Select(s => new Core.Models.McpServerInfo(s.ServerId, s.Name, s.TransportType, s.Enabled, s.IsConnected, s.ToolCount, s.LastUsedAt)).ToList();
+        }, []);
+
+    public Task<Core.Models.BenchmarkSummary?> GetSafetyReportAsync(CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var r = await _api.GetBenchmarkSummaryAsync(ct);
+            return new Core.Models.BenchmarkSummary(r.TotalSuites, r.TotalScenarios, r.OverallScore, r.AvgLatencyMs, r.AvgSuccessRate,
+                r.Suites?.Select(s => new Core.Models.BenchmarkSuite(s.Name, s.Scenarios, s.Score, s.LatencyMs, s.SuccessRate)).ToList() ?? []);
+        }, default(Core.Models.BenchmarkSummary?));
+
+    public Task<List<Core.Models.ScheduledTask>> GetScheduledTasksAsync(CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () => new List<Core.Models.ScheduledTask>(), []);
+
+    public Task<List<Core.Models.MemoryMoment>> GetMemoryMomentsAsync(int limit = 20, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () => new List<Core.Models.MemoryMoment>(), []);
 }

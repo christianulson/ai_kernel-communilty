@@ -25,4 +25,8 @@ public interface IKernelClient : IAuthClient, IMemoryClient, IPolicyClient, IEpi
     Task<Core.Models.VersionsInfo?> GetVersionsAsync(CancellationToken cancellationToken = default);
     Task<Core.Models.ContractsResponse?> GetContractsAsync(CancellationToken cancellationToken = default);
     Task<Core.Models.ModelRegistryDetail?> GetModelRegistryAsync(string modelId, CancellationToken cancellationToken = default);
+    Task<List<Core.Models.McpServerInfo>> GetPluginsAsync(CancellationToken cancellationToken = default);
+    Task<Core.Models.BenchmarkSummary?> GetSafetyReportAsync(CancellationToken cancellationToken = default);
+    Task<List<Core.Models.ScheduledTask>> GetScheduledTasksAsync(CancellationToken cancellationToken = default);
+    Task<List<Core.Models.MemoryMoment>> GetMemoryMomentsAsync(int limit = 20, CancellationToken cancellationToken = default);
 }

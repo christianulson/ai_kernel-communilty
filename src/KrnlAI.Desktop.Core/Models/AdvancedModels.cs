@@ -99,3 +99,19 @@ public record GoalCycleSummary(
     string GoalId, string Action, string Status,
     DateTime Timestamp, int DurationMs
 );
+
+public record ScheduledTask(
+    string TaskId, string Name, string CronExpression,
+    string Action, bool Enabled, DateTime? LastRunAt, DateTime? NextRunAt
+);
+
+public record MemoryMoment(
+    string MomentId, string Label, string Description,
+    string Category, double Salience, DateTime CapturedAt,
+    List<string>? Tags
+);
+
+public record PluginInfo(
+    string PluginId, string Name, string Version,
+    string Description, bool Enabled, string? Author
+);

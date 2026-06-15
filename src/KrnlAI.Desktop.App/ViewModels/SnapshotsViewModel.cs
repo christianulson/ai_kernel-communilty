@@ -12,6 +12,7 @@ public class SnapshotsViewModel : ViewModelBase
 {
     private readonly IKernelClient _client;
     private readonly ILogger<SnapshotsViewModel> _logger;
+    private string _statusMessage = "";
 
     public SnapshotsViewModel() : this(ServiceLocator.Instance.KernelClient, ServiceLocator.Instance.GetLogger<SnapshotsViewModel>()) { }
     public SnapshotsViewModel(IKernelClient client, ILogger<SnapshotsViewModel>? logger = null)
@@ -19,6 +20,7 @@ public class SnapshotsViewModel : ViewModelBase
         _client = client;
         _logger = logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<SnapshotsViewModel>.Instance;
         LoadCommand = new AsyncRelayCommand(LoadAsync);
+        CreateSnapshotCommand = new AsyncRelayCommand(CreateSnapshotAsync);
     }
     public ObservableCollection<SnapshotInfo> Snapshots { get; } = new();
     private bool _isLoading;
@@ -27,7 +29,9 @@ public class SnapshotsViewModel : ViewModelBase
     public string ErrorMessage { get => _errorMessage; set { SetProperty(ref _errorMessage, value); OnPropertyChanged(nameof(HasError)); OnPropertyChanged(nameof(HasNoData)); } }
     public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
     public bool HasNoData => !IsLoading && Snapshots.Count == 0 && !HasError;
+    public string StatusMessage { get => _statusMessage; set => SetProperty(ref _statusMessage, value); }
     public ICommand LoadCommand { get; }
+    public ICommand CreateSnapshotCommand { get; }
 
     public async Task LoadAsync()
     {
@@ -53,6 +57,23 @@ public class SnapshotsViewModel : ViewModelBase
         finally
         {
             IsLoading = false;
+        }
+    }
+
+    private async Task CreateSnapshotAsync()
+    {
+        ErrorMessage = "";
+        try
+        {
+            if (ServiceLocator.Instance.CurrentMode == RunMode.Local) { StatusMessage = "Snapshot não disponível no modo Local"; return; }
+            var result = await _client.SubmitFeedbackAsync(new FeedbackRequest("manual-snapshot", 5, "Snapshot via Desktop App", "snapshot"));
+            StatusMessage = result != null ? "Snapshot criado com sucesso." : "Falha ao criar snapshot.";
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Erro: {ex.Message}";
+            _logger.LogWarning(ex, "SnapshotsViewModel.CreateSnapshotAsync failed");
         }
     }
 }

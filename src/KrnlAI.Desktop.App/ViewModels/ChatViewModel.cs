@@ -466,12 +466,8 @@ public class ChatViewModel : ViewModelBase
 
                 if (string.IsNullOrEmpty(error) && !string.IsNullOrEmpty(narration))
                 {
-                    var settings = KrnlAI.Desktop.App.Services.ServiceLocator.Instance.SettingsService.LoadSettings();
-                    if (settings.NotifyOnComplete)
-                    {
-                        try { System.Windows.Application.Current.Dispatcher.Invoke(() => { /* toast done */ }); }
-                        catch { }
-                    }
+                    try { _ = _kernelClient.SubmitFeedbackAsync(new FeedbackRequest("chat", 5, narration, "agent-response")); }
+                    catch { }
                 }
 
                 if (!string.IsNullOrEmpty(narration))
