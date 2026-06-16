@@ -40,6 +40,14 @@ if (communityMode)
 else
     builder.Services.AddSidecarServices(builder.Configuration, builder.Environment);
 
+// gRPC server (JSON-RPC over HTTP for embedded mode)
+var grpcArgs = args.ToList();
+if (grpcArgs.Contains("--grpc"))
+{
+    builder.Services.AddSingleton<SidecarGrpcServer>();
+    builder.Services.AddSingleton<IEmbeddedKrnlAI>(_ => new EmbeddedKrnlAI());
+}
+
 // Swagger (Development only)
     if (builder.Environment.IsDevelopment() || communityMode)
     {
