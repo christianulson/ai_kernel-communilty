@@ -8,32 +8,41 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const EXTENSION_PATH = path.resolve(__dirname, '..', 'dist');
 
-function findChromiumExecutable(): string | undefined {
+// Prefer Playwright Chromium (Chrome for Testing) over system Chrome for reliable extension testing
+const CHROME_PATH: string = (() => {
+  const pwDir =
+    process.env.PLAYWRIGHT_BROWSERS_PATH ||
+    path.join(os.homedir(), 'AppData', 'Local', 'ms-playwright');
+
   const candidates = [
+    // Playwright Chromium first (Chrome for Testing — best for extensions + service workers)
+    path.join(pwDir, 'chromium-1223', 'chrome-win64', 'chrome.exe'),
+    path.join(pwDir, 'chromium-1228', 'chrome-win64', 'chrome.exe'),
+    path.join(pwDir, 'chromium-1229', 'chrome-win64', 'chrome.exe'),
+    // Fallback to system Chrome
     'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
     'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
     path.join(os.homedir(), 'AppData', 'Local', 'Google', 'Chrome', 'Application', 'chrome.exe'),
   ];
-  const pwUserDir =
-    process.env.PLAYWRIGHT_BROWSERS_PATH ||
-    path.join(os.homedir(), 'AppData', 'Local', 'ms-playwright');
-  for (const ver of ['chromium-1223', 'chromium-1181', 'chromium-1179']) {
-    candidates.push(path.join(pwUserDir, ver, 'chrome-win64', 'chrome.exe'));
-  }
-  for (const c of candidates) {
-    try { if (fs.existsSync(c)) return c; } catch { /* ignore */ }
-  }
-  return undefined;
-}
 
-const chromeExecutable = findChromiumExecutable();
+  for (const p of candidates) {
+    try { if (fs.existsSync(p)) return p; } catch { /* ignore */ }
+  }
+  return '';
+})();
+
+if (!CHROME_PATH) {
+  throw new Error(
+    'No Chromium/Chrome executable found. Install Playwright Chromium or set CHROME_TEST_PATH.',
+  );
+}
 
 export async function createExtensionContext(
   headless = false,
-): Promise<BrowserContext> {
+): Promise<{ context: BrowserContext; extensionId: string }> {
   const userDataDir = path.resolve(__dirname, `.user-data-${Date.now()}`);
   const context = await chromium.launchPersistentContext(userDataDir, {
-    executablePath: chromeExecutable,
+    executablePath: CHROME_PATH,
     headless,
     args: [
       `--disable-extensions-except=${EXTENSION_PATH}`,
@@ -42,28 +51,28 @@ export async function createExtensionContext(
       '--disable-gpu',
     ],
   });
-  return context;
+
+  const extensionId = await resolveExtensionId(context);
+  return { context, extensionId };
 }
 
-export async function getExtensionId(
+async function resolveExtensionId(
   context: BrowserContext,
 ): Promise<string> {
-  // Navigate to about:blank to trigger service worker registration
   const page = context.pages()[0] || (await context.newPage());
   await page.goto('about:blank');
 
-  // Poll for the extension service worker
   for (let attempt = 0; attempt < 20; attempt++) {
     const workers = context.serviceWorkers();
     for (const sw of workers) {
       const match = sw.url().match(/chrome-extension:\/\/([a-z]{32})/i);
       if (match) return match[1];
     }
-    // Navigate again to trigger the SW
     await page.goto('about:blank').catch(() => {});
     await new Promise((r) => setTimeout(r, 1500));
   }
 
+  await context.close();
   throw new Error(
     'Could not determine extension ID. Ensure the extension builds without errors at dist/',
   );

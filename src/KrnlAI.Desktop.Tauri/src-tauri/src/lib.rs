@@ -20,7 +20,6 @@ pub fn run() {
         .setup(|app| {
             tray::TrayManager::setup(app)?;
             hotkey::setup_hotkeys(app.handle())?;
-            updater::setup_updater(app)?;
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -34,6 +33,8 @@ pub fn run() {
             commands::open_external,
             commands::show_save_dialog,
             commands::show_open_dialog,
+            updater::check_for_updates,
+            updater::install_update,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

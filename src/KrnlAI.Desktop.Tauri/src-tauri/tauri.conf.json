@@ -51,7 +51,7 @@
   "updater": {
     "active": true,
     "dialog": true,
-    "pubkey": "",
+    "pubkey": "PLEASE_GENERATE_ME_RUN_tauri_signer_generate_k",
     "endpoints": [
       "https://github.com/krnl-ai/kernel/releases/latest/download/updater.json"
     ]

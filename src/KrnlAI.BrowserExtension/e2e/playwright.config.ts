@@ -2,38 +2,29 @@ import { defineConfig } from '@playwright/test';
 import { fileURLToPath } from 'url';
 import path from 'path';
 import os from 'os';
+import fs from 'fs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const EXTENSION_PATH = path.resolve(__dirname, '..', 'dist');
 
-const pwUserDir =
-  process.env.PLAYWRIGHT_BROWSERS_PATH ||
-  path.join(os.homedir(), 'AppData', 'Local', 'ms-playwright');
+const CHROME_PATH: string = (() => {
+  const pwDir =
+    process.env.PLAYWRIGHT_BROWSERS_PATH ||
+    path.join(os.homedir(), 'AppData', 'Local', 'ms-playwright');
 
-function findChromiumExecutable(): string | undefined {
   const candidates = [
+    path.join(pwDir, 'chromium-1223', 'chrome-win64', 'chrome.exe'),
+    path.join(pwDir, 'chromium-1228', 'chrome-win64', 'chrome.exe'),
     'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
     'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
     path.join(os.homedir(), 'AppData', 'Local', 'Google', 'Chrome', 'Application', 'chrome.exe'),
   ];
 
-  const pwCandidates = [
-    path.join(pwUserDir, 'chromium-1223', 'chrome-win64', 'chrome.exe'),
-    path.join(pwUserDir, 'chromium-1181', 'chrome-win64', 'chrome.exe'),
-    path.join(pwUserDir, 'chromium-1179', 'chrome-win64', 'chrome.exe'),
-  ];
-
-  for (const c of [...candidates, ...pwCandidates]) {
-    try {
-      if (require('fs').existsSync(c)) return c;
-    } catch {
-      // continue
-    }
+  for (const p of candidates) {
+    try { if (fs.existsSync(p)) return p; } catch { /* ignore */ }
   }
-  return undefined;
-}
-
-const chromePath = findChromiumExecutable();
+  return '';
+})();
 
 export default defineConfig({
   testDir: '.',
@@ -61,7 +52,7 @@ export default defineConfig({
       use: {
         browserName: 'chromium',
         launchOptions: {
-          executablePath: chromePath,
+          executablePath: CHROME_PATH || undefined,
           args: [
             `--disable-extensions-except=${EXTENSION_PATH}`,
             `--load-extension=${EXTENSION_PATH}`,
