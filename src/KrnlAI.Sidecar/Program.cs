@@ -80,13 +80,13 @@ for (var i = 0; i < args.Length; i++)
 app.Urls.Clear();
 app.Urls.Add($"http://127.0.0.1:{port}");
 
-app.Lifetime.ApplicationStarted.Register(async () =>
+app.Lifetime.ApplicationStarted.Register(() =>
 {
     // Start gRPC server if --grpc flag
     if (grpcArgs.Contains("--grpc"))
     {
         var grpc = app.Services.GetRequiredService<SidecarGrpcServer>();
-        _ = grpc.StartAsync(app.Lifetime.ApplicationStopped);
+        _ = Task.Run(() => grpc.StartAsync(app.Lifetime.ApplicationStopped));
     }
 
     var mode = sidecarMode;

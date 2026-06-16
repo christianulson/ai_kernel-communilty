@@ -111,7 +111,7 @@ public sealed class SidecarGrpcServer
 
                 var hits = await _kernel.SearchMemoryAsync(searchRequest.Query, ct);
                 response.StatusCode = 200;
-                await WriteJson(response, new { hits = hits.Select(h => new { id = h.Id, score = h.Score, content = h.Content }) });
+                await WriteJson(response, new { hits = hits.Select(h => new { id = h.Id, score = h.Score, content = h.Payload }) });
                 return;
             }
 

@@ -32,7 +32,18 @@
     <PackageReference Include="PolySharp" Version="1.16.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.9" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.*" />
-    <!-- VS SDK meta-package includes all VS assemblies (CodeLens, Intellisense, Text Manager, etc.) -->
+    <PackageReference Include="Microsoft.VisualStudio.Language.CodeLens" Version="17.*" />
+    <PackageReference Include="Microsoft.VisualStudio.Language.Intellisense" Version="17.*" />
+    <PackageReference Include="Microsoft.VisualStudio.Language.StandardClassification" Version="17.*" />
+    <PackageReference Include="Microsoft.VisualStudio.TextManager.Interop" Version="17.*" />
+    <PackageReference Include="Microsoft.VisualStudio.Shell.Interop" Version="17.*" />
+    <PackageReference Include="Microsoft.VisualStudio.Threading" Version="17.*" />
+    <PackageReference Include="Microsoft.VisualStudio.Utilities" Version="17.*" />
+    <PackageReference Include="Microsoft.VisualStudio.Text.Data" Version="17.*" />
+    <PackageReference Include="Microsoft.VisualStudio.Text.UI" Version="17.*" />
+    <PackageReference Include="Microsoft.VisualStudio.Text.UI.Wpf" Version="17.*" />
+    <PackageReference Include="Microsoft.VisualStudio.Imaging" Version="17.*" />
+    <PackageReference Include="Microsoft.VisualStudio.Shell.Interop.8.0" Version="17.*" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Net.Http" />
