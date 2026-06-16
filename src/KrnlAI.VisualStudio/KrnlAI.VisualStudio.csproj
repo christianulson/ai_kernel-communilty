@@ -32,7 +32,7 @@
     <PackageReference Include="PolySharp" Version="1.16.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.9" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.*" />
-
+    <!-- VS SDK meta-package includes all VS assemblies (CodeLens, Intellisense, Text Manager, etc.) -->
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Net.Http" />

@@ -1,136 +1,148 @@
-# Krnl-AI — Extensão para VsCode
+# Krnl-AI for VS Code
 
-Extensão VsCode para interagir com o Krnl-AI, um agente cognitivo que pode rodar **via API remota** ou **standalone local** com Sidecar .NET.
+[![CI](https://github.com/krnl-ai/kernel/actions/workflows/ci.yml/badge.svg)](https://github.com/krnl-ai/kernel/actions/workflows/ci.yml)
+![Visual Studio Code Version](https://img.shields.io/badge/VS%20Code-^1.118.0-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+
+**Krnl-AI** is a cognitive coding agent for VS Code. Unlike traditional AI assistants, Krnl-AI combines a full cognitive cycle (10 steps), multi-layer safety system (20 immutable rules), and 7 types of memory to provide intelligent, safe, and context-aware code assistance.
 
 ---
 
-## 📦 Instalação
+## Features
 
-### Via VSIX (recomendado)
+### 🧠 Cognitive Chat
+Ask anything with full context of your editor — open file, selection, workspace diagnostics.
 
+### ✨ Inline Code Completion
+AI-powered autocomplete as you type, with LRU-cached responses for speed.
+
+### 🛡️ Safety System (R01-R20)
+Every action is validated against 20 immutable safety rules before execution.
+
+### 💾 7 Types of Memory
+Semantic, Episodic, Procedural, Working, Emotional, Autobiographical, Temporal — the agent learns and remembers across sessions.
+
+### 🎯 Slash Commands (21 commands)
+| Command | Description |
+|---------|-------------|
+| `/explain` | Explain selected code |
+| `/fix` | Fix diagnostics or selection |
+| `/test` | Generate unit test |
+| `/refactor` | Refactor selected code |
+| `/review` | Review code changes |
+| `/doc` | Generate documentation |
+| `/commit` | Create git commit |
+| `/run` | Run terminal command |
+| `/build` | Build the project |
+| `/task` | Multi-step agentic task |
+| And 11 more... |
+
+### 📊 Cognitive Dashboard
+Real-time view of: cognitive cycle stages, risk levels, active policies, emotional state (VAD), memory metrics, and system health.
+
+---
+
+## Quick Start
+
+### 1. Install
+Install from [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=krnlai.krnlai-vscode).
+
+### 2. Start the backend
+Choose one:
+- **Docker** (recommended): `docker compose up -d` in the project root
+- **Sidecar** (embedded): Set `krnlai.mode: embedded`
+- **Cloud**: Set `krnlai.endpoint` to your remote API
+
+### 3. Start coding
+- Open any code file
+- Select some code → right-click → "Krnl-AI: Explain"
+- Or press `Ctrl+Shift+E` to explain
+- Or open the chat panel from the activity bar
+
+### 4. Enable advanced features (opt-in)
+Set these in VS Code settings:
+| Setting | Description |
+|---------|-------------|
+| `krnlai.codingAgent.enabled` | Enable coding commands |
+| `krnlai.codingAgent.inlineCompletion` | Inline autocomplete |
+| `krnlai.codingAgent.terminal` | Terminal command execution |
+| `krnlai.codingAgent.git` | Git command integration |
+| `krnlai.codingAgent.agenticLoops` | Multi-step agentic loops |
+
+---
+
+## Requirements
+
+- **VS Code** ^1.118.0
+- **Backend**: Docker Compose (MySQL + Redis + Qdrant + KrnlAI API + LLM Gateway) OR Sidecar OR remote API
+
+Full Docker setup:
 ```bash
-# 1. Compilar a extensão
-cd src/KrnlAI.VsCode
-npm install
-npx tsc
-
-# 2. Empacotar
-npx @vscode/vsce package
-
-# 3. Instalar no VsCode
-code --install-extension krnlai-vscode-1.0.0.vsix
-```
-
-### Via código fonte (desenvolvimento)
-
-1. Abra a pasta raiz do projeto no VsCode
-2. Pressione `F5` — abre o **Extension Development Host**
-3. A extensão aparece na barra lateral com o ícone 🤖
-
----
-
-## 🚀 Primeiros Passos
-
-### 1. Abrir o Chat
-
-- Clique no ícone **Krnl-AI** na barra lateral (Activity Bar)
-- Ou pressione `Ctrl+Shift+P` → `Krnl-AI: Chat`
-- Digite sua mensagem e pressione Enter
-
-### 2. Escolher o Modo de Operação
-
-A extensão funciona em **2 modos**:
-
-| Modo | Configuração | Requer |
-|------|-------------|--------|
-| **API Remota** (padrão) | `krnlai.endpoint: "http://localhost:5000"` | Backend Gateway/KrnlAI rodando |
-| **Standalone Local** | `krnlai.standalone: true` | .NET 10 SDK + Sidecar |
-
-Para ativar o modo standalone:
-
-```bash
-# No terminal:
-Ctrl+Shift+P → "Krnl-AI: Iniciar Sidecar"
-
-# Ou manualmente:
-dotnet run --project src/KrnlAI.Sidecar -- --port 5001
-```
-
-### 3. Configurar
-
-`Ctrl+Shift+P` → `Krnl-AI: Configurações`
-
-| Opção | Padrão | Descrição |
-|-------|--------|-----------|
-| `krnlai.endpoint` | `http://localhost:5000` | URL do backend |
-| `krnlai.standalone` | `false` | Usar Sidecar local |
-| `krnlai.sidecarPort` | `5001` | Porta do Sidecar |
-
----
-
-## 🖥️ Telas
-
-### 💬 Chat
-Interface de conversação com o agente. Envia prompts e recebe respostas narradas. Mostra status de conexão em tempo real.
-
-### 📊 Dashboard
-Scorecard de autonomia (5 dimensões: Confiabilidade, Eficiência, Safety, Anti-Loop, Governança) e saúde do sistema (Gateway + Kernel).
-
-### 📋 Políticas
-Lista de políticas aprendidas, com filtro por domínio (General, Payments, Security) e indicador de política ativa/inativa.
-
-### 📜 Episódios
-Histórico de execuções do agente com status, goal ID, duração. Clique em um episódio para ver detalhes e steps da execução.
-
-### 🧠 Memória
-Duas abas:
-- **Busca** — pesquisa semântica com score de relevância
-- **Métricas** — total de chunks, documentos e tamanho
-
-### ⚙️ Configurações
-Configure endpoint, modo standalone/remoto e porta do Sidecar.
-
----
-
-## 🔧 Comandos
-
-| Comando | Descrição |
-|---------|-----------|
-| `Krnl-AI: Chat` | Abre o chat |
-| `Krnl-AI: Dashboard` | Abre o dashboard |
-| `Krnl-AI: Políticas` | Abre lista de políticas |
-| `Krnl-AI: Episódios` | Abre histórico |
-| `Krnl-AI: Memória` | Abre busca semântica |
-| `Krnl-AI: Configurações` | Abre configurações |
-| `Krnl-AI: Iniciar Sidecar` | Sobe processo Sidecar .NET |
-| `Krnl-AI: Parar Sidecar` | Mata processo Sidecar |
-
----
-
-## 🏗️ Arquitetura
-
-```
-VsCode Extension (TypeScript)
-│
-├── Modo API Remota ── HTTP ──> Backend Gateway (:5000)
-│                                 └── KrnlAI API
-│
-└── Modo Standalone ── spawn ──> KrnlAI.Sidecar.exe (:5001)
-                                   └── KrnlAI.Core (in-process)
-                                       ├── AdversarialGuard
-                                       ├── SimpleRiskScorer
-                                       ├── MonteCarloTreeSearch
-                                       └── InMemory stores
+git clone https://github.com/krnl-ai/kernel.git
+cd kernel
+docker compose up -d
 ```
 
 ---
 
-## 🔄 Requisitos
+## Extension Settings
 
-- **VsCode** 1.85+
-- **.NET 10 SDK** (para modo standalone)
-- **Node.js** 18+ (para desenvolvimento)
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `krnlai.endpoint` | `http://localhost:5235` | Backend API endpoint |
+| `krnlai.mode` | `localApi` | Runtime mode: embedded, localApi, remoteApi |
+| `krnlai.codingAgent.enabled` | `false` | Enable coding agent features |
 
-## 📄 Licença
+All settings are prefixed under `krnlai.*`.
+
+---
+
+## Architecture
+
+```
+VS Code Extension ←→ KrnlAI Sidecar / API
+                        ↓
+                KrnlAI Cognitive Engine
+                  ┌─────────────┐
+                  │ 10-step     │
+                  │ Cognitive   │
+                  │ Cycle       │
+                  ├─────────────┤
+                  │ Safety R01  │
+                  │ - R20       │
+                  ├─────────────┤
+                  │ 7 Memory    │
+                  │ Types       │
+                  ├─────────────┤
+                  │ Emotional   │
+                  │ State (VAD) │
+                  └─────────────┘
+```
+
+---
+
+## Why Krnl-AI vs Other AI Assistants?
+
+| Feature | Krnl-AI | Codex | Copilot |
+|---------|:-------:|:-----:|:-------:|
+| Cognitive Cycle (10 steps) | ✅ | ❌ | ❌ |
+| Safety System (R01-R20) | ✅ | ❌ | ❌ |
+| 7 Memory Types | ✅ | ❌ | ❌ |
+| Emotional State | ✅ | ❌ | ❌ |
+| Meta-Cognition | ✅ | ❌ | ❌ |
+| Policy Engine (A/B experiments) | ✅ | ❌ | ❌ |
+| Audit Trail (immutable) | ✅ | ❌ | ❌ |
+| 13+ LLM Providers | ✅ | ❌ | ❌ |
+| Multi-platform | 7 platforms | 1 | 2 |
+
+---
+
+## Telemetry
+
+This extension does NOT collect telemetry. All data stays on your infrastructure.
+
+---
+
+## License
 
 MIT

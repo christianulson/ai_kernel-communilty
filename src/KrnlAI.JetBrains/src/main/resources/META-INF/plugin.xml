@@ -1,0 +1,90 @@
+<idea-plugin>
+    <id>com.krnlai.jetbrains</id>
+    <name>Krnl-AI</name>
+    <vendor email="support@krnl.ai" url="https://krnl.ai">Krnl-AI</vendor>
+
+    <description><![CDATA[
+      <h2>Krnl-AI — Cognitive Coding Assistant</h2>
+      <p>AI-powered coding assistant with chat, cognitive dashboard, memory, and emotional state awareness.</p>
+      <h3>Features</h3>
+      <ul>
+        <li><b>Chat</b> — Interactive AI chat inside your IDE</li>
+        <li><b>Cognitive Dashboard</b> — Real-time system health, active modules, emotional state</li>
+        <li><b>Editor Context</b> — Rich context-aware assistance based on your current file</li>
+        <li><b>Slash Commands</b> — /explain, /fix, /test for quick actions</li>
+        <li><b>Inline Completion</b> — AI-powered code completions as you type</li>
+        <li><b>Memory</b> — Search and ingest project context into Krnl-AI memory</li>
+      </ul>
+      <p>Connects to the KrnlAI Sidecar running on localhost:5001.</p>
+    ]]></description>
+
+    <change-notes><![CDATA[
+      <p>1.0.0 — Initial release: chat, dashboard, slash commands, inline completion.</p>
+    ]]></change-notes>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.java</depends>
+    <depends>com.intellij.jcef</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow factoryClass="com.krnlai.jetbrains.ui.ChatToolWindow"
+                    id="KrnlAI.Chat"
+                    icon="AllIcons.General.Chat"
+                    anchor="right"
+                    secondary="true"
+                    canClose="true"/>
+
+        <toolWindow factoryClass="com.krnlai.jetbrains.ui.DashboardToolWindow"
+                    id="KrnlAI.Dashboard"
+                    icon="AllIcons.General.Gear"
+                    anchor="right"
+                    secondary="true"
+                    canClose="true"/>
+
+        <statusBarWidgetFactory implementation="com.krnlai.jetbrains.ui.StatusBarWidget" id="com.krnlai.jetbrains.statusBar"/>
+
+        <applicationService serviceImplementation="com.krnlai.jetbrains.settings.KrnlAISettings"/>
+
+        <completion.contributor language="any"
+                                implementationClass="com.krnlai.jetbrains.completion.KrnlAICompletionProvider"
+                                id="com.krnlai.jetbrains.completion"/>
+
+        <applicationConfigurable groupId="tools"
+                                 id="com.krnlai.jetbrains.settings"
+                                 displayName="Krnl-AI"
+                                 instance="com.krnlai.jetbrains.settings.KrnlAISettingsConfigurable"/>
+    </extensions>
+
+    <actions>
+        <group id="KrnlAI.Actions" text="Krnl-AI" popup="true">
+            <action id="KrnlAI.ExplainAction"
+                    class="com.krnlai.jetbrains.actions.ExplainAction"
+                    text="/explain"
+                    description="Explain selected code">
+                <keyboard-shortcut first-keystroke="alt shift E" keymap="$default"/>
+            </action>
+
+            <action id="KrnlAI.FixAction"
+                    class="com.krnlai.jetbrains.actions.FixAction"
+                    text="/fix"
+                    description="Fix diagnostics for current file">
+                <keyboard-shortcut first-keystroke="alt shift F" keymap="$default"/>
+            </action>
+
+            <action id="KrnlAI.TestAction"
+                    class="com.krnlai.jetbrains.actions.TestAction"
+                    text="/test"
+                    description="Generate tests for current class">
+                <keyboard-shortcut first-keystroke="alt shift T" keymap="$default"/>
+            </action>
+
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+            <add-to-group group-id="MainMenu" anchor="last"/>
+        </group>
+    </actions>
+
+    <projectListeners>
+        <listener class="com.krnlai.jetbrains.KrnlAIPlugin"
+                  topic="com.intellij.openapi.project.ProjectManagerListener"/>
+    </projectListeners>
+</idea-plugin>

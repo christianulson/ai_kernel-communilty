@@ -1,0 +1,1 @@
+import{e as a,a as l}from"./contextExtractor-yj55qBDM.js";let c=null;document.addEventListener("selectionchange",()=>{const e=a();e&&(c=e)});chrome.runtime.onMessage.addListener((e,s,n)=>{switch(e.type){case"GET_PAGE_CONTEXT":{const t=l();c&&(t.selection=c.text),n(t);break}case"GET_SELECTION":{const t=a();n(t||null);break}default:n(null)}return!0});
