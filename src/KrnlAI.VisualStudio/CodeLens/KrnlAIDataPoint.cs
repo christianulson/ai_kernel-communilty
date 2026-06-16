@@ -1,3 +1,4 @@
+#if AUTOCODE_ENABLE_CODELENS
 using Microsoft.VisualStudio.Language.CodeLens;
 
 namespace KrnlAI.VisualStudio.CodeLens;
@@ -45,3 +46,4 @@ public sealed class KrnlAIDataPoint : ICodeLensDataPoint
     {
     }
 }
+#endif

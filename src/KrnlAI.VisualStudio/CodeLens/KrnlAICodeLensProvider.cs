@@ -1,3 +1,4 @@
+#if AUTOCODE_ENABLE_CODELENS
 using System.ComponentModel.Composition;
 using Microsoft.VisualStudio.Language.CodeLens;
 using Microsoft.VisualStudio.Language.StandardClassification;
@@ -100,3 +101,4 @@ public sealed class KrnlAICodeLensProvider : ICodeLensProvider
         _dataPoints.Clear();
     }
 }
+#endif

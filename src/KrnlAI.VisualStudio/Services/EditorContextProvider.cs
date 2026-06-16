@@ -1,3 +1,4 @@
+#if AUTOCODE_ENABLE_CODELENS
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text;
@@ -144,3 +145,4 @@ public sealed class EditorContextProvider : IEditorContextProvider
         }
     }
 }
+#endif

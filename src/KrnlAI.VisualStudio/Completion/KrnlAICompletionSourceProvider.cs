@@ -1,3 +1,4 @@
+#if AUTOCODE_ENABLE_CODELENS
 using System.ComponentModel.Composition;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -138,3 +139,4 @@ internal sealed class CompletionSetCache
         _accessOrder.Remove(node);
     }
 }
+#endif

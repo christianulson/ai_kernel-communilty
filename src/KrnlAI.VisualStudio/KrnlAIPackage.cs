@@ -1,3 +1,4 @@
+#if AUTOCODE_ENABLE_CODELENS
 using System.Runtime.InteropServices;
 using KrnlAI.VisualStudio.Commands;
 using KrnlAI.VisualStudio.Options;
@@ -71,3 +72,4 @@ public sealed class KrnlAIPackage : AsyncPackage
     public IEditorContextProvider? GetEditorContextProvider() => _editorContextProvider;
     public IVsCommandHandler? GetCommandHandler() => _commandHandler;
 }
+#endif

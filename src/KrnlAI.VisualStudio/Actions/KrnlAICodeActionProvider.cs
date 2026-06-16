@@ -1,3 +1,4 @@
+#if AUTOCODE_ENABLE_CODELENS
 using System.ComponentModel.Composition;
 using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.Shell;
@@ -156,3 +157,4 @@ public sealed class KrnlAISuggestedAction : ISuggestedAction
         return false;
     }
 }
+#endif

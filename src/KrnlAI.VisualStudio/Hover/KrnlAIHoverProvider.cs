@@ -1,3 +1,4 @@
+#if AUTOCODE_ENABLE_CODELENS
 using System.ComponentModel.Composition;
 using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.Text;
@@ -85,3 +86,4 @@ internal sealed class LRUCache<TKey, TValue> where TKey : notnull
         }
     }
 }
+#endif

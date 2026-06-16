@@ -1,3 +1,4 @@
+#if AUTOCODE_ENABLE_CODELENS
 using System.ComponentModel.Design;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -71,3 +72,4 @@ public abstract class KrnlAICommand
         }
     }
 }
+#endif
