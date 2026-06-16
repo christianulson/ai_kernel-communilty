@@ -1,0 +1,15 @@
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+
+COPY Community/src/KrnlAI.Sidecar/KrnlAI.Sidecar.csproj Community/src/KrnlAI.Sidecar/
+COPY Community/src/KrnlAI.Sidecar/ Community/src/KrnlAI.Sidecar/
+COPY src/protos/ src/protos/
+RUN dotnet restore Community/src/KrnlAI.Sidecar/KrnlAI.Sidecar.csproj
+RUN dotnet build Community/src/KrnlAI.Sidecar/KrnlAI.Sidecar.csproj -c Release -o /app/build
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+WORKDIR /app
+EXPOSE 5004
+COPY --from=build /app/build .
+ENV ASPNETCORE_URLS=http://+:5004
+ENTRYPOINT ["dotnet", "KrnlAI.Sidecar.dll", "--grpc"]
