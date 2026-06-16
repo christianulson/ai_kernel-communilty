@@ -1,0 +1,44 @@
+{
+  "manifest_version": 3,
+  "name": "Krnl-AI",
+  "version": "1.0.0",
+  "description": "Cognitive agent for your browser — chat, memory, page context",
+  "icons": {
+    "16": "public/icons/icon-16.png",
+    "48": "public/icons/icon-48.png",
+    "128": "public/icons/icon-128.png"
+  },
+  "permissions": ["storage", "sidePanel", "commands", "contextMenus", "activeTab"],
+  "host_permissions": ["http://localhost:5100/*", "https://*.krnl.ai/*"],
+  "commands": {
+    "toggle-popup": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+K",
+        "mac": "Command+Shift+K"
+      },
+      "description": "Toggle Krnl-AI popup"
+    }
+  },
+  "action": {
+    "default_popup": "src/popup/index.html",
+    "default_icon": {
+      "16": "public/icons/icon-16.png",
+      "48": "public/icons/icon-48.png",
+      "128": "public/icons/icon-128.png"
+    }
+  },
+  "side_panel": {
+    "default_path": "src/sidebar/index.html"
+  },
+  "background": {
+    "service_worker": "src/background/serviceWorker.ts",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content/contentScript.ts"],
+      "run_at": "document_end"
+    }
+  ]
+}

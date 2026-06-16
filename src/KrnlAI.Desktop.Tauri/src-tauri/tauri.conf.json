@@ -49,10 +49,12 @@
     }
   },
   "updater": {
-    "active": false,
+    "active": true,
     "dialog": true,
     "pubkey": "",
-    "endpoints": []
+    "endpoints": [
+      "https://github.com/krnl-ai/kernel/releases/latest/download/updater.json"
+    ]
   },
   "plugins": {
     "deep-link": {

@@ -4,9 +4,10 @@
              Background="{DynamicResource VsBrush.Window}"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             mc:Ignorable="d" d:DesignHeight="400" d:DesignWidth="400">
-  <ScrollViewer Margin="8">
+             mc:Ignorable="d" d:DesignHeight="600" d:DesignWidth="400">
+  <ScrollViewer Margin="8" VerticalScrollBarVisibility="Auto">
     <StackPanel>
+      <!-- Scorecard -->
       <TextBlock Text="Autonomy Scorecard" FontSize="14" FontWeight="Bold"
                  Foreground="{DynamicResource VsBrush.CaptionText}" Margin="0,0,0,8" />
 
@@ -27,17 +28,84 @@
 
       <Separator Margin="0,4" />
 
+      <!-- System Health -->
       <TextBlock Text="System Health" FontSize="14" FontWeight="Bold"
                  Foreground="{DynamicResource VsBrush.CaptionText}" Margin="0,0,0,8" />
-      <TextBlock x:Name="HealthStatusText" Margin="0,0,0,4"
-                 Foreground="{DynamicResource VsBrush.CaptionText}" />
-      <TextBlock x:Name="HealthDetailsText" Margin="0,0,0,4"
-                 Foreground="{DynamicResource VsBrush.GrayText}" />
-      <TextBlock x:Name="MoodText" Margin="0,0,0,8"
-                 Foreground="{DynamicResource VsBrush.CaptionText}" FontWeight="SemiBold" />
 
-      <Button x:Name="RefreshButton" Content="Refresh" Width="80" Height="24"
-              Click="OnRefresh" HorizontalAlignment="Left" />
+      <Border BorderBrush="{DynamicResource VsBrush.CaptionText}" BorderThickness="0.5" CornerRadius="4" Padding="8" Margin="0,0,0,8">
+        <StackPanel>
+          <TextBlock x:Name="KernelHealthText" Text="Kernel: Checking..."
+                     Foreground="{DynamicResource VsBrush.CaptionText}" Margin="0,0,0,4" />
+          <TextBlock x:Name="GatewayHealthText" Text="Gateway: Checking..."
+                     Foreground="{DynamicResource VsBrush.CaptionText}" />
+        </StackPanel>
+      </Border>
+
+      <Separator Margin="0,4" />
+
+      <!-- Emotional State -->
+      <TextBlock Text="Emotional State" FontSize="14" FontWeight="Bold"
+                 Foreground="{DynamicResource VsBrush.CaptionText}" Margin="0,0,0,8" />
+      <Border BorderBrush="{DynamicResource VsBrush.CaptionText}" BorderThickness="0.5" CornerRadius="4" Padding="8" Margin="0,0,0,8">
+        <StackPanel Orientation="Horizontal">
+          <TextBlock x:Name="MoodIcon" Text="😐" FontSize="24" Margin="0,0,8,0" VerticalAlignment="Center" />
+          <StackPanel>
+            <TextBlock x:Name="MoodLabel" Text="Neutral" FontWeight="SemiBold"
+                       Foreground="{DynamicResource VsBrush.CaptionText}" />
+            <TextBlock x:Name="MoodVad" Text="V: 0.00 | A: 0.00 | D: 0.00" FontSize="11"
+                       Foreground="{DynamicResource VsBrush.GrayText}" />
+          </StackPanel>
+        </StackPanel>
+      </Border>
+
+      <Separator Margin="0,4" />
+
+      <!-- Active Modules -->
+      <TextBlock Text="Active Modules" FontSize="14" FontWeight="Bold"
+                 Foreground="{DynamicResource VsBrush.CaptionText}" Margin="0,0,0,8" />
+      <ListView x:Name="ModulesList" BorderThickness="0" Height="100"
+                Foreground="{DynamicResource VsBrush.WindowText}" Margin="0,0,0,8">
+        <ListView.View>
+          <GridView>
+            <GridViewColumn Header="Module" Width="120" DisplayMemberBinding="{Binding Name}" />
+            <GridViewColumn Header="Status" Width="80" DisplayMemberBinding="{Binding Status}" />
+          </GridView>
+        </ListView.View>
+      </ListView>
+
+      <Separator Margin="0,4" />
+
+      <!-- Recent Events -->
+      <TextBlock Text="Recent Events" FontSize="14" FontWeight="Bold"
+                 Foreground="{DynamicResource VsBrush.CaptionText}" Margin="0,0,0,8" />
+      <ListView x:Name="EventsList" BorderThickness="0" Height="100"
+                Foreground="{DynamicResource VsBrush.WindowText}" Margin="0,0,0,8">
+        <ListView.View>
+          <GridView>
+            <GridViewColumn Header="Time" Width="80" DisplayMemberBinding="{Binding Time}" />
+            <GridViewColumn Header="Event" Width="200" DisplayMemberBinding="{Binding Description}" />
+          </GridView>
+        </ListView.View>
+      </ListView>
+
+      <Separator Margin="0,4" />
+
+      <!-- Policies Viewer -->
+      <TextBlock Text="Active Policies" FontSize="14" FontWeight="Bold"
+                 Foreground="{DynamicResource VsBrush.CaptionText}" Margin="0,0,0,8" />
+      <ListView x:Name="PoliciesList" BorderThickness="0" Height="100"
+                Foreground="{DynamicResource VsBrush.WindowText}" Margin="0,0,0,8">
+        <ListView.View>
+          <GridView>
+            <GridViewColumn Header="Name" Width="120" DisplayMemberBinding="{Binding Name}" />
+            <GridViewColumn Header="Domain" Width="80" DisplayMemberBinding="{Binding Domain}" />
+            <GridViewColumn Header="Score" Width="60" DisplayMemberBinding="{Binding Score}" />
+          </GridView>
+        </ListView.View>
+      </ListView>
+
+      <Button x:Name="RefreshButton" Content="Refresh All" Width="100" Height="24"
+              Click="OnRefresh" HorizontalAlignment="Left" Margin="0,8,0,0" />
     </StackPanel>
   </ScrollViewer>
 </UserControl>
