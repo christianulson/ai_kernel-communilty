@@ -89,18 +89,62 @@ pub fn get_app_version() -> String {
 
 #[tauri::command]
 pub fn get_os_theme() -> Result<ThemeResult, String> {
-    // Detect Windows/Light theme via registry via powershell
-    let output = std::process::Command::new("powershell")
-        .args([
-            "-Command",
-            "Get-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name AppsUseLightTheme | Select-Object -ExpandProperty AppsUseLightTheme",
-        ])
-        .output()
-        .map_err(|e| format!("Failed to query theme: {}", e))?;
+    let theme = get_system_theme();
+    Ok(ThemeResult { theme })
+}
 
-    let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
-    let theme = if stdout == "0" { "dark" } else { "light" };
-    Ok(ThemeResult { theme: theme.to_string() })
+fn get_system_theme() -> String {
+    #[cfg(target_os = "windows")]
+    {
+        if let Ok(output) = std::process::Command::new("powershell")
+            .args([
+                "-Command",
+                "Get-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name AppsUseLightTheme | Select-Object -ExpandProperty AppsUseLightTheme",
+            ])
+            .output()
+        {
+            let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
+            if stdout == "0" { return "dark".to_string(); }
+            if stdout == "1" { return "light".to_string(); }
+        }
+    }
+
+    #[cfg(target_os = "macos")]
+    {
+        if let Ok(output) = std::process::Command::new("defaults")
+            .args(["read", "-g", "AppleInterfaceStyle"])
+            .output()
+        {
+            let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
+            if stdout.eq_ignore_ascii_case("dark") { return "dark".to_string(); }
+        }
+        // If the key doesn't exist, it's Light mode
+        return "light".to_string();
+    }
+
+    #[cfg(target_os = "linux")]
+    {
+        // Try GNOME first
+        if let Ok(output) = std::process::Command::new("gsettings")
+            .args(["get", "org.gnome.desktop.interface", "color-scheme"])
+            .output()
+        {
+            let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
+            if stdout.contains("dark") { return "dark".to_string(); }
+            return "light".to_string();
+        }
+        // Fallback: check GTK settings.ini
+        if let Ok(home) = std::env::var("HOME") {
+            let gtk_config = std::path::Path::new(&home).join(".config/gtk-3.0/settings.ini");
+            if let Ok(content) = std::fs::read_to_string(gtk_config) {
+                if content.contains("gtk-application-prefer-dark-theme=1") {
+                    return "dark".to_string();
+                }
+            }
+        }
+    }
+
+    "light".to_string()
 }
 
 #[tauri::command]
