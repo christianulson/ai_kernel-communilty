@@ -40,6 +40,14 @@ if (communityMode)
 else
     builder.Services.AddSidecarServices(builder.Configuration, builder.Environment);
 
+// gRPC server (JSON-RPC over HTTP for embedded mode)
+var grpcArgs = args.ToList();
+if (grpcArgs.Contains("--grpc"))
+{
+    builder.Services.AddSingleton<SidecarGrpcServer>();
+    builder.Services.AddSingleton<IEmbeddedKrnlAI>(_ => new EmbeddedKrnlAI());
+}
+
 // Swagger (Development only)
     if (builder.Environment.IsDevelopment() || communityMode)
     {
@@ -72,8 +80,15 @@ for (var i = 0; i < args.Length; i++)
 app.Urls.Clear();
 app.Urls.Add($"http://127.0.0.1:{port}");
 
-app.Lifetime.ApplicationStarted.Register(() =>
+app.Lifetime.ApplicationStarted.Register(async () =>
 {
+    // Start gRPC server if --grpc flag
+    if (grpcArgs.Contains("--grpc"))
+    {
+        var grpc = app.Services.GetRequiredService<SidecarGrpcServer>();
+        _ = grpc.StartAsync(app.Lifetime.ApplicationStopped);
+    }
+
     var mode = sidecarMode;
     var auth = !string.IsNullOrEmpty(builder.Configuration.GetValue<string>("Sidecar:Auth:Token"));
     var proxy = !string.IsNullOrEmpty(builder.Configuration.GetValue<string>("Sidecar:KernelApi:BaseUrl"));
