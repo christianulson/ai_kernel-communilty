@@ -1,6 +1,6 @@
 # Matriz Comparativa — Krnl-AI vs. Alternativas de Mercado
 
-> Uma comparação recurso por recurso entre o **Krnl-AI Community** e outras ferramentas de IA agentica no mercado. Dados coletados de documentações oficiais e repositórios públicos em maio de 2026.
+> Uma comparação recurso por recurso entre o **Krnl-AI Community** e outras ferramentas de IA agentica no mercado. Dados coletados de documentações oficiais e repositórios públicos em junho de 2026.
 
 ## Visão Geral das Ferramentas
 
@@ -94,6 +94,13 @@
 | | Inanicao por Novidade | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | | Pressao de Sono | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | | Pontuacao de Saude | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Modelos de Mundo e Redes Neurais** | Modelos de Mundo Preditivos (JEPA) | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| | Planejamento no Espaco Latente (CEM) | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| | Redes Neurais de Grafo Causal | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| | Inferencia Ativa (Energia Livre) | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| | Simulacao e Consolidacao de Sonhos | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| | Pipeline de Aprendizado Continuo | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| | Ranqueamento por Atencao Neural | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Suporte a LLM** | Multi-Provedor | ✅ (12+) | ❌ (OpenAI) | ❌ (Claude) | ✅ (75+) | ✅ | N/A | ✅ (multi) | ❌ (Gemini) | ❌ (Gemini) | ✅ (multi) | ✅ (multi) | ✅ (multi) | ✅ (multi) | ✅ (multi) |
 | | Traga Sua Propria Chave | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ |
 | | Modelos Locais (Ollama) | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ |
@@ -266,6 +273,22 @@ O **Controlador Executivo** gerencia flags de estado cognitivo que influenciam o
 
 Nenhuma outra ferramenta tem algo comparavel — estes conceitos sao emprestados de teorias da arquitetura cognitiva humana (especificamente homeostase cognitiva e teoria do controle executivo).
 
+### 4.5 Modelos de Mundo e Sistemas Neurais
+
+Krnl-AI e a **unica ferramenta** que implementa modelos de mundo preditivos e sistemas neurais para planejamento e raciocinio:
+
+| Recurso | Descricao |
+|---------|-------------|
+| **Modelos de Mundo Preditivos (JEPA)** | Joint Embedding Predictive Architecture — aprende representacoes latentes do ambiente para prever estados futuros |
+| **Planejamento no Espaco Latente (CEM)** | Planejador Cross-Entropy Method que otimiza sequencias de acoes no espaco latente do modelo |
+| **Redes Neurais de Grafo Causal** | Rede de Convolucao em Grafos de 2 camadas para aprender relacoes de causa-efeito a partir de dados |
+| **Inferencia Ativa** | Principio da Energia Livre — seleciona acoes minimizando a energia livre esperada |
+| **Simulacao e Consolidacao de Sonhos** | Gera cenarios offline usando modelos de mundo e consolida insights na memoria |
+| **Pipeline de Aprendizado Continuo** | Pipeline ponta a ponta: Memoria → GNN → Modelo de Mundo → Sonho → Consolidacao |
+| **Ranqueamento por Atencao Neural** | Recuperacao de memoria baseada em atencao aprendida |
+
+Nenhuma outra ferramenta integra modelos de mundo, GNNs causais, inferencia ativa, simulacao de sonhos ou pipelines de aprendizado continuo. Essas capacidades sao tipicamente encontradas apenas em pesquisa academica de aprendizado por reforco.
+
 ### 5. Gerenciamento de Metas
 
 Krnl-AI inclui um sistema completo de gerenciamento de metas:
@@ -382,7 +405,7 @@ Krnl-AI inclui um **subsistema completo de investigacao causal**:
 
 ### 13. Onde o Krnl-AI Nao Tem Concorrencia
 
-Estes recursos sao **unicos do Krnl-AI** — nenhuma outra ferramenta (codigo aberto ou comercial) os oferece:
+Estes **32 recursos** sao **unicos do Krnl-AI** — nenhuma outra ferramenta (codigo aberto ou comercial) os oferece:
 
 | # | Recurso | Descricao |
 |---|---------|-------------|
@@ -411,6 +434,13 @@ Estes recursos sao **unicos do Krnl-AI** — nenhuma outra ferramenta (codigo ab
 | 23 | **Modelo de Consciencia** | Fala interna, HOT, esquema de atencao, consciencia operacional |
 | 24 | **Investigacao Causal** | Analise de causa raiz com teste de hipoteses |
 | 25 | **Teoria da Mente** | Modelagem de crencas e intencoes de outros agentes |
+| 26 | **Modelos de Mundo Preditivos** | Modelos de ambiente latentes (JEPA) para simulacao |
+| 27 | **Planejamento no Espaco Latente** | Planejador CEM operando no espaco latente do modelo de mundo |
+| 28 | **Redes Neurais de Grafo Causal** | Relacoes de causa-efeito aprendidas via GCN |
+| 29 | **Inferencia Ativa** | Principio da Energia Livre para acao orientada a objetivos |
+| 30 | **Simulacao de Sonhos** | Geracao de cenarios offline baseada em modelo de mundo |
+| 31 | **Pipeline de Aprendizado Continuo** | Ponta a ponta: Memoria → GNN → Modelo de Mundo → Sonho → Consolidacao |
+| 32 | **Ranqueamento por Atencao Neural** | Recuperacao de memoria por atencao neural aprendida |
 
 ---
 
@@ -418,7 +448,7 @@ Estes recursos sao **unicos do Krnl-AI** — nenhuma outra ferramenta (codigo ab
 
 | Ferramenta | Principal Ponto Forte |
 |------|------------------|
-| **Krnl-AI** | **Arquitetura cognitiva, sistema de seguranca (24 guardrails), variedade de memoria (7 tipos + 4 subsistemas), modelo emocional, modelo de consciencia, antecipacao/projecao, investigacao causal, homeostase, aprendizado de politicas, ecossistema .NET, amplitude de CLI (35 comandos)** |
+| **Krnl-AI** | **Arquitetura cognitiva, sistema de seguranca (24 guardrails), variedade de memoria (7 tipos + 4 subsistemas), modelo emocional, modelo de consciencia, antecipacao/projecao, modelos de mundo (JEPA), planejamento latente, GNN causal, inferencia ativa, consolidacao de sonhos, aprendizado continuo, atencao neural, investigacao causal, homeostase, aprendizado de politicas, ecossistema .NET, amplitude de CLI (35 comandos)** |
 | Microsoft Agent Framework (MAF) | SDK de agente .NET apoiado pela Microsoft, orquestracao multi-agente, suporte MCP/A2A, ecossistema de plugins, suporte Java |
 | Codex | Leve, performance Rust, nativo OpenAI, integracao ChatGPT |
 | Claude Code | Integracao com modelo Claude, automacao de fluxo git, extensoes IDE, suporte MCP |
@@ -438,11 +468,13 @@ Estes recursos sao **unicos do Krnl-AI** — nenhuma outra ferramenta (codigo ab
 
 ## Quando Escolher Krnl-AI
 
-- **Voce precisa de um runtime cognitivo** — nao apenas um agente de codigo, mas um agente com memoria, emocoes, consciencia, antecipacao, seguranca e aprendizado
+- **Voce precisa de um runtime cognitivo** — nao apenas um agente de codigo, mas um agente com memoria, emocoes, consciencia, antecipacao, seguranca, modelos de mundo e aprendizado
 - **Seguranca e critica** — voce precisa de seguranca programavel, audtavel e em multi-camadas (24 guardrails)
 - **Voce quer memoria persistente** — 7 tipos de memoria + momentos + prospectiva + arquivo com SQLite
-- **Voce precisa de investigacao causal** — analise de causa raiz com teste de hipoteses e coleta de evidencias
+- **Voce precisa de investigacao causal** — analise de causa raiz com teste de hipoteses, coleta de evidencias e raciocinio causal via GNN
 - **Voce precisa de simulacao futura** — antecipacao/projecao com confianca, risco e rastreamento de precisao
+- **Voce precisa de modelos de mundo** — modelos preditivos do ambiente (JEPA) para simulacao e planejamento no espaco latente
+- **Voce precisa de aprendizado continuo** — agentes que melhoram atraves do pipeline memoria → analise causal → modelo de mundo → sonho → consolidacao
 - **Voce esta no ecossistema .NET** — C#, Visual Studio, desktop Windows
 - **Voce precisa de colaboracao desktop peer-to-peer local** — sinalizacao WebRTC para sessoes de video/audio dentro da superficie desktop
 - **Voce precisa de aprendizado de politicas** — agentes que aprendem e adaptam politicas a partir de resultados
@@ -491,4 +523,4 @@ Estes recursos sao **unicos do Krnl-AI** — nenhuma outra ferramenta (codigo ab
 
 ---
 
-*Ultima atualizacao: 21 de Maio de 2026*
+*Ultima atualizacao: 17 de Junho de 2026*

@@ -55,12 +55,23 @@ agent = CognitiveAgent(
 | `krnlai.llm.groq` | Provedor Groq |
 | `krnlai.llm.openrouter` | Provedor OpenRouter |
 | `krnlai.core.safety` | Verificador de seguranca e regras |
-| `krnlai.core.memory` | Memoria episodica, semantica, operacional |
-| `krnlai.core.emotion` | Modelo emocional VAD |
+| `krnlai.core.memory` | Memoria episodica, semantica, operacional, procedural, autobiografica, prospectiva |
+| `krnlai.core.emotion` | Modelo emocional VAD + sistema de dor/recompensa |
 | `krnlai.core.policies` | Mecanismo de politicas |
 | `krnlai.core.risk` | Pontuacao de risco |
+| `krnlai.core.cognition` | Ciclo cognitivo, metacognicao, fala interna, planejamento latente |
+| `krnlai.core.consciousness` | Consciencia operacional, esquema de atencao, workspace global |
+| `krnlai.core.world_model` | Modelos de mundo preditivos (baseados em JEPA) |
+| `krnlai.core.causal` | Raciocinio causal baseado em grafos |
+| `krnlai.core.active_inference` | Selecao de acoes baseada em energia livre |
+| `krnlai.core.dream` | Simulacao e consolidacao de sonhos |
+| `krnlai.core.continuous_learning` | Pipeline de aprendizado continuo |
+| `krnlai.investigation` | Investigacao causal e analise de causa raiz |
 | `krnlai.integrations` | LangChain, CrewAI, AutoGen, FastAPI |
 | `krnlai.enterprise` | Cliente e armazenamentos empresariais |
+
+| `krnlai.llm.mistral` | Provedor Mistral AI |
+| `krnlai.llm.cohere` | Provedor Cohere |
 
 ### Provedores LLM
 

@@ -36,11 +36,28 @@ Krnl-AI Community e organizado em torno de uma separacao estrita entre estado de
 └─────────────────────────────────────────────┘
 ```
 
+## Modulos Cognitivos
+
+| Modulo | Responsabilidade |
+|--------|----------------|
+| **Sistema de Memoria** | Memoria episodica, semantica, procedural, operacional, emocional, autobiografica e prospectiva |
+| **Ciclo Cognitivo** | Pipeline de processamento de 10 etapas (percepcao a aprendizado) |
+| **Camadas de Seguranca** | Protecao multicamadas contra entradas maliciosas e acoes inseguras |
+| **Modelo Emocional** | Modelo dimensional VAD (Valencia-Excitação-Dominancia) |
+| **Metacognicao** | Auto-observacao do estado emocional, nivel de risco e vieses cognitivos |
+| **Mecanismo de Politicas** | Politicas de decisao aprendidas a partir de resultados |
+| **Sistema de Atencao** | Extracao de caracteristicas, priorizacao e alocacao de foco |
+| **Modelos de Mundo** | Modelos preditivos do ambiente (baseados em JEPA) para simulacao e planejamento |
+| **Raciocinio Causal** | Inferencia de causa-efeito baseada em grafos |
+| **Inferencia Ativa** | Selecao de acoes baseada no principio da energia livre |
+| **Consolidacao de Sonhos** | Geracao de cenarios offline e consolidacao de memoria |
+| **Aprendizado Continuo** | Pipeline completo: memoria → analise causal → modelo de mundo → sonho → consolidacao |
+
 ## Visao Geral dos Componentes
 
 | Componente | Responsabilidade |
 |-----------|----------------|
-| **Kernel Embutido** | Gerenciamento de estado, memoria, seguranca, politicas, aprendizado |
+| **Kernel Embutido** | Gerenciamento de estado, memoria, seguranca, politicas, aprendizado, modelos de mundo |
 | **Sidecar** | API HTTP com pipeline de seguranca, proxy empresarial opcional e sinalizacao P2P |
 | **CLI** | Interface de terminal com TUI para sessoes interativas |
 | **SDK (Python/.NET)** | Acesso programatico ao runtime cognitivo |
@@ -51,7 +68,8 @@ Krnl-AI Community e organizado em torno de uma separacao estrita entre estado de
 
 ```
 Entrada Usuario → Verif. Seguranca → Recuperacao Memoria → Avaliacao
-→ Planejamento → Governanca → Execucao → Resultado → Aprendizado
+→ Metacognicao → Planejamento → Governanca → Execucao
+→ Registro Resultado → Aprendizado → Atualizacao Emocional
 ```
 
 ## Pipeline de Seguranca
@@ -61,7 +79,11 @@ Toda execucao de agente passa por verificacoes de seguranca em camadas:
 1. **Guarda Adversarial** — Detecta injecao de prompt e tentativas de jailbreak
 2. **Regras Fundamentais (R01-R20)** — Aplica 20 regras inquebravels
 3. **Aplicador Etico** — Valida contra principios eticos
-4. **Limitacao de Taxa** — Previne abuso e exaustao de recursos
+4. **Validacao de Entrada** — Validacao de schema em todas as entradas
+5. **Lista de Permissao** — Apenas acoes registradas sao permitidas
+6. **Limitacao de Taxa** — Previne abuso e exaustao de recursos
+
+Para documentacao detalhada de seguranca, veja [Sistema de Seguranca](../06-Safety/safety-system.md).
 
 Para documentacao detalhada de seguranca, veja [Sistema de Seguranca](../06-Safety/safety-system.md).
 

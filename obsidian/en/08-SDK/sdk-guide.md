@@ -62,8 +62,13 @@ agent = CognitiveAgent(
 | `krnlai.core.emotion` | VAD emotional model + pain/reward system |
 | `krnlai.core.policies` | Policy engine |
 | `krnlai.core.risk` | Risk scoring |
-| `krnlai.core.cognition` | Cognitive cycle, metacognition, inner speech |
-| `krnlai.core.consciousness` | Operational consciousness, attention schema |
+| `krnlai.core.cognition` | Cognitive cycle, metacognition, inner speech, latent planning |
+| `krnlai.core.consciousness` | Operational consciousness, attention schema, global workspace, IIT |
+| `krnlai.core.world_model` | Predictive world models (JEPA-based) for simulation |
+| `krnlai.core.causal` | Graph-based causal reasoning and inference |
+| `krnlai.core.active_inference` | Free-energy-based action selection |
+| `krnlai.core.dream` | Dream simulation and consolidation |
+| `krnlai.core.continuous_learning` | End-to-end continuous learning pipeline |
 | `krnlai.investigation` | Causal investigation and root cause analysis |
 | `krnlai.integrations` | LangChain, CrewAI, AutoGen, FastAPI |
 | `krnlai.enterprise` | Enterprise client and stores |

@@ -54,6 +54,11 @@ The kernel is composed of specialized cognitive modules:
 | **Metacognition** | Self-observation of emotional state, risk level, and cognitive biases |
 | **Policy Engine** | Learned decision policies updated from outcomes |
 | **Attention System** | Feature extraction, prioritization, and focus allocation |
+| **World Models** | Predictive environment models (JEPA-based) for simulation and planning |
+| **Causal Reasoning** | Graph-based cause-effect inference for understanding outcomes |
+| **Active Inference** | Free-energy-based action selection for goal-directed behavior |
+| **Dream Consolidation** | Offline scenario generation and memory consolidation |
+| **Continuous Learning** | End-to-end pipeline: memory → causal analysis → world model update → dream → consolidation |
 
 ## Component Overview
 

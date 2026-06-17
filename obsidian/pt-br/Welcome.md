@@ -18,6 +18,9 @@ krnlai chat --local
 - Memória persistente com SQLite e busca semântica
 - Habilidades que podem ser criadas, refinadas, exportadas e instaladas
 - Execução consciente de segurança com 20 regras fundamentais (R01-R20)
+- Modelos de mundo preditivos para simulação e planejamento
+- Raciocínio causal para entender relações de causa e efeito
+- Pipeline de aprendizado contínuo (memória → análise → simulação → consolidação)
 - Integrações com editores VS Code e Visual Studio
 - Aplicativos desktop multiplataforma via WPF e Tauri
 - Sessões de video peer-to-peer via sinalização WebRTC
@@ -46,7 +49,7 @@ krnlai chat --local
 | [Referência da CLI](02-CLI/cli-reference.md) | Todos os comandos e opções da CLI |
 | [Arquitetura](03-Architecture/architecture.md) | Design do sistema e princípios |
 | [Ciclo Cognitivo](04-Cognitive-Cycle/cognitive-cycle.md) | Pipeline de processamento cognitivo de 10 etapas |
-| [Sistema de Memória](05-Memory/memory-system.md) | Memória episódica, semântica, operacional e emocional |
+| [Sistema de Memória](05-Memory/memory-system.md) | Memória episódica, semântica, procedural, operacional, emocional, autobiográfica e prospectiva |
 | [Sistema de Segurança](06-Safety/safety-system.md) | 20 regras fundamentais, guarda adversarial, ética |
 | [Sistema Emocional](07-Emotions/emotion-system.md) | Modelo VAD, dor/recompensa, memória emocional |
 | [Guia do SDK](08-SDK/sdk-guide.md) | Documentação dos SDKs Python e .NET |

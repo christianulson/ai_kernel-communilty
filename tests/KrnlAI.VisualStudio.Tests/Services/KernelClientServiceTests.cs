@@ -21,7 +21,7 @@ public sealed class KernelClientServiceTests
     {
         var endpoint = KernelEndpointResolver.Resolve(KernelRuntimeMode.LocalApi, "https://api.krnlai.dev", 5001);
 
-        endpoint.Should().Be("http://localhost:65335");
+        endpoint.Should().Be("http://localhost:5235");
     }
 
     [Fact]

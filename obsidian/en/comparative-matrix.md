@@ -1,6 +1,6 @@
 # Comparative Matrix — Krnl-AI vs. Market Alternatives
 
-> A feature-by-feature comparison between **Krnl-AI Community** and other agentic/AI tools in the market. Data collected from official documentation and public repositories as of May 2026.
+> A feature-by-feature comparison between **Krnl-AI Community** and other agentic/AI tools in the market. Data collected from official documentation and public repositories as of June 2026.
 
 ## Tools Overview
 
@@ -94,6 +94,13 @@
 | | Starvation-for-Novelty | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | | Sleep Pressure | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | | Health Score | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **World Models & Neural** | Predictive World Models (JEPA) | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| | Latent Space Planning (CEM) | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| | Causal Graph Neural Networks | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| | Active Inference (Free Energy) | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| | Dream Simulation & Consolidation | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| | Continuous Learning Pipeline | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| | Neural Attention Ranking | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **LLM Support** | Multi-Provider | ✅ (12+) | ❌ (OpenAI) | ❌ (Claude) | ✅ (75+) | ✅ (multi) | N/A | ✅ (multi) | ❌ (Gemini) | ❌ (Gemini) | ✅ (multi) | ✅ (multi) | ✅ (multi) | ✅ (multi) | ✅ (multi) |
 | | Bring Your Own Key | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ |
 | | Local Models (Ollama) | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ |
@@ -266,6 +273,22 @@ The **Executive Controller** manages cognitive state flags that influence proces
 
 No other tool has anything comparable — these are borrowed from theories of human cognitive architecture (specifically cognitive homeostasis and executive control theory).
 
+### 4.5 World Models & Neural Systems
+
+Krnl-AI is the **only tool** that implements predictive world models and neural systems for planning and reasoning:
+
+| Feature | Description |
+|---------|-------------|
+| **Predictive World Models (JEPA)** | Joint Embedding Predictive Architecture — learns latent representations of the environment to predict future states |
+| **Latent Space Planning (CEM)** | Cross-Entropy Method planner that optimizes action sequences in the model's latent space |
+| **Causal Graph Neural Networks** | 2-layer Graph Convolutional Network for learning cause-effect relationships from data |
+| **Active Inference** | Free Energy Principle — selects actions by minimizing expected free energy |
+| **Dream Simulation & Consolidation** | Generates offline scenarios using world models, then consolidates insights into memory |
+| **Continuous Learning Pipeline** | End-to-end pipeline: Memory → GNN → World Model → Dream → Consolidation |
+| **Neural Attention Ranking** | Learned attention-based retrieval for memory ranking |
+
+No other tool integrates world models, causal GNNs, active inference, dream simulation, or continuous learning pipelines. These capabilities are typically found only in academic reinforcement learning research.
+
 ### 5. Goal Management
 
 Krnl-AI includes a full goal management system:
@@ -382,7 +405,7 @@ Krnl-AI includes a full **causal investigation subsystem**:
 
 ### 13. Where Krnl-AI Has No Competition
 
-These features are **unique to Krnl-AI** — no other tool (open source or commercial) offers them:
+These **32 features** are **unique to Krnl-AI** — no other tool (open source or commercial) offers them:
 
 | # | Feature | Description |
 |---|---------|-------------|
@@ -411,6 +434,13 @@ These features are **unique to Krnl-AI** — no other tool (open source or comme
 | 23 | **Consciousness Model** | Inner speech, HOT, attention schema, operational consciousness |
 | 24 | **Causal Investigation** | Root cause analysis with hypothesis testing |
 | 25 | **Theory of Mind** | Modeling beliefs and intentions of other agents |
+| 26 | **Predictive World Models** | JEPA-based latent environment models for simulation |
+| 27 | **Latent Space Planning** | CEM planner operating in world model latent space |
+| 28 | **Causal Graph Neural Networks** | Learned cause-effect relationships via GCN |
+| 29 | **Active Inference** | Free Energy Principle for goal-directed action |
+| 30 | **Dream Simulation** | World model-based offline scenario generation |
+| 31 | **Continuous Learning Pipeline** | End-to-end: Memory → GNN → World Model → Dream → Consolidation |
+| 32 | **Neural Attention Ranking** | Learned neural attention for memory retrieval |
 
 ---
 
@@ -418,7 +448,7 @@ These features are **unique to Krnl-AI** — no other tool (open source or comme
 
 | Tool | Primary Strength |
 |------|------------------|
-| **Krnl-AI** | **Cognitive architecture, safety system (24 guardrails), memory variety (7 types + 4 subsystems), emotional model, consciousness model, anticipation/projection, causal investigation, homeostasis, policy learning, .NET ecosystem, CLI breadth (35 commands)** |
+| **Krnl-AI** | **Cognitive architecture, safety system (24 guardrails), memory variety (7 types + 4 subsystems), emotional model, consciousness model, anticipation/projection, world models (JEPA), latent planning, causal GNN, active inference, dream consolidation, continuous learning, neural attention, causal investigation, homeostasis, policy learning, .NET ecosystem, CLI breadth (35 commands)** |
 | Microsoft Agent Framework (MAF) | Microsoft-backed .NET agent SDK, multi-agent orchestration, MCP/A2A support, plugin ecosystem, Java support |
 | Codex | Lightweight, Rust performance, OpenAI-native, ChatGPT integration |
 | Claude Code | Claude model integration, git workflow automation, IDE extensions, MCP support |
@@ -438,11 +468,13 @@ These features are **unique to Krnl-AI** — no other tool (open source or comme
 
 ## When to Choose Krnl-AI
 
-- **You need a cognitive runtime** — not just a coding agent, but an agent with memory, emotions, consciousness, anticipation, safety, and learning
+- **You need a cognitive runtime** — not just a coding agent, but an agent with memory, emotions, consciousness, anticipation, safety, world models, and learning
 - **Safety is critical** — you need programmable, auditable, multi-layer safety (24 guardrails)
 - **You want persistent memory** — 7 memory types + moments + prospective + archive with SQLite
-- **You need causal investigation** — root cause analysis with hypothesis testing and evidence collection
+- **You need causal investigation** — root cause analysis with hypothesis testing, evidence collection, and GNN-based causal reasoning
 - **You need future simulation** — anticipation/projection with confidence, risk, and accuracy tracking
+- **You need world models** — predictive environment models (JEPA) for simulation and latent space planning
+- **You need continuous learning** — agents that improve through memory → causal analysis → world model → dream → consolidation pipeline
 - **You're in the .NET ecosystem** — C#, Visual Studio, Windows desktop
 - **You need local peer-to-peer desktop collaboration** — WebRTC signaling for video/audio sessions inside the desktop surface
 - **You need policy learning** — agents that learn and adapt policies from outcomes
@@ -491,4 +523,4 @@ These features are **unique to Krnl-AI** — no other tool (open source or comme
 
 ---
 
-*Last updated: May 21, 2026*
+*Last updated: June 17, 2026*

@@ -18,6 +18,9 @@ krnlai chat --local
 - Persistent memory backed by SQLite with semantic search
 - Skills that can be created, refined, exported, and installed
 - Safety-aware execution with 20 fundamental rules (R01-R20)
+- Predictive world models for simulation and planning
+- Causal reasoning for understanding cause-effect relationships
+- Continuous learning pipeline (memory → analysis → simulation → consolidation)
 - Editor integrations for VS Code and Visual Studio
 - Cross-platform desktop apps via WPF and Tauri
 - Peer-to-peer video sessions via WebRTC signaling
@@ -46,7 +49,7 @@ krnlai chat --local
 | [CLI Reference](02-CLI/cli-reference.md) | All CLI commands and options |
 | [Architecture](03-Architecture/architecture.md) | System design and principles |
 | [Cognitive Cycle](04-Cognitive-Cycle/cognitive-cycle.md) | 10-step cognitive processing pipeline |
-| [Memory System](05-Memory/memory-system.md) | Episodic, semantic, working, emotional memory |
+| [Memory System](05-Memory/memory-system.md) | Episodic, semantic, procedural, working, emotional, autobiographical, and prospective memory |
 | [Safety System](06-Safety/safety-system.md) | 20 fundamental rules, adversarial guard, ethics |
 | [Emotion System](07-Emotions/emotion-system.md) | VAD model, pain/reward, emotional memory |
 | [SDK Guide](08-SDK/sdk-guide.md) | Python and .NET SDK documentation |

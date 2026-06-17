@@ -53,6 +53,22 @@ For code processing tasks, the kernel runs a specialized **11-step coding cognit
 | 10 | **Verify** | Verify the change |
 | 11 | **Learning** | Learn from the outcome |
 
+## Latent Space Planning
+
+For complex tasks involving multi-step simulation, the cognitive cycle can utilize **latent space planning**. This allows the kernel to mentally explore different action sequences before executing them, using predictive world models to evaluate likely outcomes. The Cross-Entropy Method (CEM) planner iteratively refines action proposals in the model's latent space.
+
+## Continuous Learning Pipeline
+
+The cycle includes a **continuous learning pipeline** that orchestrates multiple cognitive functions:
+
+1. Memory retrieval of relevant experiences
+2. Causal analysis of past outcomes
+3. World model update with new observations
+4. Offline scenario simulation (dreaming)
+5. Consolidation of new knowledge into memory
+
+This pipeline runs automatically each cycle, enabling the agent to continuously improve its understanding of the environment.
+
 ## Inner Speech and Higher-Order Thought
 
 During the cycle, the kernel generates **inner speech** (step-by-step reasoning narration) and **higher-order thoughts** (self-awareness of the current cognitive state). These are available for inspection:
