@@ -109,6 +109,7 @@ public class MainViewModel : ViewModelBase
     public DebugViewModel DebugVM { get; } = new();
     public CognitiveStudioViewModel StudioVM { get; } = new();
     public WelcomeWizardViewModel WelcomeVM { get; } = new();
+    public AgiDashboardViewModel AgiVM { get; }
 
     public ObservableCollection<MediaDevice> Microphones => SettingsVM.Microphones;
     public ObservableCollection<MediaDevice> Cameras => SettingsVM.Cameras;
@@ -139,7 +140,7 @@ public class MainViewModel : ViewModelBase
     private string _statusMessage = "Iniciando...";
     public string StatusMessage { get => _statusMessage; set => SetProperty(ref _statusMessage, value); }
     private string _currentScreen = "chat";
-    public string CurrentScreen { get => _currentScreen; set { if (SetProperty(ref _currentScreen, value)) { OnPropertyChanged(nameof(IsChatVisible)); OnPropertyChanged(nameof(IsDashboardVisible)); OnPropertyChanged(nameof(IsPoliciesVisible)); OnPropertyChanged(nameof(IsEpisodesVisible)); OnPropertyChanged(nameof(IsMemoryVisible)); OnPropertyChanged(nameof(IsSettingsVisible)); OnPropertyChanged(nameof(IsApiKeysVisible)); OnPropertyChanged(nameof(IsPeerRankingVisible)); OnPropertyChanged(nameof(IsPrivacyVisible)); OnPropertyChanged(nameof(IsBenchmarkVisible)); OnPropertyChanged(nameof(IsCausalVisible)); OnPropertyChanged(nameof(IsProfileVisible)); OnPropertyChanged(nameof(IsDocumentsVisible)); OnPropertyChanged(nameof(IsArchiveVisible)); OnPropertyChanged(nameof(IsModelRegistryVisible)); OnPropertyChanged(nameof(IsVersionsVisible)); OnPropertyChanged(nameof(IsSessionsVisible)); OnPropertyChanged(nameof(IsKanbanVisible)); OnPropertyChanged(nameof(IsTrajectoryVisible)); OnPropertyChanged(nameof(IsP2PPaymentsVisible)); OnPropertyChanged(nameof(IsDisputesVisible));             OnPropertyChanged(nameof(IsSidecarVisible)); OnPropertyChanged(nameof(IsMultimodalVisible)); OnPropertyChanged(nameof(IsObjectivesVisible)); OnPropertyChanged(nameof(IsInvestigationsVisible)); OnPropertyChanged(nameof(IsSnapshotsVisible)); OnPropertyChanged(nameof(IsAdminConfigVisible));             OnPropertyChanged(nameof(IsAdminUsersVisible)); OnPropertyChanged(nameof(IsMomentsVisible)); OnPropertyChanged(nameof(IsPluginsVisible)); OnPropertyChanged(nameof(IsSchedulerVisible)); OnPropertyChanged(nameof(IsTemplatesVisible)); OnPropertyChanged(nameof(IsApprovalVisible)); OnPropertyChanged(nameof(IsCliVisible)); OnPropertyChanged(nameof(IsPluginCatalogVisible)); OnPropertyChanged(nameof(IsExperimentVisible)); OnPropertyChanged(nameof(IsInitWizardVisible)); OnPropertyChanged(nameof(IsDebugVisible)); OnPropertyChanged(nameof(IsStudioVisible)); } } }
+    public string CurrentScreen { get => _currentScreen; set { if (SetProperty(ref _currentScreen, value)) { OnPropertyChanged(nameof(IsChatVisible)); OnPropertyChanged(nameof(IsDashboardVisible)); OnPropertyChanged(nameof(IsPoliciesVisible)); OnPropertyChanged(nameof(IsEpisodesVisible)); OnPropertyChanged(nameof(IsMemoryVisible)); OnPropertyChanged(nameof(IsSettingsVisible)); OnPropertyChanged(nameof(IsApiKeysVisible)); OnPropertyChanged(nameof(IsPeerRankingVisible)); OnPropertyChanged(nameof(IsPrivacyVisible)); OnPropertyChanged(nameof(IsBenchmarkVisible)); OnPropertyChanged(nameof(IsCausalVisible)); OnPropertyChanged(nameof(IsProfileVisible)); OnPropertyChanged(nameof(IsDocumentsVisible)); OnPropertyChanged(nameof(IsArchiveVisible)); OnPropertyChanged(nameof(IsModelRegistryVisible)); OnPropertyChanged(nameof(IsVersionsVisible)); OnPropertyChanged(nameof(IsSessionsVisible)); OnPropertyChanged(nameof(IsKanbanVisible)); OnPropertyChanged(nameof(IsTrajectoryVisible)); OnPropertyChanged(nameof(IsP2PPaymentsVisible)); OnPropertyChanged(nameof(IsDisputesVisible));             OnPropertyChanged(nameof(IsSidecarVisible)); OnPropertyChanged(nameof(IsMultimodalVisible)); OnPropertyChanged(nameof(IsObjectivesVisible)); OnPropertyChanged(nameof(IsInvestigationsVisible)); OnPropertyChanged(nameof(IsSnapshotsVisible)); OnPropertyChanged(nameof(IsAdminConfigVisible));             OnPropertyChanged(nameof(IsAdminUsersVisible)); OnPropertyChanged(nameof(IsMomentsVisible)); OnPropertyChanged(nameof(IsPluginsVisible)); OnPropertyChanged(nameof(IsSchedulerVisible)); OnPropertyChanged(nameof(IsTemplatesVisible)); OnPropertyChanged(nameof(IsApprovalVisible)); OnPropertyChanged(nameof(IsCliVisible)); OnPropertyChanged(nameof(IsPluginCatalogVisible)); OnPropertyChanged(nameof(IsExperimentVisible)); OnPropertyChanged(nameof(IsInitWizardVisible)); OnPropertyChanged(nameof(IsDebugVisible)); OnPropertyChanged(nameof(IsStudioVisible)); OnPropertyChanged(nameof(IsAgiVisible)); } } }
     private bool _showWelcomeWizard = true;
     public bool ShowWelcomeWizard { get => _showWelcomeWizard; set => SetProperty(ref _showWelcomeWizard, value); }
     private bool _showSearch;
@@ -193,6 +194,7 @@ public class MainViewModel : ViewModelBase
     public bool IsCliVisible => _currentScreen == "cli";
     public bool IsPluginCatalogVisible => _currentScreen == "plugin-catalog";
     public bool IsExperimentVisible => _currentScreen == "experiment";
+    public bool IsAgiVisible => _currentScreen == "agi";
 
     public AgentInfo? SelectedAgent { get; set; }
     private ConversationSession? _activeSession;
@@ -271,6 +273,7 @@ public class MainViewModel : ViewModelBase
     public ICommand NavigateToCliCommand { get; }
     public ICommand NavigateToPluginCatalogCommand { get; }
     public ICommand NavigateToExperimentCommand { get; }
+    public ICommand NavigateToAgiCommand { get; }
     public ICommand NavigateToProfileCommand { get; }
     public ICommand ToggleListeningCommand { get; }
     public ICommand LogoutCommand { get; }
@@ -316,7 +319,7 @@ public class MainViewModel : ViewModelBase
             new ObjectivesViewModel(), new InvestigationsViewModel(), new SnapshotsViewModel(),
             new AdminConfigViewModel(), new AdminUsersViewModel(),
             new MomentsViewModel(), new PluginsViewModel(), new SchedulerViewModel(),
-            new ApprovalViewModel())
+            new ApprovalViewModel(), new AgiDashboardViewModel())
     { }
 
     public MainViewModel(
@@ -335,7 +338,7 @@ public class MainViewModel : ViewModelBase
         ObjectivesViewModel objectivesVM, InvestigationsViewModel investigationsVM, SnapshotsViewModel snapshotsVM,
         AdminConfigViewModel adminConfigVM, AdminUsersViewModel adminUsersVM,
         MomentsViewModel momentsVM, PluginsViewModel pluginsVM, SchedulerViewModel schedulerVM,
-        ApprovalViewModel approvalVM)
+        ApprovalViewModel approvalVM, AgiDashboardViewModel agiVM)
     {
         ChatVM = chatVM;
         DashVM = dashVM;
@@ -366,6 +369,7 @@ public class MainViewModel : ViewModelBase
         PluginsVM = pluginsVM;
         SchedulerVM = schedulerVM;
         ApprovalVM = approvalVM;
+        AgiVM = agiVM;
 
         _kernelClient = kernelClient;
         _settingsService = settingsService;
@@ -419,6 +423,7 @@ public class MainViewModel : ViewModelBase
         NavigateToCliCommand = new RelayCommand(() => CurrentScreen = "cli");
         NavigateToPluginCatalogCommand = new RelayCommand(() => CurrentScreen = "plugin-catalog");
         NavigateToExperimentCommand = new RelayCommand(() => CurrentScreen = "experiment");
+        NavigateToAgiCommand = new RelayCommand(() => CurrentScreen = "agi");
         ToggleListeningCommand = new AsyncRelayCommand(ToggleListeningAsync);
         LogoutCommand = new RelayCommand(ExecuteLogout);
         BackupCommand = new AsyncRelayCommand(async () =>
