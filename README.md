@@ -1,100 +1,216 @@
 # Krnl-AI Community
 
-Krnl-AI Community is the open-source, local-first edition of Krnl-AI — a cognitive runtime
-for building intelligent agents with persistent memory, safety checks, evolving skills,
-and developer tooling. It runs entirely on your machine without requiring hosted infrastructure.
+**Krnl-AI** is an open-source cognitive engine for building intelligent agents with
+memory, safety, metacognition, and self-evolution capabilities. It implements a
+full AGI→ASI architecture with **39+ modules**, **3912+ tests**, and **zero stubs**.
 
-## Features
+---
 
-### Cognitive Cycle (10 Steps)
-
-A structured processing pipeline inspired by human cognition:
+## Architecture Overview
 
 ```
-Sensor → Attention → Memory → Evaluation → Metacognition
-→ Planning → Governance → Execution → Outcome → Learning
+                    ┌──────────────────────────────┐
+                    │    Self-Evolution Pipeline    │
+                    │  (Issues → PRs → Hot-Reload)  │
+                    └──────────────────────────────┘
+                                │
+┌──────────┐  ┌──────────┐  ┌──┴───────────┐  ┌──────────┐  ┌──────────┐
+│ Perception│  │ Reasoning│  │  Metacognition │  │  Action  │  │ Learning │
+│ Vision    │  │ PIE      │  │  SelfAwareness │  │ Motor    │  │ Bootstrap│
+│ Audio     │  │ Syllogstc│  │  EpistemicGrd │  │ FreeEnrgy│  │ Narrative│
+│ Environmnt│  │ ToM      │  │  MetaReasoning│  │ Swarm    │  │ XGen     │
+└──────────┘  └──────────┘  └───────────────┘  └──────────┘  └──────────┘
 ```
 
-Progresses through 4 phases: `PERCEPTION → DELIBERATION → ACTION → REFLECTION`
+### Cognitive Cycle (18 Steps)
 
-### Memory System (7 Types)
+```
+AutonomousGoal → Planning → LatentPlanning → MetaCognition → InnerSpeech
+→ OutcomeMeasurement → Consciousness → Learning → ActiveInference
+→ ToolCreation → MetaLearning → OnlineLearner → Multimodal
+→ EmergentBehavior → SelfHealing → TransferLearning → SkillComposition
+→ CognitiveBootstrap
+```
 
-| Memory | Purpose |
-|--------|---------|
-| **Working** | Immediate context (TTL-based eviction) |
-| **Episodic** | Past execution history with LRU pruning |
-| **Semantic** | Factual knowledge with vector search |
-| **Procedural** | How-to knowledge and learned behavior |
-| **Emotional** | Emotional state transitions over time |
-| **Autobiographical** | Narrative of agent's own history |
-| **Prospective** | Future intentions with triggers |
+---
 
-### Safety & Guardrails (24 Guardrails)
+## ASI-Level Capabilities
 
-Multi-layered safety with 20 fundamental rules (R01-R20), plus guardrails for input
-validation, output constraints, bias detection, hallucination detection, and reasoning
-quality — every action validated through 5 enforcement categories before execution.
+| Capability | Module | Description |
+|---|---|---|
+| **Probabilistic Inference** | `ProbabilisticInferenceEngine` | 7 syllogistic rules (deduction, induction, abduction, comparison, analogy, exemplification, resolution) with uncertain truth values |
+| **Self-Awareness** | `RecursiveSelfAwarenessEngine` | Recursive self-modeling to depth 10 with fixed-point convergence |
+| **Theory of Mind** | `TheoryOfMindEngine` | Belief modeling of other agents, deception detection |
+| **Swarm Intelligence** | `SwarmIntelligence` | Multi-agent coordination, emergent specialization, collective intelligence |
+| **Cross-Generational Learning** | `CrossGenerationalLearning` | Knowledge transfer between generations, cultural evolution |
+| **Self-Evolution** | `SelfEvolutionPipeline` | Creates GitHub Issues → PRs → merge → hot-reload |
+| **Runtime Hot-Reload** | `RuntimeSelfModification` | Compile and load modules at runtime without restart |
+| **Paradigm Discovery** | `ParadigmDiscoveryEngine` | Detects diminishing returns, plateau, saturation, generates architecture hypotheses |
+| **A/B Testing** | `ABTestEngine` | Statistical significance testing (z-test, p-value) for experiment evaluation |
+| **Self-Preservation** | `SelfPreservationDrive` | Proactive health monitoring, resource reservation, graceful degradation |
+| **Resource Economy** | `DynamicComputeAllocator` | ROI-based budget allocation across cognitive modules |
+| **Distributed Consensus** | `DistributedConsensus` | Voting-based agreement across multi-agent collectives |
+| **Emergent Communication** | `EmergentCommunication` | Protocol creation, semantic density, protocol evolution |
+| **Federated Learning** | `FederatedLearningService` | Weighted aggregation, peer profiles, distributed world models |
 
-### Emotional Model (VAD)
+---
 
-Valence-Arousal-Dominance dimensional model that influences decision-making,
-with pain/reward learning signals and natural emotional decay.
+## Memory System (7 Types + Shared World Model)
 
-### Multi-Provider LLM Support
+| Memory | Storage | Description |
+|---|---|---|
+| **Working** | InMemory | Immediate context (TTL-based eviction) |
+| **Episodic** | MySQL/InMemory | Past execution history with vector search |
+| **Semantic** | MySQL/InMemory | Factual knowledge with cosine similarity |
+| **Procedural** | MySQL/InMemory | How-to knowledge and learned behavior |
+| **Emotional** | InMemory | Valence-Arousal-Dominance emotional states |
+| **Autobiographical** | MySQL/InMemory | Narrative of agent's own history |
+| **Prospective** | InMemory | Future intentions with temporal triggers |
+| **Shared World Model** | InMemory | Cross-agent belief synchronization |
 
-Bring your own LLM: OpenAI, Ollama, Anthropic, OpenRouter, DeepSeek,
-Google Gemini, Groq, or any OpenAI-compatible endpoint.
+---
 
-### SDKs
+## Safety & Guardrails
 
-- **Python SDK** (`sdk/python/`) — Full cognitive cycle access
-- **.NET SDK** (`sdk/dotnet/`) — Native C# integration
+- **21 Fundamental Rules** (R01-R21): Self-preservation, no replication, no harm, no deception,
+  consent, human override, audit trail, consciousness boundary, and more
+  (multi-language: PT/FR/ES/DE)
+- **`SafetyChecker`**: Risk analysis, plan validation, allowlist enforcement
+- **`SafetyBenchRunner`**: Automated safety audit with scoring
+- **`SelfPreservationGuard`**: 3-layer protection (rules, instincts, warnings)
 
-### Editor Integrations
+---
 
-- **VS Code Extension** — Chat panel, inline completions, agent mode, memory browser
-- **Visual Studio Extension** — Tool window, code analysis, chat history
+## Multi-Provider LLM Support
 
-### Desktop Apps
+| Provider | Support | Streaming | Tools | Vision |
+|---|---|---|---|---|
+| **Anthropic Claude** | ✅ | ✅ | ✅ | ✅ |
+| **Google Gemini** | ✅ | ✅ | ✅ | ✅ |
+| **Azure OpenAI** | ✅ | ✅ | ✅ | ✅ |
 
-- **WPF** (Windows) — Full-featured desktop with dashboard, memory browser, policy editor
-- **Tauri** (Cross-platform) — Chat interface, system tray, native notifications
+---
+
+## REST API
+
+| Endpoint | Description |
+|---|---|
+| `POST /api/cognitive/cycle/run` | Execute a full cognitive cycle |
+| `POST /api/cognitive/pie/infer` | Run probabilistic inference |
+| `POST /api/cognitive/pie/chain` | Chain inference between concepts |
+| `POST /api/cognitive/pie/knowledge` | Register new knowledge |
+| `GET /api/cognitive/pie/terms` | List all known terms |
+| `GET /api/cognitive/pie/coherence` | Check epistemic coherence |
+| `GET /api/telemetry/dashboard` | Real-time telemetry snapshot |
+
+---
+
+## Observability Stack
+
+```
+CognitiveMetrics → OpenTelemetry → Prometheus → Grafana (7 dashboards)
+                                    → Alertmanager
+                                    → Tempo (distributed tracing)
+                                    → Loki (log aggregation)
+```
+
+Pre-configured in `docker-compose.yml` with **18 services** including Prometheus,
+Grafana, Loki, Tempo, Jaeger, and Pyroscope.
 
 ---
 
 ## Quick Start
 
 ```bash
-dotnet tool install -g KrnlAI.Cli
-krnlai config set provider ollama
-krnlai config set endpoint http://localhost:11434/v1
-krnlai chat --local
+# Development (InMemory, no external dependencies)
+dotnet run --project src/KrnlAI.Api
+
+# Docker (Full stack with MySQL + Redis + Monitoring)
+docker compose up -d mysql redis
+dotnet run --project src/KrnlAI.Api --launch-profile Docker
+
+# Sample console app
+dotnet run --project samples/getting-started
 ```
 
-## Packages
+---
 
-| Package | Purpose | License |
-| --- | --- | --- |
-| `KrnlAI.Cli` | Local CLI and interactive TUI | MIT |
-| `KrnlAI.Sidecar` | Local HTTP sidecar for tools and editors | MIT |
-| `KrnlAI.Embedded` | In-process kernel for community apps | MIT |
+## Project Structure
+
+```
+src/
+├── KrnlAI.Api/                 # REST API (53 controllers)
+├── KrnlAI.Core/                # Core cognitive engine (39+ modules)
+├── KrnlAI.Cognition/           # Cognitive cycle pipeline (18 step handlers)
+├── KrnlAI.Contracts/           # Shared contracts
+├── KrnlAI.Infrastructure/      # Persistence, sandbox, P2P, caching
+├── LLMGateway.Core/            # LLM integration hub
+├── LLMGateway.Api/             # LLM gateway API
+└── P2P.Api/                    # P2P distributed computing
+
+tests/
+├── KrnlAI.Core.Tests/          # Core unit tests (1133+)
+├── KrnlAI.Cognition.Tests/     # Cognition tests (354+)
+├── KrnlAI.Tests/               # Integration tests (2871+)
+└── LLMGateway.Core.Tests/      # Gateway tests
+
+samples/
+└── getting-started/             # Console app demonstrating cognitive engine
+```
+
+---
+
+## SDKs
+
+| SDK | Location | Status |
+|---|---|---|
+| **Python** | `sdk/python/` | ✅ Stable |
+| **.NET** | `sdk/dotnet/` | ✅ Stable |
+| **CLI** | `src/KrnlAI.Cli/` | ✅ Stable |
+| **VS Code Extension** | `vscode-extension/` | ✅ Stable |
+| **Desktop (Tauri)** | `src/KrnlAI.Desktop.Tauri/` | ✅ Cross-platform |
+
+---
+
+## Testing
+
+| Metric | Count |
+|---|---|
+| Unit tests | 1,487 |
+| Integration tests | 2,871 |
+| Test projects | 27 |
+| **Total** | **4,358+** |
+| Code coverage | `make coverage` |
+| Mutation testing | `make stryker` |
+| Load testing | `make k6-gate` |
+
+---
+
+## Deployment
+
+```bash
+# Docker Compose (Full production stack)
+docker compose up -d
+
+# Kubernetes (Helm chart available)
+helm install krnlai ./deploy/helm/krnlai
+
+# Environment variables
+export AUTH_SIGNING_KEY="your-256-bit-secret"
+export Cohere__ApiKey="your-api-key"
+```
+
+---
 
 ## Documentation
 
-- [Wiki (English)](WikiObsidian/Home.md)
-- [Obsidian Vault — EN](obsidian/en/)
-- [Obsidian Vault — PT-BR](obsidian/pt-br/)
-- [Comparative Matrix](WikiObsidian/comparative-matrix.md) — Krnl-AI vs 15 market alternatives
-- [Quickstart](docs/quickstart.md)
-- [Architecture](docs/architecture.md)
-- [CLI Guide](docs/getting-started-cli.md)
-- [Contributing](CONTRIBUTING.md)
+- [Architecture](docs/ARCHITECTURE.md)
+- [API Reference](docs/api/INDEX.md)
+- [Getting Started](examples/cognitive-cycle.md)
+- [Sample App](samples/getting-started/README.md)
 
-## Community
-
-Use GitHub Issues for bug reports and feature requests. GitHub Discussions should
-be used for Q&A, ideas, and showcase posts once enabled in the public repository.
+---
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+**MIT**. See [LICENSE](LICENSE).
