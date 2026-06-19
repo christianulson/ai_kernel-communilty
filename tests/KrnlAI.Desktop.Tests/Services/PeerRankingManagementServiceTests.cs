@@ -1,21 +1,30 @@
 using System.Text;
+using AutoFixture;
 using KrnlAI.Desktop.App.Services;
+using Moq;
+using Moq.Protected;
+using TestHelpers;
 
 namespace KrnlAI.Desktop.Tests.Services;
 
 public sealed class PeerRankingManagementServiceTests
 {
+    private static readonly IFixture Fixture = AutoMoq.CreateFixture();
+
     [Fact]
     public async Task HttpPeerRankingManagementService_GetRankingAsync_ShouldMapTierFromScore()
     {
-        var handler = new FakeHttpMessageHandler(_ => new HttpResponseMessage(HttpStatusCode.OK)
-        {
-            Content = new StringContent("""
-                {"ranking":[{"nodeId":"peer-1","overallScore":82,"successRateScore":90,"latencyScore":80,"availabilityScore":70,"tenureScore":60,"capacityScore":50,"catalogScore":40,"totalJobsExecuted":10,"totalJobsFailed":1,"avgResponseTimeMs":123,"uptimePercentage":95,"firstSeen":"2026-05-20T00:00:00Z","lastSeen":"2026-05-29T00:00:00Z","quarantineCount":0}],"enabled":true,"count":1}
-                """, Encoding.UTF8, "application/json")
-        });
+        var handler = new Mock<HttpMessageHandler>();
+        handler.Protected()
+            .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("""
+                    {"ranking":[{"nodeId":"peer-1","overallScore":82,"successRateScore":90,"latencyScore":80,"availabilityScore":70,"tenureScore":60,"capacityScore":50,"catalogScore":40,"totalJobsExecuted":10,"totalJobsFailed":1,"avgResponseTimeMs":123,"uptimePercentage":95,"firstSeen":"2026-05-20T00:00:00Z","lastSeen":"2026-05-29T00:00:00Z","quarantineCount":0}],"enabled":true,"count":1}
+                    """, Encoding.UTF8, "application/json")
+            });
 
-        var service = new HttpPeerRankingManagementService(new HttpClient(handler)
+        var service = new HttpPeerRankingManagementService(new HttpClient(handler.Object)
         {
             BaseAddress = new Uri("http://localhost")
         });
@@ -45,22 +54,24 @@ public sealed class PeerRankingManagementServiceTests
     [Fact]
     public async Task HttpPeerRankingManagementService_GetHistoryAsync_ShouldMapScoreSnapshots()
     {
-        var handler = new FakeHttpMessageHandler(request =>
-        {
-            if (request.RequestUri?.AbsolutePath == "/p2p/ranking/history/peer-1")
+        var handler = new Mock<HttpMessageHandler>();
+        handler.Protected()
+            .Setup<Task<HttpResponseMessage>>("SendAsync",
+                ItExpr.Is<HttpRequestMessage>(r => r.RequestUri != null && r.RequestUri.AbsolutePath == "/p2p/ranking/history/peer-1"),
+                ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
             {
-                return new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = new StringContent("""
-                        [{"nodeId":"peer-1","eventType":"bonus","overallScore":88.5,"tier":"Trusted","delta":0.5,"reason":"job_success","timestamp":"2026-05-29T10:00:00Z"}]
-                        """, Encoding.UTF8, "application/json")
-                };
-            }
+                Content = new StringContent("""
+                    [{"nodeId":"peer-1","eventType":"bonus","overallScore":88.5,"tier":"Trusted","delta":0.5,"reason":"job_success","timestamp":"2026-05-29T10:00:00Z"}]
+                    """, Encoding.UTF8, "application/json")
+            });
+        handler.Protected()
+            .Setup<Task<HttpResponseMessage>>("SendAsync",
+                ItExpr.Is<HttpRequestMessage>(r => r.RequestUri == null || r.RequestUri.AbsolutePath != "/p2p/ranking/history/peer-1"),
+                ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.NotFound));
 
-            return new HttpResponseMessage(HttpStatusCode.NotFound);
-        });
-
-        var service = new HttpPeerRankingManagementService(new HttpClient(handler)
+        var service = new HttpPeerRankingManagementService(new HttpClient(handler.Object)
         {
             BaseAddress = new Uri("http://localhost")
         });
@@ -71,11 +82,5 @@ public sealed class PeerRankingManagementServiceTests
         Assert.Equal("bonus", history[0].EventType);
         Assert.Equal(88.5, history[0].OverallScore, 2);
         Assert.Equal("Trusted", history[0].Tier);
-    }
-
-    private sealed class FakeHttpMessageHandler(Func<HttpRequestMessage, HttpResponseMessage> handler) : HttpMessageHandler
-    {
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-            => Task.FromResult(handler(request));
     }
 }
