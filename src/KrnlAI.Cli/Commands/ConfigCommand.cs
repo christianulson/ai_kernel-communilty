@@ -4,27 +4,20 @@ using Spectre.Console;
 
 namespace KrnlAI.Cli.Commands;
 
-public sealed class ConfigCommand
+public sealed class ConfigCommand(IAnsiConsole console, ManagedSettingsChain? managedChain = null)
 {
-    private readonly IAnsiConsole _console;
-    private readonly ManagedSettingsChain? _managedChain;
-
+    private readonly IAnsiConsole _console = console;
     private static readonly YamlConfigLoader Loader = new();
-
-    public ConfigCommand(IAnsiConsole console, ManagedSettingsChain? managedChain = null)
-    {
-        _console = console;
-        _managedChain = managedChain;
-    }
 
     public Command Build()
     {
-        var cmd = new Command("config", "Manage declarative YAML configuration");
-
-        cmd.Add(BuildValidate());
-        cmd.Add(BuildShow());
-        cmd.Add(BuildExport());
-        cmd.Add(BuildManaged());
+        var cmd = new Command("config", "Manage declarative YAML configuration")
+        {
+            BuildValidate(),
+            BuildShow(),
+            BuildExport(),
+            BuildManaged()
+        };
 
         return cmd;
     }
@@ -36,13 +29,13 @@ public sealed class ConfigCommand
         var listCmd = new Command("list", "List managed settings with sources");
         listCmd.SetAction(async (_, ct) =>
         {
-            if (_managedChain is null)
+            if (managedChain is null)
             {
                 _console.MarkupLine("[yellow]Managed settings chain not available[/]");
                 return 0;
             }
 
-            var settings = _managedChain.Current ?? await _managedChain.BuildAsync(ct);
+            var settings = managedChain.Current ?? await managedChain.BuildAsync(ct);
             var all = settings.All();
             if (all.Count == 0)
             {
@@ -61,13 +54,13 @@ public sealed class ConfigCommand
         var auditCmd = new Command("audit", "Audit managed settings compliance");
         auditCmd.SetAction(async (_, ct) =>
         {
-            if (_managedChain is null)
+            if (managedChain is null)
             {
                 _console.MarkupLine("[yellow]Managed settings chain not available[/]");
                 return 0;
             }
 
-            var settings = _managedChain.Current ?? await _managedChain.BuildAsync(ct);
+            var settings = managedChain.Current ?? await managedChain.BuildAsync(ct);
             var validator = new ManagedSettingsValidator();
             var result = validator.Validate(settings);
 
@@ -88,14 +81,14 @@ public sealed class ConfigCommand
         var checkCmd = new Command("check", "Check effective value of a setting") { checkArg };
         checkCmd.SetAction(async (ParseResult r, CancellationToken ct) =>
         {
-            if (_managedChain is null)
+            if (managedChain is null)
             {
                 _console.MarkupLine("[yellow]Managed settings chain not available[/]");
                 return 1;
             }
 
             var settingKey = r.GetValue(checkArg)!;
-            var settings = _managedChain.Current ?? await _managedChain.BuildAsync(ct);
+            var settings = managedChain.Current ?? await managedChain.BuildAsync(ct);
             var setting = settings.Get(settingKey);
 
             if (setting is null)

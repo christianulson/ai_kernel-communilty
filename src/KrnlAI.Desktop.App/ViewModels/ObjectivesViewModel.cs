@@ -12,7 +12,7 @@ public class ObjectivesViewModel : ViewModelBase
 {
     private readonly IKernelClient _client;
     private readonly ILogger<ObjectivesViewModel> _logger;
-    public ObservableCollection<ObjectiveInfo> Objectives { get; } = new();
+    public ObservableCollection<ObjectiveInfo> Objectives { get; } = [];
     private ObjectiveDetail? _selectedObjective;
     public ObjectiveDetail? SelectedObjective { get => _selectedObjective; set => SetProperty(ref _selectedObjective, value); }
     private bool _isLoading;

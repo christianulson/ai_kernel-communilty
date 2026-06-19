@@ -22,7 +22,7 @@ public sealed class MemoryViewModelDiTests
     {
         var kc = new Mock<IKernelClient>();
         kc.Setup(x => x.SearchMemoryAsync("test", 20, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new MemorySearchResult(new List<MemoryHit> { new("h1", "content", "web", 0.95, DateTime.UtcNow, null) }, 1, 0.5));
+            .ReturnsAsync(new MemorySearchResult([new("h1", "content", "web", 0.95, DateTime.UtcNow, null)], 1, 0.5));
 
         var vm = CreateVm(kc);
         vm.MemoryQuery = "test";
@@ -67,7 +67,7 @@ public sealed class EpisodesViewModelDiTests
     {
         var kc = new Mock<IKernelClient>();
         kc.Setup(x => x.SearchEpisodesAsync(It.IsAny<EpisodeSearchRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new EpisodeSearchResult(new List<EpisodeInfo> { new("e1", "g1", "completed", DateTime.UtcNow, DateTime.UtcNow, 1000, "ok", 1.0) }, 1, 1, 20));
+            .ReturnsAsync(new EpisodeSearchResult([new("e1", "g1", "completed", DateTime.UtcNow, DateTime.UtcNow, 1000, "ok", 1.0)], 1, 1, 20));
 
         var vm = new EpisodesViewModel(kc.Object);
         vm.LoadEpisodesCommand.Execute(null);
@@ -100,7 +100,7 @@ public sealed class CausalGraphViewModelDiTests
     {
         var kc = new Mock<IKernelClient>();
         kc.Setup(x => x.GetCausalQueryAsync("test", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new CausalQueryResult("test", new List<CausalNode>(), new List<CausalEdge>()));
+            .ReturnsAsync(new CausalQueryResult("test", [], []));
 
         var vm = new CausalGraphViewModel(kc.Object);
         vm.Query = "test";
@@ -115,7 +115,7 @@ public sealed class CausalGraphViewModelDiTests
     {
         var kc = new Mock<IKernelClient>();
         kc.Setup(x => x.GetCausalPredictionAsync("action", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new CausalPrediction("action", "outcome", 0.85, new List<string>()));
+            .ReturnsAsync(new CausalPrediction("action", "outcome", 0.85, []));
 
         var vm = new CausalGraphViewModel(kc.Object);
         vm.PredictAction = "action";

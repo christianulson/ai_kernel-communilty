@@ -2,16 +2,9 @@ using KrnlAI.VisualStudio.ToolWindows.Chat;
 
 namespace KrnlAI.VisualStudio.Services;
 
-public sealed class ApprovalService : IApprovalService
+public sealed class ApprovalService(ISettingsService settings) : IApprovalService
 {
-    private readonly ISettingsService _settings;
-
-    public ApprovalMode Mode => _settings.ApprovalMode;
-
-    public ApprovalService(ISettingsService settings)
-    {
-        _settings = settings;
-    }
+    public ApprovalMode Mode => settings.ApprovalMode;
 
     public async Task<ApprovalResult> RequestApprovalAsync(
         string actionDescription,
@@ -19,14 +12,14 @@ public sealed class ApprovalService : IApprovalService
         RiskLevel riskLevel,
         CancellationToken ct = default)
     {
-        var mode = _settings.ApprovalMode;
+        var mode = settings.ApprovalMode;
 
-        if (mode == Services.ApprovalMode.ChatOnly)
+        if (mode == ApprovalMode.ChatOnly)
             return new ApprovalResult(false, "Chat-only mode: no actions executed.", null);
 
-        var requiresApproval = mode == Services.ApprovalMode.FullApproval
+        var requiresApproval = mode == ApprovalMode.FullApproval
             || riskLevel >= RiskLevel.High
-            || mode == Services.ApprovalMode.Confirm;
+            || mode == ApprovalMode.Confirm;
 
         if (!requiresApproval)
             return new ApprovalResult(true, null, null);

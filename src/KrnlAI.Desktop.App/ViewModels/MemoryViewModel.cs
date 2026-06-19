@@ -9,8 +9,8 @@ namespace KrnlAI.Desktop.App.ViewModels;
 public class MemoryViewModel : ViewModelBase
 {
     private readonly IKernelClient _kernelClient;
-    public ObservableCollection<MemoryHit> MemoryResults { get; } = new();
-    public ObservableCollection<WorkingMemorySlot> WorkingSlots { get; } = new();
+    public ObservableCollection<MemoryHit> MemoryResults { get; } = [];
+    public ObservableCollection<WorkingMemorySlot> WorkingSlots { get; } = [];
     private MemoryMetrics? _metrics;
     public MemoryMetrics? MemoryMetricsData { get => _metrics; set => SetProperty(ref _metrics, value); }
     private string _query = "", _tab = "search", _errorMessage = "";

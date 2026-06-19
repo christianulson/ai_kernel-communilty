@@ -2,15 +2,9 @@ using KrnlAI.Sdk.Models;
 
 namespace KrnlAI.VisualStudio.Services;
 
-public sealed class AgenticLoopService : IAgenticLoopService
+public sealed class AgenticLoopService(IKernelClientService client) : IAgenticLoopService
 {
-    private readonly IKernelClientService _client;
     private CancellationTokenSource? _currentCts;
-
-    public AgenticLoopService(IKernelClientService client)
-    {
-        _client = client;
-    }
 
     public async Task<AgenticLoopResult> ExecuteAsync(string goal, CancellationToken ct)
     {
@@ -25,7 +19,7 @@ public sealed class AgenticLoopService : IAgenticLoopService
                 ApproveMetaCriticStops: false
             );
 
-            var response = await _client.RunAgentAsync(goal, request, _currentCts.Token);
+            var response = await client.RunAgentAsync(goal, request, _currentCts.Token);
 
             if (_currentCts.Token.IsCancellationRequested)
                 return new AgenticLoopResult("Cancelled", null, null, null);

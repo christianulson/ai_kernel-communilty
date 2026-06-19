@@ -1,22 +1,15 @@
 namespace KrnlAI.VisualStudio.Services;
 
-public sealed class CompletionCacheService : ICompletionCacheService
+public sealed class CompletionCacheService(int maxEntries = 1000, TimeSpan? ttl = null) : ICompletionCacheService
 {
-    private readonly int _maxEntries;
-    private readonly TimeSpan _ttl;
+    private readonly TimeSpan _ttl = ttl ?? TimeSpan.FromMinutes(5);
     private readonly LinkedList<string> _accessOrder = new();
-    private readonly Dictionary<string, (CachedCompletion Value, LinkedListNode<string> Node)> _cache = new();
+    private readonly Dictionary<string, (CachedCompletion Value, LinkedListNode<string> Node)> _cache = [];
     private readonly object _lock = new();
 
     public int Count
     {
         get { lock (_lock) return _cache.Count; }
-    }
-
-    public CompletionCacheService(int maxEntries = 1000, TimeSpan? ttl = null)
-    {
-        _maxEntries = maxEntries;
-        _ttl = ttl ?? TimeSpan.FromMinutes(5);
     }
 
     public CachedCompletion? Get(string contextHash)
@@ -48,7 +41,7 @@ public sealed class CompletionCacheService : ICompletionCacheService
                 _cache.Remove(contextHash);
             }
 
-            while (_cache.Count >= _maxEntries)
+            while (_cache.Count >= maxEntries)
             {
                 var last = _accessOrder.Last;
                 if (last is null) break;

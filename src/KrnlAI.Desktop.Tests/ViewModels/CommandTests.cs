@@ -7,7 +7,7 @@ public class RelayCommandTests
     [Fact]
     public void Execute_ShouldInvokeAction()
     {
-        bool executed = false;
+        var executed = false;
         var cmd = new RelayCommand(() => executed = true);
         cmd.Execute(null);
         Assert.True(executed);
@@ -39,7 +39,7 @@ public class RelayCommandTests
     [Fact]
     public void MultipleExecutes_ShouldAllWork()
     {
-        int count = 0;
+        var count = 0;
         var cmd = new RelayCommand(() => count++);
         cmd.Execute(null);
         cmd.Execute(null);
@@ -54,7 +54,7 @@ public class AsyncRelayCommandTests
     public async Task Execute_ShouldInvokeAsyncAction()
     {
         var tcs = new TaskCompletionSource();
-        bool executed = false;
+        var executed = false;
         var cmd = new AsyncRelayCommand(async () => { try { await Task.Yield(); executed = true; } finally { tcs.SetResult(); } });
         cmd.Execute(null);
         await tcs.Task.WaitAsync(TimeSpan.FromSeconds(5));
@@ -87,7 +87,7 @@ public class AsyncRelayCommandTests
     [Fact]
     public void ConcurrentExecute_ShouldGuardReentrancy()
     {
-        bool started = false;
+        var started = false;
         var reset = new TaskCompletionSource();
         var cmd = new AsyncRelayCommand(async () => { started = true; await reset.Task; });
 

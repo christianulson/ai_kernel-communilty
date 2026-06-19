@@ -2,14 +2,9 @@ using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace KrnlAI.Sidecar.Tests;
 
-public sealed class CorsTests : IClassFixture<CorsSidecarWebAppFactory>
+public sealed class CorsTests(CorsSidecarWebAppFactory factory) : IClassFixture<CorsSidecarWebAppFactory>
 {
-    private readonly HttpClient _http;
-
-    public CorsTests(CorsSidecarWebAppFactory factory)
-    {
-        _http = factory.CreateClient();
-    }
+    private readonly HttpClient _http = factory.CreateClient();
 
     [Fact]
     public async Task Cors_WithAllowedOrigin_ShouldReturnAllowOriginHeader()

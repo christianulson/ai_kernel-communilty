@@ -33,8 +33,8 @@ public interface ILocalizationService
 public class LocalizationService : ILocalizationService
 {
     private string _currentCulture = "pt-BR";
-    private Dictionary<string, string> _strings = new();
-    private readonly HashSet<string> _availableCultures = new() { "pt-BR", "en" };
+    private Dictionary<string, string> _strings = [];
+    private readonly HashSet<string> _availableCultures = ["pt-BR", "en"];
     private const string DefaultCulture = "pt-BR";
 
     public string CurrentCulture => _currentCulture;

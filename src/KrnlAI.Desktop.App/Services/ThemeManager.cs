@@ -24,7 +24,7 @@ public sealed class ThemeManager : IDisposable
         try
         {
             var hour = DateTime.Now.Hour;
-            var settings = KrnlAI.Desktop.App.Services.ServiceLocator.Instance.SettingsService.LoadSettings();
+            var settings = ServiceLocator.Instance.SettingsService.LoadSettings();
             if (settings.AutoDarkMode == true)
             {
                 var shouldBeDark = hour < 6 || hour >= 18;
@@ -40,7 +40,7 @@ public sealed class ThemeManager : IDisposable
     {
         if (e.Category == UserPreferenceCategory.General || e.Category == UserPreferenceCategory.VisualStyle)
         {
-            var usesLightTheme = Microsoft.Win32.Registry.GetValue(
+            var usesLightTheme = Registry.GetValue(
                 @"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize",
                 "AppsUseLightTheme", "1")?.ToString() == "1";
             _themeService.SetTheme(usesLightTheme ? "light" : "dark");

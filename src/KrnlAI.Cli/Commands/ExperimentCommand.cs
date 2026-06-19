@@ -9,12 +9,13 @@ public sealed class ExperimentCommand(CliContext ctx, ConsoleRenderer renderer)
 {
     public Command Build()
     {
-        var cmd = new Command("experiment", "Manage experiments");
-
-        cmd.Add(BuildList());
-        cmd.Add(BuildCreate());
-        cmd.Add(BuildGet());
-        cmd.Add(BuildMetrics());
+        var cmd = new Command("experiment", "Manage experiments")
+        {
+            BuildList(),
+            BuildCreate(),
+            BuildGet(),
+            BuildMetrics()
+        };
 
         return cmd;
     }

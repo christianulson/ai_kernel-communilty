@@ -21,7 +21,7 @@ public sealed class SafeCallTests
     [Fact]
     public async Task ExecuteAsync_Task_ShouldComplete()
     {
-        bool called = false;
+        var called = false;
         await SafeCall.ExecuteAsync(() => { called = true; return Task.CompletedTask; });
         Assert.True(called);
     }

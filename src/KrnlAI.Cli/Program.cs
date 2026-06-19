@@ -29,22 +29,23 @@ await seeder.SeedAsync();
 var cliCtx = host.Services.GetRequiredService<CliContext>();
 var renderer = host.Services.GetRequiredService<ConsoleRenderer>();
 
-var root = new RootCommand("Krnl-AI CLI - Developer Interface");
-
-root.Add(new StatusCommand(cliCtx, renderer).Build());
-root.Add(new HealthCommand(cliCtx, renderer).Build());
-root.Add(new MomentsCommand(cliCtx, renderer).Build());
-root.Add(new MemoryCommand(cliCtx, renderer).Build());
-root.Add(new SnapshotCommand(cliCtx, renderer).Build());
-root.Add(new ArchiveCommand(cliCtx, renderer).Build());
-root.Add(new GoalsCommand(cliCtx, renderer).Build());
-root.Add(new SafetyCommand(cliCtx, renderer, host.Services).Build());
-root.Add(new ScheduleCommand(cliCtx, host.Services.GetRequiredService<IAnsiConsole>()).Build());
-root.Add(new AnticipateCommand(cliCtx, renderer).Build());
-root.Add(new IntentionsCommand(cliCtx, renderer).Build());
-root.Add(new DebugCommand(cliCtx, renderer).Build());
-root.Add(new DocumentCommand(cliCtx, renderer).Build());
-root.Add(new ServeCommand().Build());
+var root = new RootCommand("Krnl-AI CLI - Developer Interface")
+{
+    new StatusCommand(cliCtx, renderer).Build(),
+    new HealthCommand(cliCtx, renderer).Build(),
+    new MomentsCommand(cliCtx, renderer).Build(),
+    new MemoryCommand(cliCtx, renderer).Build(),
+    new SnapshotCommand(cliCtx, renderer).Build(),
+    new ArchiveCommand(cliCtx, renderer).Build(),
+    new GoalsCommand(cliCtx, renderer).Build(),
+    new SafetyCommand(cliCtx, renderer, host.Services).Build(),
+    new ScheduleCommand(cliCtx, host.Services.GetRequiredService<IAnsiConsole>()).Build(),
+    new AnticipateCommand(cliCtx, renderer).Build(),
+    new IntentionsCommand(cliCtx, renderer).Build(),
+    new DebugCommand(cliCtx, renderer).Build(),
+    new DocumentCommand(cliCtx, renderer).Build(),
+    new ServeCommand().Build()
+};
 
 // DX commands (Plano 3)
 var templateEngine = host.Services.GetRequiredService<ITemplateEngine>();

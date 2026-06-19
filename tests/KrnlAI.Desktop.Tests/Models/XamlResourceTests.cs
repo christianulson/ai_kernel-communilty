@@ -1,8 +1,6 @@
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
-using System.Windows;
-using System.Windows.Markup;
 
 namespace KrnlAI.Desktop.Tests.Models;
 

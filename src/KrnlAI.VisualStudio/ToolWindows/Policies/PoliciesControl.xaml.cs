@@ -33,7 +33,7 @@ public partial class PoliciesControl : UserControl
             var filter = (DomainFilter.SelectedItem as ComboBoxItem)?.Content?.ToString();
             var filtered = filter is null || filter == "All"
                 ? policies
-                : policies.Where(p => string.Equals(p.Domain, filter, System.StringComparison.OrdinalIgnoreCase)).ToList();
+                : [.. policies.Where(p => string.Equals(p.Domain, filter, StringComparison.OrdinalIgnoreCase))];
 
             PoliciesList.ItemsSource = filtered;
         }

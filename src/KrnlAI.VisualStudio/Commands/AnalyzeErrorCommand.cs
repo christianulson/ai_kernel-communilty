@@ -47,7 +47,7 @@ public sealed class AnalyzeErrorCommand
     {
         ThreadHelper.ThrowIfNotOnUIThread();
         var error = GetSelectedError(
-            Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider.GetService(typeof(SVsErrorList)) as IErrorList);
+            ServiceProvider.GlobalProvider.GetService(typeof(SVsErrorList)) as IErrorList);
         if (error is null) return;
 
         var prompt = $"Analyze this build error and suggest a fix:\n\nError: {error.Value.Message}\nFile: {error.Value.File}\nLine: {error.Value.Line}";
@@ -67,7 +67,7 @@ public sealed class AnalyzeErrorCommand
     {
         ThreadHelper.ThrowIfNotOnUIThread();
         return GetSelectedError(
-            Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider.GetService(typeof(SVsErrorList)) as IErrorList) is not null;
+            ServiceProvider.GlobalProvider.GetService(typeof(SVsErrorList)) as IErrorList) is not null;
     }
 
     private static (string Message, string? File, int Line)? GetSelectedError(IErrorList? errorList)
@@ -84,7 +84,7 @@ public sealed class AnalyzeErrorCommand
             foreach (var entry in selectedEntries)
             {
                 string? file = null;
-                int line = 0;
+                var line = 0;
 
                 entry.TryGetValue(StandardTableKeyNames.DocumentName, out file);
                 entry.TryGetValue(StandardTableKeyNames.Line, out line);

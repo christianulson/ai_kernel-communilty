@@ -2,14 +2,9 @@ using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace KrnlAI.Sidecar.Tests;
 
-public sealed class BodySizeLimitTests : IClassFixture<SmallBodyWebAppFactory>
+public sealed class BodySizeLimitTests(SmallBodyWebAppFactory factory) : IClassFixture<SmallBodyWebAppFactory>
 {
-    private readonly HttpClient _http;
-
-    public BodySizeLimitTests(SmallBodyWebAppFactory factory)
-    {
-        _http = factory.CreateClient();
-    }
+    private readonly HttpClient _http = factory.CreateClient();
 
     [Fact]
     public async Task BodySize_UnderLimit_ShouldSucceed()

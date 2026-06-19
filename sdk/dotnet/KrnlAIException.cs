@@ -1,36 +1,25 @@
 namespace KrnlAI.Sdk;
 
-public class KrnlAIException : Exception
+public class KrnlAIException(string message, int? statusCode = null, Exception? inner = null, object? body = null) : Exception(message, inner)
 {
-    public int? StatusCode { get; }
+    public int? StatusCode { get; } = statusCode;
 
-    public KrnlAIException(string message, int? statusCode = null, Exception? inner = null)
-        : base(message, inner)
-    {
-        StatusCode = statusCode;
-    }
+    public object? Body { get; } = body;
 }
 
-public class KrnlAIAuthenticationException : KrnlAIException
+public class KrnlAIAuthenticationException(string message = "Authentication failed", object? body = null) : KrnlAIException(message, 401, body: body)
 {
-    public KrnlAIAuthenticationException(string message = "Authentication failed", object? body = null)
-        : base(message, 401) { }
+    
 }
 
-public class KrnlAIRateLimitException : KrnlAIException
+public class KrnlAIRateLimitException(string message = "Rate limit exceeded", object? body = null) : KrnlAIException(message, 429, body: body)
 {
-    public KrnlAIRateLimitException(string message = "Rate limit exceeded", object? body = null)
-        : base(message, 429) { }
 }
 
-public class KrnlAIValidationException : KrnlAIException
+public class KrnlAIValidationException(string message = "Validation failed", int statusCode = 400, object? body = null) : KrnlAIException(message, statusCode, body: body)
 {
-    public KrnlAIValidationException(string message = "Validation failed", int statusCode = 400, object? body = null)
-        : base(message, statusCode) { }
 }
 
-public class KrnlAIServerException : KrnlAIException
+public class KrnlAIServerException(string message = "Internal server error", int statusCode = 500, object? body = null) : KrnlAIException(message, statusCode, body: body)
 {
-    public KrnlAIServerException(string message = "Internal server error", int statusCode = 500, object? body = null)
-        : base(message, statusCode) { }
 }

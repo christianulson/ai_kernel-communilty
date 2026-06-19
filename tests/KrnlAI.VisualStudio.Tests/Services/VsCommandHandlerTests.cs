@@ -1,5 +1,7 @@
+using KrnlAI.Sdk.Models;
 using KrnlAI.VisualStudio.Commands.ChatCommands;
 using KrnlAI.VisualStudio.Services;
+using Xunit;
 
 namespace KrnlAI.VisualStudio.Tests.Services;
 
@@ -25,7 +27,7 @@ public sealed class VsCommandHandlerTests
     {
         var router = CreateRouter();
         Assert.False(router.IsSlashCommand(""));
-        Assert.False(router.IsSlashCommand(null));
+        Assert.False(router.IsSlashCommand(" "));
     }
 
     [Fact]
@@ -64,12 +66,12 @@ public sealed class VsCommandHandlerTests
     }
 
     [Fact]
-    public void SlashCommandRouter_ExecuteAsync_UnknownCommand_ShouldReturnError()
+    public async Task SlashCommandRouter_ExecuteAsync_UnknownCommand_ShouldReturnError()
     {
         var router = CreateRouter();
-        var result = router.ExecuteAsync("/unknown", CancellationToken.None);
+        var result = await router.ExecuteAsync("/unknown", CancellationToken.None);
 
-        Assert.Equal("Unknown command: /unknown. Type /help for available commands.", result.Result);
+        Assert.Equal("Unknown command: /unknown. Type /help for available commands.", result);
     }
 
     [Fact]
@@ -151,7 +153,9 @@ public sealed class FakeKernelClient : IKernelClientService
 {
     public ConnectionState State => ConnectionState.Connected;
     public string? BaseUrl => "http://localhost:5235";
+#pragma warning disable CS0067
     public event Action<ConnectionState>? StateChanged;
+#pragma warning restore CS0067
 
     public Task<bool> ConnectAsync(string endpoint, CancellationToken ct = default)
         => Task.FromResult(true);
@@ -164,7 +168,7 @@ public sealed class FakeKernelClient : IKernelClientService
             Goal: goal,
             Status: "completed",
             Summary: "Agent completed successfully",
-            Steps: Array.Empty<PlanStepResult>(),
+            Steps: [],
             EpisodeId: "ep-1",
             Provider: "test",
             Model: "test-model",
@@ -174,7 +178,7 @@ public sealed class FakeKernelClient : IKernelClientService
     public Task<MemorySearchResponse> SearchMemoryAsync(string query, int topK = 10, CancellationToken ct = default)
         => Task.FromResult(new MemorySearchResponse(
             Ok: true,
-            Hits: Array.Empty<MemorySearchHit>()
+            Hits: []
         ));
 
     public Task<HealthStatus> CheckHealthAsync(CancellationToken ct = default)
@@ -187,7 +191,7 @@ public sealed class FakeKernelClient : IKernelClientService
 public sealed class FakeSolutionContext : ISolutionContextService
 {
     public CodeSelection? GetActiveSelection()
-        => new CodeSelection("test.cs", ".cs", "C#", "public class Foo {}", "public class Foo {}", 1, 1);
+        => new("test.cs", ".cs", "C#", "public class Foo {}", "public class Foo {}", 1, 1);
 
     public string? GetActiveFilePath()
         => "test.cs";

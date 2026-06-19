@@ -172,31 +172,20 @@ public class AuthTokenHandlerTests
         Assert.Null(tokenProvider.RefreshToken);
     }
 
-    private class TestMessageHandler : HttpMessageHandler
+    private class TestMessageHandler(HttpStatusCode statusCode = HttpStatusCode.OK) : HttpMessageHandler
     {
-        private readonly HttpStatusCode _statusCode;
         public HttpRequestMessage? LastRequest { get; private set; }
-
-        public TestMessageHandler(HttpStatusCode statusCode = HttpStatusCode.OK)
-        {
-            _statusCode = statusCode;
-        }
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             LastRequest = request;
-            return Task.FromResult(new HttpResponseMessage(_statusCode));
+            return Task.FromResult(new HttpResponseMessage(statusCode));
         }
     }
 
-    private class SequentialHandler : HttpMessageHandler
+    private class SequentialHandler(params HttpResponseMessage[] responses) : HttpMessageHandler
     {
-        private readonly Queue<HttpResponseMessage> _responses;
-
-        public SequentialHandler(params HttpResponseMessage[] responses)
-        {
-            _responses = new Queue<HttpResponseMessage>(responses);
-        }
+        private readonly Queue<HttpResponseMessage> _responses = new Queue<HttpResponseMessage>(responses);
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {

@@ -26,7 +26,7 @@ public sealed class TuiSplitView
         var grid = new Grid();
 
         var totalSize = _sizes.Sum();
-        for (int i = 0; i < _panels.Count; i++)
+        for (var i = 0; i < _panels.Count; i++)
         {
             grid.AddColumn(new GridColumn().PadRight(i < _panels.Count - 1 ? 1 : 0));
         }

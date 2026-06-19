@@ -46,7 +46,7 @@ public sealed class TuiChatPanel
 
         return new Panel(
                 new Rows(
-                    lines.TakeLast(30).Select(l => new Markup(l)).ToArray()
+                    [.. lines.TakeLast(30).Select(l => new Markup(l))]
                 )
             )
             .Header(" Chat ")

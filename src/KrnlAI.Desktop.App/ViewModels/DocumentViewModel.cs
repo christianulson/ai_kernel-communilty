@@ -9,7 +9,7 @@ namespace KrnlAI.Desktop.App.ViewModels;
 public class DocumentViewModel : ViewModelBase
 {
     private readonly IKernelClient _kernelClient;
-    public ObservableCollection<DocumentInfo> DocumentList { get; } = new();
+    public ObservableCollection<DocumentInfo> DocumentList { get; } = [];
     private DocumentInfo? _selected;
     public DocumentInfo? SelectedDocument { get => _selected; set => SetProperty(ref _selected, value); }
     private bool _isLoading;

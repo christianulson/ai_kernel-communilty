@@ -24,7 +24,7 @@ public sealed class ChatHistoryService
             var count = Math.Min(messages.Count, MaxMessages);
             store.SetInt32(CollectionPath, "Count", count);
 
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 var msg = messages[i];
                 var value = $"{msg.Timestamp:O}|{msg.Role}|{msg.Content}";
@@ -50,7 +50,7 @@ public sealed class ChatHistoryService
                 return result;
 
             var count = store.GetInt32(CollectionPath, "Count", 0);
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 var value = store.GetString(CollectionPath, $"Message_{i}", "");
                 var parts = value.Split(new[] { '|' }, 3);

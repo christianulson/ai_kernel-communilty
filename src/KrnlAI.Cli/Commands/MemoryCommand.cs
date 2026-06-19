@@ -48,29 +48,27 @@ public sealed class MemoryCommand(CliContext ctx, ConsoleRenderer renderer)
                     .Where(c => c.Category.ToString().Equals(category, StringComparison.OrdinalIgnoreCase))
                     .Select(c => c.MomentId)
                     .ToHashSet(StringComparer.OrdinalIgnoreCase);
-                moments = moments.Where(m => filteredIds.Contains(m.MomentId)).ToList();
+                moments = [.. moments.Where(m => filteredIds.Contains(m.MomentId))];
             }
 
             if (!string.IsNullOrEmpty(domain))
             {
-                moments = moments.Where(m =>
-                    m.FocusDomain?.ToString().Contains(domain, StringComparison.OrdinalIgnoreCase) == true)
-                    .ToList();
+                moments = [.. moments.Where(m =>
+                    m.FocusDomain?.ToString().Contains(domain, StringComparison.OrdinalIgnoreCase) == true)];
             }
 
             if (!string.IsNullOrEmpty(query))
             {
-                moments = moments.Where(m =>
+                moments = [.. moments.Where(m =>
                     m.MomentId.Contains(query, StringComparison.OrdinalIgnoreCase) ||
-                    (m.FocusDomain?.ToString() ?? "").Contains(query, StringComparison.OrdinalIgnoreCase))
-                    .ToList();
+                    (m.FocusDomain?.ToString() ?? "").Contains(query, StringComparison.OrdinalIgnoreCase))];
             }
 
             var classificationLookup = new Dictionary<string, MomentClassification>();
             if (moments.Count > 0)
             {
                 var classifications = await ctx.MomentClassifierStore.GetBatchAsync(
-                    moments.Select(m => m.MomentId).ToList(), ct);
+                    [.. moments.Select(m => m.MomentId)], ct);
                 foreach (var c in classifications)
                     classificationLookup[c.MomentId] = c;
             }

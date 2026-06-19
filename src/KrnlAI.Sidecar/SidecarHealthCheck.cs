@@ -4,18 +4,9 @@ using Microsoft.Extensions.Options;
 
 namespace KrnlAI.Sidecar;
 
-public sealed class SidecarHealthCheck : IHealthCheck
+public sealed class SidecarHealthCheck(IAdversarialGuard guard, KernelApiProxy proxy, IOptions<SidecarOptions> options) : IHealthCheck
 {
-    private readonly IAdversarialGuard _guard;
-    private readonly KernelApiProxy _proxy;
-    private readonly IOptions<SidecarOptions> _options;
-
-    public SidecarHealthCheck(IAdversarialGuard guard, KernelApiProxy proxy, IOptions<SidecarOptions> options)
-    {
-        _guard = guard;
-        _proxy = proxy;
-        _options = options;
-    }
+    private readonly IOptions<SidecarOptions> _options = options;
 
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken)
     {
@@ -38,7 +29,7 @@ public sealed class SidecarHealthCheck : IHealthCheck
         // Self-check: safety guard
         try
         {
-            var result = await _guard.ValidateAsync("ping", cancellationToken);
+            var result = await guard.ValidateAsync("ping", cancellationToken);
             data["safety_guard"] = result.IsAllowed ? "healthy" : "degraded";
         }
         catch (Exception ex)
@@ -47,11 +38,11 @@ public sealed class SidecarHealthCheck : IHealthCheck
         }
 
         // Proxy target health check
-        if (_proxy.IsConfigured)
+        if (proxy.IsConfigured)
         {
             if (context.Registration.Tags.Contains("ready"))
             {
-                var proxyHealthy = await _proxy.PingAsync(cancellationToken);
+                var proxyHealthy = await proxy.PingAsync(cancellationToken);
                 data["proxy_target"] = proxyHealthy ? "healthy" : "unhealthy";
                 if (!proxyHealthy)
                 {

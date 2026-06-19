@@ -8,7 +8,7 @@ public class TemplatesViewModel : ViewModelBase
 {
     private readonly TemplateService _service = new();
     private string _name = "", _description = "", _content = "";
-    public ObservableCollection<PromptTemplate> Templates { get; } = new();
+    public ObservableCollection<PromptTemplate> Templates { get; } = [];
     public string TemplateName { get => _name; set => SetProperty(ref _name, value); }
     public string TemplateDescription { get => _description; set => SetProperty(ref _description, value); }
     public string TemplateContent { get => _content; set => SetProperty(ref _content, value); }

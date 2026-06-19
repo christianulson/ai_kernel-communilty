@@ -11,7 +11,7 @@ public class SchedulerViewModel : ViewModelBase
 {
     private readonly IKernelClient _client;
     private readonly ILogger<SchedulerViewModel> _logger;
-    public ObservableCollection<ScheduledTask> Tasks { get; } = new();
+    public ObservableCollection<ScheduledTask> Tasks { get; } = [];
     private bool _isLoading;
     public bool IsLoading { get => _isLoading; set { SetProperty(ref _isLoading, value); OnPropertyChanged(nameof(HasNoData)); } }
     private string _errorMessage = "";

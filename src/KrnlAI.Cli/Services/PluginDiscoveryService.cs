@@ -32,11 +32,10 @@ public sealed class PluginDiscoveryService(HttpClient httpClient)
         if (index is null) return [];
 
         var termLower = term.ToLowerInvariant();
-        return index.Plugins
+        return [.. index.Plugins
             .Where(p => p.Id.Contains(termLower, StringComparison.OrdinalIgnoreCase) ||
                         p.Name.Contains(termLower, StringComparison.OrdinalIgnoreCase) ||
-                        p.Description.Contains(termLower, StringComparison.OrdinalIgnoreCase))
-            .ToList();
+                        p.Description.Contains(termLower, StringComparison.OrdinalIgnoreCase))];
     }
 
     public async Task<RegistryPlugin?> GetByIdAsync(string id, CancellationToken ct = default)

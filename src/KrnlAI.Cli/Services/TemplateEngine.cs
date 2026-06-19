@@ -6,9 +6,9 @@ using Microsoft.Extensions.Logging;
 
 namespace KrnlAI.Cli.Services;
 
-public sealed partial class TemplateEngine : ITemplateEngine
+public sealed partial class TemplateEngine(ILogger<TemplateEngine>? logger = null) : ITemplateEngine
 {
-    private readonly ILogger<TemplateEngine> _logger;
+    private readonly ILogger<TemplateEngine> _logger = logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<TemplateEngine>.Instance;
     private static readonly string TemplatesRoot = Path.Combine(AppContext.BaseDirectory, "Templates");
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -19,11 +19,6 @@ public sealed partial class TemplateEngine : ITemplateEngine
     private static readonly ConcurrentDictionary<string, TemplateManifest> ManifestCache = new();
     private static readonly Regex PlaceholderPattern = PlaceholderRegex();
 
-    public TemplateEngine(ILogger<TemplateEngine>? logger = null)
-    {
-        _logger = logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<TemplateEngine>.Instance;
-    }
-
     public Task<IReadOnlyList<TemplateInfo>> ListTemplatesAsync()
     {
         var manifest = LoadManifest();
@@ -32,7 +27,7 @@ public sealed partial class TemplateEngine : ITemplateEngine
                 t.Name, t.Description,
                 Enum.Parse<TemplateType>(t.Type),
                 t.Version, t.Dependencies))
-            .ToList() ?? new List<TemplateInfo>();
+            .ToList() ?? [];
 
         return Task.FromResult<IReadOnlyList<TemplateInfo>>(templates);
     }

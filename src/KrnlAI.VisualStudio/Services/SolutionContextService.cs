@@ -3,22 +3,15 @@ using Microsoft.VisualStudio.Shell;
 
 namespace KrnlAI.VisualStudio.Services;
 
-public sealed class SolutionContextService : ISolutionContextService
+public sealed class SolutionContextService(IServiceProvider serviceProvider) : ISolutionContextService
 {
-    private readonly IServiceProvider _serviceProvider;
-
-    public SolutionContextService(IServiceProvider serviceProvider)
-    {
-        _serviceProvider = serviceProvider;
-    }
-
     public CodeSelection? GetActiveSelection()
     {
         ThreadHelper.ThrowIfNotOnUIThread();
 
         try
         {
-            var dte = _serviceProvider.GetService(typeof(DTE)) as DTE;
+            var dte = serviceProvider.GetService(typeof(DTE)) as DTE;
             if (dte?.ActiveDocument is not Document doc) return null;
 
             var selection = doc.Selection as TextSelection;
@@ -53,7 +46,7 @@ public sealed class SolutionContextService : ISolutionContextService
         try
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            var dte = _serviceProvider.GetService(typeof(DTE)) as DTE;
+            var dte = serviceProvider.GetService(typeof(DTE)) as DTE;
             var solution = dte?.Solution;
             if (solution?.FullName is string path && !string.IsNullOrEmpty(path))
                 return System.IO.Path.GetDirectoryName(path);

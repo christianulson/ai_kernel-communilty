@@ -149,7 +149,7 @@ public sealed class MarkdownRenderer
     {
         var tb = new TextBlock { TextWrapping = TextWrapping.Wrap };
         var regex = new System.Text.RegularExpressions.Regex(@"(\*\*(.+?)\*\*|\*(.+?)\*|`(.+?)`)");
-        int lastIndex = 0;
+        var lastIndex = 0;
 
         foreach (System.Text.RegularExpressions.Match match in regex.Matches(text))
         {
@@ -208,7 +208,7 @@ public sealed class MarkdownRenderer
         if (string.IsNullOrWhiteSpace(lang)) { tb.Text = code; tb.Foreground = new SolidColorBrush(Color.FromRgb(200, 210, 220)); return tb; }
 
         var regex = new System.Text.RegularExpressions.Regex(@"(""[^""]*"")|(''[^'']*'')|(@""[^""]*"")|(//.*)|(#.*)|(\b0[xX][0-9a-fA-F]+)|(\b\d+\.?\d*)|(\b\w+\b)|(\S)");
-        int pos = 0;
+        var pos = 0;
         foreach (System.Text.RegularExpressions.Match m in regex.Matches(code))
         {
             if (m.Index > pos) tb.Inlines.Add(new Run(code[pos..m.Index]) { Foreground = new SolidColorBrush(Color.FromRgb(200, 210, 220)) });

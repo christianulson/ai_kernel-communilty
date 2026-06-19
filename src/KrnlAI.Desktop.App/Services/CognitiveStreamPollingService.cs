@@ -1,5 +1,4 @@
 using System.Net.Http;
-using System.Net.Http.Json;
 using KrnlAI.Desktop.Core.Abstractions;
 using CognitiveCycleEvent = KrnlAI.Desktop.Core.Abstractions.CognitiveCycleEvent;
 using System.IO;
@@ -14,7 +13,7 @@ public sealed class CognitiveStreamPollingService
     private readonly object _connectLock = new();
 
     public CognitiveStreamState State { get; private set; } = CognitiveStreamState.Disconnected;
-    public List<CognitiveCycleEvent> Events { get; } = new();
+    public List<CognitiveCycleEvent> Events { get; } = [];
     public event Action<CognitiveCycleEvent>? OnEvent;
     public event Action<CognitiveStreamState>? OnStateChanged;
 
@@ -99,7 +98,7 @@ public sealed class CognitiveStreamPollingService
         catch (OperationCanceledException) { }
         catch (Exception ex)
         {
-            KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"CognitiveStreamPollingService: {ex.Message}");
+            Core.Services.KrnlLogger.Write($"CognitiveStreamPollingService: {ex.Message}");
             State = CognitiveStreamState.Error;
             OnStateChanged?.Invoke(State);
         }
@@ -118,7 +117,7 @@ public sealed class CognitiveStreamPollingService
         }
         catch (Exception ex)
         {
-            KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"CognitiveStreamPollingService: malformed event: {ex.Message}");
+            Core.Services.KrnlLogger.Write($"CognitiveStreamPollingService: malformed event: {ex.Message}");
         }
     }
 }

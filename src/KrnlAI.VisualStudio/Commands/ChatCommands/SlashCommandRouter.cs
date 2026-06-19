@@ -68,9 +68,7 @@ public sealed class SlashCommandRouter
 
     public IReadOnlyList<SlashCommand> GetVisibleCommands()
     {
-        return _commands.Values
-            .Where(c => c.IsVisible?.Invoke() ?? true)
-            .ToList();
+        return [.. _commands.Values.Where(c => c.IsVisible?.Invoke() ?? true)];
     }
 
     private void RegisterDefaultCommands()

@@ -3,15 +3,8 @@ using KrnlAI.Embedded;
 
 namespace KrnlAI.Desktop.App.Services;
 
-public sealed class EmbeddedKanbanService
+public sealed class EmbeddedKanbanService(EmbeddedKrnlAI kernel)
 {
-    private readonly EmbeddedKrnlAI _kernel;
-
-    public EmbeddedKanbanService(EmbeddedKrnlAI kernel)
-    {
-        _kernel = kernel;
-    }
-
     public async Task<KanbanDisplay> GetKanbanAsync(
         int daysBack = 10,
         string? domain = null,
@@ -19,18 +12,18 @@ public sealed class EmbeddedKanbanService
         string? search = null,
         CancellationToken ct = default)
     {
-        var goals = (await _kernel.GetKanbanGoalsAsync(ct)) ?? [];
+        var goals = (await kernel.GetKanbanGoalsAsync(ct)) ?? [];
 
         if (!string.IsNullOrWhiteSpace(search))
-            goals = goals.Where(g => g.Description.Contains(search, StringComparison.OrdinalIgnoreCase)).ToList();
+            goals = [.. goals.Where(g => g.Description.Contains(search, StringComparison.OrdinalIgnoreCase))];
 
         if (minPriority.HasValue)
-            goals = goals.Where(g => g.Priority >= minPriority.Value).ToList();
+            goals = [.. goals.Where(g => g.Priority >= minPriority.Value)];
 
         if (daysBack < 365)
         {
             var cutoff = DateTimeOffset.UtcNow.AddDays(-daysBack);
-            goals = goals.Where(g => g.CreatedAt >= cutoff).ToList();
+            goals = [.. goals.Where(g => g.CreatedAt >= cutoff)];
         }
 
         var ordered = new[] { "pending", "active", "paused", "completed", "cancelled" };
@@ -41,10 +34,10 @@ public sealed class EmbeddedKanbanService
                 var colGoals = goals.Where(g => g.Status == t.key).ToList();
                 return new KanbanColumnDisplay(
                     t.key, t.label,
-                    colGoals.Select(g => new KanbanCardDisplay(
+                    [.. colGoals.Select(g => new KanbanCardDisplay(
                         g.Id, g.Description, g.Status, 0, g.Priority,
                         null, g.CreatedAt, g.Deadline, null, null
-                    )).ToList(),
+                    ))],
                     colGoals.Count);
             })
             .Where(c => c.Cards.Count > 0)
@@ -55,10 +48,10 @@ public sealed class EmbeddedKanbanService
             .GroupBy(g => g.Status)
             .Select(g => new KanbanColumnDisplay(
                 g.Key, g.Key,
-                g.Select(goal => new KanbanCardDisplay(
+                [.. g.Select(goal => new KanbanCardDisplay(
                     goal.Id, goal.Description, goal.Status, 0, goal.Priority,
                     null, goal.CreatedAt, goal.Deadline, null, null
-                )).ToList(),
+                ))],
                 g.Count()))
             .ToList();
 
@@ -73,7 +66,7 @@ public sealed class EmbeddedKanbanService
 
     public Task<bool> MoveCardAsync(string cardId, string newStatus, CancellationToken ct = default)
     {
-        return _kernel.MoveKanbanCardAsync(cardId, newStatus, ct);
+        return kernel.MoveKanbanCardAsync(cardId, newStatus, ct);
     }
 
     private static string GetColumnLabel(string status) => status switch

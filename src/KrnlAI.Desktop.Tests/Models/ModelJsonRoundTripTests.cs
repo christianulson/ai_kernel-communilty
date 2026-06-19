@@ -153,7 +153,7 @@ public sealed class ModelJsonRoundTripTests
     [Fact]
     public void CausalPrediction_RoundTrip()
     {
-        var original = new CoreModels.CausalPrediction("action", "outcome", 0.85, new() { "factor1", "factor2" });
+        var original = new CoreModels.CausalPrediction("action", "outcome", 0.85, ["factor1", "factor2"]);
         Assert.Equal(Canonical(original), RoundTrip(original));
     }
 

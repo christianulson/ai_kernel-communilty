@@ -11,12 +11,12 @@ public sealed class EmbeddedKernelClient : IKernelClient
     private readonly IEmbeddedKrnlAI _kernel;
     private readonly ConcurrentDictionary<string, PolicyDetails> _policies = new();
     private readonly ConcurrentDictionary<string, EpisodeDetails> _episodes = new();
-    private readonly List<DocumentInfo> _documents = new();
-    private readonly List<SnapshotInfo> _snapshots = new();
-    private readonly List<ObjectiveInfo> _objectives = new();
-    private readonly List<InvestigationInfo> _investigations = new();
-    private readonly List<McpServerInfo> _mcpServers = new();
-    private readonly List<MemoryMoment> _memoryMoments = new();
+    private readonly List<DocumentInfo> _documents = [];
+    private readonly List<SnapshotInfo> _snapshots = [];
+    private readonly List<ObjectiveInfo> _objectives = [];
+    private readonly List<InvestigationInfo> _investigations = [];
+    private readonly List<McpServerInfo> _mcpServers = [];
+    private readonly List<MemoryMoment> _memoryMoments = [];
     private int _feedbackCount;
 
     public EmbeddedKernelClient(IEmbeddedKrnlAI kernel)
@@ -60,7 +60,7 @@ public sealed class EmbeddedKernelClient : IKernelClient
         return new AgentRunResponse(
             result.Narration,
             null,
-            result.Steps.Select((step, index) => new TransportStep($"Embedded:{index + 1}", step, result.Error is null, null)).ToList(),
+            [.. result.Steps.Select((step, index) => new TransportStep($"Embedded:{index + 1}", step, result.Error is null, null))],
             [result.Mode],
             result.Error);
     }
@@ -72,9 +72,7 @@ public sealed class EmbeddedKernelClient : IKernelClient
     {
         var hits = await _kernel.SearchMemoryAsync(query, cancellationToken);
         return new MemorySearchResult(
-            hits.Take(Math.Max(1, topK))
-                .Select(hit => new MemoryHit(hit.Id, hit.Payload ?? "", "embedded", hit.Score, DateTime.UtcNow, null))
-                .ToList(),
+            [.. hits.Take(Math.Max(1, topK)).Select(hit => new MemoryHit(hit.Id, hit.Payload ?? "", "embedded", hit.Score, DateTime.UtcNow, null))],
             hits.Count,
             0);
     }
@@ -146,7 +144,7 @@ public sealed class EmbeddedKernelClient : IKernelClient
 
     public Task<AgentMetricsSummary?> GetMetricsSummaryAsync(CancellationToken ct = default)
         => Task.FromResult<AgentMetricsSummary?>(new AgentMetricsSummary(
-            _episodes.Count + _policies.Count, _episodes.Count, 0, 0, 0.92, 0, 0, new Dictionary<string, GoalMetrics>()));
+            _episodes.Count + _policies.Count, _episodes.Count, 0, 0, 0.92, 0, 0, []));
 
     public Task<AgentScorecard?> GetScorecardAsync(CancellationToken ct = default)
         => Task.FromResult<AgentScorecard?>(new AgentScorecard(85, 90, 95, 80, 88, 92));
@@ -158,7 +156,7 @@ public sealed class EmbeddedKernelClient : IKernelClient
     public async Task<GoalListResponse> GetActiveGoalsAsync(CancellationToken cancellationToken = default)
     {
         var goals = await _kernel.GetKanbanGoalsAsync(cancellationToken);
-        return new GoalListResponse(goals.Select(MapGoal).ToList(), goals.Count);
+        return new GoalListResponse([.. goals.Select(MapGoal)], goals.Count);
     }
 
     public async Task<GoalDetails?> GetGoalAsync(string goalId, CancellationToken cancellationToken = default)

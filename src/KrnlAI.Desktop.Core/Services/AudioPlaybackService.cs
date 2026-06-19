@@ -4,9 +4,8 @@ using Microsoft.Extensions.Logging;
 
 namespace KrnlAI.Desktop.Core.Services;
 
-public class AudioPlaybackService : IAudioPlayback
+public class AudioPlaybackService(ILogger<AudioPlaybackService> logger) : IAudioPlayback
 {
-    private readonly ILogger<AudioPlaybackService> _logger;
     private NAudio.Wave.WaveOutEvent? _waveOut;
     private NAudio.Wave.WaveFileReader? _waveReader;
     private MemoryStream? _audioStream;
@@ -18,11 +17,6 @@ public class AudioPlaybackService : IAudioPlayback
     public event EventHandler? PlaybackStopped;
 
     public bool IsPlaying => _isPlaying;
-
-    public AudioPlaybackService(ILogger<AudioPlaybackService> logger)
-    {
-        _logger = logger;
-    }
 
     public async Task PlayAsync(byte[] audioData, CancellationToken cancellationToken = default)
     {
@@ -48,7 +42,7 @@ public class AudioPlaybackService : IAudioPlayback
             _isPlaying = true;
             PlaybackStarted?.Invoke(this, EventArgs.Empty);
 
-            _logger.LogInformation("Starting audio playback");
+            logger.LogInformation("Starting audio playback");
 
             await Task.Run(() =>
             {
@@ -61,11 +55,11 @@ public class AudioPlaybackService : IAudioPlayback
         }
         catch (OperationCanceledException)
         {
-            _logger.LogInformation("Audio playback cancelled");
+            logger.LogInformation("Audio playback cancelled");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error playing audio");
+            logger.LogError(ex, "Error playing audio");
         }
         finally
         {
@@ -96,7 +90,7 @@ public class AudioPlaybackService : IAudioPlayback
     {
         var devices = new List<MediaDevice>();
 
-        for (int i = 0; i < NAudio.Wave.WaveOut.DeviceCount; i++)
+        for (var i = 0; i < NAudio.Wave.WaveOut.DeviceCount; i++)
         {
             var capabilities = NAudio.Wave.WaveOut.GetCapabilities(i);
             devices.Add(new MediaDevice(i.ToString(), capabilities.ProductName, MediaDeviceType.AudioOutput));
@@ -113,7 +107,7 @@ public class AudioPlaybackService : IAudioPlayback
     public void SetDevice(string? deviceId)
     {
         _selectedDeviceId = deviceId;
-        _logger.LogInformation("Audio output device set to: {DeviceId}", deviceId ?? "default");
+        logger.LogInformation("Audio output device set to: {DeviceId}", deviceId ?? "default");
     }
 
     public void SetVolume(float volume)

@@ -100,7 +100,7 @@ public sealed class CliStatsCommand
 
     private static int EstimateTokens(List<TuiSession> sessions)
     {
-        int totalChars = 0;
+        var totalChars = 0;
         foreach (var session in sessions)
         {
             foreach (var msg in session.Messages)

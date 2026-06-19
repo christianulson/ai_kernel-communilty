@@ -12,7 +12,7 @@ public class InvestigationsViewModel : ViewModelBase
 {
     private readonly IKernelClient _client;
     private readonly ILogger<InvestigationsViewModel> _logger;
-    public ObservableCollection<InvestigationInfo> Investigations { get; } = new();
+    public ObservableCollection<InvestigationInfo> Investigations { get; } = [];
     private bool _isLoading;
     public bool IsLoading { get => _isLoading; set { SetProperty(ref _isLoading, value); OnPropertyChanged(nameof(HasNoData)); } }
     private string _errorMessage = "";

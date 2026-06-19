@@ -41,7 +41,7 @@ public sealed class ApiKeysViewModelTests
     {
         var service = new FakeApiKeyManagementService
         {
-            Keys = Array.Empty<ApiKeyListItem>(),
+            Keys = [],
             Created = new ApiKeyCreationResult(
                 "kid-2",
                 "krnl_full_secret",
@@ -67,7 +67,7 @@ public sealed class ApiKeysViewModelTests
 
     private sealed class FakeApiKeyManagementService : IApiKeyManagementService
     {
-        public IReadOnlyList<ApiKeyListItem> Keys { get; init; } = Array.Empty<ApiKeyListItem>();
+        public IReadOnlyList<ApiKeyListItem> Keys { get; init; } = [];
         public ApiKeyUsageSummary? Stats { get; init; }
         public ApiKeyCreationResult? Created { get; init; }
 

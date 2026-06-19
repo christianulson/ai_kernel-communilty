@@ -62,8 +62,8 @@ public class CognitiveStudioViewModel : ViewModelBase
     private string _debugOutput = "";
     private string _toastMessage = "";
 
-    public ObservableCollection<CognitiveNode> Nodes { get; } = new();
-    public ObservableCollection<CognitiveEdge> Edges { get; } = new();
+    public ObservableCollection<CognitiveNode> Nodes { get; } = [];
+    public ObservableCollection<CognitiveEdge> Edges { get; } = [];
     public ObservableCollection<CognitiveStepType> PaletteItems { get; } = new(CognitiveStepMeta.StepOrder);
 
     public CognitiveNode? SelectedNode
@@ -169,8 +169,8 @@ public class CognitiveStudioViewModel : ViewModelBase
 
     private static Dictionary<string, List<CognitiveStepType>> GetTemplates() => new()
     {
-        ["customer-support"] = new() { CognitiveStepType.Sensor, CognitiveStepType.Attention, CognitiveStepType.Memory, CognitiveStepType.Evaluation, CognitiveStepType.MetaCognition, CognitiveStepType.Planning, CognitiveStepType.Governance, CognitiveStepType.Execution },
-        ["research-assistant"] = new() { CognitiveStepType.Sensor, CognitiveStepType.Planning, CognitiveStepType.Execution, CognitiveStepType.Outcome },
-        ["code-reviewer"] = new() { CognitiveStepType.Sensor, CognitiveStepType.Evaluation, CognitiveStepType.MetaCognition, CognitiveStepType.Execution },
+        ["customer-support"] = [CognitiveStepType.Sensor, CognitiveStepType.Attention, CognitiveStepType.Memory, CognitiveStepType.Evaluation, CognitiveStepType.MetaCognition, CognitiveStepType.Planning, CognitiveStepType.Governance, CognitiveStepType.Execution],
+        ["research-assistant"] = [CognitiveStepType.Sensor, CognitiveStepType.Planning, CognitiveStepType.Execution, CognitiveStepType.Outcome],
+        ["code-reviewer"] = [CognitiveStepType.Sensor, CognitiveStepType.Evaluation, CognitiveStepType.MetaCognition, CognitiveStepType.Execution],
     };
 }

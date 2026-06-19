@@ -16,7 +16,7 @@ public sealed class KrnlAIOptionsPage : DialogPage
     [Category("Krnl-AI")]
     [DisplayName("Runtime Mode")]
     [Description("Embedded uses local Sidecar, LocalApi requires loopback, RemoteApi allows remote API endpoints")]
-    public Services.KernelRuntimeMode RuntimeMode { get; set; } = Services.KernelRuntimeMode.LocalApi;
+    public Services.KernelRuntimeMode RuntimeMode { get; set; } = KernelRuntimeMode.LocalApi;
 
     [Category("Krnl-AI")]
     [DisplayName("Sidecar Port")]
@@ -71,7 +71,7 @@ public sealed class KrnlAIOptionsPage : DialogPage
     [Category("Krnl-AI - Chat")]
     [DisplayName("Approval Mode")]
     [Description("Chat-only: no actions, Confirm: approve per action, Full-approval: approve all")]
-    public Services.ApprovalMode ApprovalMode { get; set; } = Services.ApprovalMode.Confirm;
+    public Services.ApprovalMode ApprovalMode { get; set; } = ApprovalMode.Confirm;
 
     [Category("Krnl-AI - Chat")]
     [DisplayName("Enable Artifact Rendering")]
@@ -86,7 +86,7 @@ public sealed class KrnlAIOptionsPage : DialogPage
     [Category("Krnl-AI - Cloud")]
     [DisplayName("Cloud Mode")]
     [Description("Auto: decide based on latency, AlwaysCloud: always use cloud, AlwaysLocal: never use cloud")]
-    public Services.CloudMode CloudMode { get; set; } = Services.CloudMode.Auto;
+    public Services.CloudMode CloudMode { get; set; } = CloudMode.Auto;
 
     [Category("Krnl-AI - Cloud")]
     [DisplayName("Cloud Endpoint")]

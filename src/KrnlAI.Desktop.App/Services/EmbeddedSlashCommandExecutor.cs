@@ -1,18 +1,10 @@
 using KrnlAI.Desktop.Core.Abstractions;
-using KrnlAI.Embedded;
 using KrnlAI.Embedded.Abstractions;
 
 namespace KrnlAI.Desktop.App.Services;
 
-public sealed class EmbeddedSlashCommandExecutor : ISlashCommandExecutor
+public sealed class EmbeddedSlashCommandExecutor(IEmbeddedKrnlAI kernel) : ISlashCommandExecutor
 {
-    private readonly IEmbeddedKrnlAI _kernel;
-
-    public EmbeddedSlashCommandExecutor(IEmbeddedKrnlAI kernel)
-    {
-        _kernel = kernel;
-    }
-
     public async Task<string> ExecuteAsync(string input, CancellationToken ct = default)
     {
         var (cmd, _) = Parse(input);
@@ -20,7 +12,7 @@ public sealed class EmbeddedSlashCommandExecutor : ISlashCommandExecutor
         if (cmd == "/clear") return "CLEAR_CONVERSATION";
         if (cmd == "/help") return FormatHelp();
 
-        var result = await _kernel.RunAsync(input, ct);
+        var result = await kernel.RunAsync(input, ct);
         return result.Narration ?? result.Error ?? "Executed";
     }
 

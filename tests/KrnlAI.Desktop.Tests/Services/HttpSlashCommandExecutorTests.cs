@@ -1,4 +1,3 @@
-using System.Net;
 using KrnlAI.Desktop.App.Services;
 
 namespace KrnlAI.Desktop.Tests.Services;

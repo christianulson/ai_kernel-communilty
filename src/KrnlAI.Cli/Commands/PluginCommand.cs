@@ -12,18 +12,19 @@ public sealed class PluginCommand(
     IPluginCatalog? catalog = null,
     IPluginRegistryService? registry = null)
 {
-    private readonly List<string> _localPluginIds = new();
+    private readonly List<string> _localPluginIds = [];
 
     public Command Build()
     {
-        var cmd = new Command("plugin", "Manage plugins");
-
-        cmd.Add(BuildInstall());
-        cmd.Add(BuildList());
-        cmd.Add(BuildRemove());
-        cmd.Add(BuildSearch());
-        cmd.Add(BuildInfo());
-        cmd.Add(BuildRegistry());
+        var cmd = new Command("plugin", "Manage plugins")
+        {
+            BuildInstall(),
+            BuildList(),
+            BuildRemove(),
+            BuildSearch(),
+            BuildInfo(),
+            BuildRegistry()
+        };
 
         return cmd;
     }

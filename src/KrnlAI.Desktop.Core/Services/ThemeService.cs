@@ -12,7 +12,7 @@ public interface IThemeService
 public class ThemeService : IThemeService
 {
     private string _currentTheme = "dark";
-    private readonly HashSet<string> _availableThemes = new() { "dark", "light" };
+    private readonly HashSet<string> _availableThemes = ["dark", "light"];
 
     public string CurrentTheme => _currentTheme;
     public event EventHandler<string>? ThemeChanged;

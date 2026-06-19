@@ -27,7 +27,7 @@ public class ChatViewModel : ViewModelBase
     private readonly bool _persistenceEnabled;
 
     // Message history for up/down navigation
-    private readonly List<string> _messageHistory = new();
+    private readonly List<string> _messageHistory = [];
     private int _historyIndex = -1;
     private string _savedInput = string.Empty;
     private static readonly string HistoryPath = Path.Combine(
@@ -37,7 +37,7 @@ public class ChatViewModel : ViewModelBase
     // Slash commands
     private readonly ISlashCommandExecutor _slashHandler;
     private readonly SlashCommandService _slashCommands = new();
-    private ObservableCollection<SlashCommandInfo> _slashSuggestions = new();
+    private ObservableCollection<SlashCommandInfo> _slashSuggestions = [];
     public ObservableCollection<SlashCommandInfo> SlashSuggestions
     {
         get => _slashSuggestions;
@@ -66,7 +66,7 @@ public class ChatViewModel : ViewModelBase
         ("@diagnostics", "Project errors/warnings", "\u26a0\ufe0f"),
     };
 
-    private ObservableCollection<string> _mentionSuggestions = new();
+    private ObservableCollection<string> _mentionSuggestions = [];
     public ObservableCollection<string> MentionSuggestions
     {
         get => _mentionSuggestions;
@@ -85,8 +85,8 @@ public class ChatViewModel : ViewModelBase
         set => SetProperty(ref _mentionSelectedIndex, value);
     }
 
-    public ObservableCollection<ChatMessage> Messages { get; } = new();
-    public ObservableCollection<ChatMessage> FilteredMessages { get; } = new();
+    public ObservableCollection<ChatMessage> Messages { get; } = [];
+    public ObservableCollection<ChatMessage> FilteredMessages { get; } = [];
     private string _searchQuery = "";
     public string SearchQuery { get => _searchQuery; set { if (SetProperty(ref _searchQuery, value)) ApplySearchFilter(); } }
     private string _inputText = "";
@@ -253,8 +253,8 @@ public class ChatViewModel : ViewModelBase
         get => _isCognitiveStreamVisible;
         set => SetProperty(ref _isCognitiveStreamVisible, value);
     }
-    public List<StageViewModel> CognitiveStages { get; } = new();
-    public List<EventViewModel> CognitiveEvents { get; } = new();
+    public List<StageViewModel> CognitiveStages { get; } = [];
+    public List<EventViewModel> CognitiveEvents { get; } = [];
     public event Action? CognitiveDataChanged;
 
     // TTS toggle
@@ -355,7 +355,7 @@ public class ChatViewModel : ViewModelBase
                     Messages.Add(m);
             }
         }
-        catch (Exception ex) { KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"LoadMessages: {ex.Message}"); }
+        catch (Exception ex) { KrnlLogger.Write($"LoadMessages: {ex.Message}"); }
     }
 
     private void PersistMessages()
@@ -367,10 +367,10 @@ public class ChatViewModel : ViewModelBase
             var existing = store.Conversations.FirstOrDefault(c => c.Id == _sessionId);
             if (existing != null)
                 store.Conversations.Remove(existing);
-            store.Conversations.Add(new ConversationData(2, _sessionId, _sessionId, Messages.ToList(), DateTime.UtcNow, DateTime.UtcNow));
+            store.Conversations.Add(new ConversationData(2, _sessionId, _sessionId, [.. Messages], DateTime.UtcNow, DateTime.UtcNow));
             _sessionStore.Save(store with { ActiveConversationId = _sessionId });
         }
-        catch (Exception ex) { KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"PersistMessages: {ex.Message}"); }
+        catch (Exception ex) { KrnlLogger.Write($"PersistMessages: {ex.Message}"); }
     }
 
     private EmbeddedKrnlAI? GetOrCreateKernel()
@@ -518,7 +518,7 @@ public class ChatViewModel : ViewModelBase
                         Label = evt.StepName,
                         Detail = evt.Content ?? "",
                         Icon = si.Icon,
-                        Background = System.Windows.Media.Brushes.Transparent
+                        Background = Brushes.Transparent
                     });
                 }
             }
@@ -615,7 +615,7 @@ public class ChatViewModel : ViewModelBase
     {
         _videoCapture.FrameCaptured -= OnFrameCaptured;
         try { _ = _videoCapture.StopCaptureAsync(); }
-        catch (Exception ex) { KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"StopCamera: {ex.Message}"); }
+        catch (Exception ex) { KrnlLogger.Write($"StopCamera: {ex.Message}"); }
         IsCameraOn = false;
     }
 
@@ -639,7 +639,7 @@ public class ChatViewModel : ViewModelBase
         if (Messages.Count == 0) return;
         var text = string.Join("\n\n", Messages.Select(m => $"[{m.Timestamp:HH:mm}] {m.Role}: {m.Content}"));
         try { System.Windows.Clipboard.SetText(text); }
-        catch (Exception ex) { KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"Share: {ex.Message}"); }
+        catch (Exception ex) { KrnlLogger.Write($"Share: {ex.Message}"); }
     }
 
     private async Task EditMessageAsync(string messageId)
@@ -686,7 +686,7 @@ public class ChatViewModel : ViewModelBase
             html.AppendLine("</body></html>");
             await File.WriteAllTextAsync(dialog.FileName, html.ToString());
         }
-        catch (Exception ex) { KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"ExportPdf: {ex.Message}"); }
+        catch (Exception ex) { KrnlLogger.Write($"ExportPdf: {ex.Message}"); }
     }
 
     private async Task ExportConversationAsync()
@@ -712,11 +712,11 @@ public class ChatViewModel : ViewModelBase
             }
             else
             {
-                var json = System.Text.Json.JsonSerializer.Serialize(Messages.ToList(), new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+                var json = JsonSerializer.Serialize(Messages.ToList(), new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
                 await File.WriteAllTextAsync(dialog.FileName, json);
             }
         }
-        catch (Exception ex) { KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"Export: {ex.Message}"); }
+        catch (Exception ex) { KrnlLogger.Write($"Export: {ex.Message}"); }
     }
 
     public void Cleanup()

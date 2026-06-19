@@ -18,7 +18,7 @@ public class ListeningService : IListeningService
     private const int MaxAudioBufferSize = 10 * 1024 * 1024; // 10 MB max
     private DateTime _lastSpeechTime = DateTime.MinValue;
     private bool _wasSpeaking;
-    private readonly List<byte> _audioBuffer = new();
+    private readonly List<byte> _audioBuffer = [];
     private CancellationTokenSource? _cts;
     private Task? _processingTask = null;
     private readonly object _lock = new();
@@ -112,7 +112,7 @@ public class ListeningService : IListeningService
 
         if (!_isListening) return;
 
-        bool isSpeaking = level > _threshold;
+        var isSpeaking = level > _threshold;
 
         if (isSpeaking)
         {
@@ -160,7 +160,7 @@ public class ListeningService : IListeningService
         lock (_lock)
         {
             if (_audioBuffer.Count == 0) return;
-            audioData = _audioBuffer.ToArray();
+            audioData = [.. _audioBuffer];
             _audioBuffer.Clear();
         }
 

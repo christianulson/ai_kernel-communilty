@@ -2,15 +2,8 @@ using Hardcodet.Wpf.TaskbarNotification;
 
 namespace KrnlAI.Desktop.App.Services;
 
-public sealed class ToastService
+public sealed class ToastService(TaskbarIcon trayIcon)
 {
-    private readonly TaskbarIcon _trayIcon;
-
-    public ToastService(TaskbarIcon trayIcon)
-    {
-        _trayIcon = trayIcon;
-    }
-
     public void Show(string title, string message, ToastType type = ToastType.Info)
     {
         var icon = type switch
@@ -20,7 +13,7 @@ public sealed class ToastService
             ToastType.Error => BalloonIcon.Error,
             _ => BalloonIcon.Info
         };
-        _trayIcon?.ShowBalloonTip(title, message, icon);
+        trayIcon?.ShowBalloonTip(title, message, icon);
     }
 }
 

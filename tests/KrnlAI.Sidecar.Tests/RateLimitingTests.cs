@@ -1,16 +1,10 @@
 using Microsoft.AspNetCore.Mvc.Testing;
-using Xunit;
 
 namespace KrnlAI.Sidecar.Tests;
 
-public sealed class RateLimitingTests : IClassFixture<RateLimitSidecarWebAppFactory>
+public sealed class RateLimitingTests(RateLimitSidecarWebAppFactory factory) : IClassFixture<RateLimitSidecarWebAppFactory>
 {
-    private readonly HttpClient _http;
-
-    public RateLimitingTests(RateLimitSidecarWebAppFactory factory)
-    {
-        _http = factory.CreateClient();
-    }
+    private readonly HttpClient _http = factory.CreateClient();
 
     [Fact]
     public async Task RateLimiting_AgentRun_AfterExceedingLimit_ShouldReturn429()

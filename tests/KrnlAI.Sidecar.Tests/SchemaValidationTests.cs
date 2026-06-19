@@ -1,5 +1,3 @@
-using Xunit;
-
 namespace KrnlAI.Sidecar.Tests;
 
 public sealed class SchemaValidationTests(SidecarWebAppFactory factory) : IClassFixture<SidecarWebAppFactory>
@@ -45,14 +43,9 @@ public sealed class SchemaValidationTests(SidecarWebAppFactory factory) : IClass
     }
 }
 
-public sealed class SchemaValidationTests_CommunityMode : IClassFixture<CommunitySidecarWebAppFactory>
+public sealed class SchemaValidationTests_CommunityMode(CommunitySidecarWebAppFactory factory) : IClassFixture<CommunitySidecarWebAppFactory>
 {
-    private readonly HttpClient _http;
-
-    public SchemaValidationTests_CommunityMode(CommunitySidecarWebAppFactory factory)
-    {
-        _http = factory.CreateClient();
-    }
+    private readonly HttpClient _http = factory.CreateClient();
 
     [Fact]
     public async Task MemorySearch_Community_WithUnexpectedFields_ShouldReturn400()

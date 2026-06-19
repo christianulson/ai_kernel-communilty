@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 namespace KrnlAI.VisualStudio.Services;
 
 public sealed record KanbanResponse(

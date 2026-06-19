@@ -40,7 +40,7 @@ public sealed class HealthCommandTests
             new ProspectiveMemoryService(sp.GetRequiredService<IProspectiveMemoryStore>()));
         services.AddSingleton<IAnticipationService>(sp =>
             new AnticipationService(
-                Enumerable.Empty<KrnlAI.Core.Abstractions.IProjectionSource>(),
+                [],
                 sp.GetRequiredService<IAnticipationStore>()));
         services.AddSingleton<IGoalStore, InMemoryGoalStore>();
         services.AddSingleton<ISafetyCaseStore, InMemorySafetyCaseStore>();

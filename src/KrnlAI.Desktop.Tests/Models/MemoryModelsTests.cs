@@ -16,7 +16,7 @@ public class MemorySearchResultTests
     [Fact]
     public void MemorySearchResult_ShouldAllowEmpty()
     {
-        var result = new Core.Models.MemorySearchResult(new List<Core.Models.MemoryHit>(), 0, 0);
+        var result = new Core.Models.MemorySearchResult([], 0, 0);
         Assert.Empty(result.Hits);
     }
 }

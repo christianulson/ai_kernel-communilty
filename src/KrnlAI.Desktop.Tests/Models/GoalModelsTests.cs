@@ -123,7 +123,7 @@ public class GoalListResponseTests
     [Fact]
     public void GoalListResponse_ShouldAllowEmpty()
     {
-        var resp = new Core.Models.GoalListResponse(new List<Core.Models.GoalInfo>(), 0);
+        var resp = new Core.Models.GoalListResponse([], 0);
         Assert.Empty(resp.Goals);
         Assert.Equal(0, resp.TotalCount);
     }

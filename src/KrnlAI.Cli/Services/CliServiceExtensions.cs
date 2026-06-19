@@ -53,7 +53,7 @@ public static class CliServiceExtensions
                 logger: null));
         services.AddSingleton<IAnticipationService>(sp =>
             new AnticipationService(
-                Enumerable.Empty<IProjectionSource>(),
+                [],
                 sp.GetRequiredService<IAnticipationStore>(),
                 logger: null));
         services.AddSingleton<IGoalStore, InMemoryGoalStore>();

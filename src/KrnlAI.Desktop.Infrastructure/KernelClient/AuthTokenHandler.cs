@@ -3,39 +3,30 @@ using System.Net.Http.Headers;
 
 namespace KrnlAI.Desktop.Infrastructure.KernelClient;
 
-public sealed class AuthTokenHandler : DelegatingHandler
+public sealed class AuthTokenHandler(AuthTokenProvider tokenProvider, Func<CancellationToken, Task<string?>>? refreshHandler = null) : DelegatingHandler
 {
-    private readonly AuthTokenProvider _tokenProvider;
-    private readonly Func<CancellationToken, Task<string?>>? _refreshHandler;
-
-    public AuthTokenHandler(AuthTokenProvider tokenProvider, Func<CancellationToken, Task<string?>>? refreshHandler = null)
-    {
-        _tokenProvider = tokenProvider;
-        _refreshHandler = refreshHandler;
-    }
-
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
     {
-        if (!string.IsNullOrEmpty(_tokenProvider.Token))
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _tokenProvider.Token);
+        if (!string.IsNullOrEmpty(tokenProvider.Token))
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", tokenProvider.Token);
 
         var response = await base.SendAsync(request, ct);
 
         if (response.StatusCode == HttpStatusCode.Unauthorized
-            && _tokenProvider.RefreshToken != null
-            && _refreshHandler != null
+            && tokenProvider.RefreshToken != null
+            && refreshHandler != null
             && !IsRefreshRequest(request))
         {
-            var newToken = await _refreshHandler(ct);
+            var newToken = await refreshHandler(ct);
             if (newToken != null)
             {
-                _tokenProvider.Token = newToken;
+                tokenProvider.Token = newToken;
                 var retry = await CloneRequestAsync(request, ct);
                 retry.Headers.Authorization = new AuthenticationHeaderValue("Bearer", newToken);
                 response.Dispose();
                 return await base.SendAsync(retry, ct);
             }
-            _tokenProvider.Clear();
+            tokenProvider.Clear();
         }
 
         return response;

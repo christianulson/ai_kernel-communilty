@@ -26,7 +26,7 @@ public sealed class TuiChatPanelTests
     public void TuiChatPanel_MaxMessages_ShouldTrim()
     {
         var panel = new TuiChatPanel();
-        for (int i = 0; i < 150; i++)
+        for (var i = 0; i < 150; i++)
             panel.AddMessage("user", $"msg {i}");
         Assert.Equal(100, panel.MessageCount);
     }

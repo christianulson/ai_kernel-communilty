@@ -1,6 +1,5 @@
 using KrnlAI.Core.Abstractions;
 using KrnlAI.Core.Model;
-using KrnlAI.Core.Services;
 using KrnlAI.Desktop.App.Services;
 using CoreAbstractions = KrnlAI.Desktop.Core.Abstractions;
 using CoreCognitiveCycleEvent = KrnlAI.Core.Model.CognitiveCycleEvent;
@@ -142,7 +141,7 @@ public sealed class EmbeddedCognitiveStreamProviderTests
 
     private sealed class TestCognitiveStreamer : ICognitiveStreamer
     {
-        private readonly List<ICognitiveStreamSink> _sinks = new();
+        private readonly List<ICognitiveStreamSink> _sinks = [];
         public Task EmitAsync(CoreCognitiveCycleEvent evt, CancellationToken ct = default) => Task.CompletedTask;
         public Task EmitBatchAsync(IReadOnlyList<CoreCognitiveCycleEvent> events, CancellationToken ct = default) => Task.CompletedTask;
         public IDisposable Subscribe(ICognitiveStreamSink sink) { _sinks.Add(sink); return new Subscription(() => _sinks.Remove(sink)); }

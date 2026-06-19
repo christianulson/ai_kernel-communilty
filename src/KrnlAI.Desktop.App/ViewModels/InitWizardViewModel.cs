@@ -22,7 +22,7 @@ public class InitWizardViewModel : ViewModelBase
         BrowseCommand = new RelayCommand(() =>
         {
             var dlg = new Microsoft.Win32.OpenFileDialog { ValidateNames = false, CheckFileExists = false, CheckPathExists = true, FileName = "Selecionar Pasta" };
-            if (dlg.ShowDialog() == true) Location = System.IO.Path.GetDirectoryName(dlg.FileName) ?? _location;
+            if (dlg.ShowDialog() == true) Location = Path.GetDirectoryName(dlg.FileName) ?? _location;
         });
         CreateCommand = new AsyncRelayCommand(async () =>
         {

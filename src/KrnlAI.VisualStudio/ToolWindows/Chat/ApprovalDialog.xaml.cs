@@ -19,18 +19,18 @@ public partial class ApprovalDialog : Window
 
         RiskLevelText.Text = riskLevel switch
         {
-            Services.RiskLevel.Low => "\u26A0 Low Risk",
-            Services.RiskLevel.Medium => "\u26A0 Medium Risk",
-            Services.RiskLevel.High => "\u26A0 High Risk",
-            Services.RiskLevel.Critical => "\u26A0 Critical Risk",
+            RiskLevel.Low => "\u26A0 Low Risk",
+            RiskLevel.Medium => "\u26A0 Medium Risk",
+            RiskLevel.High => "\u26A0 High Risk",
+            RiskLevel.Critical => "\u26A0 Critical Risk",
             _ => "\u26A0 Unknown Risk"
         };
 
         RiskLevelText.Foreground = riskLevel switch
         {
-            Services.RiskLevel.Low => System.Windows.Media.Brushes.Green,
-            Services.RiskLevel.Medium => System.Windows.Media.Brushes.Orange,
-            Services.RiskLevel.High or Services.RiskLevel.Critical => System.Windows.Media.Brushes.Red,
+            RiskLevel.Low => System.Windows.Media.Brushes.Green,
+            RiskLevel.Medium => System.Windows.Media.Brushes.Orange,
+            RiskLevel.High or RiskLevel.Critical => System.Windows.Media.Brushes.Red,
             _ => System.Windows.Media.Brushes.Gray
         };
     }

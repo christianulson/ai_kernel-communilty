@@ -5,6 +5,7 @@ using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.TextManager.Interop;
 using Microsoft.VisualStudio.Utilities;
+#endif
 
 namespace KrnlAI.VisualStudio.Services;
 
@@ -25,6 +26,7 @@ public sealed record EditorDiagnostic(
     int Column
 );
 
+#if AUTOCODE_ENABLE_CODELENS
 public interface IEditorContextProvider
 {
     Task<EditorContext?> GetEditorContextAsync(CancellationToken ct = default);

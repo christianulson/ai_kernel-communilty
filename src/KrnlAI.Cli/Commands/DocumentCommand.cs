@@ -12,11 +12,13 @@ public sealed class DocumentCommand(CliContext ctx, ConsoleRenderer renderer)
 
     public Command Build()
     {
-        var cmd = new Command("document", "Manage documents");
-        cmd.Add(BuildList());
-        cmd.Add(BuildStatus());
-        cmd.Add(BuildSearch());
-        cmd.Add(BuildUpload());
+        var cmd = new Command("document", "Manage documents")
+        {
+            BuildList(),
+            BuildStatus(),
+            BuildSearch(),
+            BuildUpload()
+        };
         return cmd;
     }
 

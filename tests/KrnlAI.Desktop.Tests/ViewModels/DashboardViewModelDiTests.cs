@@ -1,4 +1,3 @@
-using System.Net.Http;
 using KrnlAI.Desktop.App.ViewModels;
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
@@ -23,17 +22,17 @@ public sealed class DashboardViewModelDiTests
         kc.Setup(x => x.GetScorecardAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new AgentScorecard(0.95, 0.88, 0.99, 0.92, 0.85, 0.92));
         kc.Setup(x => x.GetRuntimeSummaryAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new RuntimeSummary(true, true, "1.0", "2.0", 5, 1024, new Dictionary<string, string>()));
+            .ReturnsAsync(new RuntimeSummary(true, true, "1.0", "2.0", 5, 1024, []));
         kc.Setup(x => x.GetMetricsSummaryAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new AgentMetricsSummary(100, 90, 5, 5, 0.9, 500, 0.05, new Dictionary<string, GoalMetrics>()));
+            .ReturnsAsync(new AgentMetricsSummary(100, 90, 5, 5, 0.9, 500, 0.05, []));
         kc.Setup(x => x.GetActiveGoalsAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GoalListResponse(new List<GoalInfo> { new("g1", "test", "active", 3, DateTime.UtcNow, null, null, null, 0, 0) }, 1));
+            .ReturnsAsync(new GoalListResponse([new("g1", "test", "active", 3, DateTime.UtcNow, null, null, null, 0, 0)], 1));
         kc.Setup(x => x.GetCognitiveDashboardAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new CognitiveDashboardData(0.85, new List<CognitiveModule>(), new List<CognitiveEvent>(), new AutonomyStatus("high", DateTime.UtcNow, new Dictionary<string, double>())));
+            .ReturnsAsync(new CognitiveDashboardData(0.85, [], [], new AutonomyStatus("high", DateTime.UtcNow, [])));
         kc.Setup(x => x.GetCrossSummaryAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new CrossSummaryData(new CrossServiceStatus("1.0", TimeSpan.Zero, 0, 0, 0, 0), new CrossServiceStatus("2.0", TimeSpan.Zero, 0, 0, 0, 0), new HybridWeightsData(0.5, 0.5, 0.5, 0.5)));
         kc.Setup(x => x.GetMetricsByGoalAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new MetricsByGoalData(new List<GoalMetrics>(), 0));
+            .ReturnsAsync(new MetricsByGoalData([], 0));
         kc.Setup(x => x.GetEmotionalStateAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new EmotionalState(0.5, 0.3, 0.7, DateTimeOffset.UtcNow));
         kc.Setup(x => x.GetAffectiveStateAsync(It.IsAny<CancellationToken>()))
@@ -94,7 +93,7 @@ public sealed class DashboardViewModelDiTests
         kc.Setup(x => x.UpdateGoalStatusAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
         kc.Setup(x => x.GetActiveGoalsAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GoalListResponse(new List<GoalInfo>(), 0));
+            .ReturnsAsync(new GoalListResponse([], 0));
 
         var vm = CreateVm(kc);
         vm.SelectedGoal = new GoalInfo("g1", "test", "active", 3, DateTime.UtcNow, null, null, null, 0, 0);

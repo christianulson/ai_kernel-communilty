@@ -11,7 +11,7 @@ public class ModelRegistryViewModel : ViewModelBase
 {
     private readonly IKernelClient _kernelClient;
     private readonly ILogger<ModelRegistryViewModel> _logger;
-    public ObservableCollection<ModelRegistryEntry> Models { get; } = new();
+    public ObservableCollection<ModelRegistryEntry> Models { get; } = [];
     private ModelRegistryEntry? _active;
     public ModelRegistryEntry? Active { get => _active; set => SetProperty(ref _active, value); }
     private bool _isLoading;

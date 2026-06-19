@@ -90,10 +90,12 @@ public sealed class ProviderCommand
             return Task.FromResult(0);
         });
 
-        var cmd = new Command("provider", "Manage LLM providers");
-        cmd.Add(listCmd);
-        cmd.Add(addCmd);
-        cmd.Add(removeCmd);
+        var cmd = new Command("provider", "Manage LLM providers")
+        {
+            listCmd,
+            addCmd,
+            removeCmd
+        };
         return cmd;
     }
 

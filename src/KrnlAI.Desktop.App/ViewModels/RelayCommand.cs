@@ -1,19 +1,11 @@
-using System.Threading;
 using System.Windows.Input;
 using KrnlAI.Desktop.Core.Services;
 
 namespace KrnlAI.Desktop.App.ViewModels;
 
-public class RelayCommand : ICommand
+public class RelayCommand(Action<object?> execute, Predicate<object?>? canExecute = null) : ICommand
 {
-    private readonly Action<object?> _execute;
-    private readonly Predicate<object?>? _canExecute;
-
-    public RelayCommand(Action<object?> execute, Predicate<object?>? canExecute = null)
-    {
-        _execute = execute ?? throw new ArgumentNullException(nameof(execute));
-        _canExecute = canExecute;
-    }
+    private readonly Action<object?> _execute = execute ?? throw new ArgumentNullException(nameof(execute));
 
     public RelayCommand(Action execute, Func<bool>? canExecute = null)
         : this(_ => execute(), canExecute == null ? null : _ => canExecute())
@@ -26,26 +18,19 @@ public class RelayCommand : ICommand
         remove => CommandManager.RequerySuggested -= value;
     }
 
-    public bool CanExecute(object? parameter) => _canExecute?.Invoke(parameter) ?? true;
+    public bool CanExecute(object? parameter) => canExecute?.Invoke(parameter) ?? true;
 
     public void Execute(object? parameter) => _execute(parameter);
 
     public void RaiseCanExecuteChanged() => CommandManager.InvalidateRequerySuggested();
 }
 
-public class AsyncRelayCommand : ICommand
+public class AsyncRelayCommand(Func<object?, Task> execute, Predicate<object?>? canExecute = null) : ICommand
 {
-    private readonly Func<object?, Task> _execute;
-    private readonly Predicate<object?>? _canExecute;
+    private readonly Func<object?, Task> _execute = execute ?? throw new ArgumentNullException(nameof(execute));
     private int _isExecutingFlag;
 
     public static event Action<Exception>? UnhandledException;
-
-    public AsyncRelayCommand(Func<object?, Task> execute, Predicate<object?>? canExecute = null)
-    {
-        _execute = execute ?? throw new ArgumentNullException(nameof(execute));
-        _canExecute = canExecute;
-    }
 
     public AsyncRelayCommand(Func<Task> execute, Func<bool>? canExecute = null)
         : this(_ => execute(), canExecute == null ? null : _ => canExecute())
@@ -58,7 +43,7 @@ public class AsyncRelayCommand : ICommand
         remove => CommandManager.RequerySuggested -= value;
     }
 
-    public bool CanExecute(object? parameter) => Interlocked.CompareExchange(ref _isExecutingFlag, 0, 0) == 0 && (_canExecute?.Invoke(parameter) ?? true);
+    public bool CanExecute(object? parameter) => Interlocked.CompareExchange(ref _isExecutingFlag, 0, 0) == 0 && (canExecute?.Invoke(parameter) ?? true);
 
     public void Execute(object? parameter)
     {

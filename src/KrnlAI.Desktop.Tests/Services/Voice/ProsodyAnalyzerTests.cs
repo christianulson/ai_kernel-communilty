@@ -61,7 +61,7 @@ public sealed class ProsodyAnalyzerTests
         var sampleRate = 16000;
         var samples = (int)(sampleRate * durationSec);
         var pcm = new byte[samples * 2];
-        for (int i = 0; i < samples; i++)
+        for (var i = 0; i < samples; i++)
         {
             var value = (short)(amplitude * short.MaxValue * Math.Sin(2 * Math.PI * freqHz * i / sampleRate));
             pcm[i * 2] = (byte)(value & 0xFF);

@@ -4,10 +4,10 @@ using KrnlAI.Sdk.Models;
 
 namespace KrnlAI.VisualStudio.Services;
 
-public sealed class KernelClientService : IKernelClientService, IDisposable
+public sealed class KernelClientService(HttpClient? http = null) : IKernelClientService, IDisposable
 {
     private KrnlAIClient? _client;
-    private readonly HttpClient _http;
+    private readonly HttpClient _http = http ?? new HttpClient();
     private ConnectionState _state = ConnectionState.Disconnected;
     private string? _baseUrl;
     private const int MaxRetries = 3;
@@ -27,16 +27,11 @@ public sealed class KernelClientService : IKernelClientService, IDisposable
 
     public event Action<ConnectionState>? StateChanged;
 
-    public KernelClientService(HttpClient? http = null)
-    {
-        _http = http ?? new HttpClient();
-    }
-
     public async Task<bool> ConnectAsync(string endpoint, CancellationToken ct = default)
     {
         State = ConnectionState.Connecting;
 
-        for (int attempt = 0; attempt < MaxRetries; attempt++)
+        for (var attempt = 0; attempt < MaxRetries; attempt++)
         {
             try
             {

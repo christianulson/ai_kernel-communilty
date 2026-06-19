@@ -4,11 +4,10 @@ using Microsoft.Extensions.Logging;
 
 namespace KrnlAI.Desktop.Core.Services;
 
-public class AudioCaptureService : IAudioCapture
+public class AudioCaptureService(ILogger<AudioCaptureService> logger, int maxAudioBufferSize = 10 * 1024 * 1024) : IAudioCapture
 {
-    private readonly ILogger<AudioCaptureService> _logger;
     private NAudio.Wave.WaveInEvent? _waveIn;
-    private readonly List<byte> _audioBuffer = new();
+    private readonly List<byte> _audioBuffer = [];
     private bool _isCapturing;
     private string? _selectedDeviceId;
     private int _sampleRate = 16000;
@@ -16,17 +15,11 @@ public class AudioCaptureService : IAudioCapture
     private int _bitsPerSample = 16;
     private readonly object _lock = new();
     private const int BufferSizeMs = 500;
-    private readonly int _maxAudioBufferSize;
+    private readonly int _maxAudioBufferSize = Math.Max(1, maxAudioBufferSize);
 
     public event EventHandler<float>? VoiceLevelChanged;
 
     public bool IsCapturing => _isCapturing;
-
-    public AudioCaptureService(ILogger<AudioCaptureService> logger, int maxAudioBufferSize = 10 * 1024 * 1024)
-    {
-        _logger = logger;
-        _maxAudioBufferSize = Math.Max(1, maxAudioBufferSize);
-    }
 
     public Task StartCaptureAsync(string? deviceId = null)
     {
@@ -54,7 +47,7 @@ public class AudioCaptureService : IAudioCapture
         _waveIn.StartRecording();
         _isCapturing = true;
 
-        _logger.LogInformation("Audio capture started with device: {DeviceId}, sampleRate: {SampleRate}",
+        logger.LogInformation("Audio capture started with device: {DeviceId}, sampleRate: {SampleRate}",
             deviceId ?? "default", _sampleRate);
         return Task.CompletedTask;
     }
@@ -73,7 +66,7 @@ public class AudioCaptureService : IAudioCapture
             _audioBuffer.Clear();
         }
 
-        _logger.LogInformation("Audio capture stopped");
+        logger.LogInformation("Audio capture stopped");
         return Task.CompletedTask;
     }
 
@@ -90,22 +83,22 @@ public class AudioCaptureService : IAudioCapture
         byte[] result;
         lock (_lock)
         {
-            result = _audioBuffer.ToArray();
+            result = [.. _audioBuffer];
             _audioBuffer.Clear();
         }
 
-        _logger.LogInformation("Audio capture stopped, captured {Length} bytes", result.Length);
+        logger.LogInformation("Audio capture stopped, captured {Length} bytes", result.Length);
         return Task.FromResult(result);
     }
 
     private void OnDataAvailable(object? sender, NAudio.Wave.WaveInEventArgs e)
     {
         float maxLevel = 0;
-        for (int i = 0; i < e.BytesRecorded; i += 2)
+        for (var i = 0; i < e.BytesRecorded; i += 2)
         {
             if (i + 1 >= e.BytesRecorded) break;
-            short sample = BitConverter.ToInt16(e.Buffer, i);
-            float level = Math.Abs(sample / 32768f);
+            var sample = BitConverter.ToInt16(e.Buffer, i);
+            var level = Math.Abs(sample / 32768f);
             if (level > maxLevel) maxLevel = level;
         }
 
@@ -126,7 +119,7 @@ public class AudioCaptureService : IAudioCapture
     {
         if (e.Exception != null)
         {
-            _logger.LogError(e.Exception, "Recording stopped with error");
+            logger.LogError(e.Exception, "Recording stopped with error");
         }
     }
 
@@ -136,7 +129,7 @@ public class AudioCaptureService : IAudioCapture
 
         try
         {
-            for (int i = 0; i < NAudio.Wave.WaveIn.DeviceCount; i++)
+            for (var i = 0; i < NAudio.Wave.WaveIn.DeviceCount; i++)
             {
                 var capabilities = NAudio.Wave.WaveIn.GetCapabilities(i);
                 devices.Add(new MediaDevice(i.ToString(), capabilities.ProductName, MediaDeviceType.AudioInput));
@@ -144,7 +137,7 @@ public class AudioCaptureService : IAudioCapture
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Error enumerating audio devices");
+            logger.LogWarning(ex, "Error enumerating audio devices");
         }
 
         if (devices.Count == 0)
@@ -168,7 +161,7 @@ public class AudioCaptureService : IAudioCapture
             _ = StopCaptureAsync().ContinueWith(t =>
             {
                 if (t.IsFaulted)
-                    _logger.LogError(t.Exception, "Error stopping audio capture on dispose");
+                    logger.LogError(t.Exception, "Error stopping audio capture on dispose");
             }, TaskContinuationOptions.ExecuteSynchronously);
         }
     }

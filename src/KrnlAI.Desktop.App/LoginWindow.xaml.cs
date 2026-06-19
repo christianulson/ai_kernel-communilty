@@ -320,7 +320,7 @@ public class LoginViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"StopOAuthCallbackListener: {ex.Message}");
+            Core.Services.KrnlLogger.Write($"StopOAuthCallbackListener: {ex.Message}");
         }
         _oauthListener = null;
     }

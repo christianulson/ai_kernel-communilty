@@ -5,13 +5,13 @@ namespace KrnlAI.Desktop.App.ViewModels;
 
 public class ExperimentViewModel : ViewModelBase
 {
-    public ObservableCollection<string> Scenarios { get; } = new()
-    {
+    public ObservableCollection<string> Scenarios { get; } =
+    [
         "🧪 Test: Policy evaluation accuracy",
         "🧪 Test: Memory recall speed",
         "🧪 Test: Causal reasoning chain",
         "🧪 Test: Multi-step planning"
-    };
+    ];
     private string _status = "Pronto.";
     public string Status { get => _status; set => SetProperty(ref _status, value); }
     public ICommand RunCommand { get; }

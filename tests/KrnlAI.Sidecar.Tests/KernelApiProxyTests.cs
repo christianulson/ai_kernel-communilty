@@ -1,9 +1,7 @@
 using System.Net;
-using KrnlAI.Sidecar.Rpc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
-using Xunit;
 using MemoryCache = Microsoft.Extensions.Caching.Memory.MemoryCache;
 
 namespace KrnlAI.Sidecar.Tests;
@@ -89,7 +87,7 @@ public sealed class KernelApiProxyTests
 
     private sealed class MockHttpHandler : HttpMessageHandler
     {
-        private readonly Dictionary<string, HttpResponseMessage> _responses = new();
+        private readonly Dictionary<string, HttpResponseMessage> _responses = [];
 
         public void SetupResponse(string path, HttpResponseMessage response)
             => _responses[path] = response;

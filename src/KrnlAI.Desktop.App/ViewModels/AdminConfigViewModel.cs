@@ -10,8 +10,8 @@ namespace KrnlAI.Desktop.App.ViewModels;
 public sealed class AdminConfigViewModel : ViewModelBase
 {
     private readonly ILogger<AdminConfigViewModel> _logger;
-    public ObservableCollection<FeatureFlag> FeatureFlags { get; } = new();
-    public ObservableCollection<ConfigEntry> ConfigEntries { get; } = new();
+    public ObservableCollection<FeatureFlag> FeatureFlags { get; } = [];
+    public ObservableCollection<ConfigEntry> ConfigEntries { get; } = [];
     private bool _isLoading;
     public bool IsLoading { get => _isLoading; set => SetProperty(ref _isLoading, value); }
     private string _statusMessage = "";

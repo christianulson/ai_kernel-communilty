@@ -21,10 +21,11 @@ public sealed class BenchmarkCommand(
 
     public Command Build()
     {
-        var cmd = new Command("benchmark", "Run safety benchmarks and comparisons");
-
-        cmd.Add(BuildSafetyCommand());
-        cmd.Add(BuildListCommand());
+        var cmd = new Command("benchmark", "Run safety benchmarks and comparisons")
+        {
+            BuildSafetyCommand(),
+            BuildListCommand()
+        };
 
         return cmd;
     }

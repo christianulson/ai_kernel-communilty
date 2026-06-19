@@ -9,12 +9,13 @@ public sealed class IntegrationCommand(IAnsiConsole console)
 {
     public Command Build()
     {
-        var cmd = new Command("integration", "Manage provider integrations");
-
-        cmd.Add(BuildList());
-        cmd.Add(BuildTest());
-        cmd.Add(BuildConfig());
-        cmd.Add(BuildAdd());
+        var cmd = new Command("integration", "Manage provider integrations")
+        {
+            BuildList(),
+            BuildTest(),
+            BuildConfig(),
+            BuildAdd()
+        };
 
         return cmd;
     }

@@ -1,46 +1,36 @@
-using KrnlAI.Desktop.Core.Abstractions;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Logging;
-using System.Text.Json;
 
 namespace KrnlAI.Desktop.Core.Services;
 
-public sealed class SensoryIngestClient : IAsyncDisposable
+public sealed class SensoryIngestClient(string hubUrl = "http://localhost:5000/hubs/sensory-ingestion",
+    ILogger<SensoryIngestClient>? logger = null) : IAsyncDisposable
 {
     private HubConnection? _connection;
-    private readonly string _hubUrl;
-    private readonly ILogger<SensoryIngestClient>? _logger;
 
     public bool IsConnected => _connection?.State == HubConnectionState.Connected;
-
-    public SensoryIngestClient(string hubUrl = "http://localhost:5000/hubs/sensory-ingestion",
-        ILogger<SensoryIngestClient>? logger = null)
-    {
-        _hubUrl = hubUrl;
-        _logger = logger;
-    }
 
     public async Task ConnectAsync(CancellationToken ct = default)
     {
         _connection = new HubConnectionBuilder()
-            .WithUrl(_hubUrl)
+            .WithUrl(hubUrl)
             .WithAutomaticReconnect()
             .Build();
 
         _connection.Reconnecting += _ =>
         {
-            _logger?.LogWarning("SensoryIngestClient reconnecting...");
+            logger?.LogWarning("SensoryIngestClient reconnecting...");
             return Task.CompletedTask;
         };
 
         _connection.Reconnected += _ =>
         {
-            _logger?.LogInformation("SensoryIngestClient reconnected");
+            logger?.LogInformation("SensoryIngestClient reconnected");
             return Task.CompletedTask;
         };
 
         await _connection.StartAsync(ct);
-        _logger?.LogInformation("SensoryIngestClient connected to {Hub}", _hubUrl);
+        logger?.LogInformation("SensoryIngestClient connected to {Hub}", hubUrl);
     }
 
     public async Task SendAudioFrameAsync(byte[] wavData, double intensity, string? transcription = null)
@@ -53,7 +43,7 @@ public sealed class SensoryIngestClient : IAsyncDisposable
         }
         catch (Exception ex)
         {
-            _logger?.LogWarning(ex, "Failed to send audio frame");
+            logger?.LogWarning(ex, "Failed to send audio frame");
         }
     }
 
@@ -67,7 +57,7 @@ public sealed class SensoryIngestClient : IAsyncDisposable
         }
         catch (Exception ex)
         {
-            _logger?.LogWarning(ex, "Failed to send video frame");
+            logger?.LogWarning(ex, "Failed to send video frame");
         }
     }
 
@@ -87,7 +77,7 @@ public sealed class SensoryIngestClient : IAsyncDisposable
         }
         catch (Exception ex)
         {
-            _logger?.LogWarning(ex, "Failed to send batch");
+            logger?.LogWarning(ex, "Failed to send batch");
         }
     }
 

@@ -16,11 +16,12 @@ public sealed class SecurityCommand(SafetyBenchRunner benchRunner, IAnsiConsole 
 
     public Command Build()
     {
-        var cmd = new Command("security", "Safety evaluation and benchmarking");
-
-        cmd.Add(BuildAuditCommand());
-        cmd.Add(BuildBenchmarkCommand());
-        cmd.Add(BuildReportCommand());
+        var cmd = new Command("security", "Safety evaluation and benchmarking")
+        {
+            BuildAuditCommand(),
+            BuildBenchmarkCommand(),
+            BuildReportCommand()
+        };
 
         return cmd;
     }

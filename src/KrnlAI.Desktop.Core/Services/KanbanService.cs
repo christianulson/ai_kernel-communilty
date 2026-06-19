@@ -30,10 +30,10 @@ public sealed class KanbanService(
         }
 
         return new KanbanDisplay(
-            resp.Columns.Select(c => new KanbanColumnDisplay(
+            [.. resp.Columns.Select(c => new KanbanColumnDisplay(
                 c.Column, c.Label,
-                c.Cards.Select(MapCard).ToList(),
-                c.TotalCount)).ToList(),
+                [.. c.Cards.Select(MapCard)],
+                c.TotalCount))],
             new KanbanMetadataDisplay(
                 resp.Metadata.TotalGoals,
                 resp.Metadata.TotalColumns,

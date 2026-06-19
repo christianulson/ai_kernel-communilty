@@ -29,7 +29,7 @@ public sealed class SessionTeleportServiceTests
     public async Task ClearSession_ShouldRemoveState()
     {
         var service = CreateService();
-        await service.SaveSessionAsync(new SessionState("s1", null, Array.Empty<string>(), 0, DateTime.UtcNow));
+        await service.SaveSessionAsync(new SessionState("s1", null, [], 0, DateTime.UtcNow));
 
         await service.ClearSessionAsync();
         var restored = await service.RestoreSessionAsync();
@@ -49,7 +49,7 @@ public sealed class SessionTeleportServiceTests
     public async Task SaveSession_ShouldUpdateCurrentSession()
     {
         var service = CreateService();
-        var state = new SessionState("s2", "goal2", Array.Empty<string>(), 3, DateTime.UtcNow);
+        var state = new SessionState("s2", "goal2", [], 3, DateTime.UtcNow);
 
         await service.SaveSessionAsync(state);
 
@@ -61,8 +61,8 @@ public sealed class SessionTeleportServiceTests
     public async Task MultipleSaves_ShouldOverwrite()
     {
         var service = CreateService();
-        await service.SaveSessionAsync(new SessionState("s1", "g1", Array.Empty<string>(), 0, DateTime.UtcNow));
-        await service.SaveSessionAsync(new SessionState("s2", "g2", Array.Empty<string>(), 0, DateTime.UtcNow));
+        await service.SaveSessionAsync(new SessionState("s1", "g1", [], 0, DateTime.UtcNow));
+        await service.SaveSessionAsync(new SessionState("s2", "g2", [], 0, DateTime.UtcNow));
 
         var restored = await service.RestoreSessionAsync();
 

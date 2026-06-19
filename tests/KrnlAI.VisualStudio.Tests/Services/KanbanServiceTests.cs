@@ -78,11 +78,9 @@ public sealed class KanbanServiceTests
         result.Should().BeFalse();
     }
 
-    private sealed class MockHttpHandler : HttpMessageHandler
+    private sealed class MockHttpHandler(Func<HttpRequestMessage, HttpResponseMessage> handler) : HttpMessageHandler
     {
-        private readonly Func<HttpRequestMessage, HttpResponseMessage> _handler;
-        public MockHttpHandler(Func<HttpRequestMessage, HttpResponseMessage> handler) => _handler = handler;
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
-            => Task.FromResult(_handler(request));
+            => Task.FromResult(handler(request));
     }
 }

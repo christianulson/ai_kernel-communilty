@@ -22,9 +22,9 @@ public sealed class ProsodyAnalyzer
 
         var energy = ComputeRmsEnergy(samples);
         var nonSilent = samples.Where(s => Math.Abs(s / 32768.0) > SilenceThreshold).ToList();
-        var usable = nonSilent.Count > 10 ? nonSilent : samples.ToList();
+        var usable = nonSilent.Count > 10 ? nonSilent : [.. samples];
 
-        var (pitchMean, pitchStd) = ComputePitch(usable.ToArray());
+        var (pitchMean, pitchStd) = ComputePitch([.. usable]);
         var speakingRate = EstimateSpeakingRate(samples);
         var quality = ClassifyVoiceQuality(energy, pitchStd);
 
@@ -55,7 +55,7 @@ public sealed class ProsodyAnalyzer
     {
         var count = pcmData.Length / 2;
         var result = new short[count];
-        for (int i = 0; i < count; i++)
+        for (var i = 0; i < count; i++)
             result[i] = BitConverter.ToInt16(pcmData, i * 2);
         return result;
     }
@@ -63,7 +63,7 @@ public sealed class ProsodyAnalyzer
     private static double ComputeRmsEnergy(short[] samples)
     {
         double sum = 0;
-        for (int i = 0; i < samples.Length; i++)
+        for (var i = 0; i < samples.Length; i++)
         {
             var normalized = samples[i] / 32768.0;
             sum += normalized * normalized;
@@ -78,7 +78,7 @@ public sealed class ProsodyAnalyzer
         if (frameSize < 2) return (0, 0);
 
         var pitches = new List<double>();
-        for (int start = 0; start + frameSize < samples.Length; start += hopSize)
+        for (var start = 0; start + frameSize < samples.Length; start += hopSize)
         {
             var pitch = EstimateFramePitch(samples, start, frameSize);
             if (pitch > 50 && pitch < 500)
@@ -99,11 +99,11 @@ public sealed class ProsodyAnalyzer
         var bestLag = minLag;
         var bestCorr = double.MinValue;
 
-        for (int lag = minLag; lag <= maxLag; lag++)
+        for (var lag = minLag; lag <= maxLag; lag++)
         {
             if (start + lag + frameSize > samples.Length) break;
             double corr = 0, sumSq = 0;
-            for (int i = 0; i < frameSize; i++)
+            for (var i = 0; i < frameSize; i++)
             {
                 corr += samples[start + i] * samples[start + i + lag];
                 sumSq += samples[start + i] * samples[start + i];
@@ -126,21 +126,21 @@ public sealed class ProsodyAnalyzer
     {
         var frameEnergy = new List<double>();
         var frameSize = (int)(SampleRate * 0.05);
-        for (int i = 0; i < samples.Length; i += frameSize)
+        for (var i = 0; i < samples.Length; i += frameSize)
         {
             var end = Math.Min(i + frameSize, samples.Length);
             double energy = 0;
-            for (int j = i; j < end; j++)
+            for (var j = i; j < end; j++)
                 energy += Math.Abs(samples[j] / 32768.0);
             frameEnergy.Add(energy / (end - i));
         }
 
         var threshold = frameEnergy.Average() * 0.5;
         var transitions = 0;
-        bool wasAbove = frameEnergy.Count > 0 && frameEnergy[0] > threshold;
-        for (int i = 1; i < frameEnergy.Count; i++)
+        var wasAbove = frameEnergy.Count > 0 && frameEnergy[0] > threshold;
+        for (var i = 1; i < frameEnergy.Count; i++)
         {
-            bool isAbove = frameEnergy[i] > threshold;
+            var isAbove = frameEnergy[i] > threshold;
             if (isAbove != wasAbove) transitions++;
             wasAbove = isAbove;
         }

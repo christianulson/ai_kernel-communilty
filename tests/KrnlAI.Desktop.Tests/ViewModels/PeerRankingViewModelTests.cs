@@ -104,7 +104,7 @@ public sealed class PeerRankingViewModelTests
         }
 
         public Task<IReadOnlyList<PeerRankingHistoryEntry>> GetHistoryAsync(string nodeId, CancellationToken ct = default)
-            => Task.FromResult<IReadOnlyList<PeerRankingHistoryEntry>>(History.Where(entry => entry.NodeId == nodeId).ToList());
+            => Task.FromResult<IReadOnlyList<PeerRankingHistoryEntry>>([.. History.Where(entry => entry.NodeId == nodeId)]);
 
         public Task<int> RecomputeAsync(CancellationToken ct = default)
             => Task.FromResult(2);

@@ -20,8 +20,8 @@ public sealed class IntentionsCommand(CliContext ctx, ConsoleRenderer renderer)
             var intentions = await ctx.ProspectiveMemory.GetPendingIntentionsAsync(ct);
 
             if (!string.IsNullOrEmpty(domain))
-                intentions = intentions.Where(i =>
-                    i.Domain != null && i.Domain.Contains(domain, StringComparison.OrdinalIgnoreCase)).ToList();
+                intentions = [.. intentions.Where(i =>
+                    i.Domain != null && i.Domain.Contains(domain, StringComparison.OrdinalIgnoreCase))];
 
             if (intentions.Count == 0)
             {

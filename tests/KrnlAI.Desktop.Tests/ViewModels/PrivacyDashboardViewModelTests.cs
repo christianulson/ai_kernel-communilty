@@ -38,21 +38,17 @@ public sealed class PrivacyDashboardViewModelTests
         Assert.Equal("req-999", service.LastExportRequestId);
     }
 
-    private sealed class FakeTelemetryPrivacyService : ITelemetryPrivacyService
+    private sealed class FakeTelemetryPrivacyService(TelemetryPrivacyState state) : ITelemetryPrivacyService
     {
-        private readonly TelemetryPrivacyState _state;
-
-        public FakeTelemetryPrivacyService(TelemetryPrivacyState state) => _state = state;
-
         public TelemetryPrivacyActionResult? ExportResult { get; init; }
         public TelemetryPrivacyActionResult? DeleteResult { get; init; }
         public string? LastExportRequestId { get; private set; }
 
         public Task<TelemetryPrivacyState> GetConsentAsync(CancellationToken ct = default)
-            => Task.FromResult(_state);
+            => Task.FromResult(state);
 
         public Task<TelemetryPrivacyState> SetConsentAsync(TelemetryConsentLevel level, CancellationToken ct = default)
-            => Task.FromResult(_state with { ConsentLevel = level });
+            => Task.FromResult(state with { ConsentLevel = level });
 
         public Task<TelemetryPrivacyActionResult> RequestExportAsync(CancellationToken ct = default)
         {

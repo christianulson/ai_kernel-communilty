@@ -188,7 +188,7 @@ public sealed class SafetyCommand(CliContext ctx, ConsoleRenderer renderer, ISer
             }
         }
 
-        return rules.Where(r => ids.Contains(r.RuleId)).ToList();
+        return [.. rules.Where(r => ids.Contains(r.RuleId))];
     }
 
     private static bool TryParseRuleId(string s, out int num)

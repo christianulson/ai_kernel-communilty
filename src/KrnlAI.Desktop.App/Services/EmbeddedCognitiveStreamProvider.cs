@@ -4,20 +4,14 @@ using CoreAbstractions = KrnlAI.Desktop.Core.Abstractions;
 
 namespace KrnlAI.Desktop.App.Services;
 
-public sealed class EmbeddedCognitiveStreamProvider : CoreAbstractions.ICognitiveStreamProvider
+public sealed class EmbeddedCognitiveStreamProvider(ICognitiveStreamer streamer) : CoreAbstractions.ICognitiveStreamProvider
 {
-    private readonly ICognitiveStreamer _streamer;
     private IDisposable? _subscription;
     private string? _activeCycleId;
 
     public CoreAbstractions.CognitiveStreamState State { get; private set; } = CoreAbstractions.CognitiveStreamState.Disconnected;
     public event Action<CoreAbstractions.CognitiveCycleEvent>? OnEvent;
     public event Action<CoreAbstractions.CognitiveStreamState>? OnStateChanged;
-
-    public EmbeddedCognitiveStreamProvider(ICognitiveStreamer streamer)
-    {
-        _streamer = streamer;
-    }
 
     public Task ConnectAsync(string? cycleId = null, CancellationToken ct = default)
     {
@@ -30,13 +24,13 @@ public sealed class EmbeddedCognitiveStreamProvider : CoreAbstractions.ICognitiv
 
         try
         {
-            _subscription = _streamer.Subscribe(new EmbeddedStreamSink(this));
+            _subscription = streamer.Subscribe(new EmbeddedStreamSink(this));
             State = CoreAbstractions.CognitiveStreamState.Connected;
             OnStateChanged?.Invoke(State);
         }
         catch (Exception ex)
         {
-            KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"EmbeddedCognitiveStreamProvider: Subscribe failed: {ex.Message}");
+            Core.Services.KrnlLogger.Write($"EmbeddedCognitiveStreamProvider: Subscribe failed: {ex.Message}");
             State = CoreAbstractions.CognitiveStreamState.Error;
             OnStateChanged?.Invoke(State);
         }

@@ -1,4 +1,3 @@
-using System.Net.Http;
 using KrnlAI.Desktop.App.ViewModels;
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
@@ -28,7 +27,7 @@ public sealed class ChatViewModelDiTests
         kernelClient.Setup(k => k.RunAgentAsync(It.IsAny<AgentRunRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new AgentRunResponse("Hello!", null, null, null, null));
         kernelClient.Setup(k => k.GenerateSpeechAsync(It.IsAny<string>(), null, null, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Array.Empty<byte>());
+            .ReturnsAsync([]);
 
         var vm = CreateVm(kernelClient);
         vm.InputText = "test message";
@@ -44,7 +43,7 @@ public sealed class ChatViewModelDiTests
         kernelClient.Setup(k => k.RunAgentAsync(It.IsAny<AgentRunRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new AgentRunResponse("AI response", null, null, null, null));
         kernelClient.Setup(k => k.GenerateSpeechAsync(It.IsAny<string>(), null, null, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Array.Empty<byte>());
+            .ReturnsAsync([]);
 
         var vm = CreateVm(kernelClient);
         vm.InputText = "hello";
@@ -88,7 +87,7 @@ public sealed class ChatViewModelDiTests
         kernelClient.Setup(k => k.RunAgentAsync(It.IsAny<AgentRunRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new AgentRunResponse("done", null, null, null, null));
         kernelClient.Setup(k => k.GenerateSpeechAsync(It.IsAny<string>(), null, null, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Array.Empty<byte>());
+            .ReturnsAsync([]);
 
         var vm = CreateVm(kernelClient);
         vm.InputText = "test message";

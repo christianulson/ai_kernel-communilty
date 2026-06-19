@@ -5,14 +5,9 @@ using Spectre.Console;
 
 namespace KrnlAI.Cli.Services;
 
-public sealed class ConsoleRenderer
+public sealed class ConsoleRenderer(IAnsiConsole console)
 {
-    public IAnsiConsole Console { get; }
-
-    public ConsoleRenderer(IAnsiConsole console)
-    {
-        Console = console;
-    }
+    public IAnsiConsole Console { get; } = console;
 
     public void RenderTable<T>(IReadOnlyList<T> items, params string[] columns)
     {

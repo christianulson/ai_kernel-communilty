@@ -1,5 +1,3 @@
-using System.Net;
-using System.Net.Http;
 using KrnlAI.Desktop.Infrastructure.KernelClient;
 
 namespace KrnlAI.Desktop.Tests.Services;

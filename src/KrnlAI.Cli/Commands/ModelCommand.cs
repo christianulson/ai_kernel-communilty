@@ -8,11 +8,12 @@ public sealed class ModelCommand(CliContext ctx, ConsoleRenderer renderer)
 {
     public Command Build()
     {
-        var cmd = new Command("model", "Manage AI models");
-
-        cmd.Add(BuildList());
-        cmd.Add(BuildGet());
-        cmd.Add(BuildVersions());
+        var cmd = new Command("model", "Manage AI models")
+        {
+            BuildList(),
+            BuildGet(),
+            BuildVersions()
+        };
 
         return cmd;
     }

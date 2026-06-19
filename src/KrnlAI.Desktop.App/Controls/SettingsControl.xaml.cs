@@ -19,7 +19,7 @@ public partial class SettingsControl : UserControl
                     await mainVm.SettingsVM.ToggleMcpServerAsync(server.ServerId, check.IsChecked ?? false);
             }
         }
-        catch (Exception ex) { KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"SettingsControl.OnMcpToggled: {ex.Message}"); }
+        catch (Exception ex) { KrnlLogger.Write($"SettingsControl.OnMcpToggled: {ex.Message}"); }
     }
 
     private void OnOpenLogsFolder(object sender, RoutedEventArgs e)

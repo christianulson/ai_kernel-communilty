@@ -40,7 +40,7 @@ public partial class ChatControl : UserControl
                 window.ShowDialog();
             }
         }
-        catch (Exception ex) { KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"ImagePreview: {ex.Message}"); }
+        catch (Exception ex) { Core.Services.KrnlLogger.Write($"ImagePreview: {ex.Message}"); }
     }
 
     private async void OnDrop(object sender, DragEventArgs e)
@@ -56,7 +56,7 @@ public partial class ChatControl : UserControl
                 }
             }
         }
-        catch (Exception ex) { KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"DragDrop: {ex.Message}"); }
+        catch (Exception ex) { Core.Services.KrnlLogger.Write($"DragDrop: {ex.Message}"); }
     }
 
     private async void OnLoaded(object sender, RoutedEventArgs e)
@@ -71,7 +71,7 @@ public partial class ChatControl : UserControl
                 await chatVm.ConnectCognitiveStreamAsync();
             }
         }
-        catch (Exception ex) { KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"ChatControl.OnLoaded: {ex.Message}"); }
+        catch (Exception ex) { Core.Services.KrnlLogger.Write($"ChatControl.OnLoaded: {ex.Message}"); }
     }
 
     private void OnCognitiveDataChanged()

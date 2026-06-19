@@ -10,7 +10,7 @@ namespace KrnlAI.Desktop.App.ViewModels;
 public sealed class AdminUsersViewModel : ViewModelBase
 {
     private readonly ILogger<AdminUsersViewModel> _logger;
-    public ObservableCollection<UserInfo> Users { get; } = new();
+    public ObservableCollection<UserInfo> Users { get; } = [];
     private UserInfo? _selectedUser;
     public UserInfo? SelectedUser { get => _selectedUser; set { SetProperty(ref _selectedUser, value); OnPropertyChanged(nameof(HasSelection)); } }
     public bool HasSelection => _selectedUser != null;

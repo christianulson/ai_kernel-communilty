@@ -19,7 +19,7 @@ public sealed class ApprovalServiceTests
         public bool EnableCodeLens { get; set; } = true;
         public bool EnableHover { get; set; } = true;
         public bool EnableCodeActions { get; set; } = true;
-        public global::KrnlAI.VisualStudio.Services.ApprovalMode ApprovalMode { get; set; } = global::KrnlAI.VisualStudio.Services.ApprovalMode.Confirm;
+        public global::KrnlAI.VisualStudio.Services.ApprovalMode ApprovalMode { get; set; } = ApprovalMode.Confirm;
         public bool EnableArtifactRendering { get; set; } = true;
         public bool EnableStreaming { get; set; } = true;
         public global::KrnlAI.VisualStudio.Services.CloudMode CloudMode { get; set; }
@@ -32,25 +32,25 @@ public sealed class ApprovalServiceTests
     [Fact]
     public void Mode_ShouldReturnSettingsValue()
     {
-        var settings = new MockSettingsService { ApprovalMode = global::KrnlAI.VisualStudio.Services.ApprovalMode.ChatOnly };
+        var settings = new MockSettingsService { ApprovalMode = ApprovalMode.ChatOnly };
         var service = new ApprovalService(settings);
 
-        service.Mode.Should().Be(global::KrnlAI.VisualStudio.Services.ApprovalMode.ChatOnly);
+        service.Mode.Should().Be(ApprovalMode.ChatOnly);
     }
 
     [Fact]
     public void Mode_WhenFullApproval_ShouldReturnFullApproval()
     {
-        var settings = new MockSettingsService { ApprovalMode = global::KrnlAI.VisualStudio.Services.ApprovalMode.FullApproval };
+        var settings = new MockSettingsService { ApprovalMode = ApprovalMode.FullApproval };
         var service = new ApprovalService(settings);
 
-        service.Mode.Should().Be(global::KrnlAI.VisualStudio.Services.ApprovalMode.FullApproval);
+        service.Mode.Should().Be(ApprovalMode.FullApproval);
     }
 
     [Fact]
     public async Task RequestApprovalAsync_ChatOnlyMode_ShouldReject()
     {
-        var settings = new MockSettingsService { ApprovalMode = global::KrnlAI.VisualStudio.Services.ApprovalMode.ChatOnly };
+        var settings = new MockSettingsService { ApprovalMode = ApprovalMode.ChatOnly };
         var service = new ApprovalService(settings);
 
         var result = await service.RequestApprovalAsync("test action", "details", RiskLevel.Low);
@@ -62,7 +62,7 @@ public sealed class ApprovalServiceTests
     [Fact]
     public async Task RequestApprovalAsync_LowRiskConfirmMode_ShouldRequireApproval()
     {
-        var settings = new MockSettingsService { ApprovalMode = global::KrnlAI.VisualStudio.Services.ApprovalMode.Confirm };
+        var settings = new MockSettingsService { ApprovalMode = ApprovalMode.Confirm };
         var service = new ApprovalService(settings);
 
         var result = await service.RequestApprovalAsync("test", "", RiskLevel.Low);

@@ -149,11 +149,9 @@ public sealed class PluginCommandTests
         registries.Should().Contain(r => r.Id == "my-reg" && r.Url == "http://my.registry");
     }
 
-    private sealed class FakePluginCatalog : IPluginCatalog
+    private sealed class FakePluginCatalog(params PluginCatalogEntry[] entries) : IPluginCatalog
     {
-        private readonly List<PluginCatalogEntry> _entries;
-
-        public FakePluginCatalog(params PluginCatalogEntry[] entries) => _entries = entries.ToList();
+        private readonly List<PluginCatalogEntry> _entries = [.. entries];
 
         public Task<PluginSearchResult> SearchAsync(string query, CancellationToken ct = default)
         {
@@ -168,7 +166,7 @@ public sealed class PluginCommandTests
             => Task.FromResult(_entries.FirstOrDefault(e => e.Id == id));
 
         public Task<IReadOnlyList<PluginCatalogEntry>> ListByTagAsync(string tag, CancellationToken ct = default)
-            => Task.FromResult<IReadOnlyList<PluginCatalogEntry>>(_entries.Where(e => e.Tags.Contains(tag)).ToList());
+            => Task.FromResult<IReadOnlyList<PluginCatalogEntry>>([.. _entries.Where(e => e.Tags.Contains(tag))]);
 
         public Task<PluginCatalogEntry?> GetLatestVersionAsync(string id, CancellationToken ct = default)
             => GetByIdAsync(id, ct);
@@ -191,7 +189,7 @@ public sealed class PluginCommandTests
         }
 
         public Task<IReadOnlyList<PluginRegistryConfig>> ListRegistriesAsync(CancellationToken ct = default)
-            => Task.FromResult<IReadOnlyList<PluginRegistryConfig>>(_registries.ToList());
+            => Task.FromResult<IReadOnlyList<PluginRegistryConfig>>([.. _registries]);
 
         public Task SyncAllAsync(CancellationToken ct = default) => Task.CompletedTask;
 

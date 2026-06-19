@@ -22,7 +22,7 @@ public class SnapshotsViewModel : ViewModelBase
         LoadCommand = new AsyncRelayCommand(LoadAsync);
         CreateSnapshotCommand = new AsyncRelayCommand(CreateSnapshotAsync);
     }
-    public ObservableCollection<SnapshotInfo> Snapshots { get; } = new();
+    public ObservableCollection<SnapshotInfo> Snapshots { get; } = [];
     private bool _isLoading;
     public bool IsLoading { get => _isLoading; set { SetProperty(ref _isLoading, value); OnPropertyChanged(nameof(HasNoData)); } }
     private string _errorMessage = "";

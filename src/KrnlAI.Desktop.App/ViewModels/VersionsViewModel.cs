@@ -11,7 +11,7 @@ public class VersionsViewModel : ViewModelBase
 {
     private readonly IKernelClient _kernelClient;
     private readonly ILogger<VersionsViewModel> _logger;
-    public ObservableCollection<ContractEntry> Contracts { get; } = new();
+    public ObservableCollection<ContractEntry> Contracts { get; } = [];
     private VersionsInfo? _versions;
     public VersionsInfo? Versions { get => _versions; set => SetProperty(ref _versions, value); }
     private bool _isLoading;

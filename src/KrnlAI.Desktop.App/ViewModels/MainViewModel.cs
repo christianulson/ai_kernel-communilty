@@ -114,9 +114,9 @@ public class MainViewModel : ViewModelBase
     public ObservableCollection<MediaDevice> Microphones => SettingsVM.Microphones;
     public ObservableCollection<MediaDevice> Cameras => SettingsVM.Cameras;
     public ObservableCollection<MediaDevice> Speakers => SettingsVM.Speakers;
-    public ObservableCollection<AgentInfo> Agents { get; } = new();
-    public ObservableCollection<ConversationSession> Sessions { get; } = new();
-    public ObservableCollection<ConversationSession> FilteredSessions { get; } = new();
+    public ObservableCollection<AgentInfo> Agents { get; } = [];
+    public ObservableCollection<ConversationSession> Sessions { get; } = [];
+    public ObservableCollection<ConversationSession> FilteredSessions { get; } = [];
     private string _sessionFilter = "";
     public string SessionFilter { get => _sessionFilter; set { if (SetProperty(ref _sessionFilter, value)) ApplySessionFilter(); } }
     private void ApplySessionFilter()
@@ -441,7 +441,7 @@ public class MainViewModel : ViewModelBase
         FeedbackCommand = new RelayCommand(() =>
         {
             try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("https://github.com/krnlai/krnl-ai/issues/new") { UseShellExecute = true }); }
-            catch (Exception ex) { KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"Feedback: {ex.Message}"); }
+            catch (Exception ex) { KrnlLogger.Write($"Feedback: {ex.Message}"); }
         });
         NewSessionCommand = new RelayCommand(() => { Sessions.Add(new ConversationSession(Guid.NewGuid().ToString(), $"Conversa {Sessions.Count + 1}", DateTime.Now)); ActiveSession = Sessions.Last(); });
         RefreshDevicesCommand = new RelayCommand(() => SettingsVM.LoadDevices());
@@ -456,7 +456,7 @@ public class MainViewModel : ViewModelBase
         DownloadUpdateCommand = new AsyncRelayCommand(async () =>
         {
             try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("https://github.com/krnlai/krnl-ai/releases/latest") { UseShellExecute = true }); }
-            catch (Exception ex) { KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"DownloadUpdate: {ex.Message}"); }
+            catch (Exception ex) { KrnlLogger.Write($"DownloadUpdate: {ex.Message}"); }
         });
         StartSidecarCommand = new AsyncRelayCommand(async () =>
         {
@@ -466,9 +466,9 @@ public class MainViewModel : ViewModelBase
                 if (File.Exists(sidecarPath))
                     System.Diagnostics.Process.Start(sidecarPath);
                 else
-                    KrnlAI.Desktop.Core.Services.KrnlLogger.Write("Sidecar not found at: " + sidecarPath);
+                    KrnlLogger.Write("Sidecar not found at: " + sidecarPath);
             }
-            catch (Exception ex) { KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"StartSidecar: {ex.Message}"); }
+            catch (Exception ex) { KrnlLogger.Write($"StartSidecar: {ex.Message}"); }
         });
         ToggleShortcutsCommand = new RelayCommand(() => ShowShortcuts = !ShowShortcuts);
         ToggleVideoCallMuteCommand = new RelayCommand(() => IsVideoCallMuted = !IsVideoCallMuted);
@@ -547,7 +547,7 @@ public class MainViewModel : ViewModelBase
                         if (isAvailable)
                         {
                             StatusMessage = "Conectado";
-                            KrnlAI.Desktop.Core.Services.KrnlLogger.Write("Backend reconectado");
+                            KrnlLogger.Write("Backend reconectado");
                         }
                         else
                         {
@@ -560,7 +560,7 @@ public class MainViewModel : ViewModelBase
                 });
             }
             catch (OperationCanceledException) { break; }
-            catch (Exception ex) { KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"HealthCheck: {ex.Message}"); }
+            catch (Exception ex) { KrnlLogger.Write($"HealthCheck: {ex.Message}"); }
             try { await Task.Delay(30000, t); } catch (OperationCanceledException) { break; }
         }
     }
@@ -589,7 +589,7 @@ public class MainViewModel : ViewModelBase
         stack.Children.Add(confirmBtn);
         dialog.Content = stack;
         confirmBtn.Click += (_, _) => dialog.DialogResult = true;
-        inputBox.KeyDown += (_, e) => { if (e.Key == System.Windows.Input.Key.Enter) dialog.DialogResult = true; };
+        inputBox.KeyDown += (_, e) => { if (e.Key == Key.Enter) dialog.DialogResult = true; };
         if (dialog.ShowDialog() == true && !string.IsNullOrWhiteSpace(inputBox.Text) && inputBox.Text != ActiveSession.Title)
         {
             var i = Sessions.IndexOf(ActiveSession);
@@ -612,7 +612,7 @@ public class MainViewModel : ViewModelBase
             if (IsBackendAvailable && !t.IsCancellationRequested)
             {
                 try { await DashVM.LoadDashboardDataAsync(); }
-                catch (Exception ex) { KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"Dashboard refresh: {ex.Message}"); }
+                catch (Exception ex) { KrnlLogger.Write($"Dashboard refresh: {ex.Message}"); }
             }
         }
     }
@@ -637,7 +637,7 @@ public class MainViewModel : ViewModelBase
                 }
             }
             catch (OperationCanceledException) { break; }
-            catch (Exception ex) { KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"Emotional poll: {ex.Message}"); }
+            catch (Exception ex) { KrnlLogger.Write($"Emotional poll: {ex.Message}"); }
             try { await Task.Delay(15000, t); } catch (OperationCanceledException) { break; }
         }
     }
@@ -698,11 +698,10 @@ public class MainViewModel : ViewModelBase
 
     public List<string> SearchMessages(string query)
     {
-        if (string.IsNullOrWhiteSpace(query)) return new List<string>();
-        return ChatVM.Messages
+        if (string.IsNullOrWhiteSpace(query)) return [];
+        return [.. ChatVM.Messages
             .Where(m => m.Content?.Contains(query, StringComparison.OrdinalIgnoreCase) == true)
-            .Select(m => $"[{m.Timestamp:HH:mm}] {m.Role}: {m.Content[..Math.Min(m.Content.Length, 120)]}")
-            .ToList();
+            .Select(m => $"[{m.Timestamp:HH:mm}] {m.Role}: {m.Content[..Math.Min(m.Content.Length, 120)]}")];
     }
 
     public void Cleanup()

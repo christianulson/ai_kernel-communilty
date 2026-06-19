@@ -212,8 +212,8 @@ public class CognitiveStepColorConverter : IValueConverter
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         if (value is ViewModels.CognitiveStepType st && ViewModels.CognitiveStepMeta.Meta.TryGetValue(st, out var meta))
-            return (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(meta.Color);
-        return System.Windows.Media.Colors.Gray;
+            return (System.Windows.Media.Color)ColorConverter.ConvertFromString(meta.Color);
+        return Colors.Gray;
     }
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException();
 }

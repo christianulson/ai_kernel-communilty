@@ -1,33 +1,23 @@
-using KrnlAI.Embedded;
 using KrnlAI.Embedded.Abstractions;
 using System.Text.Json;
 
 namespace KrnlAI.Sidecar.Rpc;
 
-public sealed class SidecarGrpcServer
+public sealed class SidecarGrpcServer(IEmbeddedKrnlAI kernel, ILogger<SidecarGrpcServer> logger, int port = 5004)
 {
-    private readonly IEmbeddedKrnlAI _kernel;
-    private readonly ILogger<SidecarGrpcServer> _logger;
-    private readonly int _port;
+    private readonly int _port = port;
     private CancellationTokenSource? _cts;
-
-    public SidecarGrpcServer(IEmbeddedKrnlAI kernel, ILogger<SidecarGrpcServer> logger, int port = 5004)
-    {
-        _kernel = kernel;
-        _logger = logger;
-        _port = port;
-    }
 
     public async Task StartAsync(CancellationToken ct = default)
     {
         _cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-        _logger.LogInformation("Sidecar gRPC server starting on port {Port}...", _port);
+        logger.LogInformation("Sidecar gRPC server starting on port {Port}...", _port);
 
         // Simple JSON-RPC over HTTP for now (full gRPC requires Grpc.AspNetCore package)
         var listener = new System.Net.HttpListener();
         listener.Prefixes.Add($"http://localhost:{_port}/");
         listener.Start();
-        _logger.LogInformation("Sidecar gRPC listening on http://localhost:{Port}", _port);
+        logger.LogInformation("Sidecar gRPC listening on http://localhost:{Port}", _port);
 
         _ = Task.Run(() => ListenLoop(listener, _cts.Token), _cts.Token);
     }
@@ -49,7 +39,7 @@ public sealed class SidecarGrpcServer
             catch (OperationCanceledException) { break; }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Sidecar gRPC listener error");
+                logger.LogWarning(ex, "Sidecar gRPC listener error");
             }
         }
     }
@@ -82,7 +72,7 @@ public sealed class SidecarGrpcServer
                     return;
                 }
 
-                var result = await _kernel.RunAsync(agentRequest.Input, ct);
+                var result = await kernel.RunAsync(agentRequest.Input, ct);
                 response.StatusCode = 200;
                 await WriteJson(response, new
                 {
@@ -109,7 +99,7 @@ public sealed class SidecarGrpcServer
                     return;
                 }
 
-                var hits = await _kernel.SearchMemoryAsync(searchRequest.Query, ct);
+                var hits = await kernel.SearchMemoryAsync(searchRequest.Query, ct);
                 response.StatusCode = 200;
                 await WriteJson(response, new { hits = hits.Select(h => new { id = h.Id, score = h.Score, content = h.Payload }) });
                 return;
@@ -120,7 +110,7 @@ public sealed class SidecarGrpcServer
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Sidecar gRPC request failed");
+            logger.LogError(ex, "Sidecar gRPC request failed");
             try
             {
                 context.Response.StatusCode = 500;

@@ -22,7 +22,7 @@ public sealed class CloudDelegationServiceTests
         public global::KrnlAI.VisualStudio.Services.ApprovalMode ApprovalMode { get; set; }
         public bool EnableArtifactRendering { get; set; }
         public bool EnableStreaming { get; set; }
-        public global::KrnlAI.VisualStudio.Services.CloudMode CloudMode { get; set; } = global::KrnlAI.VisualStudio.Services.CloudMode.Auto;
+        public global::KrnlAI.VisualStudio.Services.CloudMode CloudMode { get; set; } = CloudMode.Auto;
         public string? CloudEndpoint { get; set; }
         public bool EnableUsageTracking { get; set; }
         public void Load() { }
@@ -32,16 +32,16 @@ public sealed class CloudDelegationServiceTests
     [Fact]
     public void Mode_ShouldReturnSettingsValue()
     {
-        var settings = new MockSettings { CloudMode = global::KrnlAI.VisualStudio.Services.CloudMode.AlwaysLocal };
+        var settings = new MockSettings { CloudMode = CloudMode.AlwaysLocal };
         var service = new CloudDelegationService(settings);
 
-        service.Mode.Should().Be(global::KrnlAI.VisualStudio.Services.CloudMode.AlwaysLocal);
+        service.Mode.Should().Be(CloudMode.AlwaysLocal);
     }
 
     [Fact]
     public async Task ExecuteWithFallbackAsync_AlwaysLocal_ShouldRunLocal()
     {
-        var settings = new MockSettings { CloudMode = global::KrnlAI.VisualStudio.Services.CloudMode.AlwaysLocal };
+        var settings = new MockSettings { CloudMode = CloudMode.AlwaysLocal };
         var service = new CloudDelegationService(settings);
 
         var result = await service.ExecuteWithFallbackAsync(
@@ -55,7 +55,7 @@ public sealed class CloudDelegationServiceTests
     [Fact]
     public async Task ExecuteWithFallbackAsync_AlwaysCloud_ShouldRunCloud()
     {
-        var settings = new MockSettings { CloudMode = global::KrnlAI.VisualStudio.Services.CloudMode.AlwaysCloud };
+        var settings = new MockSettings { CloudMode = CloudMode.AlwaysCloud };
         var service = new CloudDelegationService(settings);
 
         var result = await service.ExecuteWithFallbackAsync(
@@ -69,7 +69,7 @@ public sealed class CloudDelegationServiceTests
     [Fact]
     public async Task ExecuteWithFallbackAsync_AutoMode_ShouldRunLocalOnFirstCall()
     {
-        var settings = new MockSettings { CloudMode = global::KrnlAI.VisualStudio.Services.CloudMode.Auto };
+        var settings = new MockSettings { CloudMode = CloudMode.Auto };
         var service = new CloudDelegationService(settings);
 
         var result = await service.ExecuteWithFallbackAsync(

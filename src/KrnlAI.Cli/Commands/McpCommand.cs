@@ -12,12 +12,13 @@ public sealed class McpCommand(
 {
     public Command Build()
     {
-        var cmd = new Command("mcp", "Manage MCP servers");
-
-        cmd.Add(BuildList());
-        cmd.Add(BuildAdd());
-        cmd.Add(BuildRemove());
-        cmd.Add(BuildServe());
+        var cmd = new Command("mcp", "Manage MCP servers")
+        {
+            BuildList(),
+            BuildAdd(),
+            BuildRemove(),
+            BuildServe()
+        };
 
         return cmd;
     }

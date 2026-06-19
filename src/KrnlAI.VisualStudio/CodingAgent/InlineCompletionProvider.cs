@@ -31,11 +31,11 @@ internal sealed class KrnlAIInlineCompletionSession
     private string _baseUrl = Environment.GetEnvironmentVariable("KRNL__API_BASE_URL") ?? "http://localhost:5235";
     private CancellationTokenSource? _pendingCts;
 
-    private static readonly HashSet<char> TriggerChars = new()
-    {
+    private static readonly HashSet<char> TriggerChars =
+    [
         '.', ' ', '\n', '\t', '(', ')', '{', '}', ';', ':',
         '=', '+', '-', '*', '/', '>', '<', '!', '~', '&', '|', '%', ','
-    };
+    ];
 
     public KrnlAIInlineCompletionSession(ITextView textView)
     {
@@ -85,7 +85,7 @@ internal sealed class KrnlAIInlineCompletionSession
         }
 
         // Get file path from text document
-        string filePath = "";
+        var filePath = "";
         Microsoft.VisualStudio.Text.ITextDocument? textDoc;
         if (snapshot.TextBuffer.Properties.TryGetProperty(typeof(Microsoft.VisualStudio.Text.ITextDocument), out textDoc) && textDoc != null)
         {
@@ -151,7 +151,7 @@ internal sealed class CompletionCacheService
 {
     private sealed record CacheEntry(string Prefix, string Language, List<string> Completions, DateTime CreatedAt);
 
-    private readonly Dictionary<string, CacheEntry> _cache = new();
+    private readonly Dictionary<string, CacheEntry> _cache = [];
     private const int MaxEntries = 200;
     private static readonly TimeSpan Ttl = TimeSpan.FromSeconds(30);
 

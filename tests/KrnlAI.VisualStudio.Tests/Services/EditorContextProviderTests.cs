@@ -1,4 +1,5 @@
 using KrnlAI.VisualStudio.Services;
+using Xunit;
 
 namespace KrnlAI.VisualStudio.Tests.Services;
 
@@ -38,7 +39,7 @@ public sealed class EditorContextProviderTests
             SelectedText: null,
             CaretLine: 0,
             CaretColumn: 0,
-            Diagnostics: Array.Empty<EditorDiagnostic>()
+            Diagnostics: []
         );
 
         Assert.Null(context.FilePath);

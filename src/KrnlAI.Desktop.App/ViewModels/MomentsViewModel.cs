@@ -11,7 +11,7 @@ public class MomentsViewModel : ViewModelBase
 {
     private readonly IKernelClient _client;
     private readonly ILogger<MomentsViewModel> _logger;
-    public ObservableCollection<MemoryMoment> Moments { get; } = new();
+    public ObservableCollection<MemoryMoment> Moments { get; } = [];
     private bool _isLoading;
     public bool IsLoading { get => _isLoading; set { SetProperty(ref _isLoading, value); OnPropertyChanged(nameof(HasNoData)); } }
     private string _errorMessage = "";

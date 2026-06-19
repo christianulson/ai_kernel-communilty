@@ -147,7 +147,7 @@ public sealed class SlashCommandService
 
     private readonly List<SlashCommandInfo> _all;
     public ReadOnlyCollection<SlashCommandInfo> All => _all.AsReadOnly();
-    private List<SlashCommandInfo> _filtered = new();
+    private List<SlashCommandInfo> _filtered = [];
 
     private static readonly HashSet<string> LocalCommands = new(StringComparer.OrdinalIgnoreCase) { "/clear", "/help" };
 
@@ -155,23 +155,22 @@ public sealed class SlashCommandService
     {
         var isLocal = Environment.GetEnvironmentVariable("KRNL__RUN_MODE")?.Equals("Local", StringComparison.OrdinalIgnoreCase) == true;
         _all = isLocal
-            ? new List<SlashCommandInfo>(Commands.Where(c => LocalCommands.Contains(c.Command)))
-            : new List<SlashCommandInfo>(Commands);
+            ? [.. Commands.Where(c => LocalCommands.Contains(c.Command))]
+            : [.. Commands];
     }
 
     public IReadOnlyList<SlashCommandInfo> Filter(string input)
     {
         if (!input.StartsWith("/"))
         {
-            _filtered = new List<SlashCommandInfo>();
+            _filtered = [];
             return _filtered;
         }
 
         var query = input.TrimStart('/').ToLowerInvariant();
-        _filtered = _all
+        _filtered = [.. _all
             .Where(c => c.Command.Contains(query) || c.Description.Contains(query, StringComparison.OrdinalIgnoreCase))
-            .OrderBy(c => c.Command)
-            .ToList();
+            .OrderBy(c => c.Command)];
 
         return _filtered;
     }

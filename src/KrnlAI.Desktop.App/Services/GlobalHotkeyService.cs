@@ -13,7 +13,7 @@ public class GlobalHotkeyService : IDisposable
     private const int MOD_ALT = 0x0001;
 
     private readonly IntPtr _hwnd;
-    private readonly Dictionary<int, Action> _hotkeyActions = new();
+    private readonly Dictionary<int, Action> _hotkeyActions = [];
     private int _currentId;
     private HwndSource? _source;
 
@@ -39,14 +39,14 @@ public class GlobalHotkeyService : IDisposable
     {
         if (_source == null) return false;
 
-        int id = ++_currentId;
+        var id = ++_currentId;
         uint fsModifiers = 0;
 
         if (modifiers.HasFlag(ModifierKeys.Control)) fsModifiers |= MOD_CONTROL;
         if (modifiers.HasFlag(ModifierKeys.Shift)) fsModifiers |= MOD_SHIFT;
         if (modifiers.HasFlag(ModifierKeys.Alt)) fsModifiers |= MOD_ALT;
 
-        uint vk = (uint)KeyInterop.VirtualKeyFromKey(key);
+        var vk = (uint)KeyInterop.VirtualKeyFromKey(key);
 
         if (RegisterHotKey(_hwnd, id, fsModifiers, vk))
         {
@@ -61,7 +61,7 @@ public class GlobalHotkeyService : IDisposable
     {
         if (msg == WM_HOTKEY)
         {
-            int id = wParam.ToInt32();
+            var id = wParam.ToInt32();
             if (_hotkeyActions.TryGetValue(id, out var action))
             {
                 action?.Invoke();

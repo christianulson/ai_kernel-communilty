@@ -1,6 +1,4 @@
-using System.Text.Json;
 using KrnlAI.VisualStudio.Commands.ChatCommands;
-using KrnlAI.VisualStudio.Commands.ChatCommands.Handlers;
 
 namespace KrnlAI.VisualStudio.Services;
 
@@ -10,20 +8,15 @@ public interface IVsCommandHandler
     IReadOnlyDictionary<string, SlashCommand> Commands { get; }
 }
 
-public sealed class VsCommandHandler : IVsCommandHandler
+public sealed class VsCommandHandler(
+    IKernelClientService client,
+    ISolutionContextService context,
+    IApplyEditService applyEdit,
+    IAgenticLoopService agenticLoop,
+    ITerminalService? terminal = null,
+    IGitService? git = null) : IVsCommandHandler
 {
-    private readonly SlashCommandRouter _router;
-
-    public VsCommandHandler(
-        IKernelClientService client,
-        ISolutionContextService context,
-        IApplyEditService applyEdit,
-        IAgenticLoopService agenticLoop,
-        ITerminalService? terminal = null,
-        IGitService? git = null)
-    {
-        _router = new SlashCommandRouter(client, context, applyEdit, agenticLoop, terminal, git);
-    }
+    private readonly SlashCommandRouter _router = new SlashCommandRouter(client, context, applyEdit, agenticLoop, terminal, git);
 
     public IReadOnlyDictionary<string, SlashCommand> Commands => _router.Commands;
 

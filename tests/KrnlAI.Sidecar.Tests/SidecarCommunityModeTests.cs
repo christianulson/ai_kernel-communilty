@@ -2,14 +2,9 @@ using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace KrnlAI.Sidecar.Tests;
 
-public sealed class SidecarCommunityModeTests : IClassFixture<CommunitySidecarWebAppFactory>
+public sealed class SidecarCommunityModeTests(CommunitySidecarWebAppFactory factory) : IClassFixture<CommunitySidecarWebAppFactory>
 {
-    private readonly HttpClient _client;
-
-    public SidecarCommunityModeTests(CommunitySidecarWebAppFactory factory)
-    {
-        _client = factory.CreateClient();
-    }
+    private readonly HttpClient _client = factory.CreateClient();
 
     [Fact]
     public async Task Health_CommunityMode_ShouldReportCommunity()

@@ -2,7 +2,6 @@ using System.Threading.RateLimiting;
 using KrnlAI.Embedded;
 using KrnlAI.Embedded.Abstractions;
 using Microsoft.AspNetCore.RateLimiting;
-using Microsoft.Extensions.Options;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;

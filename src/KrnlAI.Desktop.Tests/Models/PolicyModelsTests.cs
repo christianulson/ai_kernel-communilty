@@ -107,7 +107,7 @@ public class PolicyListResponseTests
     [Fact]
     public void PolicyListResponse_ShouldAllowEmptyList()
     {
-        var resp = new Core.Models.PolicyListResponse(new List<Core.Models.PolicyInfo>(), 0, 1, 20);
+        var resp = new Core.Models.PolicyListResponse([], 0, 1, 20);
         Assert.Empty(resp.Policies);
         Assert.Equal(0, resp.TotalCount);
     }

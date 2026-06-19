@@ -1,5 +1,3 @@
-using Xunit;
-
 namespace KrnlAI.Sidecar.Tests;
 
 public sealed class SecurityHeadersTests(SidecarWebAppFactory factory) : IClassFixture<SidecarWebAppFactory>

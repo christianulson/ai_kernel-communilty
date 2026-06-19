@@ -1,6 +1,5 @@
 using System.CommandLine;
 using KrnlAI.Embedded;
-using KrnlAI.Core.Abstractions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;

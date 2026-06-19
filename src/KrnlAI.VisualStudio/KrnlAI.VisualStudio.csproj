@@ -19,20 +19,20 @@
     <StartArguments>/rootsuffix Exp</StartArguments>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.12.40392" ExcludeAssets="runtime">
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.14.40265" ExcludeAssets="runtime">
       <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="18.5.40034">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Language" Version="17.12.215" />
-    <PackageReference Include="Microsoft.VisualStudio.Language.Intellisense" Version="17.12.215" />
-    <PackageReference Include="Microsoft.VisualStudio.Imaging" Version="17.12.40391" />
-    <PackageReference Include="Microsoft.VisualStudio.Shell.Interop" Version="17.12.40391" />
-    <PackageReference Include="Microsoft.VisualStudio.Shell.Interop.8.0" Version="17.12.40391" />
-    <PackageReference Include="Microsoft.VisualStudio.Utilities" Version="17.12.40391" />
-    <PackageReference Include="Microsoft.VisualStudio.Language.StandardClassification" Version="17.12.215" />
+    <PackageReference Include="Microsoft.VisualStudio.Language" Version="17.14.249" />
+    <PackageReference Include="Microsoft.VisualStudio.Language.Intellisense" Version="17.14.249" />
+    <PackageReference Include="Microsoft.VisualStudio.Imaging" Version="17.14.40264" />
+    <PackageReference Include="Microsoft.VisualStudio.Shell.Interop" Version="17.14.40260" />
+    <PackageReference Include="Microsoft.VisualStudio.Shell.Interop.8.0" Version="17.14.40260" />
+    <PackageReference Include="Microsoft.VisualStudio.Utilities" Version="17.14.40264" />
+    <PackageReference Include="Microsoft.VisualStudio.Language.StandardClassification" Version="17.14.249" />
     <PackageReference Include="System.Memory" Version="4.6.3" />
     <PackageReference Include="System.Net.Http.Json" Version="10.0.9" />
     <PackageReference Include="System.Text.Json" Version="10.0.9" />

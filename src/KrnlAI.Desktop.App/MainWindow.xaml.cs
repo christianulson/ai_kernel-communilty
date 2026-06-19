@@ -35,7 +35,7 @@ public partial class MainWindow : Window
         {
             SearchOverlayCtrl.SearchRequested += query =>
             {
-                var results = _vm?.SearchMessages(query) ?? new List<string>();
+                var results = _vm?.SearchMessages(query) ?? [];
                 SearchOverlayCtrl.SetResults(results);
             };
             SearchOverlayCtrl.DismissRequested += () =>
@@ -49,7 +49,7 @@ public partial class MainWindow : Window
             var args = Environment.GetCommandLineArgs();
             if (args.Length > 1 && args[1] == "--minimized")
             {
-                WindowState = System.Windows.WindowState.Minimized;
+                WindowState = WindowState.Minimized;
                 Hide();
             }
         };

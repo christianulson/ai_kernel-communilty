@@ -165,7 +165,7 @@ public sealed class TuiSessionStore
     private static string SanitizeFileName(string name)
     {
         var invalid = Path.GetInvalidFileNameChars();
-        var sanitized = new string(name.Where(c => !invalid.Contains(c)).ToArray());
+        var sanitized = new string([.. name.Where(c => !invalid.Contains(c))]);
         return sanitized.Length > 40 ? sanitized[..40] : sanitized;
     }
 }

@@ -63,7 +63,7 @@ public sealed class VsSessionStorage : ISessionStorage
 
 public sealed class InMemorySessionStorage : ISessionStorage
 {
-    private readonly Dictionary<string, string> _data = new();
+    private readonly Dictionary<string, string> _data = [];
     private bool _collectionDeleted;
 
     public string? Read(string key) => _collectionDeleted ? null : _data.TryGetValue(key, out var val) ? val : null;
@@ -72,17 +72,12 @@ public sealed class InMemorySessionStorage : ISessionStorage
     public void DeleteCollection() { _data.Clear(); _collectionDeleted = true; }
 }
 
-public sealed class SessionTeleportService : ISessionTeleportService
+public sealed class SessionTeleportService(ISessionStorage? storage = null) : ISessionTeleportService
 {
-    private readonly ISessionStorage _storage;
+    private readonly ISessionStorage _storage = storage ?? new VsSessionStorage();
     private const string StateKey = "SessionState";
 
     public SessionState? CurrentSession { get; private set; }
-
-    public SessionTeleportService(ISessionStorage? storage = null)
-    {
-        _storage = storage ?? new VsSessionStorage();
-    }
 
     public async Task SaveSessionAsync(SessionState state, CancellationToken ct = default)
     {

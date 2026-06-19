@@ -24,7 +24,7 @@ public sealed class MomentsCommand(CliContext ctx, ConsoleRenderer renderer)
             var takeVal = r.GetValue(take);
             var moments = await ctx.MomentStore.ListRecentAsync(takeVal, ct);
             var classifications = await ctx.MomentClassifierStore.GetBatchAsync(
-                moments.Select(m => m.MomentId).ToList(), ct);
+                [.. moments.Select(m => m.MomentId)], ct);
             var classLookup = classifications.ToDictionary(c => c.MomentId, c => c);
             var rows = moments.Select(m =>
             {

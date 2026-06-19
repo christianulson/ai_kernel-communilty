@@ -9,7 +9,7 @@ namespace KrnlAI.Desktop.App.ViewModels;
 public class EpisodesViewModel : ViewModelBase
 {
     private readonly IKernelClient _kernelClient;
-    public ObservableCollection<EpisodeInfo> EpisodeList { get; } = new();
+    public ObservableCollection<EpisodeInfo> EpisodeList { get; } = [];
     private EpisodeDetails? _detail;
     public EpisodeDetails? EpisodeDetail { get => _detail; set => SetProperty(ref _detail, value); }
     private bool _isLoading;

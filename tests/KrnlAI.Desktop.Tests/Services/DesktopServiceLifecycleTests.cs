@@ -99,7 +99,7 @@ public sealed class DesktopServiceLifecycleTests
     [Fact]
     public async Task WebRtcService_Dispose_ShouldCancelPendingConnectionTransition()
     {
-        var sut = new WebRtcService(Microsoft.Extensions.Logging.Abstractions.NullLogger<WebRtcService>.Instance);
+        var sut = new WebRtcService(NullLogger<WebRtcService>.Instance);
         await sut.InitializeAsync("ws://localhost/signaling", "stun.local");
         var connectTask = sut.ConnectToPeerAsync("peer-1");
 

@@ -12,7 +12,7 @@ public sealed class HttpCognitiveStreamProvider : ICognitiveStreamProvider
     private string? _cycleId;
 
     public CognitiveStreamState State { get; private set; } = CognitiveStreamState.Disconnected;
-    public List<CognitiveCycleEvent> Events { get; } = new();
+    public List<CognitiveCycleEvent> Events { get; } = [];
     public event Action<CognitiveCycleEvent>? OnEvent;
     public event Action<CognitiveStreamState>? OnStateChanged;
 

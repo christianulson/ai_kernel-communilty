@@ -41,7 +41,7 @@ public sealed class ApiKeysViewModel : ViewModelBase
         RefreshCommand = new AsyncRelayCommand(() => LoadAsync());
     }
 
-    public ObservableCollection<ApiKeyListItem> Keys { get; } = new();
+    public ObservableCollection<ApiKeyListItem> Keys { get; } = [];
 
     public IEnumerable<ApiKeyScope> AvailableScopes { get; } = Enum.GetValues<ApiKeyScope>();
 

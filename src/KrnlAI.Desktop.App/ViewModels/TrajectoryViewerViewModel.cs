@@ -42,7 +42,7 @@ public sealed record TrajectorySessionDetail
     public int TotalTokens { get; init; }
     public double TotalCost { get; init; }
     public string? Mode { get; init; }
-    public List<TrajectoryStep> Steps { get; init; } = new();
+    public List<TrajectoryStep> Steps { get; init; } = [];
 }
 
 public sealed class TrajectoryViewerViewModel : ViewModelBase
@@ -52,7 +52,7 @@ public sealed class TrajectoryViewerViewModel : ViewModelBase
     private int _selectedTabIndex;
     private string _searchText = "";
 
-    public ObservableCollection<TrajectorySessionSummary> Sessions { get; } = new();
+    public ObservableCollection<TrajectorySessionSummary> Sessions { get; } = [];
     private TrajectorySessionDetail? _selectedSession;
     public TrajectorySessionDetail? SelectedSession
     {
@@ -79,7 +79,7 @@ public sealed class TrajectoryViewerViewModel : ViewModelBase
     public TrajectoryViewerViewModel(ILogger<TrajectoryViewerViewModel>? logger = null)
     {
         _logger = logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<TrajectoryViewerViewModel>.Instance;
-        var settings = KrnlAI.Desktop.App.Services.ServiceLocator.Instance.SettingsService.LoadSettings();
+        var settings = ServiceLocator.Instance.SettingsService.LoadSettings();
         var baseUrl = settings.ApiEndpoint ?? settings.ApiBaseUrl ?? Environment.GetEnvironmentVariable("KRNL__API_BASE_URL") ?? "http://localhost:5235";
         _http = new HttpClient { BaseAddress = new Uri(baseUrl), Timeout = TimeSpan.FromSeconds(10) };
         RefreshCommand = new AsyncRelayCommand(LoadSessionsAsync);

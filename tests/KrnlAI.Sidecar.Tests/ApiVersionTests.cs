@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Mvc.Testing;
-
 namespace KrnlAI.Sidecar.Tests;
 
 public sealed class ApiVersionTests_Legacy(SidecarWebAppFactory factory) : IClassFixture<SidecarWebAppFactory>
@@ -16,14 +14,9 @@ public sealed class ApiVersionTests_Legacy(SidecarWebAppFactory factory) : IClas
     }
 }
 
-public sealed class ApiVersionTests_Community : IClassFixture<CommunitySidecarWebAppFactory>
+public sealed class ApiVersionTests_Community(CommunitySidecarWebAppFactory factory) : IClassFixture<CommunitySidecarWebAppFactory>
 {
-    private readonly HttpClient _http;
-
-    public ApiVersionTests_Community(CommunitySidecarWebAppFactory factory)
-    {
-        _http = factory.CreateClient();
-    }
+    private readonly HttpClient _http = factory.CreateClient();
 
     [Fact]
     public async Task ApiVersion_CommunityMode_ShouldReturnHeader()

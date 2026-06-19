@@ -1,5 +1,4 @@
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Windows.Input;
 using KrnlAI.Desktop.App.Services;
 
@@ -7,7 +6,7 @@ namespace KrnlAI.Desktop.App.ViewModels;
 
 public class DebugViewModel : ViewModelBase
 {
-    public ObservableCollection<string> Diagnostics { get; } = new();
+    public ObservableCollection<string> Diagnostics { get; } = [];
     private string _status = "Pronto.";
     public string Status { get => _status; set => SetProperty(ref _status, value); }
     public ICommand RunDiagnosticsCommand { get; }

@@ -8,12 +8,13 @@ public sealed class NewCommand(ITemplateEngine templateEngine, IAnsiConsole cons
 {
     public Command Build()
     {
-        var cmd = new Command("new", "Scaffold new Krnl-AI components");
-
-        cmd.Add(BuildAgentCommand());
-        cmd.Add(BuildToolCommand());
-        cmd.Add(BuildPolicyCommand());
-        cmd.Add(BuildCognitiveCycleCommand());
+        var cmd = new Command("new", "Scaffold new Krnl-AI components")
+        {
+            BuildAgentCommand(),
+            BuildToolCommand(),
+            BuildPolicyCommand(),
+            BuildCognitiveCycleCommand()
+        };
 
         return cmd;
     }

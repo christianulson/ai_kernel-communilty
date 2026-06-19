@@ -3,9 +3,9 @@ using System.Text.Json;
 
 namespace KrnlAI.VisualStudio.Services;
 
-public sealed class EpisodesService : IEpisodesService, IDisposable
+public sealed class EpisodesService(HttpClient? http = null) : IEpisodesService, IDisposable
 {
-    private readonly HttpClient _http;
+    private readonly HttpClient _http = http ?? new HttpClient();
     private string? _baseUrl;
     private static readonly JsonSerializerOptions JsonOpts = new()
     {
@@ -15,11 +15,6 @@ public sealed class EpisodesService : IEpisodesService, IDisposable
     private IReadOnlyList<Episode>? _cached;
     private DateTime _lastFetch = DateTime.MinValue;
     private static readonly TimeSpan CacheTtl = TimeSpan.FromSeconds(30);
-
-    public EpisodesService(HttpClient? http = null)
-    {
-        _http = http ?? new HttpClient();
-    }
 
     private string GetBaseUrl()
     {
@@ -47,23 +42,23 @@ public sealed class EpisodesService : IEpisodesService, IDisposable
         {
             var response = await _http.GetAsync($"{GetBaseUrl()}/episodes/search?pageSize=50", ct);
             if (!response.IsSuccessStatusCode)
-                return _cached ?? Array.Empty<Episode>();
+                return _cached ?? [];
 
             var result = await response.Content
                 .ReadFromJsonAsync<EpisodeSearchDto>(JsonOpts, ct);
 
             if (result is not null)
             {
-                _cached = result.Episodes.Select(MapEpisode).ToList();
+                _cached = [.. result.Episodes.Select(MapEpisode)];
                 _lastFetch = DateTime.UtcNow;
             }
 
-            return _cached ?? Array.Empty<Episode>();
+            return _cached ?? [];
         }
         catch (Exception ex)
         {
             KrnlLogger.Write(ex);
-            return _cached ?? Array.Empty<Episode>();
+            return _cached ?? [];
         }
     }
 

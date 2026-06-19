@@ -7,9 +7,8 @@ using OpenCvSharp;
 
 namespace KrnlAI.Desktop.Core.Services;
 
-public class VideoCaptureService : IVideoCapture
+public class VideoCaptureService(ILogger<VideoCaptureService> logger) : IVideoCapture
 {
-    private readonly ILogger<VideoCaptureService> _logger;
     private VideoCapture? _capture;
     private bool _isCapturing;
     private string? _selectedDeviceId;
@@ -20,11 +19,6 @@ public class VideoCaptureService : IVideoCapture
 
     public bool IsCapturing => _isCapturing;
 
-    public VideoCaptureService(ILogger<VideoCaptureService> logger)
-    {
-        _logger = logger;
-    }
-
     public Task StartCaptureAsync(string? deviceId = null)
     {
         if (_isCapturing) return Task.CompletedTask;
@@ -32,14 +26,14 @@ public class VideoCaptureService : IVideoCapture
         _selectedDeviceId = deviceId;
         _cts = new CancellationTokenSource();
 
-        int deviceIndex = string.IsNullOrEmpty(deviceId) ? 0 : int.TryParse(deviceId, out var idx) ? idx : 0;
+        var deviceIndex = string.IsNullOrEmpty(deviceId) ? 0 : int.TryParse(deviceId, out var idx) ? idx : 0;
 
         try
         {
             _capture = new VideoCapture(deviceIndex);
             if (!_capture.IsOpened())
             {
-                _logger.LogError("Failed to open video capture device {DeviceIndex}", deviceIndex);
+                logger.LogError("Failed to open video capture device {DeviceIndex}", deviceIndex);
                 return Task.CompletedTask;
             }
 
@@ -49,13 +43,13 @@ public class VideoCaptureService : IVideoCapture
             _isCapturing = true;
             _captureTask = Task.Run(() => CaptureLoop(_cts.Token));
 
-            _logger.LogInformation("Video capture started, resolution: {Width}x{Height}",
+            logger.LogInformation("Video capture started, resolution: {Width}x{Height}",
                 _capture.Get(VideoCaptureProperties.FrameWidth),
                 _capture.Get(VideoCaptureProperties.FrameHeight));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to start video capture");
+            logger.LogError(ex, "Failed to start video capture");
         }
 
         return Task.CompletedTask;
@@ -99,7 +93,7 @@ public class VideoCaptureService : IVideoCapture
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error capturing frame");
+                logger.LogError(ex, "Error capturing frame");
             }
         }
     }
@@ -129,7 +123,7 @@ public class VideoCaptureService : IVideoCapture
         _capture = null;
         _isCapturing = false;
 
-        _logger.LogInformation("Video capture stopped");
+        logger.LogInformation("Video capture stopped");
     }
 
     public IReadOnlyList<MediaDevice> GetAvailableDevices()
@@ -137,7 +131,7 @@ public class VideoCaptureService : IVideoCapture
         var devices = new List<MediaDevice>();
 
         // Test up to 20 camera indices to support systems with many cameras
-        for (int i = 0; i < 20; i++)
+        for (var i = 0; i < 20; i++)
         {
             try
             {
@@ -149,7 +143,7 @@ public class VideoCaptureService : IVideoCapture
             }
             catch (Exception ex)
             {
-                _logger.LogDebug(ex, "Failed to probe video capture device {DeviceIndex}", i);
+                logger.LogDebug(ex, "Failed to probe video capture device {DeviceIndex}", i);
             }
         }
 

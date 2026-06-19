@@ -11,7 +11,7 @@ public class PluginCatalogViewModel : ViewModelBase
 {
     private readonly IKernelClient _client;
     private readonly ILogger<PluginCatalogViewModel> _logger;
-    public ObservableCollection<McpServerInfo> Plugins { get; } = new();
+    public ObservableCollection<McpServerInfo> Plugins { get; } = [];
     private bool _isLoading;
     public bool IsLoading { get => _isLoading; set => SetProperty(ref _isLoading, value); }
     public ICommand RefreshCommand { get; }

@@ -108,22 +108,13 @@ public sealed class PluginDiscoveryServiceTests
         plugin.Should().BeNull();
     }
 
-    private sealed class MockHttpHandler : HttpMessageHandler
+    private sealed class MockHttpHandler(HttpStatusCode statusCode, string content) : HttpMessageHandler
     {
-        private readonly HttpStatusCode _statusCode;
-        private readonly string _content;
-
-        public MockHttpHandler(HttpStatusCode statusCode, string content)
-        {
-            _statusCode = statusCode;
-            _content = content;
-        }
-
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
         {
-            var response = new HttpResponseMessage(_statusCode)
+            var response = new HttpResponseMessage(statusCode)
             {
-                Content = new StringContent(_content)
+                Content = new StringContent(content)
             };
             return Task.FromResult(response);
         }

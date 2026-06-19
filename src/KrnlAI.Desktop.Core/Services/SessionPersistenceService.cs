@@ -41,19 +41,19 @@ public sealed class SessionPersistenceService : ISessionPersistenceService
         try
         {
             if (!File.Exists(_filePath))
-                return new SessionStore(CurrentVersion, new List<ConversationData>(), null);
+                return new SessionStore(CurrentVersion, [], null);
 
             var json = File.ReadAllText(_filePath);
             var store = JsonSerializer.Deserialize<SessionStore>(json, JsonOpts);
 
             if (store is null)
-                return new SessionStore(CurrentVersion, new List<ConversationData>(), null);
+                return new SessionStore(CurrentVersion, [], null);
 
             return Migrate(store);
         }
         catch
         {
-            return new SessionStore(CurrentVersion, new List<ConversationData>(), null);
+            return new SessionStore(CurrentVersion, [], null);
         }
     }
 
@@ -81,7 +81,7 @@ public sealed class SessionPersistenceService : ISessionPersistenceService
             CurrentVersion,
             Guid.NewGuid().ToString("N"),
             title,
-            new List<ChatMessage>(),
+            [],
             DateTime.UtcNow,
             null
         );

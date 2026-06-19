@@ -33,7 +33,7 @@ public class SettingsViewModel : ViewModelBase, IDisposable
             if (SetProperty(ref _apiEndpoint, value))
             {
                 if (_kernelClient != null) _kernelClient.SetBaseUrl(value);
-                _debounceTimer?.Change(DebounceMs, System.Threading.Timeout.Infinite);
+                _debounceTimer?.Change(DebounceMs, Timeout.Infinite);
             }
         }
     }
@@ -49,9 +49,9 @@ public class SettingsViewModel : ViewModelBase, IDisposable
     public MediaDevice? SelectedMicrophone { get => _selectedMic; set { if (SetProperty(ref _selectedMic, value)) Save(); } }
     public MediaDevice? SelectedCamera { get => _selectedCam; set { if (SetProperty(ref _selectedCam, value)) Save(); } }
     public MediaDevice? SelectedSpeaker { get => _selectedSpeaker; set { if (SetProperty(ref _selectedSpeaker, value)) { _audioPlayback.SetDevice(value?.Id); Save(); } } }
-    public ObservableCollection<MediaDevice> Microphones { get; } = new();
-    public ObservableCollection<MediaDevice> Cameras { get; } = new();
-    public ObservableCollection<MediaDevice> Speakers { get; } = new();
+    public ObservableCollection<MediaDevice> Microphones { get; } = [];
+    public ObservableCollection<MediaDevice> Cameras { get; } = [];
+    public ObservableCollection<MediaDevice> Speakers { get; } = [];
     private float _speakerVol = 1.0f;
     public float SpeakerVolume { get => _speakerVol; set { if (SetProperty(ref _speakerVol, value)) { _audioPlayback.SetVolume(value); Save(); } } }
     private float _vadThreshold = 0.01f;
@@ -68,11 +68,11 @@ public class SettingsViewModel : ViewModelBase, IDisposable
     public bool? AutoDarkMode { get => _autoDarkMode; set { if (SetProperty(ref _autoDarkMode, value)) Save(); } }
     private bool _notifyOnComplete = true;
     public bool NotifyOnComplete { get => _notifyOnComplete; set => SetProperty(ref _notifyOnComplete, value); }
-    public List<string> AvailableLlmProviders { get; } = new() { "ollama", "openai", "anthropic", "gemini" };
+    public List<string> AvailableLlmProviders { get; } = ["ollama", "openai", "anthropic", "gemini"];
     private string _selectedLlmProvider = "ollama";
     public string SelectedLlmProvider { get => _selectedLlmProvider; set { if (SetProperty(ref _selectedLlmProvider, value)) { Environment.SetEnvironmentVariable("KRNL__LLM_PROVIDER", value); Save(); } } }
     // Language
-    public List<string> AvailableLanguages { get; } = new() { "pt-BR", "en" };
+    public List<string> AvailableLanguages { get; } = ["pt-BR", "en"];
     private string _selectedLanguage = "pt-BR";
     public string SelectedLanguage { get => _selectedLanguage; set { if (SetProperty(ref _selectedLanguage, value)) { ServiceLocator.Instance.LocalizationService.SetCulture(value); UpdateLanguageLabel(value); Save(); } } }
     private string _languageLabel = "Português (Brasil)";
@@ -121,7 +121,7 @@ public class SettingsViewModel : ViewModelBase, IDisposable
         _themeService = themeService;
         _themeService.ThemeChanged += OnExternalThemeChanged;
         _logger = ServiceLocator.Instance.GetLogger<SettingsViewModel>();
-        _debounceTimer = new System.Threading.Timer(_ => { System.Windows.Application.Current?.Dispatcher.Invoke(() => Save()); }, null, System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
+        _debounceTimer = new System.Threading.Timer(_ => { System.Windows.Application.Current?.Dispatcher.Invoke(() => Save()); }, null, Timeout.Infinite, Timeout.Infinite);
         var s = _settingsService.LoadSettings();
         _apiEndpoint = s.ApiEndpoint ?? s.ApiBaseUrl;
         _kernelClient?.SetBaseUrl(_apiEndpoint);
@@ -246,7 +246,7 @@ public class SettingsViewModel : ViewModelBase, IDisposable
     private async Task TestRtcAsync() { DeviceTestStatus = "Não implementado (WebRTC)"; await Task.Delay(1500); DeviceTestStatus = ""; }
 
     // --- MCP Servers ---
-    public ObservableCollection<McpServerInfo> McpServers { get; } = new();
+    public ObservableCollection<McpServerInfo> McpServers { get; } = [];
 
     public async Task LoadMcpServersAsync()
     {

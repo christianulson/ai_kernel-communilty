@@ -1,6 +1,5 @@
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using KrnlAI.Desktop.App.ViewModels;
 using KrnlAI.Desktop.Core.Services;
 

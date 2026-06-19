@@ -7,7 +7,7 @@ public sealed class MainViewModelTests
     // MainViewModel requires full DI resolution. Initialize ServiceLocator once.
     static MainViewModelTests()
     {
-        try { var _ = KrnlAI.Desktop.App.Services.ServiceLocator.Instance; }
+        try { var _ = App.Services.ServiceLocator.Instance; }
         catch { }
     }
 

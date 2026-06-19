@@ -1,4 +1,3 @@
-using System.Net;
 using System.Net.Http.Json;
 using KrnlAI.Desktop.App.Services;
 using KrnlAI.Desktop.Core.Models;

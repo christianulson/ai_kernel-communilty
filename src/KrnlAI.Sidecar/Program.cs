@@ -2,7 +2,6 @@ using KrnlAI.Embedded;
 using KrnlAI.Embedded.Abstractions;
 using KrnlAI.Sidecar;
 using KrnlAI.Sidecar.Rpc;
-using Microsoft.Extensions.DependencyInjection;
 using StreamJsonRpc;
 
 var stdioMode = args.Any(a => a == "--stdio");

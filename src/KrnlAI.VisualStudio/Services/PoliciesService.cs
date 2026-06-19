@@ -3,9 +3,9 @@ using System.Text.Json;
 
 namespace KrnlAI.VisualStudio.Services;
 
-public sealed class PoliciesService : IPoliciesService, IDisposable
+public sealed class PoliciesService(HttpClient? http = null) : IPoliciesService, IDisposable
 {
-    private readonly HttpClient _http;
+    private readonly HttpClient _http = http ?? new HttpClient();
     private string? _baseUrl;
     private static readonly JsonSerializerOptions JsonOpts = new()
     {
@@ -15,11 +15,6 @@ public sealed class PoliciesService : IPoliciesService, IDisposable
     private IReadOnlyList<Policy>? _cached;
     private DateTime _lastFetch = DateTime.MinValue;
     private static readonly TimeSpan CacheTtl = TimeSpan.FromSeconds(30);
-
-    public PoliciesService(HttpClient? http = null)
-    {
-        _http = http ?? new HttpClient();
-    }
 
     private string GetBaseUrl()
     {
@@ -47,29 +42,29 @@ public sealed class PoliciesService : IPoliciesService, IDisposable
         {
             var response = await _http.GetAsync($"{GetBaseUrl()}/policy/list", ct);
             if (!response.IsSuccessStatusCode)
-                return _cached ?? Array.Empty<Policy>();
+                return _cached ?? [];
 
             var result = await response.Content
                 .ReadFromJsonAsync<PolicyListDto>(JsonOpts, ct);
 
             if (result is not null)
             {
-                _cached = result.Policies.Select(p => new Policy(
+                _cached = [.. result.Policies.Select(p => new Policy(
                     p.Id,
                     p.Name,
                     p.Description ?? p.Content ?? "",
                     p.Domain,
                     p.IsActive,
-                    p.Score ?? 0)).ToList();
+                    p.Score ?? 0))];
                 _lastFetch = DateTime.UtcNow;
             }
 
-            return _cached ?? Array.Empty<Policy>();
+            return _cached ?? [];
         }
         catch (Exception ex)
         {
             KrnlLogger.Write(ex);
-            return _cached ?? Array.Empty<Policy>();
+            return _cached ?? [];
         }
     }
 

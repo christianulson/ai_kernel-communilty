@@ -4,7 +4,7 @@ namespace KrnlAI.Cli.Tui;
 
 public sealed class ReadlineService
 {
-    private readonly List<string> _history = new();
+    private readonly List<string> _history = [];
     private readonly string _historyFilePath;
     private int _historyIndex = -1;
     private string _savedInput = string.Empty;

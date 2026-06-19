@@ -20,10 +20,10 @@ public sealed class SettingsService : ISettingsService
     public bool EnableCodeLens { get; set; } = true;
     public bool EnableHover { get; set; } = true;
     public bool EnableCodeActions { get; set; } = true;
-    public ApprovalMode ApprovalMode { get; set; } = Services.ApprovalMode.Confirm;
+    public ApprovalMode ApprovalMode { get; set; } = ApprovalMode.Confirm;
     public bool EnableArtifactRendering { get; set; } = true;
     public bool EnableStreaming { get; set; } = true;
-    public CloudMode CloudMode { get; set; } = Services.CloudMode.Auto;
+    public CloudMode CloudMode { get; set; } = CloudMode.Auto;
     public string? CloudEndpoint { get; set; }
     public bool EnableUsageTracking { get; set; } = true;
 
@@ -45,10 +45,10 @@ public sealed class SettingsService : ISettingsService
             EnableCodeLens = ReadBool("EnableCodeLens", true);
             EnableHover = ReadBool("EnableHover", true);
             EnableCodeActions = ReadBool("EnableCodeActions", true);
-            ApprovalMode = (Services.ApprovalMode)ReadInt("ApprovalMode", (int)Services.ApprovalMode.Confirm);
+            ApprovalMode = (Services.ApprovalMode)ReadInt("ApprovalMode", (int)ApprovalMode.Confirm);
             EnableArtifactRendering = ReadBool("EnableArtifactRendering", true);
             EnableStreaming = ReadBool("EnableStreaming", true);
-            CloudMode = (Services.CloudMode)ReadInt("CloudMode", (int)Services.CloudMode.Auto);
+            CloudMode = (Services.CloudMode)ReadInt("CloudMode", (int)CloudMode.Auto);
             CloudEndpoint = ReadString("CloudEndpoint", null);
             EnableUsageTracking = ReadBool("EnableUsageTracking", true);
         }

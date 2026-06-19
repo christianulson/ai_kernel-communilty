@@ -24,7 +24,7 @@ public partial class KrnlAIToolWindowControl : UserControl
     private string? _streamingBuffer;
 
     // Message history for up/down navigation
-    private readonly System.Collections.Generic.List<string> _messageHistory = new();
+    private readonly System.Collections.Generic.List<string> _messageHistory = [];
     private int _historyIndex = -1;
     private string _savedInput = string.Empty;
 
@@ -429,7 +429,7 @@ public partial class KrnlAIToolWindowControl : UserControl
         {
             var result = await _clientService.SearchMemoryAsync(query, 10, _cts.Token);
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-            foreach (var hit in result.Hits ?? System.Array.Empty<KrnlAI.Sdk.Models.MemorySearchHit>())
+            foreach (var hit in result.Hits ?? [])
             {
                 var text = hit.Text.Length > 100 ? hit.Text.Substring(0, 100) : hit.Text;
                 MemoryList.Items.Add(new ListBoxItem

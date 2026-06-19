@@ -3,22 +3,16 @@ using System.Text.Json;
 
 namespace KrnlAI.VisualStudio.Services;
 
-public sealed class KanbanService : IKanbanService, IDisposable
+public sealed class KanbanService(string baseUrl, HttpClient? http = null) : IKanbanService, IDisposable
 {
-    private readonly HttpClient _http;
-    private readonly string _baseUrl;
+    private readonly HttpClient _http = http ?? new HttpClient();
+    private readonly string _baseUrl = baseUrl.TrimEnd('/');
     private static readonly JsonSerializerOptions JsonOpts = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
     };
 
     public KanbanService(HttpClient? http = null) : this(GetDefaultBaseUrl(), http) { }
-
-    public KanbanService(string baseUrl, HttpClient? http = null)
-    {
-        _baseUrl = baseUrl.TrimEnd('/');
-        _http = http ?? new HttpClient();
-    }
 
     private static string GetDefaultBaseUrl()
     {

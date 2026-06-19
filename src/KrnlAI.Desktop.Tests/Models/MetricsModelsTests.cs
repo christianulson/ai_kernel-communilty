@@ -22,7 +22,7 @@ public class AgentMetricsSummaryTests
     [Fact]
     public void AgentMetricsSummary_ShouldAllowEmptyByGoal()
     {
-        var summary = new Core.Models.AgentMetricsSummary(0, 0, 0, 0, 0, 0, 0, new Dictionary<string, Core.Models.GoalMetrics>());
+        var summary = new Core.Models.AgentMetricsSummary(0, 0, 0, 0, 0, 0, 0, []);
         Assert.Empty(summary.ByGoal);
     }
 }
@@ -79,7 +79,7 @@ public class RuntimeSummaryTests
     [Fact]
     public void RuntimeSummary_ShouldSupportDegradedState()
     {
-        var runtime = new Core.Models.RuntimeSummary(false, true, null, null, 0, 0, new Dictionary<string, string>());
+        var runtime = new Core.Models.RuntimeSummary(false, true, null, null, 0, 0, []);
         Assert.False(runtime.GatewayHealthy);
         Assert.True(runtime.KernelHealthy);
         Assert.Null(runtime.KernelVersion);
@@ -92,8 +92,8 @@ public class ObservabilitySummaryTests
     public void ObservabilitySummary_ShouldNestAll()
     {
         var sc = new Core.Models.AgentScorecard(0.9, 0.8, 0.95, 0.9, 0.85, 0.88);
-        var metrics = new Core.Models.AgentMetricsSummary(50, 40, 8, 2, 0.8, 150, 0.1, new());
-        var runtime = new Core.Models.RuntimeSummary(true, true, "1.0", "2.0", 3, 512, new());
+        var metrics = new Core.Models.AgentMetricsSummary(50, 40, 8, 2, 0.8, 150, 0.1, []);
+        var runtime = new Core.Models.RuntimeSummary(true, true, "1.0", "2.0", 3, 512, []);
         var summary = new Core.Models.ObservabilitySummary(runtime, sc, metrics);
 
         Assert.Equal(0.88, summary.Scorecard.Overall);

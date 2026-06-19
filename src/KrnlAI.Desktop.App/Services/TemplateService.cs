@@ -8,7 +8,7 @@ public sealed record PromptTemplate(string Id, string Name, string Description, 
 public sealed class TemplateService
 {
     private readonly string _filePath;
-    private List<PromptTemplate> _templates = new();
+    private List<PromptTemplate> _templates = [];
     private static readonly JsonSerializerOptions JsonOpts = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     public TemplateService()
@@ -41,10 +41,10 @@ public sealed class TemplateService
             if (File.Exists(_filePath))
             {
                 var json = File.ReadAllText(_filePath);
-                _templates = JsonSerializer.Deserialize<List<PromptTemplate>>(json, JsonOpts) ?? new();
+                _templates = JsonSerializer.Deserialize<List<PromptTemplate>>(json, JsonOpts) ?? [];
             }
         }
-        catch { _templates = new(); }
+        catch { _templates = []; }
     }
 
     private void Persist()

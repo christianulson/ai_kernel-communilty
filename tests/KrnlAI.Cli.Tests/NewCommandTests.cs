@@ -155,9 +155,9 @@ public sealed class FakeTemplateEngine : ITemplateEngine
 
     public Task<IReadOnlyList<TemplateInfo>> ListTemplatesAsync()
     {
-        return Task.FromResult<IReadOnlyList<TemplateInfo>>(new List<TemplateInfo>
-        {
+        return Task.FromResult<IReadOnlyList<TemplateInfo>>(
+        [
             new("basic", "Basic agent", TemplateType.Agent, "1.0.0", [])
-        });
+        ]);
     }
 }

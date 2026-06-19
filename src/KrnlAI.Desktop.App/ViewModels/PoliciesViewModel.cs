@@ -9,15 +9,15 @@ namespace KrnlAI.Desktop.App.ViewModels;
 public class PoliciesViewModel : ViewModelBase
 {
     private readonly IKernelClient _kernelClient;
-    public ObservableCollection<PolicyInfo> PolicyList { get; } = new();
-    public ObservableCollection<string> PolicyDomains { get; } = new() { "", "general", "payments", "infrastructure", "security", "support", "analytics" };
+    public ObservableCollection<PolicyInfo> PolicyList { get; } = [];
+    public ObservableCollection<string> PolicyDomains { get; } = ["", "general", "payments", "infrastructure", "security", "support", "analytics"];
     private string? _selectedDomain;
     public string? SelectedPolicyDomain { get => _selectedDomain; set => SetProperty(ref _selectedDomain, value); }
     private bool _isLoading;
     public bool IsLoading { get => _isLoading; set => SetProperty(ref _isLoading, value); }
     private PolicyVersionList? _versions;
     public PolicyVersionList? PolicyVersions { get => _versions; set => SetProperty(ref _versions, value); }
-    public ObservableCollection<PolicyRollbackEntry> PolicyRollbacks { get; } = new();
+    public ObservableCollection<PolicyRollbackEntry> PolicyRollbacks { get; } = [];
     private string _errorMessage = "";
     public string ErrorMessage { get => _errorMessage; set { SetProperty(ref _errorMessage, value); OnPropertyChanged(nameof(HasError)); } }
     public bool HasError => !string.IsNullOrEmpty(ErrorMessage);

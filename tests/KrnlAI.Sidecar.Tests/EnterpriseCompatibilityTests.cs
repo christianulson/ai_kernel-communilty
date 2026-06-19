@@ -1,23 +1,11 @@
-using System.Net.Http.Json;
-using KrnlAI.Sidecar;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-
 namespace KrnlAI.Sidecar.Tests;
 
-public sealed class EnterpriseCompatibilityTests : IClassFixture<SidecarWebAppFactory>
+public sealed class EnterpriseCompatibilityTests(SidecarWebAppFactory factory) : IClassFixture<SidecarWebAppFactory>
 {
-    private readonly SidecarWebAppFactory _factory;
-
-    public EnterpriseCompatibilityTests(SidecarWebAppFactory factory)
-    {
-        _factory = factory;
-    }
-
     [Fact]
     public async Task CommunityMode_DefaultConfig_ShouldReportCommunity()
     {
-        var client = _factory.CreateClient();
+        var client = factory.CreateClient();
         var response = await client.GetAsync("/sidecar/diagnostics", TestContext.Current.CancellationToken);
         var body = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>(cancellationToken: TestContext.Current.CancellationToken);
 
@@ -28,7 +16,7 @@ public sealed class EnterpriseCompatibilityTests : IClassFixture<SidecarWebAppFa
     [Fact]
     public async Task CommunityMode_HealthEndpoint_ShouldStillWork()
     {
-        var client = _factory.CreateClient();
+        var client = factory.CreateClient();
         var response = await client.GetAsync("/health", TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
@@ -37,7 +25,7 @@ public sealed class EnterpriseCompatibilityTests : IClassFixture<SidecarWebAppFa
     [Fact]
     public async Task EnterpriseMode_DiagnosticsEndpoint_ShouldReportEnterpriseConfig()
     {
-        var client = _factory.WithWebHostBuilder(builder =>
+        var client = factory.WithWebHostBuilder(builder =>
         {
             builder.ConfigureServices((ctx, services) =>
             {
@@ -66,7 +54,7 @@ public sealed class EnterpriseCompatibilityTests : IClassFixture<SidecarWebAppFa
     [Fact]
     public async Task EnterpriseMode_HealthEndpoint_ShouldStillWork()
     {
-        var client = _factory.WithWebHostBuilder(builder =>
+        var client = factory.WithWebHostBuilder(builder =>
         {
             builder.ConfigureServices((ctx, services) =>
             {

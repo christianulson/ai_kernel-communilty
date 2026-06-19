@@ -8,7 +8,7 @@ public class CliViewModel : ViewModelBase
 {
     private readonly CliBridgeService _cli = new();
     private string _command = "", _output = "", _statusMessage = "Pronto.";
-    public ObservableCollection<string> History { get; } = new();
+    public ObservableCollection<string> History { get; } = [];
     public string Command { get => _command; set => SetProperty(ref _command, value); }
     public string Output { get => _output; set => SetProperty(ref _output, value); }
     public string StatusMessage { get => _statusMessage; set => SetProperty(ref _statusMessage, value); }

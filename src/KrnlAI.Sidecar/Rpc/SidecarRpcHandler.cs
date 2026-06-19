@@ -2,22 +2,13 @@ using KrnlAI.Embedded.Abstractions;
 
 namespace KrnlAI.Sidecar.Rpc;
 
-public sealed class SidecarRpcHandler
+public sealed class SidecarRpcHandler(IEmbeddedKrnlAI kernel, ILogger<SidecarRpcHandler> logger)
 {
-    private readonly IEmbeddedKrnlAI _kernel;
-    private readonly ILogger<SidecarRpcHandler> _logger;
-
-    public SidecarRpcHandler(IEmbeddedKrnlAI kernel, ILogger<SidecarRpcHandler> logger)
-    {
-        _kernel = kernel;
-        _logger = logger;
-    }
-
     public async Task<AgentRunResponse> RunAgentAsync(string prompt, CancellationToken ct = default)
     {
         var safePrompt = prompt ?? "";
-        _logger.LogInformation("RPC RunAgent: prompt={PromptLen}chars", safePrompt.Length);
-        var result = await _kernel.RunAsync(safePrompt, ct);
+        logger.LogInformation("RPC RunAgent: prompt={PromptLen}chars", safePrompt.Length);
+        var result = await kernel.RunAsync(safePrompt, ct);
         return new AgentRunResponse
         {
             Narration = result.Narration,
@@ -34,9 +25,9 @@ public sealed class SidecarRpcHandler
 
     public async Task<MemorySearchResult> SearchMemoryAsync(string query, CancellationToken ct = default)
     {
-        _logger.LogInformation("RPC SearchMemory: query={Query}", query);
-        var hits = await _kernel.SearchMemoryAsync(query, ct);
-        return new MemorySearchResult(hits.Select(h => new MemoryHit(h.Id, h.Payload ?? "", h.Score)).ToList(), hits.Count);
+        logger.LogInformation("RPC SearchMemory: query={Query}", query);
+        var hits = await kernel.SearchMemoryAsync(query, ct);
+        return new MemorySearchResult([.. hits.Select(h => new MemoryHit(h.Id, h.Payload ?? "", h.Score))], hits.Count);
     }
 }
 

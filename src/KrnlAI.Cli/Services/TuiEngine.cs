@@ -4,18 +4,10 @@ using KrnlAI.Core.Services.Neural;
 
 namespace KrnlAI.Cli.Services;
 
-public sealed class TuiEngine : IDisposable
+public sealed class TuiEngine(IQLearningService? ql = null, MultiAgentOrchestrator? orchestrator = null) : IDisposable
 {
-    private readonly IQLearningService? _ql;
-    private readonly MultiAgentOrchestrator? _orchestrator;
     private CancellationTokenSource? _cts;
     private bool _disposed;
-
-    public TuiEngine(IQLearningService? ql = null, MultiAgentOrchestrator? orchestrator = null)
-    {
-        _ql = ql;
-        _orchestrator = orchestrator;
-    }
 
     public Task RunAsync()
     {
@@ -75,7 +67,7 @@ public sealed class TuiEngine : IDisposable
 
     private Panel BuildAgentsPanel()
     {
-        if (_orchestrator is null)
+        if (orchestrator is null)
             return new Panel(new Markup("[dim]Multi-agent not available[/]")).Header("Agents");
 
         var table = new Table().Border(TableBorder.Rounded).Width(40);
@@ -83,9 +75,9 @@ public sealed class TuiEngine : IDisposable
         table.AddColumn("Domain");
         table.AddColumn("Status");
 
-        foreach (var id in _orchestrator.AgentIds)
+        foreach (var id in orchestrator.AgentIds)
         {
-            var agent = _orchestrator.GetAgent(id);
+            var agent = orchestrator.GetAgent(id);
             var domain = agent?.Domain ?? "?";
             var icons = new Dictionary<string, string>
             {
@@ -101,12 +93,12 @@ public sealed class TuiEngine : IDisposable
 
     private async Task<Panel> BuildQTablePanel(CancellationToken ct)
     {
-        if (_ql is null)
+        if (ql is null)
             return new Panel(new Markup("[dim]Q-Learning not available[/]")).Header("Q-Table");
 
         try
         {
-            var summary = await _ql.GetPolicySummaryAsync(ct);
+            var summary = await ql.GetPolicySummaryAsync(ct);
             var lines = summary.Split('\n');
             var display = string.Join("\n", lines.Take(8).Select(l => $"[grey]{l.Replace("[", "[[").Replace("]", "]]")}[/]"));
             return new Panel(new Markup(display)).Header("Q-Table");
@@ -121,7 +113,7 @@ public sealed class TuiEngine : IDisposable
     {
         var eventCount = Random.Shared.Next(1, 5);
         var events = new List<string>();
-        for (int i = 0; i < eventCount; i++)
+        for (var i = 0; i < eventCount; i++)
             events.Add($"[grey]{DateTimeOffset.UtcNow:HH:mm:ss}[/] cognitive cycle tick");
         return new Panel(new Markup(string.Join("\n", events))).Header("Events");
     }

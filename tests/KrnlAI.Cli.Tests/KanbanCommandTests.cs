@@ -48,7 +48,7 @@ public sealed class KanbanCommandTests
         services.AddSingleton<IProspectiveMemoryService>(sp =>
             new ProspectiveMemoryService(sp.GetRequiredService<IProspectiveMemoryStore>()));
         services.AddSingleton<IAnticipationService>(sp =>
-            new AnticipationService(Enumerable.Empty<IProjectionSource>(), sp.GetRequiredService<IAnticipationStore>()));
+            new AnticipationService([], sp.GetRequiredService<IAnticipationStore>()));
         services.AddSingleton<IGoalStore>(_ =>
         {
             var store = new InMemoryGoalStore();
@@ -195,7 +195,7 @@ public sealed class KanbanCommandTests
         services.AddSingleton<IProspectiveMemoryService>(sp =>
             new ProspectiveMemoryService(sp.GetRequiredService<IProspectiveMemoryStore>()));
         services.AddSingleton<IAnticipationService>(sp =>
-            new AnticipationService(Enumerable.Empty<IProjectionSource>(), sp.GetRequiredService<IAnticipationStore>()));
+            new AnticipationService([], sp.GetRequiredService<IAnticipationStore>()));
         services.AddSingleton<IGoalStore>(_ => new InMemoryGoalStore());
         services.AddSingleton<ISystemClock>(new FrozenClock(FixedNow));
         services.AddSingleton<IKanbanService>(sp =>
@@ -232,13 +232,8 @@ public sealed class KanbanCommandTests
         console.Output.Should().Contain("Domain: testing");
     }
 
-    private sealed class FrozenClock : ISystemClock
+    private sealed class FrozenClock(DateTimeOffset utcNow) : ISystemClock
     {
-        public FrozenClock(DateTimeOffset utcNow)
-        {
-            UtcNow = utcNow;
-        }
-
-        public DateTimeOffset UtcNow { get; }
+        public DateTimeOffset UtcNow { get; } = utcNow;
     }
 }

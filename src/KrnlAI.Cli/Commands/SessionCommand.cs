@@ -13,17 +13,18 @@ public sealed class SessionCommand(
 {
     public Command Build()
     {
-        var cmd = new Command("session", "Manage CLI sessions");
-
-        cmd.Add(BuildList());
-        cmd.Add(BuildCreate());
-        cmd.Add(BuildExport());
-        cmd.Add(BuildImport());
-        cmd.Add(BuildDelete());
-        cmd.Add(BuildFork());
-        cmd.Add(BuildResume());
-        cmd.Add(BuildShow());
-        cmd.Add(BuildTimeline());
+        var cmd = new Command("session", "Manage CLI sessions")
+        {
+            BuildList(),
+            BuildCreate(),
+            BuildExport(),
+            BuildImport(),
+            BuildDelete(),
+            BuildFork(),
+            BuildResume(),
+            BuildShow(),
+            BuildTimeline()
+        };
 
         return cmd;
     }

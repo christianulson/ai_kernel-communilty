@@ -36,7 +36,7 @@ public sealed class SessionPersistenceServiceTests
         var service = new SessionPersistenceService(tempDir);
 
         var conv = service.CreateNewConversation("Test");
-        var store = new SessionStore(2, new List<ConversationData> { conv }, conv.Id);
+        var store = new SessionStore(2, [conv], conv.Id);
         service.Save(store);
 
         var loaded = service.Load();
@@ -68,7 +68,7 @@ public sealed class SessionPersistenceServiceTests
         var service = new SessionPersistenceService(Path.GetTempPath());
         var conv = service.CreateNewConversation("To Delete");
         var conv2 = service.CreateNewConversation("Keep");
-        var store = new SessionStore(2, new List<ConversationData> { conv, conv2 }, conv.Id);
+        var store = new SessionStore(2, [conv, conv2], conv.Id);
 
         var result = service.DeleteConversation(store, conv.Id);
 
@@ -119,7 +119,7 @@ public sealed class SessionPersistenceServiceTests
         var c1 = service.CreateNewConversation("First");
         var c2 = service.CreateNewConversation("Second");
         var c3 = service.CreateNewConversation("Third");
-        var store = new SessionStore(2, new List<ConversationData> { c1, c2, c3 }, c2.Id);
+        var store = new SessionStore(2, [c1, c2, c3], c2.Id);
         service.Save(store);
 
         var loaded = service.Load();

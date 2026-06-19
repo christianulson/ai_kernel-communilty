@@ -7,15 +7,8 @@ public interface ILocalSlashExecutor
     Task<string> ExecuteAsync(string input, CancellationToken ct = default);
 }
 
-public sealed class LocalSlashHandler : ILocalSlashExecutor
+public sealed class LocalSlashHandler(EmbeddedKrnlAI kernel) : ILocalSlashExecutor
 {
-    private readonly EmbeddedKrnlAI _kernel;
-
-    public LocalSlashHandler(EmbeddedKrnlAI kernel)
-    {
-        _kernel = kernel;
-    }
-
     public async Task<string> ExecuteAsync(string input, CancellationToken ct = default)
     {
         var (cmd, _) = Parse(input);
@@ -23,7 +16,7 @@ public sealed class LocalSlashHandler : ILocalSlashExecutor
         if (cmd == "/clear") return "CLEAR_CONVERSATION";
         if (cmd == "/help") return "Available commands: /clear, /help";
 
-        var result = await _kernel.RunAsync(input, ct);
+        var result = await kernel.RunAsync(input, ct);
         return result.Narration ?? result.Error ?? "Executed";
     }
 

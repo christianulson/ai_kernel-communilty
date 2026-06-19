@@ -1,7 +1,4 @@
-using System.Net;
-using System.Net.Http;
 using KrnlAI.Desktop.App.ViewModels;
-using KrnlAI.Desktop.Core.Models;
 using KrnlAI.Desktop.Core.Services;
 using Microsoft.Extensions.Logging.Abstractions;
 

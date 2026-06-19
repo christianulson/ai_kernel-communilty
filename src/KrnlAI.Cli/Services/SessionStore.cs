@@ -28,7 +28,7 @@ public sealed class InMemorySessionStore
 
     public IReadOnlyList<CliSession> List()
     {
-        return _sessions.Values.OrderByDescending(s => s.CreatedAt).ToList();
+        return [.. _sessions.Values.OrderByDescending(s => s.CreatedAt)];
     }
 
     public bool Delete(string id)

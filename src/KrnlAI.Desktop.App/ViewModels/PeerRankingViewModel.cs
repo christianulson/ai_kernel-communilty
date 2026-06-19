@@ -46,11 +46,11 @@ public sealed class PeerRankingViewModel : ViewModelBase
         RecomputeCommand = new AsyncRelayCommand(() => RecomputeAsync());
     }
 
-    public ObservableCollection<PeerRankingItem> FilteredPeers { get; } = new();
+    public ObservableCollection<PeerRankingItem> FilteredPeers { get; } = [];
 
-    public ObservableCollection<PeerRankingHistoryEntry> History { get; } = new();
+    public ObservableCollection<PeerRankingHistoryEntry> History { get; } = [];
 
-    public ObservableCollection<string> AvailableStrategies { get; } = new();
+    public ObservableCollection<string> AvailableStrategies { get; } = [];
 
     public IReadOnlyList<string> AvailableTiers { get; } = ["All", "Untrusted", "Standard", "Trusted", "Preferred"];
 

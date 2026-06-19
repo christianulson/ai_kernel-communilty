@@ -122,7 +122,7 @@ public sealed class SignalRStreamingService : ISignalRStreamingService, IAsyncDi
         var ct = _reconnectCts.Token;
 
         var delays = new[] { 1, 2, 4, 8, 16, 30 };
-        for (int i = 0; i < delays.Length; i++)
+        for (var i = 0; i < delays.Length; i++)
         {
             if (ct.IsCancellationRequested) return;
             await Task.Delay(TimeSpan.FromSeconds(delays[i]), ct);

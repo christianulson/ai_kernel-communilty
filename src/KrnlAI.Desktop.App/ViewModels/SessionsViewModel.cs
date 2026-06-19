@@ -11,7 +11,7 @@ public class SessionsViewModel : ViewModelBase
 {
     private readonly IKernelClient _kernelClient;
     private readonly ILogger<SessionsViewModel> _logger;
-    public ObservableCollection<SessionShare> Shares { get; } = new();
+    public ObservableCollection<SessionShare> Shares { get; } = [];
     private bool _isLoading;
     public bool IsLoading { get => _isLoading; set { SetProperty(ref _isLoading, value); OnPropertyChanged(nameof(HasNoData)); } }
     public bool HasNoData => !IsLoading && Shares.Count == 0 && !HasError;

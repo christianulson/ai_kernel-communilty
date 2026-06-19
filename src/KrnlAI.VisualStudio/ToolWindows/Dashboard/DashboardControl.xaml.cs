@@ -30,7 +30,7 @@ public partial class DashboardControl : UserControl
 
     private async System.Threading.Tasks.Task RefreshAllAsync()
     {
-        await System.Threading.Tasks.Task.WhenAll(
+        await Task.WhenAll(
             RefreshScorecardAsync(),
             RefreshHealthAsync(),
             RefreshMoodAsync(),

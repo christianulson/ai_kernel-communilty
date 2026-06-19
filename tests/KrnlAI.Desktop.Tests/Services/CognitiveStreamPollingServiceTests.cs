@@ -1,5 +1,3 @@
-using System.Net;
-using System.Net.Http;
 using KrnlAI.Desktop.App.Services;
 
 namespace KrnlAI.Desktop.Tests.Services;

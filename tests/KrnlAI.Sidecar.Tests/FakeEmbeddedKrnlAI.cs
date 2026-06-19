@@ -15,7 +15,7 @@ public sealed class FakeEmbeddedKrnlAI : IEmbeddedKrnlAI
     {
         var result = new EmbeddedAgentRunResult(
             Narration: $"Processed: {input}",
-            Steps: new List<string> { "input received", "fake processed" },
+            Steps: ["input received", "fake processed"],
             Error: null,
             Mode: "test");
         return Task.FromResult(result);

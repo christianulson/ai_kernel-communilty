@@ -3,9 +3,9 @@ using System.Text.Json;
 
 namespace KrnlAI.VisualStudio.Services;
 
-public sealed class DashboardService : IDashboardService, IDisposable
+public sealed class DashboardService(HttpClient? http = null) : IDashboardService, IDisposable
 {
-    private readonly HttpClient _http;
+    private readonly HttpClient _http = http ?? new HttpClient();
     private string? _baseUrl;
     private static readonly JsonSerializerOptions JsonOpts = new()
     {
@@ -15,11 +15,6 @@ public sealed class DashboardService : IDashboardService, IDisposable
     private DashboardScorecard? _cachedScorecard;
     private DateTime _lastFetch = DateTime.MinValue;
     private static readonly TimeSpan CacheTtl = TimeSpan.FromSeconds(30);
-
-    public DashboardService(HttpClient? http = null)
-    {
-        _http = http ?? new HttpClient();
-    }
 
     private string GetBaseUrl()
     {

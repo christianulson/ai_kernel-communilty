@@ -5,12 +5,12 @@ using Microsoft.Extensions.Options;
 
 namespace KrnlAI.Sidecar;
 
-public sealed class KernelApiProxy
+public sealed class KernelApiProxy(
+    IHttpClientFactory httpClientFactory,
+    IMemoryCache cache,
+    IOptions<SidecarOptions> options,
+    ILogger<KernelApiProxy> logger)
 {
-    private readonly IHttpClientFactory _httpClientFactory;
-    private readonly IMemoryCache _cache;
-    private readonly IOptions<SidecarOptions> _options;
-    private readonly ILogger<KernelApiProxy> _logger;
     private static readonly Meter Meter = new("KrnlAI.Sidecar.Proxy");
     private static readonly Counter<int> RequestsTotal = Meter.CreateCounter<int>("sidecar_proxy_requests_total",
         description: "Total proxy requests", unit: "{count}");
@@ -22,19 +22,7 @@ public sealed class KernelApiProxy
     private DateTime _circuitOpenUntil = DateTime.MinValue;
     private readonly object _circuitLock = new();
 
-    public bool IsConfigured => !string.IsNullOrWhiteSpace(_options.Value.KernelApi.BaseUrl);
-
-    public KernelApiProxy(
-        IHttpClientFactory httpClientFactory,
-        IMemoryCache cache,
-        IOptions<SidecarOptions> options,
-        ILogger<KernelApiProxy> logger)
-    {
-        _httpClientFactory = httpClientFactory;
-        _cache = cache;
-        _options = options;
-        _logger = logger;
-    }
+    public bool IsConfigured => !string.IsNullOrWhiteSpace(options.Value.KernelApi.BaseUrl);
 
     public async Task<T?> ProxyGetAsync<T>(string path, CancellationToken ct) where T : class
     {
@@ -54,7 +42,7 @@ public sealed class KernelApiProxy
         if (!IsConfigured) return true;
         try
         {
-            var client = _httpClientFactory.CreateClient("kernel");
+            var client = httpClientFactory.CreateClient("kernel");
             var res = await client.GetAsync($"/health", ct);
             return res.IsSuccessStatusCode;
         }
@@ -73,7 +61,7 @@ public sealed class KernelApiProxy
         // Check circuit breaker
         if (IsCircuitOpen())
         {
-            _logger.LogWarning("Circuit breaker open for {Method} {Path}, serving from cache/stub", method, path);
+            logger.LogWarning("Circuit breaker open for {Method} {Path}, serving from cache/stub", method, path);
             var cached = await GetFromCacheAsync<T>(cacheKey);
             if (cached is not null)
             {
@@ -86,14 +74,14 @@ public sealed class KernelApiProxy
             return null;
         }
 
-        var opts = _options.Value.KernelApi;
+        var opts = options.Value.KernelApi;
         var baseUrl = opts.BaseUrl.TrimEnd('/');
 
         for (var attempt = 1; attempt <= Math.Max(1, opts.RetryCount); attempt++)
         {
             try
             {
-                var client = _httpClientFactory.CreateClient("kernel");
+                var client = httpClientFactory.CreateClient("kernel");
                 HttpResponseMessage res;
 
                 if (method == HttpMethod.Get)
@@ -107,7 +95,7 @@ public sealed class KernelApiProxy
 
                 if (!res.IsSuccessStatusCode)
                 {
-                    _logger.LogWarning("Proxy {Method} {Path} returned {Status} (attempt {Attempt}/{Max})",
+                    logger.LogWarning("Proxy {Method} {Path} returned {Status} (attempt {Attempt}/{Max})",
                         method, path, (int)res.StatusCode, attempt, opts.RetryCount);
 
                     if (attempt < opts.RetryCount)
@@ -132,7 +120,7 @@ public sealed class KernelApiProxy
                 var result = await res.Content.ReadFromJsonAsync<T>(cancellationToken: ct);
                 if (result is not null && method == HttpMethod.Get)
                 {
-                    _cache.Set(cacheKey, result, TimeSpan.FromSeconds(opts.CacheTtlSeconds));
+                    cache.Set(cacheKey, result, TimeSpan.FromSeconds(opts.CacheTtlSeconds));
                 }
 
                 RecordSuccess();
@@ -142,13 +130,13 @@ public sealed class KernelApiProxy
             }
             catch (Exception ex) when (attempt < opts.RetryCount)
             {
-                _logger.LogWarning(ex, "Proxy {Method} {Path} failed (attempt {Attempt}/{Max}): {Msg}",
+                logger.LogWarning(ex, "Proxy {Method} {Path} failed (attempt {Attempt}/{Max}): {Msg}",
                     method, path, attempt, opts.RetryCount, ex.Message);
                 await BackoffDelay(attempt, ct);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Proxy {Method} {Path} failed after {Attempt} attempts: {Msg}",
+                logger.LogError(ex, "Proxy {Method} {Path} failed after {Attempt} attempts: {Msg}",
                     method, path, opts.RetryCount, ex.Message);
                 RecordFailure();
                 var cached = await GetFromCacheAsync<T>(cacheKey);
@@ -185,7 +173,7 @@ public sealed class KernelApiProxy
             if (_circuitOpenUntil != DateTime.MinValue && _circuitOpenUntil <= DateTime.UtcNow)
             {
                 _circuitOpenUntil = DateTime.MinValue;
-                _logger.LogInformation("Circuit breaker closed, resuming proxy requests");
+                logger.LogInformation("Circuit breaker closed, resuming proxy requests");
             }
             return false;
         }
@@ -201,14 +189,14 @@ public sealed class KernelApiProxy
 
     private void RecordFailure()
     {
-        var opts = _options.Value.KernelApi;
+        var opts = options.Value.KernelApi;
         lock (_circuitLock)
         {
             _failureCount++;
             if (_failureCount >= opts.CircuitMinThroughput)
             {
                 _circuitOpenUntil = DateTime.UtcNow.AddSeconds(opts.CircuitBreakDurationSeconds);
-                _logger.LogWarning("Circuit breaker opened for {Duration}s after {Failures} failures",
+                logger.LogWarning("Circuit breaker opened for {Duration}s after {Failures} failures",
                     opts.CircuitBreakDurationSeconds, _failureCount);
             }
         }
@@ -216,9 +204,9 @@ public sealed class KernelApiProxy
 
     private Task<T?> GetFromCacheAsync<T>(string cacheKey) where T : class
     {
-        if (_cache.TryGetValue<T>(cacheKey, out var cached) && cached is not null)
+        if (cache.TryGetValue<T>(cacheKey, out var cached) && cached is not null)
         {
-            _logger.LogInformation("Cache hit for {CacheKey}", cacheKey);
+            logger.LogInformation("Cache hit for {CacheKey}", cacheKey);
             return Task.FromResult<T?>(cached);
         }
         return Task.FromResult<T?>(null);

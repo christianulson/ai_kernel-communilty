@@ -2,7 +2,6 @@ using System.ComponentModel.Design;
 using KrnlAI.VisualStudio.Services;
 using KrnlAI.VisualStudio.ToolWindows.Kanban;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
 
 namespace KrnlAI.VisualStudio.Commands;
 

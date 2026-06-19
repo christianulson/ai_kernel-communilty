@@ -12,7 +12,7 @@ public class DashboardViewModel : ViewModelBase, IDisposable
     private readonly IKernelClient? _kernelClient;
     private readonly ILogger<DashboardViewModel> _logger;
     private CancellationTokenSource? _emotionalPollCts;
-    public ObservableCollection<GoalInfo> GoalsList { get; } = new();
+    public ObservableCollection<GoalInfo> GoalsList { get; } = [];
     private AgentScorecard? _scorecard;
     public AgentScorecard? ScorecardData { get => _scorecard; set => SetProperty(ref _scorecard, value); }
     private RuntimeSummary? _runtime;
@@ -155,7 +155,7 @@ public class DashboardViewModel : ViewModelBase, IDisposable
                 }
             }
             catch (OperationCanceledException) { break; }
-            catch (Exception ex) { KrnlAI.Desktop.Core.Services.KrnlLogger.Write($"Dash emotional poll: {ex.Message}"); }
+            catch (Exception ex) { Core.Services.KrnlLogger.Write($"Dash emotional poll: {ex.Message}"); }
             try { await Task.Delay(15000, t); } catch (OperationCanceledException) { break; }
         }
     }

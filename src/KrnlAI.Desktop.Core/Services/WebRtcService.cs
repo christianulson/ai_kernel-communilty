@@ -36,11 +36,10 @@ public enum WebRtcState
     Closed
 }
 
-public sealed class WebRtcService : IWebRtcService, IDisposable
+public sealed class WebRtcService(ILogger<WebRtcService> logger) : IWebRtcService, IDisposable
 {
     public event EventHandler<WebRtcEventArgs>? StateChanged;
 
-    private readonly ILogger<WebRtcService> _logger;
     private ClientWebSocket? _ws;
     private string _localPeerId = "";
     private string? _remotePeerId;
@@ -52,11 +51,6 @@ public sealed class WebRtcService : IWebRtcService, IDisposable
     public bool IsConnected => _ws?.State == WebSocketState.Open;
     public string LocalPeerId => _localPeerId;
     public string? RemotePeerId => _remotePeerId;
-
-    public WebRtcService(ILogger<WebRtcService> logger)
-    {
-        _logger = logger;
-    }
 
     public async Task<bool> InitializeAsync(string signalingUrl, string stunServer, string? turnServer = null)
     {
@@ -70,7 +64,7 @@ public sealed class WebRtcService : IWebRtcService, IDisposable
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to initialize WebRTC");
+            logger.LogError(ex, "Failed to initialize WebRTC");
             OnStateChanged(WebRtcState.Failed, ex.Message);
             return false;
         }
@@ -88,7 +82,7 @@ public sealed class WebRtcService : IWebRtcService, IDisposable
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to send offer");
+            logger.LogError(ex, "Failed to send offer");
             OnStateChanged(WebRtcState.Failed, ex.Message);
             return false;
         }
@@ -106,7 +100,7 @@ public sealed class WebRtcService : IWebRtcService, IDisposable
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to connect to peer");
+            logger.LogError(ex, "Failed to connect to peer");
             OnStateChanged(WebRtcState.Failed, ex.Message);
             return false;
         }
@@ -121,7 +115,7 @@ public sealed class WebRtcService : IWebRtcService, IDisposable
         }
         catch (Exception ex)
         {
-            _logger.LogDebug(ex, "Failed to notify signaling server about peer disconnect");
+            logger.LogDebug(ex, "Failed to notify signaling server about peer disconnect");
         }
         if (_ws?.State == WebSocketState.Open)
             await _ws.CloseAsync(WebSocketCloseStatus.NormalClosure, "", CancellationToken.None);
@@ -132,14 +126,14 @@ public sealed class WebRtcService : IWebRtcService, IDisposable
     {
         if (!IsConnected) return;
         try { await SendJsonAsync(new { type = "audio", data = Convert.ToBase64String(pcmData) }); }
-        catch (Exception ex) { _logger.LogDebug(ex, "Failed to send audio"); }
+        catch (Exception ex) { logger.LogDebug(ex, "Failed to send audio"); }
     }
 
     public async Task SendVideoFrameAsync(byte[] frameData)
     {
         if (!IsConnected) return;
         try { await SendJsonAsync(new { type = "video", data = Convert.ToBase64String(frameData) }); }
-        catch (Exception ex) { _logger.LogDebug(ex, "Failed to send video"); }
+        catch (Exception ex) { logger.LogDebug(ex, "Failed to send video"); }
     }
 
     private async Task ConnectWebSocketAsync()
@@ -168,7 +162,7 @@ public sealed class WebRtcService : IWebRtcService, IDisposable
         {
             // Normal cancellation during shutdown
         }
-        catch (Exception ex) { _logger.LogError(ex, "WebSocket receive error"); }
+        catch (Exception ex) { logger.LogError(ex, "WebSocket receive error"); }
     }
 
     private void ProcessMessage(string json)
@@ -189,7 +183,7 @@ public sealed class WebRtcService : IWebRtcService, IDisposable
                     break;
             }
         }
-        catch (Exception ex) { _logger.LogError(ex, "Failed to process message"); }
+        catch (Exception ex) { logger.LogError(ex, "Failed to process message"); }
     }
 
     private Task SendJsonAsync(object msg)
