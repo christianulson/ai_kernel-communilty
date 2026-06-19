@@ -199,6 +199,62 @@ async fn get_detailed_system_info() -> Result<serde_json::Value, String> {
     }))
 }
 
+#[tauri::command]
+pub async fn backup_data(app: tauri::AppHandle) -> Result<String, String> {
+    let sidecar_port = get_sidecar_port(&app).await;
+    let url = format!("http://127.0.0.1:{}/api/backup/create", sidecar_port);
+    let client = reqwest::Client::new();
+    let resp = client.post(&url).send().await.map_err(|e| e.to_string())?;
+    let text = resp.text().await.map_err(|e| e.to_string())?;
+    Ok(text)
+}
+
+#[tauri::command]
+pub async fn restore_data(path: String, app: tauri::AppHandle) -> Result<String, String> {
+    let sidecar_port = get_sidecar_port(&app).await;
+    let url = format!("http://127.0.0.1:{}/api/backup/restore", sidecar_port);
+    let client = reqwest::Client::new();
+    let resp = client.post(&url)
+        .json(&serde_json::json!({ "path": path }))
+        .send().await.map_err(|e| e.to_string())?;
+    let text = resp.text().await.map_err(|e| e.to_string())?;
+    Ok(text)
+}
+
+async fn get_sidecar_port(app: &tauri::AppHandle) -> u16 {
+    let manager = app.state::<SidecarManager>();
+    manager.get_port()
+}
+
+#[tauri::command]
+pub async fn execute_cli(command: String, args: Vec<String>) -> Result<String, String> {
+    let output = std::process::Command::new(&command)
+        .args(&args)
+        .output()
+        .map_err(|e| format!("Failed to execute command: {}", e))?;
+
+    if output.status.success() {
+        Ok(String::from_utf8_lossy(&output.stdout).to_string())
+    } else {
+        Err(String::from_utf8_lossy(&output.stderr).to_string())
+    }
+}
+
+#[tauri::command]
+pub async fn execute_cli_with_workdir(command: String, args: Vec<String>, workdir: String) -> Result<String, String> {
+    let output = std::process::Command::new(&command)
+        .args(&args)
+        .current_dir(&workdir)
+        .output()
+        .map_err(|e| format!("Failed to execute command: {}", e))?;
+
+    if output.status.success() {
+        Ok(String::from_utf8_lossy(&output.stdout).to_string())
+    } else {
+        Err(String::from_utf8_lossy(&output.stderr).to_string())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

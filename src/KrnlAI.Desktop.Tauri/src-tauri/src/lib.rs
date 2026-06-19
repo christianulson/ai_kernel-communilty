@@ -20,7 +20,11 @@ pub fn run() {
         }))
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_drag_drop::init())
-        .plugin(tauri_plugin_deep_link::init())
+        .plugin(tauri_plugin_deep_link::init({
+            move |app, request| {
+                let _ = app.emit("deep-link-received", request.to_string());
+            }
+        }))
         .plugin(tauri_plugin_autostart::init(
             tauri_plugin_autostart::MacosLauncher::LaunchAgent,
             Some(vec!["--flag1"]),
@@ -47,6 +51,10 @@ pub fn run() {
             commands::copy_to_clipboard,
             commands::get_deep_link,
             commands::get_detailed_system_info,
+            commands::backup_data,
+            commands::restore_data,
+            commands::execute_cli,
+            commands::execute_cli_with_workdir,
             updater::check_for_updates,
             updater::install_update,
         ])
