@@ -1,4 +1,5 @@
 using KrnlAI.Desktop.Core.Models;
+using Cts = KrnlAI.Contracts.Contracts;
 
 namespace KrnlAI.Desktop.Tests.Models;
 
@@ -127,7 +128,7 @@ public class AgentRunRequestTests
     [Fact]
     public void AgentRunRequest_ShouldCreateWithDefaults()
     {
-        var request = new AgentRunRequest("Hello");
+        var request = new Cts.AgentRunTransportRequest("Hello");
 
         Assert.Equal("Hello", request.Prompt);
         Assert.Equal("gateway", request.Mode);
@@ -139,7 +140,7 @@ public class AgentRunRequestTests
     public void AgentRunRequest_ShouldAllowCustomValues()
     {
         var metadata = new Dictionary<string, string> { { "key", "value" } };
-        var request = new AgentRunRequest("Test", "kernel", "agent-1", metadata);
+        var request = new Cts.AgentRunTransportRequest("Test", "kernel", "agent-1", metadata);
 
         Assert.Equal("Test", request.Prompt);
         Assert.Equal("kernel", request.Mode);

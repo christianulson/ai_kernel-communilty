@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
+using KrnlAI.Contracts.Contracts;
 using KrnlAI.Core.Abstractions;
 using KrnlAI.Core.Services.Safety;
 using KrnlAI.Embedded.Abstractions;
@@ -221,15 +222,15 @@ public static class EndpointRouteExtensions
             {
                 SafetyBlockedTotal.Add(1, new KeyValuePair<string, object?>("layer", "adversarial"));
                 logger.LogWarning("Agent run blocked by AdversarialGuard. ThreatLevel={Threat}", safetyResult.ThreatLevel);
-                return Results.Ok(new AgentRunResponse
-                {
-                    Narration = "Conteudo bloqueado.",
-                    Error = "safety_block",
-                    TransportSteps = [new TransportStepDto { Label = "AdversarialGuard", Detail = "BLOQUEADO", Ok = false }],
-                    ActiveStages = ["standalone"]
-                });
+                return Results.Ok(new AgentRunTransportResponse(
+                    Narration: "Conteudo bloqueado.",
+                    Command: null,
+                    TransportSteps: [new TransportStepDto("AdversarialGuard", "BLOQUEADO", false, null)],
+                    ActiveStages: ["standalone"],
+                    Error: "safety_block"
+                ));
             }
-            transportSteps.Add(new TransportStepDto { Label = "AdversarialGuard", Detail = "OK", Ok = true });
+            transportSteps.Add(new TransportStepDto("AdversarialGuard", "OK", true, null));
 
             // Layer 2: Fundamental Rules (R01-R21)
             var ruleResult = await rules.EvaluateAsync(prompt, "sidecar", ct);
@@ -237,18 +238,18 @@ public static class EndpointRouteExtensions
             {
                 SafetyBlockedTotal.Add(1, new KeyValuePair<string, object?>("layer", "fundamental_rules"));
                 logger.LogWarning("Agent run blocked by FundamentalRules. Violations={Violations}", string.Join(", ", ruleResult.ViolatedRules));
-                return Results.Ok(new AgentRunResponse
-                {
-                    Narration = "Acao bloqueada pelas regras fundamentais.",
-                    Error = "rules_block",
-                    TransportSteps = [.. transportSteps, new TransportStepDto { Label = "FundamentalRules", Detail = $"Violacoes: {ruleResult.ViolatedRules.Count}", Ok = false }],
-                    ActiveStages = ["standalone"]
-                });
+                return Results.Ok(new AgentRunTransportResponse(
+                    Narration: "Acao bloqueada pelas regras fundamentais.",
+                    Command: null,
+                    TransportSteps: [.. transportSteps, new TransportStepDto("FundamentalRules", $"Violacoes: {ruleResult.ViolatedRules.Count}", false, null)],
+                    ActiveStages: ["standalone"],
+                    Error: "rules_block"
+                ));
             }
             if (ruleResult.ViolatedRules.Any())
-                transportSteps.Add(new TransportStepDto { Label = "FundamentalRules", Detail = $"Avisos: {ruleResult.ViolatedRules.Count}", Ok = true });
+                transportSteps.Add(new TransportStepDto("FundamentalRules", $"Avisos: {ruleResult.ViolatedRules.Count}", true, null));
             else
-                transportSteps.Add(new TransportStepDto { Label = "FundamentalRules", Detail = "OK", Ok = true });
+                transportSteps.Add(new TransportStepDto("FundamentalRules", "OK", true, null));
 
             // Layer 3: Hybrid safety (contextual + semantic)
             var hybridResult = await hybrid.EvaluateAsync(prompt, "sidecar", ct);
@@ -256,15 +257,15 @@ public static class EndpointRouteExtensions
             {
                 SafetyBlockedTotal.Add(1, new KeyValuePair<string, object?>("layer", "hybrid"));
                 logger.LogWarning("Agent run blocked by HybridSafetyEngine. Violations={Violations}", string.Join(", ", hybridResult.ViolatedRules));
-                return Results.Ok(new AgentRunResponse
-                {
-                    Narration = "Acao bloqueada pela avaliacao hibrida de seguranca.",
-                    Error = "hybrid_safety_block",
-                    TransportSteps = [.. transportSteps, new TransportStepDto { Label = "HybridSafety", Detail = $"Violacoes: {hybridResult.ViolatedRules.Count}", Ok = false }],
-                    ActiveStages = ["standalone"]
-                });
+                return Results.Ok(new AgentRunTransportResponse(
+                    Narration: "Acao bloqueada pela avaliacao hibrida de seguranca.",
+                    Command: null,
+                    TransportSteps: [.. transportSteps, new TransportStepDto("HybridSafety", $"Violacoes: {hybridResult.ViolatedRules.Count}", false, null)],
+                    ActiveStages: ["standalone"],
+                    Error: "hybrid_safety_block"
+                ));
             }
-            transportSteps.Add(new TransportStepDto { Label = "HybridSafety", Detail = "OK", Ok = true });
+            transportSteps.Add(new TransportStepDto("HybridSafety", "OK", true, null));
 
             // Layer 4: Ethical enforcement
             var ethical = ethics.Assess(prompt);
@@ -272,15 +273,15 @@ public static class EndpointRouteExtensions
             {
                 SafetyBlockedTotal.Add(1, new KeyValuePair<string, object?>("layer", "ethical"));
                 logger.LogWarning("Agent run blocked by EthicalEnforcer. Reasons={Reasons}", string.Join(", ", ethical.PrinciplesViolated));
-                return Results.Ok(new AgentRunResponse
-                {
-                    Narration = "Acao bloqueada pela avaliacao etica.",
-                    Error = "ethical_block",
-                    TransportSteps = [.. transportSteps, new TransportStepDto { Label = "EthicalEnforcer", Detail = $"Violacoes: {ethical.PrinciplesViolated.Count}", Ok = false }],
-                    ActiveStages = ["standalone"]
-                });
+                return Results.Ok(new AgentRunTransportResponse(
+                    Narration: "Acao bloqueada pela avaliacao etica.",
+                    Command: null,
+                    TransportSteps: [.. transportSteps, new TransportStepDto("EthicalEnforcer", $"Violacoes: {ethical.PrinciplesViolated.Count}", false, null)],
+                    ActiveStages: ["standalone"],
+                    Error: "ethical_block"
+                ));
             }
-            transportSteps.Add(new TransportStepDto { Label = "EthicalEnforcer", Detail = "OK", Ok = true });
+            transportSteps.Add(new TransportStepDto("EthicalEnforcer", "OK", true, null));
 
             // Layer 5: Law enforcement
             var lawAction = new ProposedAction("agent_run", new Dictionary<string, string> { ["prompt"] = prompt }, prompt);
@@ -290,31 +291,31 @@ public static class EndpointRouteExtensions
             {
                 SafetyBlockedTotal.Add(1, new KeyValuePair<string, object?>("layer", "law"));
                 logger.LogWarning("Agent run blocked by LawEnforcer. Law={Law}, Reason={Reason}", lawResult.BlockedByLaw, lawResult.BlockReason);
-                return Results.Ok(new AgentRunResponse
-                {
-                    Narration = "Acao bloqueada pela avaliacao legal.",
-                    Error = "law_block",
-                    TransportSteps = [.. transportSteps, new TransportStepDto { Label = "LawEnforcer", Detail = $"{lawResult.BlockedByLaw}: {lawResult.BlockReason}", Ok = false }],
-                    ActiveStages = ["standalone"]
-                });
+                return Results.Ok(new AgentRunTransportResponse(
+                    Narration: "Acao bloqueada pela avaliacao legal.",
+                    Command: null,
+                    TransportSteps: [.. transportSteps, new TransportStepDto("LawEnforcer", $"{lawResult.BlockedByLaw}: {lawResult.BlockReason}", false, null)],
+                    ActiveStages: ["standalone"],
+                    Error: "law_block"
+                ));
             }
-            transportSteps.Add(new TransportStepDto { Label = "LawEnforcer", Detail = "OK", Ok = true });
+            transportSteps.Add(new TransportStepDto("LawEnforcer", "OK", true, null));
 
             SafetyPassedTotal.Add(1);
 
             // Try proxy to KrnlAI API first
-            var proxyResult = await kernel.ProxyPostAsync<AgentRunRequest, AgentRunResponse>("/v1/agent/run", body, ct);
+            var proxyResult = await kernel.ProxyPostAsync<AgentRunRequest, AgentRunTransportResponse>("/v1/agent/run", body, ct);
             if (proxyResult != null)
             {
                 sw.Stop();
                 HttpDuration.Record(sw.Elapsed.TotalSeconds, new KeyValuePair<string, object?>("endpoint", "agent_run"), new KeyValuePair<string, object?>("status", "proxy"));
-                return Results.Ok(new AgentRunResponse
-                {
-                    Narration = proxyResult.Narration,
-                    Error = proxyResult.Error,
-                    TransportSteps = [.. transportSteps, .. proxyResult.TransportSteps ?? []],
-                    ActiveStages = proxyResult.ActiveStages
-                });
+                return Results.Ok(new AgentRunTransportResponse(
+                    Narration: proxyResult.Narration,
+                    Command: proxyResult.Command,
+                    TransportSteps: [.. transportSteps, .. proxyResult.TransportSteps ?? []],
+                    ActiveStages: proxyResult.ActiveStages,
+                    Error: proxyResult.Error
+                ));
             }
 
             // Fallback: try EmbeddedKrnlAI locally
@@ -324,25 +325,25 @@ public static class EndpointRouteExtensions
                 var embeddedResult = await embeddedKernel.RunAsync(prompt, ct);
                 sw.Stop();
                 HttpDuration.Record(sw.Elapsed.TotalSeconds, new KeyValuePair<string, object?>("endpoint", "agent_run"), new KeyValuePair<string, object?>("status", "embedded"));
-                return Results.Ok(new AgentRunResponse
-                {
-                    Narration = embeddedResult.Narration,
-                    Error = embeddedResult.Error,
-                    TransportSteps = [.. transportSteps, new TransportStepDto { Label = "EmbeddedKrnlAI", Detail = embeddedResult.Mode, Ok = embeddedResult.Error is null }],
-                    ActiveStages = ["standalone"]
-                });
+                return Results.Ok(new AgentRunTransportResponse(
+                    Narration: embeddedResult.Narration,
+                    Command: null,
+                    TransportSteps: [.. transportSteps, new TransportStepDto("EmbeddedKrnlAI", embeddedResult.Mode, embeddedResult.Error is null, null)],
+                    ActiveStages: ["standalone"],
+                    Error: embeddedResult.Error
+                ));
             }
 
             logger.LogInformation("Agent run with no fallback available. Prompt={PromptLen}chars", prompt.Length);
             sw.Stop();
             HttpDuration.Record(sw.Elapsed.TotalSeconds, new KeyValuePair<string, object?>("endpoint", "agent_run"), new KeyValuePair<string, object?>("status", "unavailable"));
-            return Results.Ok(new AgentRunResponse
-            {
-                Narration = "Krnl-AI em modo standalone. Safety ativo.",
-                Error = null,
-                TransportSteps = [.. transportSteps, new TransportStepDto { Label = "Narration", Detail = "no_fallback", Ok = true }],
-                ActiveStages = ["standalone"]
-            });
+            return Results.Ok(new AgentRunTransportResponse(
+                Narration: "Krnl-AI em modo standalone. Safety ativo.",
+                Command: null,
+                TransportSteps: [.. transportSteps, new TransportStepDto("Narration", "no_fallback", true, null)],
+                ActiveStages: ["standalone"],
+                Error: null
+            ));
         }).RequireRateLimiting("agent-run");
     }
 }

@@ -1,5 +1,5 @@
+using KrnlAI.Contracts.Contracts;
 using KrnlAI.Desktop.Core.Abstractions;
-using KrnlAI.Desktop.Core.Models;
 using Refit;
 
 namespace KrnlAI.Desktop.Infrastructure.Abstractions;
@@ -7,7 +7,7 @@ namespace KrnlAI.Desktop.Infrastructure.Abstractions;
 public interface IGatewayApi
 {
     [Post("/agent/run")]
-    Task<AgentRunResponseDto> RunAgentAsync([Body] AgentRunRequest request, CancellationToken ct);
+    Task<AgentRunResponseDto> RunAgentAsync([Body] AgentRunTransportRequest request, CancellationToken ct);
 
     [Get("/health")]
     Task<HealthResponse> GetHealthAsync(CancellationToken ct);

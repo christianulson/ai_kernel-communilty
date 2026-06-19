@@ -1,4 +1,5 @@
 using KrnlAI.Desktop.App.ViewModels;
+using Cts = KrnlAI.Contracts.Contracts;
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
 using KrnlAI.Desktop.Core.Services;
@@ -24,8 +25,8 @@ public sealed class ChatViewModelDiTests
     public async Task SendMessage_WithValidText_ShouldCallRunAgent()
     {
         var kernelClient = new Mock<IKernelClient>();
-        kernelClient.Setup(k => k.RunAgentAsync(It.IsAny<AgentRunRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new AgentRunResponse("Hello!", null, null, null, null));
+        kernelClient.Setup(k => k.RunAgentAsync(It.IsAny<Cts.AgentRunTransportRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Cts.AgentRunTransportResponse("Hello!", null, null, null, null));
         kernelClient.Setup(k => k.GenerateSpeechAsync(It.IsAny<string>(), null, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
@@ -33,15 +34,15 @@ public sealed class ChatViewModelDiTests
         vm.InputText = "test message";
         await vm.SendMessageAsync();
 
-        kernelClient.Verify(k => k.RunAgentAsync(It.Is<AgentRunRequest>(r => r.Prompt == "test message"), It.IsAny<CancellationToken>()), Times.Once);
+        kernelClient.Verify(k => k.RunAgentAsync(It.Is<Cts.AgentRunTransportRequest>(r => r.Prompt == "test message"), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
     public async Task SendMessage_ShouldAddUserAndAssistantMessages()
     {
         var kernelClient = new Mock<IKernelClient>();
-        kernelClient.Setup(k => k.RunAgentAsync(It.IsAny<AgentRunRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new AgentRunResponse("AI response", null, null, null, null));
+        kernelClient.Setup(k => k.RunAgentAsync(It.IsAny<Cts.AgentRunTransportRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Cts.AgentRunTransportResponse("AI response", null, null, null, null));
         kernelClient.Setup(k => k.GenerateSpeechAsync(It.IsAny<string>(), null, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
@@ -59,7 +60,7 @@ public sealed class ChatViewModelDiTests
     public async Task SendMessage_WhenApiFails_ShouldAddErrorMessage()
     {
         var kernelClient = new Mock<IKernelClient>();
-        kernelClient.Setup(k => k.RunAgentAsync(It.IsAny<AgentRunRequest>(), It.IsAny<CancellationToken>()))
+        kernelClient.Setup(k => k.RunAgentAsync(It.IsAny<Cts.AgentRunTransportRequest>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new HttpRequestException("API unavailable"));
 
         var vm = CreateVm(kernelClient);
@@ -77,15 +78,15 @@ public sealed class ChatViewModelDiTests
         var kernelClient = new Mock<IKernelClient>();
         var vm = CreateVm(kernelClient);
         await vm.SendMessageAsync();
-        kernelClient.Verify(k => k.RunAgentAsync(It.IsAny<AgentRunRequest>(), It.IsAny<CancellationToken>()), Times.Never);
+        kernelClient.Verify(k => k.RunAgentAsync(It.IsAny<Cts.AgentRunTransportRequest>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
     public async Task SendMessage_ShouldClearInputAfterSending()
     {
         var kernelClient = new Mock<IKernelClient>();
-        kernelClient.Setup(k => k.RunAgentAsync(It.IsAny<AgentRunRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new AgentRunResponse("done", null, null, null, null));
+        kernelClient.Setup(k => k.RunAgentAsync(It.IsAny<Cts.AgentRunTransportRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Cts.AgentRunTransportResponse("done", null, null, null, null));
         kernelClient.Setup(k => k.GenerateSpeechAsync(It.IsAny<string>(), null, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 

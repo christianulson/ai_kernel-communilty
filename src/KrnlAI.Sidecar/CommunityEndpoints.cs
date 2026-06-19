@@ -1,3 +1,4 @@
+using KrnlAI.Contracts.Contracts;
 using KrnlAI.Embedded.Abstractions;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
@@ -18,13 +19,13 @@ public static class CommunityEndpoints
             var result = await kernel.RunAsync(prompt, ct);
             sw.Stop();
             logger.LogInformation("Community agent/run completed: duration={Duration}ms, error={Error}", sw.ElapsedMilliseconds, result.Error);
-            return Results.Ok(new AgentRunResponse
-            {
-                Narration = result.Narration,
-                Error = result.Error,
-                TransportSteps = [new TransportStepDto { Label = "EmbeddedKrnlAI", Detail = result.Mode, Ok = result.Error is null }],
-                ActiveStages = ["community"]
-            });
+            return Results.Ok(new AgentRunTransportResponse(
+                Narration: result.Narration,
+                Command: null,
+                TransportSteps: [new TransportStepDto("EmbeddedKrnlAI", result.Mode, result.Error is null, null)],
+                ActiveStages: ["community"],
+                Error: result.Error
+            ));
         }).RequireRateLimiting("agent-run");
 
         app.MapPost("/memory/search", async (HttpContext ctx, Dictionary<string, object>? body, IEmbeddedKrnlAI kernel, ILogger<Program> logger, CancellationToken ct) =>

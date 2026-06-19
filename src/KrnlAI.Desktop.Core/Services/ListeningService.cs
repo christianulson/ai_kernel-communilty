@@ -1,5 +1,5 @@
+using KrnlAI.Contracts.Contracts;
 using KrnlAI.Desktop.Core.Abstractions;
-using KrnlAI.Desktop.Core.Models;
 using Microsoft.Extensions.Logging;
 
 namespace KrnlAI.Desktop.Core.Services;
@@ -184,7 +184,7 @@ public class ListeningService : IListeningService
                 ? transcribedText
                 : $"Audio captured: {audioData.Length} bytes";
 
-            var response = await _kernelAgentClient.RunAgentAsync(new AgentRunRequest(
+            var response = await _kernelAgentClient.RunAgentAsync(new AgentRunTransportRequest(
                 promptText,
                 Mode: "gateway"
             ), _cts?.Token ?? CancellationToken.None);

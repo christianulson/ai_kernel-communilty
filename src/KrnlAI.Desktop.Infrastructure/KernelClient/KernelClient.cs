@@ -1,5 +1,6 @@
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Infrastructure.Abstractions;
+using Cts = KrnlAI.Contracts.Contracts;
 using CoreModels = KrnlAI.Desktop.Core.Models;
 
 namespace KrnlAI.Desktop.Infrastructure.KernelClient;
@@ -10,14 +11,14 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
     public void SetTokens(string? token, string? refreshToken) => tokenProvider.SetTokens(token, refreshToken);
     public void SetBaseUrl(string baseUrl) => DynamicBaseUrlHandler.SetBaseUrl(baseUrl);
 
-    public Task<CoreModels.AgentRunResponse> RunAgentAsync(CoreModels.AgentRunRequest request, CancellationToken ct = default) =>
+    public Task<Cts.AgentRunTransportResponse> RunAgentAsync(Cts.AgentRunTransportRequest request, CancellationToken ct = default) =>
         SafeCall.ExecuteAsync(async () =>
         {
             var r = await api.RunAgentAsync(request, ct);
-            return new CoreModels.AgentRunResponse(r.Narration, r.Command,
-                r.TransportSteps?.Select(t => new CoreModels.TransportStep(t.Label, t.Detail, t.Ok, t.Status)).ToList(),
+            return new Cts.AgentRunTransportResponse(r.Narration, r.Command,
+                r.TransportSteps?.Select(t => new Cts.TransportStepDto(t.Label, t.Detail, t.Ok, t.Status)).ToList(),
                 r.ActiveStages, r.Error);
-        }, new CoreModels.AgentRunResponse(null, null, null, null, null));
+        }, new Cts.AgentRunTransportResponse(null, null, null, null, null));
 
     public Task<byte[]> GenerateSpeechAsync(string text, string? language = null, string? voice = null, CancellationToken ct = default) =>
         SafeCall.ExecuteAsync(async () =>

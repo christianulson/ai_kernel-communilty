@@ -1,4 +1,5 @@
 namespace KrnlAI.Desktop.Tests.Models;
+using Cts = KrnlAI.Contracts.Contracts;
 
 public class FeedbackRequestTests
 {
@@ -100,7 +101,7 @@ public class TransportStepTests
     [Fact]
     public void TransportStep_ShouldCreate()
     {
-        var step = new Core.Models.TransportStep("Init", "Starting", true, 200);
+        var step = new Cts.TransportStepDto("Init", "Starting", true, 200);
         Assert.Equal("Init", step.Label);
         Assert.True(step.Ok);
         Assert.Equal(200, step.Status);
@@ -109,7 +110,7 @@ public class TransportStepTests
     [Fact]
     public void TransportStep_ShouldAllowNullStatus()
     {
-        var step = new Core.Models.TransportStep("Init", "Pending", false, null);
+        var step = new Cts.TransportStepDto("Init", "Pending", false, null);
         Assert.False(step.Ok);
         Assert.Null(step.Status);
     }

@@ -1,4 +1,5 @@
 using KrnlAI.Desktop.Core.Models;
+using Cts = KrnlAI.Contracts.Contracts;
 using KrnlAI.Desktop.Core.Services;
 
 namespace KrnlAI.Desktop.Tests.Services;
@@ -55,7 +56,7 @@ public sealed class OfflineServiceTests
     public async Task CacheCommandAsync_ShouldStoreCommand()
     {
         var sut = new OfflineService();
-        var request = new AgentRunRequest("test action");
+        var request = new Cts.AgentRunTransportRequest("test action");
 
         var result = await sut.CacheCommandAsync(request);
 
@@ -66,7 +67,7 @@ public sealed class OfflineServiceTests
     public async Task GetCachedCommandsAsync_AfterCache_ShouldReturnCached()
     {
         var sut = new OfflineService();
-        var request = new AgentRunRequest("test action");
+        var request = new Cts.AgentRunTransportRequest("test action");
         await sut.CacheCommandAsync(request);
 
         var cached = await sut.GetCachedCommandsAsync();
@@ -89,8 +90,8 @@ public sealed class OfflineServiceTests
     public async Task ClearCacheAsync_ShouldRemoveAllCommands()
     {
         var sut = new OfflineService();
-        await sut.CacheCommandAsync(new AgentRunRequest("first cmd"));
-        await sut.CacheCommandAsync(new AgentRunRequest("second cmd"));
+        await sut.CacheCommandAsync(new Cts.AgentRunTransportRequest("first cmd"));
+        await sut.CacheCommandAsync(new Cts.AgentRunTransportRequest("second cmd"));
 
         await sut.ClearCacheAsync();
 
@@ -103,8 +104,8 @@ public sealed class OfflineServiceTests
     {
         var sut = new OfflineService();
 
-        await sut.CacheCommandAsync(new AgentRunRequest("first cmd"));
-        await sut.CacheCommandAsync(new AgentRunRequest("second cmd"));
+        await sut.CacheCommandAsync(new Cts.AgentRunTransportRequest("first cmd"));
+        await sut.CacheCommandAsync(new Cts.AgentRunTransportRequest("second cmd"));
 
         var cached = await sut.GetCachedCommandsAsync();
 

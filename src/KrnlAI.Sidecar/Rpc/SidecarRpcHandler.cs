@@ -1,21 +1,22 @@
+using KrnlAI.Contracts.Contracts;
 using KrnlAI.Embedded.Abstractions;
 
 namespace KrnlAI.Sidecar.Rpc;
 
 public sealed class SidecarRpcHandler(IEmbeddedKrnlAI kernel, ILogger<SidecarRpcHandler> logger)
 {
-    public async Task<AgentRunResponse> RunAgentAsync(string prompt, CancellationToken ct = default)
+    public async Task<AgentRunTransportResponse> RunAgentAsync(string prompt, CancellationToken ct = default)
     {
         var safePrompt = prompt ?? "";
         logger.LogInformation("RPC RunAgent: prompt={PromptLen}chars", safePrompt.Length);
         var result = await kernel.RunAsync(safePrompt, ct);
-        return new AgentRunResponse
-        {
-            Narration = result.Narration,
-            Error = result.Error,
-            TransportSteps = [new TransportStepDto { Label = "EmbeddedKrnlAI", Detail = result.Mode, Ok = result.Error is null }],
-            ActiveStages = ["rpc"]
-        };
+        return new AgentRunTransportResponse(
+            Narration: result.Narration,
+            Command: null,
+            TransportSteps: [new TransportStepDto("EmbeddedKrnlAI", result.Mode, result.Error is null, null)],
+            ActiveStages: ["rpc"],
+            Error: result.Error
+        );
     }
 
     public Task<HealthResult> GetHealthAsync(CancellationToken ct = default)

@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Cts = KrnlAI.Contracts.Contracts;
 using KrnlAI.Desktop.Core.Models;
 using CoreModels = KrnlAI.Desktop.Core.Models;
 
@@ -34,7 +35,7 @@ public sealed class ModelJsonRoundTripTests
     [Fact]
     public void AgentRunRequest_RoundTrip()
     {
-        var original = new CoreModels.AgentRunRequest("test prompt", "gateway", "agent1", new() { { "key", "val" } });
+        var original = new Cts.AgentRunTransportRequest("test prompt", "gateway", "agent1", new() { { "key", "val" } });
         Assert.Equal(Canonical(original), RoundTrip(original));
     }
 
