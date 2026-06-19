@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Linq;
 using Cts = KrnlAI.Contracts.Contracts;
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
@@ -291,6 +292,240 @@ public sealed class EmbeddedKernelClient : IKernelClient
     public Task<ApprovalRequest?> RejectRequestAsync(string requestId, string? comment = null, CancellationToken ct = default) => Task.FromResult<ApprovalRequest?>(null);
     public Task<List<ScheduledTask>> GetScheduledTasksAsync(CancellationToken ct = default) => Task.FromResult(new List<ScheduledTask>());
     public Task<List<MemoryMoment>> GetMemoryMomentsAsync(int limit = 20, CancellationToken ct = default) => Task.FromResult(_memoryMoments.Take(limit).ToList());
+
+    // Plan
+    public Task<PlanExecutionResult?> GetCurrentPlanAsync(CancellationToken ct = default)
+    {
+        var steps = new List<PlanStep>
+        {
+            new(0, "Inicialização do kernel", "Módulo cognitivo iniciado em modo local", PlanStepStatus.Completed, DateTime.UtcNow.AddMinutes(-10), DateTime.UtcNow.AddMinutes(-9), "Ok"),
+            new(1, "Processamento de memória", "Indexando episódios locais", PlanStepStatus.InProgress, DateTime.UtcNow.AddMinutes(-9), null, null),
+            new(2, "Consolidação", "Consolidando aprendizado do dia", PlanStepStatus.Pending, null, null, null),
+        };
+        var plan = new PlanInfo("local-plan-1", "Operação local", "Plano de execução do kernel embarcado",
+            PlanStatus.InProgress, 0.33, 3, 1, DateTime.UtcNow.AddHours(-1), null);
+        return Task.FromResult<PlanExecutionResult?>(new PlanExecutionResult("local-plan-1", true, plan, steps, null));
+    }
+
+    public Task<List<PlanStep>> GetPlanStepsAsync(string planId, CancellationToken ct = default)
+        => Task.FromResult(new List<PlanStep>());
+
+    // Feedback History
+    public Task<List<FeedbackHistoryEntry>> GetFeedbackHistoryAsync(CancellationToken ct = default)
+        => Task.FromResult(new List<FeedbackHistoryEntry>
+        {
+            new("fb-local-1", "ep-local-1", 5, "Modo local funcionando bem!", "geral", DateTimeOffset.UtcNow.AddDays(-1)),
+            new("fb-local-2", "ep-local-2", 4, "Resposta rápida", "performance", DateTimeOffset.UtcNow.AddHours(-12)),
+        });
+
+    public Task<FeedbackAverage?> GetFeedbackAverageAsync(CancellationToken ct = default)
+        => Task.FromResult<FeedbackAverage?>(new FeedbackAverage(2, 4.5, 0, 0, 0, 1, 1));
+
+    // Episodic Memory
+    public Task<EpisodicMemorySearchResult?> SearchEpisodicMemoryAsync(EpisodicMemorySearchRequest request, CancellationToken ct = default)
+    {
+        var all = _episodes.Values
+            .Where(e => string.IsNullOrEmpty(request.Status) || e.Status == request.Status)
+            .Select(e => new EpisodicMemoryHit(e.Id, e.GoalId, e.Outcome ?? "Sem resumo", e.Status, e.SuccessRate, e.CreatedAt))
+            .ToList();
+        if (!string.IsNullOrWhiteSpace(request.Query))
+            all = all.Where(h => h.Goal.Contains(request.Query, StringComparison.OrdinalIgnoreCase)
+                              || (h.Summary?.Contains(request.Query, StringComparison.OrdinalIgnoreCase) ?? false)).ToList();
+        var hits = all.Take(Math.Max(1, request.TopK)).ToList();
+        return Task.FromResult<EpisodicMemorySearchResult?>(new EpisodicMemorySearchResult(hits, all.Count, request.Query));
+    }
+
+    // Knowledge
+    public Task<KnowledgeQueryResult?> KnowledgeAskAsync(string query, CancellationToken ct = default)
+        => Task.FromResult<KnowledgeQueryResult?>(new KnowledgeQueryResult(query,
+            [new KnowledgeHit("k1", $"Local result for '{query}'", 0.9, "embedded", DateTimeOffset.UtcNow)], 1));
+    public Task<KnowledgeStats?> KnowledgeStatsAsync(CancellationToken ct = default)
+        => Task.FromResult<KnowledgeStats?>(new KnowledgeStats(42, 3, 7, DateTimeOffset.UtcNow));
+    public Task<KnowledgeLearnResponse?> KnowledgeLearnAsync(string content, string source, string? category = null, CancellationToken ct = default)
+        => Task.FromResult<KnowledgeLearnResponse?>(new KnowledgeLearnResponse(true, MakeId(), null));
+
+    // PIE
+    public Task<PieInferResponse?> PieInferAsync(string premise, string? context = null, CancellationToken ct = default)
+        => Task.FromResult<PieInferResponse?>(new PieInferResponse($"Therefore: {premise}", 0.85, ["local inference"]));
+    public Task<PieChainResponse?> PieChainAsync(string initialPremise, int steps = 3, string? context = null, CancellationToken ct = default)
+        => Task.FromResult<PieChainResponse?>(new PieChainResponse(
+            Enumerable.Range(1, steps).Select(i => new PieChainStep(i, $"Step {i}", $"Conclusion {i}", 0.9 - i * 0.1)).ToList()));
+    public Task<PieKnowledgeResponse?> PieKnowledgeAsync(string domain, string fact, double certainty = 1.0, CancellationToken ct = default)
+        => Task.FromResult<PieKnowledgeResponse?>(new PieKnowledgeResponse(true));
+    public Task<PieCoherenceData?> PieCoherenceAsync(CancellationToken ct = default)
+        => Task.FromResult<PieCoherenceData?>(new PieCoherenceData(0.82,
+            [new PieCoherenceEntry("s1", "Local coherence check", 0.85), new PieCoherenceEntry("s2", "Consistency verified", 0.79)]));
+    public Task<List<PieTerm>> PieTermsAsync(CancellationToken ct = default)
+        => Task.FromResult(new List<PieTerm> { new("t1", "Logic", "Logical entailment", 15), new("t2", "Causality", "Cause-effect", 10) });
+
+    // Emotional history
+    public Task<List<EmotionalHistoryEntry>> EmotionalHistoryAsync(CancellationToken ct = default)
+        => Task.FromResult(new List<EmotionalHistoryEntry>
+        {
+            new(DateTimeOffset.UtcNow.AddMinutes(-10), "Local boot", 0.3, 0.5, "startup"),
+            new(DateTimeOffset.UtcNow, "Ready", 0.4, 0.6, "system")
+        });
+    public Task<bool> EmotionalEventAsync(string @event, string? trigger = null, double? valenceDelta = null, double? arousalDelta = null, CancellationToken ct = default)
+        => Task.FromResult(true);
+
+    // Events
+    public Task<List<EventInfo>> EventsRecentAsync(int take = 50, CancellationToken ct = default)
+        => Task.FromResult(new List<EventInfo>
+        {
+            new("e1", "system", "Local mode started", "embedded", DateTimeOffset.UtcNow.AddMinutes(-5), null),
+            new("e2", "cognitive", "Thinking cycle", "kernel", DateTimeOffset.UtcNow.AddMinutes(-2), null)
+        });
+    public Task<EventDetail?> EventDetailAsync(string eventId, CancellationToken ct = default)
+        => Task.FromResult<EventDetail?>(new EventDetail(eventId, "system", "Local event detail", "embedded", DateTimeOffset.UtcNow, null, null, null));
+    public Task<List<EventInfo>> EventsByMomentAsync(string momentId, CancellationToken ct = default)
+        => Task.FromResult(new List<EventInfo>
+        {
+            new("e3", "cognitive", $"Event in moment {momentId}", "kernel", DateTimeOffset.UtcNow, null)
+        });
+
+    // Coding
+    public Task<CodingResponse?> CodingExplainAsync(CodingRequest request, CancellationToken ct = default)
+        => Task.FromResult<CodingResponse?>(new CodingResponse(null, "Local: explain not available", false, null));
+    public Task<CodingResponse?> CodingFixAsync(CodingRequest request, CancellationToken ct = default)
+        => Task.FromResult<CodingResponse?>(new CodingResponse(null, "Local: fix not available", false, null));
+    public Task<CodingResponse?> CodingGenerateTestsAsync(CodingRequest request, CancellationToken ct = default)
+        => Task.FromResult<CodingResponse?>(new CodingResponse(null, "Local: test generation not available", false, null));
+    public Task<CodingResponse?> CodingReviewAsync(CodingRequest request, CancellationToken ct = default)
+        => Task.FromResult<CodingResponse?>(new CodingResponse(null, "Local: review not available", false, null));
+    public Task<CodingResponse?> CodingApplyDiffAsync(CodingRequest request, CancellationToken ct = default)
+        => Task.FromResult<CodingResponse?>(new CodingResponse(null, "Local: diff apply not available", false, null));
+    public Task<CodingResponse?> CodingCompleteAsync(CodingRequest request, CancellationToken ct = default)
+        => Task.FromResult<CodingResponse?>(new CodingResponse(null, "Local: complete not available", false, null));
+    public Task<CodingStatus?> GetCodingStatusAsync(string cycleId, CancellationToken ct = default)
+        => Task.FromResult<CodingStatus?>(new CodingStatus(cycleId, "unknown", null, 0, null, null, DateTime.UtcNow, null));
+
+    // Self-Improvement
+    public Task<SelfImprovementStatus?> GetSelfImprovementStatusAsync(CancellationToken ct = default)
+        => Task.FromResult<SelfImprovementStatus?>(new SelfImprovementStatus(false, false, DateTime.UtcNow, 0, 0, 0, [], []));
+
+    // Assistant (Threads)
+    public Task<ThreadInfo?> CreateThreadAsync(string? title = null, CancellationToken ct = default)
+        => Task.FromResult<ThreadInfo?>(new ThreadInfo(MakeId(), title ?? "Local Thread", DateTime.UtcNow, "active"));
+    public Task<ThreadInfo?> GetThreadAsync(string threadId, CancellationToken ct = default)
+        => Task.FromResult<ThreadInfo?>(new ThreadInfo(threadId, "Local Thread", DateTime.UtcNow, "active"));
+    public Task<MessageInfo?> SendMessageAsync(string threadId, string content, CancellationToken ct = default)
+        => Task.FromResult<MessageInfo?>(new MessageInfo(MakeId(), threadId, "user", content, DateTime.UtcNow, null));
+    public Task<List<MessageInfo>> GetMessagesAsync(string threadId, CancellationToken ct = default)
+        => Task.FromResult(new List<MessageInfo>());
+    public Task<RunInfo?> CreateRunAsync(string threadId, CancellationToken ct = default)
+        => Task.FromResult<RunInfo?>(new RunInfo(MakeId(), threadId, "completed", null, DateTime.UtcNow, null, null));
+    public Task<RunInfo?> GetRunAsync(string threadId, string runId, CancellationToken ct = default)
+        => Task.FromResult<RunInfo?>(new RunInfo(runId, threadId, "completed", null, DateTime.UtcNow, null, null));
+    public Task<bool> CancelRunAsync(string threadId, string runId, CancellationToken ct = default)
+        => Task.FromResult(true);
+
+    // MCP Config
+    public Task<McpServerConfig?> GetMcpServerConfigAsync(string serverId, CancellationToken ct = default)
+        => Task.FromResult<McpServerConfig?>(new McpServerConfig(serverId, serverId, "stdio", "", null, null));
+    public Task<bool> UpdateMcpServerAsync(string serverId, McpServerConfig config, CancellationToken ct = default)
+        => Task.FromResult(true);
+
+    // User Services
+    public Task<List<UserServiceInfo>> GetUserServicesAsync(CancellationToken ct = default)
+        => Task.FromResult(new List<UserServiceInfo>());
+    public Task<bool> UpdateUserServiceAsync(string serviceType, UserServiceUpdateRequest request, CancellationToken ct = default)
+        => Task.FromResult(true);
+    public Task<bool> DeleteUserServiceAsync(string serviceType, CancellationToken ct = default)
+        => Task.FromResult(true);
+
+    // Cognitive Flow (Studio)
+    public Task<CognitiveFlowResult?> CognitiveFlowExecuteAsync(FlowDefinition flow, CancellationToken ct = default)
+        => Task.FromResult<CognitiveFlowResult?>(new CognitiveFlowResult(false, null, "Not available in embedded mode"));
+    public Task<bool> CognitiveFlowSaveAsync(FlowDefinition flow, CancellationToken ct = default)
+        => Task.FromResult(false);
+    public Task<FlowDefinition?> CognitiveFlowLoadAsync(string flowName, CancellationToken ct = default)
+        => Task.FromResult<FlowDefinition?>(null);
+
+    // Templates
+    private readonly List<TemplateInfo> _templates = [];
+
+    public Task<List<TemplateInfo>> TemplateListAsync(CancellationToken ct = default)
+        => Task.FromResult(_templates.ToList());
+
+    public Task<TemplateInfo?> TemplateGetAsync(string templateId, CancellationToken ct = default)
+        => Task.FromResult(_templates.FirstOrDefault(t => t.Id == templateId));
+
+    public Task<TemplateInfo?> TemplateCreateAsync(CreateTemplateRequest request, CancellationToken ct = default)
+    {
+        var id = MakeId();
+        var now = DateTimeOffset.UtcNow;
+        var template = new TemplateInfo(id, request.Name, request.Description, request.Content, request.Category ?? "general", "1.0", now, now);
+        _templates.Add(template);
+        return Task.FromResult<TemplateInfo?>(template);
+    }
+
+    public Task<TemplateInfo?> TemplateUpdateAsync(string templateId, UpdateTemplateRequest request, CancellationToken ct = default)
+    {
+        var idx = _templates.FindIndex(t => t.Id == templateId);
+        if (idx < 0) return Task.FromResult<TemplateInfo?>(null);
+        var old = _templates[idx];
+        var updated = new TemplateInfo(old.Id, request.Name ?? old.Name, request.Description ?? old.Description,
+            request.Content ?? old.Content, request.Category ?? old.Category, old.Version, old.CreatedAt, DateTimeOffset.UtcNow);
+        _templates[idx] = updated;
+        return Task.FromResult<TemplateInfo?>(updated);
+    }
+
+    public Task<bool> TemplateDeleteAsync(string templateId, CancellationToken ct = default)
+    {
+        var removed = _templates.RemoveAll(t => t.Id == templateId);
+        return Task.FromResult(removed > 0);
+    }
+
+    public Task<TemplateRenderResult?> TemplateRenderAsync(string templateId, RenderTemplateRequest request, CancellationToken ct = default)
+    {
+        var template = _templates.FirstOrDefault(t => t.Id == templateId);
+        if (template == null) return Task.FromResult<TemplateRenderResult?>(new TemplateRenderResult(null, "Template not found"));
+        var content = template.Content;
+        foreach (var kv in request.Variables)
+            content = content.Replace($"{{{{{kv.Key}}}}}", kv.Value);
+        return Task.FromResult<TemplateRenderResult?>(new TemplateRenderResult(content, null));
+    }
+
+    // Experiments
+    private readonly List<ExperimentInfo> _experiments = [];
+    private readonly Dictionary<string, List<MetricEntry>> _experimentMetrics = [];
+
+    public Task<List<ExperimentInfo>> ExperimentListAsync(CancellationToken ct = default)
+        => Task.FromResult(_experiments.ToList());
+
+    public Task<ExperimentInfo?> ExperimentStartAsync(StartExperimentRequest request, CancellationToken ct = default)
+    {
+        var id = MakeId();
+        var now = DateTimeOffset.UtcNow;
+        var exp = new ExperimentInfo(id, request.Name, "running", request.Description, now, null);
+        _experiments.Add(exp);
+        _experimentMetrics[id] = [];
+        return Task.FromResult<ExperimentInfo?>(exp);
+    }
+
+    public Task<bool> ExperimentCompleteAsync(string experimentId, CancellationToken ct = default)
+    {
+        var idx = _experiments.FindIndex(e => e.Id == experimentId);
+        if (idx < 0) return Task.FromResult(false);
+        var old = _experiments[idx];
+        _experiments[idx] = new ExperimentInfo(old.Id, old.Name, "completed", old.Description, old.CreatedAt, DateTimeOffset.UtcNow);
+        return Task.FromResult(true);
+    }
+
+    public Task<bool> ExperimentRecordMetricAsync(string experimentId, RecordMetricRequest request, CancellationToken ct = default)
+    {
+        if (!_experimentMetrics.ContainsKey(experimentId)) return Task.FromResult(false);
+        _experimentMetrics[experimentId].Add(new MetricEntry(request.MetricName, request.Value, DateTimeOffset.UtcNow));
+        return Task.FromResult(true);
+    }
+
+    public Task<ExperimentAnalysis?> ExperimentGetAnalysisAsync(string experimentId, CancellationToken ct = default)
+    {
+        if (!_experimentMetrics.TryGetValue(experimentId, out var metrics))
+            return Task.FromResult<ExperimentAnalysis?>(null);
+        var avg = metrics.Count > 0 ? metrics.Average(m => m.Value) : 0;
+        return Task.FromResult<ExperimentAnalysis?>(new ExperimentAnalysis(experimentId, metrics.Count, avg, 0, 0.95, metrics, ["Embedded mode analysis"]));
+    }
 
     private static GoalInfo MapGoal(EmbeddedKanbanGoal goal)
         => new(goal.Id, goal.Description, goal.Status, ToPriority(goal.Priority), goal.CreatedAt.UtcDateTime, null, goal.Deadline?.UtcDateTime, null, 0, 0);

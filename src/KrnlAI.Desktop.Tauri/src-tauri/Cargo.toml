@@ -12,9 +12,14 @@ crate-type = ["lib", "cdylib", "staticlib"]
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
 
+[features]
+default = ["audio"]
+audio = ["dep:cpal", "dep:hound"]
+camera = ["dep:opencv"]
+
 [dependencies]
 tauri = { version = "2", features = ["tray-icon"] }
-reqwest = { version = "0.12", default-features = false, features = ["json"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
 tauri-plugin-shell = "2"
 tauri-plugin-notification = "2"
 tauri-plugin-fs = "2"
@@ -25,6 +30,8 @@ tauri-plugin-deep-link = "2"
 tauri-plugin-autostart = "2"
 tauri-plugin-window-state = "2"
 serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["rt", "macros", "process", "io-util"] }
 sysinfo = "0.33"
 log = "0.4"
 env_logger = "0.11"
@@ -32,4 +39,13 @@ open = "5"
 rfd = "0.15"
 tauri-plugin-single-instance = "2"
 tauri-plugin-clipboard-manager = "2"
-tauri-plugin-drag-drop = "2"
+# tauri-plugin-authenticator requires OpenSSL + Perl to build on Windows.
+# Install Perl (e.g., `choco install strawberryperl`) first, then uncomment:
+# tauri-plugin-authenticator = "2.0.0-rc.1"
+base64 = "0.22"
+rand = "0.8"
+cpal = { version = "0.15", optional = true }
+hound = { version = "3.5", optional = true }
+# Enable with: cargo build --features camera
+# On Windows, also set LIBCLANG_PATH or install LLVM/Clang.
+opencv = { version = "0.93", optional = true }

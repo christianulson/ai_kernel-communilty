@@ -8,3 +8,11 @@ public sealed record McpServerInfo(
     bool IsConnected,
     int ToolCount,
     DateTimeOffset? LastUsedAt);
+
+public sealed record McpServerConfig(
+    string ServerId,
+    string Name,
+    string? TransportType,
+    string? Command,
+    string[]? Args,
+    Dictionary<string, string>? Env);

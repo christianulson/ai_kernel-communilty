@@ -22,3 +22,12 @@ public record FeedbackAverage(
     int Rating4Count,
     int Rating5Count
 );
+
+public record FeedbackHistoryEntry(
+    string FeedbackId,
+    string EpisodeId,
+    int Rating,
+    string? Comment,
+    string? Category,
+    DateTimeOffset CreatedAt
+);

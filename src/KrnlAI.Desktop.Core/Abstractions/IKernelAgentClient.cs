@@ -1,10 +1,6 @@
-using KrnlAI.Contracts.Contracts;
-
 namespace KrnlAI.Desktop.Core.Abstractions;
 
-/// <summary>Cliente focado em execução e health do KrnlAI.</summary>
-public interface IKernelAgentClient
+/// <summary>Agent execution and health. Methods are inherited from <see cref="IBackendApi"/>.</summary>
+public interface IKernelAgentClient : IBackendApi
 {
-    Task<AgentRunTransportResponse> RunAgentAsync(AgentRunTransportRequest request, CancellationToken cancellationToken = default);
-    Task<bool> CheckHealthAsync(CancellationToken cancellationToken = default);
 }

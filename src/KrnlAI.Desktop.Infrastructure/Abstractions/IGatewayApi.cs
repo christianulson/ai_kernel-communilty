@@ -178,7 +178,80 @@ public interface IGatewayApi
     Task<ApprovalRequestDto> ApproveRequestAsync(string requestId, [Body] ApprovalActionDto body, CancellationToken ct);
     [Post("/approvals/{requestId}/reject")]
     Task<ApprovalRequestDto> RejectRequestAsync(string requestId, [Body] ApprovalActionDto body, CancellationToken ct);
+
+    // Knowledge
+    [Get("/api/knowledge/ask")]
+    Task<KnowledgeQueryResultDto> KnowledgeAskAsync(string q, CancellationToken ct);
+    [Get("/api/knowledge/stats")]
+    Task<KnowledgeStatsDto> KnowledgeStatsAsync(CancellationToken ct);
+    [Post("/api/knowledge/learn")]
+    Task<KnowledgeLearnResultDto> KnowledgeLearnAsync([Body] KnowledgeLearnRequestDto request, CancellationToken ct);
+
+    // PIE
+    [Post("/api/cognitive/pie/infer")]
+    Task<PieInferResultDto> PieInferAsync([Body] PieInferRequestDto request, CancellationToken ct);
+    [Post("/api/cognitive/pie/chain")]
+    Task<PieChainResultDto> PieChainAsync([Body] PieChainRequestDto request, CancellationToken ct);
+    [Post("/api/cognitive/pie/knowledge")]
+    Task<PieKnowledgeResultDto> PieKnowledgeAsync([Body] PieKnowledgeRequestDto request, CancellationToken ct);
+    [Get("/api/cognitive/pie/coherence")]
+    Task<PieCoherenceResultDto> PieCoherenceAsync(CancellationToken ct);
+    [Get("/api/cognitive/pie/terms")]
+    Task<List<PieTermDto>> PieTermsAsync(CancellationToken ct);
+
+    // Emotional history
+    [Post("/profile/emotional/event")]
+    Task<EmotionalEventResultDto> EmotionalEventAsync([Body] EmotionalEventRequestDto request, CancellationToken ct);
+    [Get("/profile/emotional/history")]
+    Task<List<EmotionalHistoryEntryDto>> EmotionalHistoryAsync(CancellationToken ct);
+
+    // Episodic Memory
+    [Post("/episode-memory/search")]
+    Task<EpisodicMemorySearchResultDto> SearchEpisodicMemoryAsync([Body] EpisodicMemorySearchRequestDto request, CancellationToken ct);
+
+    // Events
+    [Get("/events/recent")]
+    Task<List<EventInfoDto>> EventsRecentAsync(int take, CancellationToken ct);
+    [Get("/events/{eventId}")]
+    Task<EventDetailDto> EventDetailAsync(string eventId, CancellationToken ct);
+    [Get("/events/by-moment/{momentId}")]
+    Task<List<EventInfoDto>> EventsByMomentAsync(string momentId, CancellationToken ct);
+
+    // Templates
+    [Get("/api/templates")]
+    Task<List<TemplateInfoDto>> GetTemplatesAsync(CancellationToken ct);
+    [Get("/api/templates/{id}")]
+    Task<TemplateInfoDto> GetTemplateAsync(string id, CancellationToken ct);
+    [Post("/api/templates")]
+    Task<TemplateInfoDto> CreateTemplateAsync([Body] Core.Models.CreateTemplateRequest request, CancellationToken ct);
+    [Put("/api/templates/{id}")]
+    Task<TemplateInfoDto> UpdateTemplateAsync(string id, [Body] Core.Models.UpdateTemplateRequest request, CancellationToken ct);
+    [Delete("/api/templates/{id}")]
+    Task DeleteTemplateAsync(string id, CancellationToken ct);
+    [Post("/api/templates/{id}/render")]
+    Task<TemplateRenderResultDto> RenderTemplateAsync(string id, [Body] Core.Models.RenderTemplateRequest request, CancellationToken ct);
+
+    // Experiments
+    [Get("/api/experiments")]
+    Task<List<ExperimentInfoDto>> GetExperimentsAsync(CancellationToken ct);
+    [Post("/api/experiments")]
+    Task<ExperimentInfoDto> StartExperimentAsync([Body] Core.Models.StartExperimentRequest request, CancellationToken ct);
+    [Post("/api/experiments/{id}/complete")]
+    Task CompleteExperimentAsync(string id, CancellationToken ct);
+    [Post("/api/experiments/{id}/metrics")]
+    Task RecordMetricAsync(string id, [Body] Core.Models.RecordMetricRequest request, CancellationToken ct);
+    [Get("/api/experiments/{id}/analysis")]
+    Task<ExperimentAnalysisDto> GetExperimentAnalysisAsync(string id, CancellationToken ct);
 }
+
+// Template DTOs
+public sealed record TemplateInfoDto(string Id, string Name, string Description, string Content, string Category, string Version, DateTimeOffset CreatedAt, DateTimeOffset UpdatedAt);
+public sealed record TemplateRenderResultDto(string? RenderedContent, string? Error);
+
+// Experiment DTOs
+public sealed record ExperimentInfoDto(string Id, string Name, string Status, string? Description, DateTimeOffset CreatedAt, DateTimeOffset? CompletedAt);
+public sealed record MetricEntryDto(string Name, double Value, DateTimeOffset Timestamp);
+public sealed record ExperimentAnalysisDto(string ExperimentId, int TotalMetrics, double AvgValue, double AvgLatencyMs, double SuccessRate, List<MetricEntryDto> Metrics, List<string> Insights);
 
 public sealed record ApprovalActionDto(string? Comment);
 public sealed record ApprovalRequestDto(
@@ -208,3 +281,35 @@ public sealed record ObjectiveDetailResponseDto(string ObjectiveId, string Descr
 public sealed record TargetResponseDto(string TargetId, string Description, double CurrentValue, double TargetValue, string Unit);
 public sealed record InvestigationResponseDto(string CaseId, string Title, string Status, int EvidenceCount, DateTime CreatedAt);
 
+// Knowledge DTOs
+public sealed record KnowledgeQueryResultDto(string Query, List<KnowledgeHitDto>? Hits, int TotalCount);
+public sealed record KnowledgeHitDto(string Id, string Content, double Score, string? Source, DateTimeOffset CreatedAt);
+public sealed record KnowledgeStatsDto(int TotalEntries, int TotalSources, int QueriesToday, DateTimeOffset LastIndexed);
+public sealed record KnowledgeLearnRequestDto(string Content, string Source, string? Category);
+public sealed record KnowledgeLearnResultDto(bool Success, string? EntryId, string? Error);
+
+// PIE DTOs
+public sealed record PieInferRequestDto(string Premise, string? Context);
+public sealed record PieInferResultDto(string Conclusion, double Confidence, List<string>? SupportingEvidence);
+public sealed record PieChainRequestDto(string InitialPremise, int Steps, string? Context);
+public sealed record PieChainStepDto(int Step, string Premise, string Conclusion, double Confidence);
+public sealed record PieChainResultDto(List<PieChainStepDto>? Steps);
+public sealed record PieKnowledgeRequestDto(string Domain, string Fact, double Certainty);
+public sealed record PieKnowledgeResultDto(bool Success);
+public sealed record PieCoherenceResultDto(double OverallCoherence, List<PieCoherenceEntryDto>? Entries);
+public sealed record PieCoherenceEntryDto(string Id, string Statement, double CoherenceScore);
+public sealed record PieTermDto(string Id, string Name, string? Description, int OccurrenceCount);
+
+// Emotional DTOs
+public sealed record EmotionalEventRequestDto(string Event, string? Trigger, double? ValenceDelta, double? ArousalDelta);
+public sealed record EmotionalEventResultDto(bool Success);
+public sealed record EmotionalHistoryEntryDto(DateTimeOffset Timestamp, string Event, double Valence, double Arousal, string? Trigger);
+
+// Event DTOs
+public sealed record EventInfoDto(string EventId, string Type, string Description, string? Source, DateTimeOffset Timestamp, Dictionary<string, object>? Metadata);
+public sealed record EventDetailDto(string EventId, string Type, string Description, string? Source, DateTimeOffset Timestamp, Dictionary<string, object>? Metadata, string? RelatedEntityId, string? RelatedEntityType);
+
+// Episodic Memory DTOs
+public sealed record EpisodicMemorySearchRequestDto(string UserId, string Query, int TopK = 5);
+public sealed record EpisodicMemorySearchResultDto(bool Ok, List<EpisodicMemoryHitDto>? Hits);
+public sealed record EpisodicMemoryHitDto(string EpisodeId, string Goal, string Summary, string Status, double? Similarity, DateTimeOffset CreatedAt);

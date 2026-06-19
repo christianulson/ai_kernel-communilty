@@ -1,0 +1,79 @@
+<UserControl x:Class="KrnlAI.Desktop.App.Controls.CodingControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:loc="clr-namespace:KrnlAI.Desktop.App.Converters">
+    <ScrollViewer Padding="28" VerticalScrollBarVisibility="Auto">
+        <StackPanel>
+            <Grid Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="💻 Coding" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    <TextBlock Text="Explain, fix, review, generate tests, and complete code." Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                </StackPanel>
+                <Button Grid.Column="1" Command="{Binding CodingVM.ClearErrorCommand}" Style="{StaticResource GhostButton}" Padding="12,8">Limpar</Button>
+            </Grid>
+
+            <Border Background="#18FB7185" BorderBrush="#3CFB7185" BorderThickness="1" CornerRadius="16" Padding="14,10" Margin="0,0,0,12"
+                    Visibility="{Binding CodingVM.HasError, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="{Binding CodingVM.ErrorMessage}" Foreground="#FFDBE1" FontSize="13"/>
+                    <Button Grid.Column="1" Command="{Binding CodingVM.ClearErrorCommand}" Style="{StaticResource SmallButton}" Padding="6" FontSize="10">✕</Button>
+                </Grid>
+            </Border>
+
+            <Border Background="{DynamicResource PanelBrush}" CornerRadius="24" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="20" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBox Text="{Binding CodingVM.Code, UpdateSourceTrigger=PropertyChanged}" Height="120" FontSize="13" AcceptsReturn="True"
+                             TextWrapping="Wrap" ToolTip="Cole seu código aqui..."/>
+                    <Grid Margin="0,12,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" Text="{Binding CodingVM.Language, UpdateSourceTrigger=PropertyChanged}" Height="36" FontSize="13" Margin="0,0,6,0" ToolTip="Linguagem (ex: csharp, python)"/>
+                        <TextBox Grid.Column="1" Text="{Binding CodingVM.Description, UpdateSourceTrigger=PropertyChanged}" Height="36" FontSize="13" Margin="6,0,6,0" ToolTip="Descrição opcional"/>
+                        <TextBox Grid.Column="2" Text="{Binding CodingVM.TestFramework, UpdateSourceTrigger=PropertyChanged}" Height="36" FontSize="13" Margin="6,0,0,0" ToolTip="Framework de testes (ex: xunit)"/>
+                    </Grid>
+                    <WrapPanel Margin="0,12,0,0">
+                        <Button Command="{Binding CodingVM.ExplainCommand}" Style="{StaticResource PrimaryButton}" Margin="0,0,8,8" IsEnabled="{Binding CodingVM.IsLoading, Converter={StaticResource InverseBoolConverter}}">Explain</Button>
+                        <Button Command="{Binding CodingVM.FixCommand}" Style="{StaticResource PrimaryButton}" Margin="0,0,8,8" IsEnabled="{Binding CodingVM.IsLoading, Converter={StaticResource InverseBoolConverter}}">Fix</Button>
+                        <Button Command="{Binding CodingVM.GenerateTestsCommand}" Style="{StaticResource PrimaryButton}" Margin="0,0,8,8" IsEnabled="{Binding CodingVM.IsLoading, Converter={StaticResource InverseBoolConverter}}">Generate Tests</Button>
+                        <Button Command="{Binding CodingVM.ReviewCommand}" Style="{StaticResource PrimaryButton}" Margin="0,0,8,8" IsEnabled="{Binding CodingVM.IsLoading, Converter={StaticResource InverseBoolConverter}}">Review</Button>
+                        <Button Command="{Binding CodingVM.ApplyDiffCommand}" Style="{StaticResource PrimaryButton}" Margin="0,0,8,8" IsEnabled="{Binding CodingVM.IsLoading, Converter={StaticResource InverseBoolConverter}}">Apply Diff</Button>
+                        <Button Command="{Binding CodingVM.CompleteCommand}" Style="{StaticResource PrimaryButton}" Margin="0,0,8,8" IsEnabled="{Binding CodingVM.IsLoading, Converter={StaticResource InverseBoolConverter}}">Complete</Button>
+                    </WrapPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Background="{DynamicResource PanelBrush}" CornerRadius="24" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="24" Margin="0,0,0,16"
+                    Visibility="{Binding CodingVM.IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
+                <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Margin="0,20">
+                    <TextBlock Text="⏳" FontSize="18" Margin="0,0,12,0"/>
+                    <TextBlock Text="Processando..." Foreground="{DynamicResource TextSecondaryBrush}"/>
+                </StackPanel>
+            </Border>
+
+            <Border Background="{DynamicResource PanelBrush}" CornerRadius="24" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="20"
+                    Visibility="{Binding CodingVM.Result, Converter={StaticResource NullToVisibilityConverter}}">
+                <StackPanel>
+                    <TextBlock Text="Resultado" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,12"/>
+                    <Border Padding="14" CornerRadius="16" Background="#14FFFFFF" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                        <StackPanel>
+                            <TextBlock Text="{Binding CodingVM.Result.Result}" FontSize="13" Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap"/>
+                            <TextBlock Text="{Binding CodingVM.Result.Explanation}" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,8,0,0" TextWrapping="Wrap"
+                                       Visibility="{Binding CodingVM.Result.Explanation, Converter={StaticResource StringToVisibilityConverter}}"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

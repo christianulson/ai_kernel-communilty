@@ -40,6 +40,7 @@
     "clipboard-manager:default",
     "clipboard-manager:allow-write-text",
     "clipboard-manager:allow-read-text",
-    "drag-drop:default"
+    "core:event:allow-emit",
+    "core:event:allow-listen"
   ]
 }

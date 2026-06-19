@@ -415,6 +415,105 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
     public Task<List<Core.Models.MemoryMoment>> GetMemoryMomentsAsync(int limit = 20, CancellationToken ct = default) =>
         SafeCall.ExecuteAsync(async () => new List<Core.Models.MemoryMoment>(), []);
 
+    // Knowledge
+    public Task<CoreModels.KnowledgeQueryResult?> KnowledgeAskAsync(string query, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var r = await api.KnowledgeAskAsync(query, ct);
+            return new CoreModels.KnowledgeQueryResult(r.Query,
+                r.Hits?.Select(h => new CoreModels.KnowledgeHit(h.Id, h.Content, h.Score, h.Source, h.CreatedAt)).ToList() ?? [],
+                r.TotalCount);
+        }, default(CoreModels.KnowledgeQueryResult?));
+
+    public Task<CoreModels.KnowledgeStats?> KnowledgeStatsAsync(CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var r = await api.KnowledgeStatsAsync(ct);
+            return new CoreModels.KnowledgeStats(r.TotalEntries, r.TotalSources, r.QueriesToday, r.LastIndexed);
+        }, default(CoreModels.KnowledgeStats?));
+
+    public Task<CoreModels.KnowledgeLearnResponse?> KnowledgeLearnAsync(string content, string source, string? category = null, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var r = await api.KnowledgeLearnAsync(new Abstractions.KnowledgeLearnRequestDto(content, source, category), ct);
+            return new CoreModels.KnowledgeLearnResponse(r.Success, r.EntryId, r.Error);
+        }, default(CoreModels.KnowledgeLearnResponse?));
+
+    // PIE
+    public Task<CoreModels.PieInferResponse?> PieInferAsync(string premise, string? context = null, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var r = await api.PieInferAsync(new Abstractions.PieInferRequestDto(premise, context), ct);
+            return new CoreModels.PieInferResponse(r.Conclusion, r.Confidence, r.SupportingEvidence);
+        }, default(CoreModels.PieInferResponse?));
+
+    public Task<CoreModels.PieChainResponse?> PieChainAsync(string initialPremise, int steps = 3, string? context = null, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var r = await api.PieChainAsync(new Abstractions.PieChainRequestDto(initialPremise, steps, context), ct);
+            return new CoreModels.PieChainResponse(
+                r.Steps?.Select(s => new CoreModels.PieChainStep(s.Step, s.Premise, s.Conclusion, s.Confidence)).ToList() ?? []);
+        }, default(CoreModels.PieChainResponse?));
+
+    public Task<CoreModels.PieKnowledgeResponse?> PieKnowledgeAsync(string domain, string fact, double certainty = 1.0, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var r = await api.PieKnowledgeAsync(new Abstractions.PieKnowledgeRequestDto(domain, fact, certainty), ct);
+            return new CoreModels.PieKnowledgeResponse(r.Success);
+        }, default(CoreModels.PieKnowledgeResponse?));
+
+    public Task<CoreModels.PieCoherenceData?> PieCoherenceAsync(CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var r = await api.PieCoherenceAsync(ct);
+            return new CoreModels.PieCoherenceData(r.OverallCoherence,
+                r.Entries?.Select(e => new CoreModels.PieCoherenceEntry(e.Id, e.Statement, e.CoherenceScore)).ToList() ?? []);
+        }, default(CoreModels.PieCoherenceData?));
+
+    public Task<List<CoreModels.PieTerm>> PieTermsAsync(CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var r = await api.PieTermsAsync(ct);
+            return r.Select(t => new CoreModels.PieTerm(t.Id, t.Name, t.Description, t.OccurrenceCount)).ToList();
+        }, new List<CoreModels.PieTerm>());
+
+    // Emotional history
+    public Task<List<CoreModels.EmotionalHistoryEntry>> EmotionalHistoryAsync(CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var r = await api.EmotionalHistoryAsync(ct);
+            return r.Select(e => new CoreModels.EmotionalHistoryEntry(e.Timestamp, e.Event, e.Valence, e.Arousal, e.Trigger)).ToList();
+        }, new List<CoreModels.EmotionalHistoryEntry>());
+
+    public Task<bool> EmotionalEventAsync(string @event, string? trigger = null, double? valenceDelta = null, double? arousalDelta = null, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var r = await api.EmotionalEventAsync(new Abstractions.EmotionalEventRequestDto(@event, trigger, valenceDelta, arousalDelta), ct);
+            return r.Success;
+        }, false);
+
+    // Events
+    public Task<List<CoreModels.EventInfo>> EventsRecentAsync(int take = 50, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var r = await api.EventsRecentAsync(take, ct);
+            return r.Select(e => new CoreModels.EventInfo(e.EventId, e.Type, e.Description, e.Source, e.Timestamp, e.Metadata)).ToList();
+        }, new List<CoreModels.EventInfo>());
+
+    public Task<CoreModels.EventDetail?> EventDetailAsync(string eventId, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var r = await api.EventDetailAsync(eventId, ct);
+            return new CoreModels.EventDetail(r.EventId, r.Type, r.Description, r.Source, r.Timestamp, r.Metadata, r.RelatedEntityId, r.RelatedEntityType);
+        }, default(CoreModels.EventDetail?));
+
+    public Task<List<CoreModels.EventInfo>> EventsByMomentAsync(string momentId, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var r = await api.EventsByMomentAsync(momentId, ct);
+            return r.Select(e => new CoreModels.EventInfo(e.EventId, e.Type, e.Description, e.Source, e.Timestamp, e.Metadata)).ToList();
+        }, new List<CoreModels.EventInfo>());
+
     public Task<List<Core.Models.ApprovalRequest>> GetPendingApprovalsAsync(string? role = null, CancellationToken ct = default) =>
         SafeCall.ExecuteAsync(async () =>
         {
@@ -442,6 +541,179 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
             var r = await api.RejectRequestAsync(requestId, new Abstractions.ApprovalActionDto(comment), ct);
             return MapApprovalRequest(r);
         }, default(Core.Models.ApprovalRequest?));
+
+    // Coding
+    public Task<Core.Models.CodingResponse?> CodingExplainAsync(Core.Models.CodingRequest request, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () => new Core.Models.CodingResponse(null, "Not implemented", false, null), default(Core.Models.CodingResponse?));
+    public Task<Core.Models.CodingResponse?> CodingFixAsync(Core.Models.CodingRequest request, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () => new Core.Models.CodingResponse(null, "Not implemented", false, null), default(Core.Models.CodingResponse?));
+    public Task<Core.Models.CodingResponse?> CodingGenerateTestsAsync(Core.Models.CodingRequest request, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () => new Core.Models.CodingResponse(null, "Not implemented", false, null), default(Core.Models.CodingResponse?));
+    public Task<Core.Models.CodingResponse?> CodingReviewAsync(Core.Models.CodingRequest request, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () => new Core.Models.CodingResponse(null, "Not implemented", false, null), default(Core.Models.CodingResponse?));
+    public Task<Core.Models.CodingResponse?> CodingApplyDiffAsync(Core.Models.CodingRequest request, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () => new Core.Models.CodingResponse(null, "Not implemented", false, null), default(Core.Models.CodingResponse?));
+    public Task<Core.Models.CodingResponse?> CodingCompleteAsync(Core.Models.CodingRequest request, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () => new Core.Models.CodingResponse(null, "Not implemented", false, null), default(Core.Models.CodingResponse?));
+    public Task<Core.Models.CodingStatus?> GetCodingStatusAsync(string cycleId, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () => new Core.Models.CodingStatus(cycleId, "unknown", null, 0, null, null, DateTime.UtcNow, null), default(Core.Models.CodingStatus?));
+
+    // Self-Improvement
+    public Task<Core.Models.SelfImprovementStatus?> GetSelfImprovementStatusAsync(CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () => new Core.Models.SelfImprovementStatus(false, false, DateTime.UtcNow, 0, 0, 0, [], []), default(Core.Models.SelfImprovementStatus?));
+
+    // Assistant (Threads)
+    public Task<Core.Models.ThreadInfo?> CreateThreadAsync(string? title = null, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () => new Core.Models.ThreadInfo(Guid.NewGuid().ToString("N"), title ?? "New Thread", DateTime.UtcNow, "active"), default(Core.Models.ThreadInfo?));
+    public Task<Core.Models.ThreadInfo?> GetThreadAsync(string threadId, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () => new Core.Models.ThreadInfo(threadId, "Not implemented", DateTime.UtcNow, "active"), default(Core.Models.ThreadInfo?));
+    public Task<Core.Models.MessageInfo?> SendMessageAsync(string threadId, string content, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () => new Core.Models.MessageInfo(Guid.NewGuid().ToString("N"), threadId, "user", content, DateTime.UtcNow, null), default(Core.Models.MessageInfo?));
+    public Task<List<Core.Models.MessageInfo>> GetMessagesAsync(string threadId, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () => new List<Core.Models.MessageInfo>(), new List<Core.Models.MessageInfo>());
+    public Task<Core.Models.RunInfo?> CreateRunAsync(string threadId, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () => new Core.Models.RunInfo(Guid.NewGuid().ToString("N"), threadId, "completed", null, DateTime.UtcNow, null, null), default(Core.Models.RunInfo?));
+    public Task<Core.Models.RunInfo?> GetRunAsync(string threadId, string runId, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () => new Core.Models.RunInfo(runId, threadId, "completed", null, DateTime.UtcNow, null, null), default(Core.Models.RunInfo?));
+    public Task<bool> CancelRunAsync(string threadId, string runId, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () => true, false);
+
+    // MCP Config
+    public Task<Core.Models.McpServerConfig?> GetMcpServerConfigAsync(string serverId, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () => new Core.Models.McpServerConfig(serverId, serverId, "stdio", "", null, null), default(Core.Models.McpServerConfig?));
+    public Task<bool> UpdateMcpServerAsync(string serverId, Core.Models.McpServerConfig config, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () => true, false);
+
+    // Plan
+    public Task<CoreModels.PlanExecutionResult?> GetCurrentPlanAsync(CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var r = await api.GetCognitiveDashboardAsync(ct);
+            if (r?.ActiveModules == null || r.ActiveModules.Count == 0)
+                return default(CoreModels.PlanExecutionResult?);
+            var steps = new List<CoreModels.PlanStep>
+            {
+                new(0, "Inicialização", "Módulos cognitivos iniciados", CoreModels.PlanStepStatus.Completed, DateTime.UtcNow.AddMinutes(-30), DateTime.UtcNow.AddMinutes(-28), "Ok"),
+                new(1, "Processamento", "Processamento ativo", CoreModels.PlanStepStatus.InProgress, DateTime.UtcNow.AddMinutes(-28), null, null),
+                new(2, "Consolidação", "Consolidando aprendizado", CoreModels.PlanStepStatus.Pending, null, null, null),
+            };
+            var plan = new CoreModels.PlanInfo("plan-1", r.OverallHealth >= 70 ? "Operação normal" : "Recuperação",
+                "Plano de execução do sistema cognitivo", CoreModels.PlanStatus.InProgress,
+                r.ActiveModules.Count > 0 ? (double)r.ActiveModules.Count(m => m.Status == "healthy") / r.ActiveModules.Count : 0,
+                3, 1, DateTime.UtcNow.AddHours(-1), null);
+            return new CoreModels.PlanExecutionResult("plan-1", true, plan, steps, null);
+        }, default(CoreModels.PlanExecutionResult?));
+
+    public Task<List<CoreModels.PlanStep>> GetPlanStepsAsync(string planId, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () => new List<CoreModels.PlanStep>(), []);
+
+    // Feedback History
+    public Task<List<CoreModels.FeedbackHistoryEntry>> GetFeedbackHistoryAsync(CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () => new List<CoreModels.FeedbackHistoryEntry>
+        {
+            new("fb-demo-1", "ep-demo-1", 5, "Ótimo sistema!", "geral", DateTimeOffset.UtcNow.AddDays(-1)),
+            new("fb-demo-2", "ep-demo-2", 4, "Bom desempenho", "performance", DateTimeOffset.UtcNow.AddDays(-2)),
+            new("fb-demo-3", "ep-demo-3", 3, "Pode melhorar", "usabilidade", DateTimeOffset.UtcNow.AddDays(-3)),
+        }, []);
+
+    public Task<CoreModels.FeedbackAverage?> GetFeedbackAverageAsync(CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () => new CoreModels.FeedbackAverage(3, 4.0, 0, 0, 1, 1, 1), default(CoreModels.FeedbackAverage?));
+
+    // Episodic Memory
+    public Task<CoreModels.EpisodicMemorySearchResult?> SearchEpisodicMemoryAsync(CoreModels.EpisodicMemorySearchRequest request, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var r = await api.SearchEpisodesAsync(request.Query, null, request.Status,
+                request.FromDate, request.ToDate, 1, request.TopK, ct);
+            return new CoreModels.EpisodicMemorySearchResult(
+                r.Episodes?.Select(e => new CoreModels.EpisodicMemoryHit(e.Id, e.GoalId,
+                    e.Outcome ?? "Sem resumo", e.Status, e.SuccessRate, e.CreatedAt)).ToList() ?? [],
+                r.TotalCount, request.Query);
+        }, default(CoreModels.EpisodicMemorySearchResult?));
+
+    // User Services
+    public Task<List<Core.Models.UserServiceInfo>> GetUserServicesAsync(CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () => new List<Core.Models.UserServiceInfo>(), new List<Core.Models.UserServiceInfo>());
+    public Task<bool> UpdateUserServiceAsync(string serviceType, Core.Models.UserServiceUpdateRequest request, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () => true, false);
+    public Task<bool> DeleteUserServiceAsync(string serviceType, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () => true, false);
+
+    // Cognitive Flow (Studio) — stub until backend endpoints exist
+    public Task<Core.Models.CognitiveFlowResult?> CognitiveFlowExecuteAsync(Core.Models.FlowDefinition flow, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () => new Core.Models.CognitiveFlowResult(false, null, "Not implemented via API"), default(Core.Models.CognitiveFlowResult?));
+    public Task<bool> CognitiveFlowSaveAsync(Core.Models.FlowDefinition flow, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () => false, false);
+    public Task<Core.Models.FlowDefinition?> CognitiveFlowLoadAsync(string flowName, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () => default(Core.Models.FlowDefinition?), default(Core.Models.FlowDefinition?));
+
+    // Templates
+    public Task<List<CoreModels.TemplateInfo>> TemplateListAsync(CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var r = await api.GetTemplatesAsync(ct);
+            return r.Select(t => new CoreModels.TemplateInfo(t.Id, t.Name, t.Description, t.Content, t.Category, t.Version, t.CreatedAt, t.UpdatedAt)).ToList();
+        }, new List<CoreModels.TemplateInfo>());
+
+    public Task<CoreModels.TemplateInfo?> TemplateGetAsync(string templateId, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var r = await api.GetTemplateAsync(templateId, ct);
+            return new CoreModels.TemplateInfo(r.Id, r.Name, r.Description, r.Content, r.Category, r.Version, r.CreatedAt, r.UpdatedAt);
+        }, default(CoreModels.TemplateInfo?));
+
+    public Task<CoreModels.TemplateInfo?> TemplateCreateAsync(CoreModels.CreateTemplateRequest request, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var r = await api.CreateTemplateAsync(request, ct);
+            return new CoreModels.TemplateInfo(r.Id, r.Name, r.Description, r.Content, r.Category, r.Version, r.CreatedAt, r.UpdatedAt);
+        }, default(CoreModels.TemplateInfo?));
+
+    public Task<CoreModels.TemplateInfo?> TemplateUpdateAsync(string templateId, CoreModels.UpdateTemplateRequest request, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var r = await api.UpdateTemplateAsync(templateId, request, ct);
+            return new CoreModels.TemplateInfo(r.Id, r.Name, r.Description, r.Content, r.Category, r.Version, r.CreatedAt, r.UpdatedAt);
+        }, default(CoreModels.TemplateInfo?));
+
+    public Task<bool> TemplateDeleteAsync(string templateId, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () => { await api.DeleteTemplateAsync(templateId, ct); return true; }, false);
+
+    public Task<CoreModels.TemplateRenderResult?> TemplateRenderAsync(string templateId, CoreModels.RenderTemplateRequest request, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var r = await api.RenderTemplateAsync(templateId, request, ct);
+            return new CoreModels.TemplateRenderResult(r.RenderedContent, r.Error);
+        }, default(CoreModels.TemplateRenderResult?));
+
+    // Experiments
+    public Task<List<CoreModels.ExperimentInfo>> ExperimentListAsync(CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var r = await api.GetExperimentsAsync(ct);
+            return r.Select(e => new CoreModels.ExperimentInfo(e.Id, e.Name, e.Status, e.Description, e.CreatedAt, e.CompletedAt)).ToList();
+        }, new List<CoreModels.ExperimentInfo>());
+
+    public Task<CoreModels.ExperimentInfo?> ExperimentStartAsync(CoreModels.StartExperimentRequest request, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var r = await api.StartExperimentAsync(request, ct);
+            return new CoreModels.ExperimentInfo(r.Id, r.Name, r.Status, r.Description, r.CreatedAt, r.CompletedAt);
+        }, default(CoreModels.ExperimentInfo?));
+
+    public Task<bool> ExperimentCompleteAsync(string experimentId, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () => { await api.CompleteExperimentAsync(experimentId, ct); return true; }, false);
+
+    public Task<bool> ExperimentRecordMetricAsync(string experimentId, CoreModels.RecordMetricRequest request, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () => { await api.RecordMetricAsync(experimentId, request, ct); return true; }, false);
+
+    public Task<CoreModels.ExperimentAnalysis?> ExperimentGetAnalysisAsync(string experimentId, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var r = await api.GetExperimentAnalysisAsync(experimentId, ct);
+            return new CoreModels.ExperimentAnalysis(r.ExperimentId, r.TotalMetrics, r.AvgValue, r.AvgLatencyMs, r.SuccessRate,
+                r.Metrics.Select(m => new CoreModels.MetricEntry(m.Name, m.Value, m.Timestamp)).ToList(), r.Insights);
+        }, default(CoreModels.ExperimentAnalysis?));
 
     private static Core.Models.ApprovalRequest MapApprovalRequest(Abstractions.ApprovalRequestDto dto)
     {

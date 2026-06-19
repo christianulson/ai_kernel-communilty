@@ -1,3 +1,7 @@
+use tauri::Manager;
+
+mod audio;
+mod camera;
 mod commands;
 mod hotkey;
 mod notifications;
@@ -19,18 +23,17 @@ pub fn run() {
             let _ = app.get_webview_window("main").map(|w| w.set_focus());
         }))
         .plugin(tauri_plugin_clipboard_manager::init())
-        .plugin(tauri_plugin_drag_drop::init())
-        .plugin(tauri_plugin_deep_link::init({
-            move |app, request| {
-                let _ = app.emit("deep-link-received", request.to_string());
-            }
-        }))
+        .plugin(tauri_plugin_deep_link::init())
         .plugin(tauri_plugin_autostart::init(
             tauri_plugin_autostart::MacosLauncher::LaunchAgent,
             Some(vec!["--flag1"]),
         ))
         .plugin(tauri_plugin_window_state::Builder::new().build())
+        // .plugin(tauri_plugin_authenticator::init()) // requires OpenSSL + Perl
         .manage(sidecar::SidecarManager::new())
+        .manage(audio::AudioCapture::new())
+        .manage(camera::CameraCapture::new())
+        .manage(commands::TerminalProcessManager::new())
         .setup(|app| {
             tray::TrayManager::setup(app)?;
             hotkey::setup_hotkeys(app.handle())?;
@@ -55,6 +58,18 @@ pub fn run() {
             commands::restore_data,
             commands::execute_cli,
             commands::execute_cli_with_workdir,
+            commands::execute_cli_stream,
+            commands::cancel_cli_execution,
+            commands::authenticate_with_biometric,
+            commands::start_audio_capture,
+            commands::stop_audio_capture,
+            commands::play_audio,
+            commands::get_audio_status,
+            commands::start_camera,
+            commands::stop_camera,
+            commands::get_camera_status,
+            commands::detect_faces,
+            commands::get_available_cameras,
             updater::check_for_updates,
             updater::install_update,
         ])
