@@ -14,7 +14,6 @@
   <Folder Name="/tests/">
     <Project Path="tests/KrnlAI.Cli.Tests/KrnlAI.Cli.Tests.csproj" />
     <Project Path="tests/KrnlAI.Sidecar.Tests/KrnlAI.Sidecar.Tests.csproj" />
-    <Project Path="tests/KrnlAI.Desktop.Tests/KrnlAI.Desktop.E2E.csproj" />
     <Project Path="tests/KrnlAI.Desktop.Tests/KrnlAI.Desktop.Tests.csproj" />
     <Project Path="tests/KrnlAI.Community.Tests/KrnlAI.Community.Tests.csproj" />
   </Folder>

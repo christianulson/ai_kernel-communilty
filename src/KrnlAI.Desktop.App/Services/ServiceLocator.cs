@@ -32,14 +32,7 @@ public class ServiceLocator : IDisposable, IAsyncDisposable
     private readonly ServiceProvider _provider;
     private volatile bool _disposed;
     private Lazy<EmbeddedKrnlAI>? _embeddedKernelLazy = new(() =>
-        new EmbeddedKrnlAI(new EmbeddedKernelOptions
-        {
-            StoreMode = "InMemory",
-            VectorMode = "InMemory",
-            CacheMode = "Memory",
-            LLmProvider = Environment.GetEnvironmentVariable("KRNL__LLM_PROVIDER") ?? "ollama",
-            OllamaEndpoint = Environment.GetEnvironmentVariable("KRNL__OLLAMA_ENDPOINT") ?? "http://localhost:11434"
-        }),
+        new EmbeddedKrnlAI(CreateLocalEmbeddedKernelOptions()),
         LazyThreadSafetyMode.ExecutionAndPublication);
 
     public RunMode CurrentMode { get; }
@@ -63,6 +56,19 @@ public class ServiceLocator : IDisposable, IAsyncDisposable
     public ILogger<T> GetLogger<T>() => _provider!.GetRequiredService<ILogger<T>>();
     public Func<WebRtcService> WebRtcServiceFactory => () => new WebRtcService(GetLogger<WebRtcService>());
     public IThemeService ThemeSvc => _provider.GetRequiredService<IThemeService>();
+
+    /// <summary>
+    /// Creates the embedded kernel options used by Desktop local AI mode.
+    /// </summary>
+    public static EmbeddedKernelOptions CreateLocalEmbeddedKernelOptions() => new()
+    {
+        StoreMode = "Sqlite",
+        SqliteMode = "Hybrid",
+        VectorMode = "Sqlite",
+        CacheMode = "Memory",
+        LLmProvider = Environment.GetEnvironmentVariable("KRNL__LLM_PROVIDER") ?? "ollama",
+        OllamaEndpoint = Environment.GetEnvironmentVariable("KRNL__OLLAMA_ENDPOINT") ?? "http://localhost:11434"
+    };
 
     private T? Resolve<T>() where T : class
     {

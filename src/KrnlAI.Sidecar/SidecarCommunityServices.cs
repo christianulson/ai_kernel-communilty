@@ -21,7 +21,7 @@ public static class SidecarCommunityServices
         {
             var kernel = new EmbeddedKrnlAI(new EmbeddedKernelOptions
             {
-                StoreMode = configuration["Store:Mode"] ?? "SQLite",
+                StoreMode = configuration["Store:Mode"] ?? "Sqlite",
                 SqliteMode = configuration["Store:SqliteMode"] ?? "Hybrid",
                 VectorMode = configuration["Vector:Mode"] ?? "Sqlite",
                 CacheMode = configuration["Cache:Mode"] ?? "Memory",
