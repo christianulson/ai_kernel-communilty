@@ -20,7 +20,7 @@
     <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.15.1" />
     <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.15.1" />
     <PackageReference Include="StreamJsonRpc" Version="2.25.29" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.2" />
   </ItemGroup>
 
   <!-- Modo 1: Submodule (ProjectReference) -->
