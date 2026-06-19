@@ -148,6 +148,13 @@ fn get_system_theme() -> String {
 }
 
 #[tauri::command]
+pub fn toggle_always_on_top(window: tauri::Window) -> Result<bool, String> {
+    let is_on_top = window.is_always_on_top().map_err(|e| e.to_string())?;
+    window.set_always_on_top(!is_on_top).map_err(|e| e.to_string())?;
+    Ok(!is_on_top)
+}
+
+#[tauri::command]
 pub fn open_external(url: String) -> Result<(), String> {
     open::that(&url).map_err(|e| format!("Failed to open URL: {}", e))
 }
@@ -164,6 +171,32 @@ pub fn show_save_dialog(default_name: String) -> Result<Option<String>, String> 
 pub fn show_open_dialog() -> Result<Option<String>, String> {
     let file = rfd::FileDialog::new().pick_file();
     Ok(file.map(|f| f.to_string_lossy().to_string()))
+}
+
+#[tauri::command]
+async fn copy_to_clipboard(text: String, app: tauri::AppHandle) -> Result<(), String> {
+    use tauri_plugin_clipboard_manager::ClipboardExt;
+    app.clipboard().write_text(text).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn get_deep_link(_app: tauri::AppHandle) -> Option<String> {
+    None
+}
+
+#[tauri::command]
+async fn get_detailed_system_info() -> Result<serde_json::Value, String> {
+    let info = sysinfo::System::new_all();
+    Ok(serde_json::json!({
+        "total_memory": info.total_memory(),
+        "used_memory": info.used_memory(),
+        "total_swap": info.total_swap(),
+        "used_swap": info.used_swap(),
+        "cpu_count": info.cpus().len(),
+        "cpu_brand": info.cpus().first().map(|c| c.brand().to_string()),
+        "hostname": info.host_name(),
+        "kernel_version": info.kernel_version(),
+    }))
 }
 
 #[cfg(test)]
