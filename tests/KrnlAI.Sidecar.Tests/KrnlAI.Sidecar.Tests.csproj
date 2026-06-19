@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\KrnlAI.Sidecar\KrnlAI.Sidecar.csproj" />
+    <ProjectReference Include="..\..\..\tests\TestHelpers\TestHelpers.csproj" />
   </ItemGroup>
 
   <ItemGroup>

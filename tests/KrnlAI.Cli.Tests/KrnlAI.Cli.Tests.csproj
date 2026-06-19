@@ -27,6 +27,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\KrnlAI.Cli\KrnlAI.Cli.csproj" />
+    <ProjectReference Include="..\..\..\tests\TestHelpers\TestHelpers.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="Xunit" />

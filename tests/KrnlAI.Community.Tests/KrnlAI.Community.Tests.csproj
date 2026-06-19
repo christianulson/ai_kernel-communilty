@@ -30,4 +30,8 @@
     <Using Include="Xunit" />
     <Using Include="FluentAssertions" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\tests\TestHelpers\TestHelpers.csproj" />
+  </ItemGroup>
 </Project>

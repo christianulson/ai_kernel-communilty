@@ -24,5 +24,6 @@
     <ProjectReference Include="..\..\src\KrnlAI.Desktop.App\KrnlAI.Desktop.App.csproj" />
     <ProjectReference Include="..\..\src\KrnlAI.Desktop.Infrastructure\KrnlAI.Desktop.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\KrnlAI.Desktop.Core\KrnlAI.Desktop.Core.csproj" />
+    <ProjectReference Include="..\..\..\tests\TestHelpers\TestHelpers.csproj" />
   </ItemGroup>
 </Project>
