@@ -1,4 +1,5 @@
 using KrnlAI.Desktop.Core.Abstractions;
+using Cts = KrnlAI.Contracts.Contracts;
 using KrnlAI.Desktop.Core.Models;
 using KrnlAI.Desktop.Infrastructure.Abstractions;
 using KrnlAI.Desktop.Infrastructure.KernelClient;
@@ -54,10 +55,10 @@ public class KernelClientTests
     {
         var (client, apiMock, _) = CreateClient();
         var dto = new AgentRunResponseDto("Hello!", null, null, null, null);
-        apiMock.Setup(a => a.RunAgentAsync(It.IsAny<AgentRunRequest>(), It.IsAny<CancellationToken>()))
+        apiMock.Setup(a => a.RunAgentAsync(It.IsAny<Cts.AgentRunTransportRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(dto);
 
-        var result = await client.RunAgentAsync(new AgentRunRequest("Hi"));
+        var result = await client.RunAgentAsync(new Cts.AgentRunTransportRequest("Hi"));
         Assert.Equal("Hello!", result.Narration);
         Assert.Null(result.Error);
     }
@@ -66,10 +67,10 @@ public class KernelClientTests
     public async Task RunAgentAsync_WhenApiThrows_ReturnsNullNarration()
     {
         var (client, apiMock, _) = CreateClient();
-        apiMock.Setup(a => a.RunAgentAsync(It.IsAny<AgentRunRequest>(), It.IsAny<CancellationToken>()))
+        apiMock.Setup(a => a.RunAgentAsync(It.IsAny<Cts.AgentRunTransportRequest>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("API down"));
 
-        var result = await client.RunAgentAsync(new AgentRunRequest("Hi"));
+        var result = await client.RunAgentAsync(new Cts.AgentRunTransportRequest("Hi"));
         Assert.Null(result.Narration);
         Assert.Null(result.Error); // Error is not preserved; SafeCall logs it instead
     }

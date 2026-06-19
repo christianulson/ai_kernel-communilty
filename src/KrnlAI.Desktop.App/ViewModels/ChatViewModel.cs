@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Cts = KrnlAI.Contracts.Contracts;
 using KrnlAI.Desktop.App.Controls;
 using KrnlAI.Desktop.App.Services;
 using KrnlAI.Desktop.Core.Abstractions;
@@ -450,7 +451,7 @@ public class ChatViewModel : ViewModelBase
             }
             else
             {
-                var response = await _kernelClient.RunAgentAsync(new AgentRunRequest(
+                var response = await _kernelClient.RunAgentAsync(new Cts.AgentRunTransportRequest(
                     Prompt: text ?? "",
                     ImageBytes: imageBytes,
                     ImageFormat: imageBytes != null ? "jpeg" : null));

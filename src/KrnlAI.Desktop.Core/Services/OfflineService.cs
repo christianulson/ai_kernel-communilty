@@ -1,5 +1,5 @@
 using System.Collections.Concurrent;
-using KrnlAI.Desktop.Core.Models;
+using KrnlAI.Contracts.Contracts;
 
 namespace KrnlAI.Desktop.Core.Services;
 
@@ -7,14 +7,14 @@ public interface IOfflineService
 {
     bool IsOffline { get; }
     event EventHandler<bool>? ConnectivityChanged;
-    Task<bool> CacheCommandAsync(AgentRunRequest request);
-    Task<List<AgentRunRequest>> GetCachedCommandsAsync();
+    Task<bool> CacheCommandAsync(AgentRunTransportRequest request);
+    Task<List<AgentRunTransportRequest>> GetCachedCommandsAsync();
     Task ClearCacheAsync();
 }
 
 public class OfflineService : IOfflineService
 {
-    private readonly ConcurrentQueue<AgentRunRequest> _commandQueue = new();
+    private readonly ConcurrentQueue<AgentRunTransportRequest> _commandQueue = new();
     private bool _isOffline;
 
     public bool IsOffline => _isOffline;
@@ -29,13 +29,13 @@ public class OfflineService : IOfflineService
         }
     }
 
-    public Task<bool> CacheCommandAsync(AgentRunRequest request)
+    public Task<bool> CacheCommandAsync(AgentRunTransportRequest request)
     {
         _commandQueue.Enqueue(request);
         return Task.FromResult(true);
     }
 
-    public Task<List<AgentRunRequest>> GetCachedCommandsAsync()
+    public Task<List<AgentRunTransportRequest>> GetCachedCommandsAsync()
     {
         return Task.FromResult(_commandQueue.ToList());
     }

@@ -1,4 +1,5 @@
 using KrnlAI.Core.Abstractions;
+using Cts = KrnlAI.Contracts.Contracts;
 using KrnlAI.Desktop.App.Services;
 using KrnlAI.Desktop.Core.Models;
 using KrnlAI.Embedded;
@@ -13,7 +14,7 @@ public sealed class EmbeddedKernelClientTests
     {
         var client = new EmbeddedKernelClient(new FakeEmbeddedKrnlAI());
 
-        var result = await client.RunAgentAsync(new AgentRunRequest("hello"));
+        var result = await client.RunAgentAsync(new Cts.AgentRunTransportRequest("hello"));
 
         Assert.Equal("embedded: hello", result.Narration);
         Assert.Contains("embedded", result.ActiveStages!);

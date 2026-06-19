@@ -1,3 +1,5 @@
+using KrnlAI.Contracts.Contracts;
+
 namespace KrnlAI.Desktop.Core.Models;
 
 public record ChatMessage(
@@ -30,30 +32,6 @@ public record ChatSession(
     List<ChatMessage> Messages,
     DateTime CreatedAt,
     DateTime? LastActivityAt
-);
-
-public record AgentRunRequest(
-    string Prompt,
-    string Mode = "gateway",
-    string? AgentId = null,
-    Dictionary<string, string>? Metadata = null,
-    byte[]? ImageBytes = null,
-    string? ImageFormat = null
-);
-
-public record AgentRunResponse(
-    string? Narration,
-    Dictionary<string, object>? Command,
-    List<TransportStep>? TransportSteps,
-    List<string>? ActiveStages,
-    string? Error
-);
-
-public record TransportStep(
-    string Label,
-    string Detail,
-    bool Ok,
-    int? Status
 );
 
 public record LoginRequest(

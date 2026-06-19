@@ -1,3 +1,4 @@
+using KrnlAI.Contracts.Contracts;
 using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace KrnlAI.Sidecar.Tests;
@@ -21,7 +22,7 @@ public sealed class SidecarCommunityModeTests(CommunitySidecarWebAppFactory fact
         var response = await _client.PostAsJsonAsync("/agent/run", new { prompt = "hello local" }, TestContext.Current.CancellationToken);
         response.EnsureSuccessStatusCode();
 
-        var body = await response.Content.ReadFromJsonAsync<AgentRunResponse>(TestContext.Current.CancellationToken);
+        var body = await response.Content.ReadFromJsonAsync<AgentRunTransportResponse>(TestContext.Current.CancellationToken);
 
         body.Should().NotBeNull();
         body!.Narration.Should().Contain("hello local");

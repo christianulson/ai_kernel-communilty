@@ -10,4 +10,8 @@
     <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.13.0.20260602" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.9" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\KrnlAI.Contracts\KrnlAI.Contracts.csproj" />
+  </ItemGroup>
 </Project>

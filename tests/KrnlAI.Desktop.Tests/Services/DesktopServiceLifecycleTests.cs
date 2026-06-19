@@ -1,4 +1,5 @@
 using System.Reflection;
+using Cts = KrnlAI.Contracts.Contracts;
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
 using KrnlAI.Desktop.Core.Services;
@@ -204,10 +205,10 @@ public sealed class DesktopServiceLifecycleTests
         public int TranscribeCalls { get; private set; }
         public int RunAgentCalls { get; private set; }
 
-        public Task<AgentRunResponse> RunAgentAsync(AgentRunRequest request, CancellationToken cancellationToken = default)
+        public Task<Cts.AgentRunTransportResponse> RunAgentAsync(Cts.AgentRunTransportRequest request, CancellationToken cancellationToken = default)
         {
             RunAgentCalls++;
-            return Task.FromResult(new AgentRunResponse(null, null, null, null, null));
+            return Task.FromResult(new Cts.AgentRunTransportResponse(null, null, null, null, null));
         }
 
         public Task<byte[]> GenerateSpeechAsync(string text, string? language = null, string? voice = null, CancellationToken cancellationToken = default)

@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using Cts = KrnlAI.Contracts.Contracts;
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
 using KrnlAI.Embedded;
@@ -54,13 +55,13 @@ public sealed class EmbeddedKernelClient : IKernelClient
         return Task.FromResult(new LoginResponse(true, token) { Username = request.Email });
     }
 
-    public async Task<AgentRunResponse> RunAgentAsync(AgentRunRequest request, CancellationToken cancellationToken = default)
+    public async Task<Cts.AgentRunTransportResponse> RunAgentAsync(Cts.AgentRunTransportRequest request, CancellationToken cancellationToken = default)
     {
         var result = await _kernel.RunAsync(request.Prompt, cancellationToken);
-        return new AgentRunResponse(
+        return new Cts.AgentRunTransportResponse(
             result.Narration,
             null,
-            [.. result.Steps.Select((step, index) => new TransportStep($"Embedded:{index + 1}", step, result.Error is null, null))],
+            [.. result.Steps.Select((step, index) => new Cts.TransportStepDto($"Embedded:{index + 1}", step, result.Error is null, null))],
             [result.Mode],
             result.Error);
     }

@@ -1,3 +1,4 @@
+using KrnlAI.Contracts.Contracts;
 namespace KrnlAI.Sidecar.Tests;
 
 public sealed class AgentRunEndpointTests(SidecarWebAppFactory factory) : IClassFixture<SidecarWebAppFactory>
@@ -11,7 +12,7 @@ public sealed class AgentRunEndpointTests(SidecarWebAppFactory factory) : IClass
         var res = await _http.PostAsJsonAsync("/agent/run", payload, TestContext.Current.CancellationToken);
 
         res.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
-        var body = await res.Content.ReadFromJsonAsync<AgentRunResponse>(cancellationToken: TestContext.Current.CancellationToken);
+        var body = await res.Content.ReadFromJsonAsync<AgentRunTransportResponse>(cancellationToken: TestContext.Current.CancellationToken);
         body.Should().NotBeNull();
         body!.Narration.Should().NotBeNullOrEmpty();
         body.Error.Should().BeNull();
@@ -34,7 +35,7 @@ public sealed class AgentRunEndpointTests(SidecarWebAppFactory factory) : IClass
         var res = await _http.PostAsJsonAsync("/agent/run", payload, TestContext.Current.CancellationToken);
 
         res.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
-        var body = await res.Content.ReadFromJsonAsync<AgentRunResponse>(cancellationToken: TestContext.Current.CancellationToken);
+        var body = await res.Content.ReadFromJsonAsync<AgentRunTransportResponse>(cancellationToken: TestContext.Current.CancellationToken);
         body.Should().NotBeNull();
         body!.Error.Should().Be("safety_block");
         body.Narration.Should().Be("Conteudo bloqueado.");
@@ -47,7 +48,7 @@ public sealed class AgentRunEndpointTests(SidecarWebAppFactory factory) : IClass
         var res = await _http.PostAsJsonAsync("/agent/run", payload, TestContext.Current.CancellationToken);
 
         res.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
-        var body = await res.Content.ReadFromJsonAsync<AgentRunResponse>(cancellationToken: TestContext.Current.CancellationToken);
+        var body = await res.Content.ReadFromJsonAsync<AgentRunTransportResponse>(cancellationToken: TestContext.Current.CancellationToken);
         body!.Error.Should().Be("safety_block");
     }
 
@@ -58,7 +59,7 @@ public sealed class AgentRunEndpointTests(SidecarWebAppFactory factory) : IClass
         var res = await _http.PostAsJsonAsync("/agent/run", payload, TestContext.Current.CancellationToken);
 
         res.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
-        var body = await res.Content.ReadFromJsonAsync<AgentRunResponse>(cancellationToken: TestContext.Current.CancellationToken);
+        var body = await res.Content.ReadFromJsonAsync<AgentRunTransportResponse>(cancellationToken: TestContext.Current.CancellationToken);
         body!.Narration.Should().NotBeNullOrEmpty();
         body.Error.Should().BeNull();
     }
@@ -70,7 +71,7 @@ public sealed class AgentRunEndpointTests(SidecarWebAppFactory factory) : IClass
         var res = await _http.PostAsJsonAsync("/agent/run", payload, TestContext.Current.CancellationToken);
 
         res.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
-        var body = await res.Content.ReadFromJsonAsync<AgentRunResponse>(cancellationToken: TestContext.Current.CancellationToken);
+        var body = await res.Content.ReadFromJsonAsync<AgentRunTransportResponse>(cancellationToken: TestContext.Current.CancellationToken);
         body!.Narration.Should().Contain("executar via sdk");
         body.Error.Should().BeNull();
     }
@@ -82,7 +83,7 @@ public sealed class AgentRunEndpointTests(SidecarWebAppFactory factory) : IClass
         var res = await _http.PostAsJsonAsync("/agent/run", payload, TestContext.Current.CancellationToken);
 
         res.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
-        var body = await res.Content.ReadFromJsonAsync<AgentRunResponse>(cancellationToken: TestContext.Current.CancellationToken);
+        var body = await res.Content.ReadFromJsonAsync<AgentRunTransportResponse>(cancellationToken: TestContext.Current.CancellationToken);
         body!.Error.Should().BeNull();
     }
 }
