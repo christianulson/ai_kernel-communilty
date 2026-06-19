@@ -15,7 +15,7 @@ public class GlobalHotkeyService : IDisposable
     private readonly IntPtr _hwnd;
     private readonly Dictionary<int, Action> _hotkeyActions = [];
     private int _currentId;
-    private HwndSource? _source;
+    private readonly HwndSource? _source;
 
     [DllImport("user32.dll")]
     private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);

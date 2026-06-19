@@ -20,7 +20,7 @@ public sealed class CompletionCacheServiceTests
     public void SetAndGet_ShouldReturnValue()
     {
         var cache = new CompletionCacheService();
-        var completion = new CachedCompletion("prefix", new[] { "suggestion1" }, new[] { 0.9 }, DateTime.UtcNow);
+        var completion = new CachedCompletion("prefix", ["suggestion1"], [0.9], DateTime.UtcNow);
 
         cache.Set("hash1", completion);
         var result = cache.Get("hash1");
@@ -35,7 +35,7 @@ public sealed class CompletionCacheServiceTests
     public void Invalidate_ShouldRemoveEntry()
     {
         var cache = new CompletionCacheService();
-        cache.Set("hash1", new CachedCompletion("p", new[] { "s" }, new[] { 1.0 }, DateTime.UtcNow));
+        cache.Set("hash1", new CachedCompletion("p", ["s"], [1.0], DateTime.UtcNow));
 
         cache.Invalidate("hash1");
 
@@ -47,8 +47,8 @@ public sealed class CompletionCacheServiceTests
     public void Clear_ShouldRemoveAll()
     {
         var cache = new CompletionCacheService();
-        cache.Set("hash1", new CachedCompletion("p", new[] { "s" }, new[] { 1.0 }, DateTime.UtcNow));
-        cache.Set("hash2", new CachedCompletion("p", new[] { "s" }, new[] { 1.0 }, DateTime.UtcNow));
+        cache.Set("hash1", new CachedCompletion("p", ["s"], [1.0], DateTime.UtcNow));
+        cache.Set("hash2", new CachedCompletion("p", ["s"], [1.0], DateTime.UtcNow));
 
         cache.Clear();
 
@@ -61,9 +61,9 @@ public sealed class CompletionCacheServiceTests
     public void Set_OverMaxEntries_ShouldEvictLRU()
     {
         var cache = new CompletionCacheService(maxEntries: 2);
-        cache.Set("a", new CachedCompletion("p", new[] { "s" }, new[] { 1.0 }, DateTime.UtcNow));
-        cache.Set("b", new CachedCompletion("p", new[] { "s" }, new[] { 1.0 }, DateTime.UtcNow));
-        cache.Set("c", new CachedCompletion("p", new[] { "s" }, new[] { 1.0 }, DateTime.UtcNow));
+        cache.Set("a", new CachedCompletion("p", ["s"], [1.0], DateTime.UtcNow));
+        cache.Set("b", new CachedCompletion("p", ["s"], [1.0], DateTime.UtcNow));
+        cache.Set("c", new CachedCompletion("p", ["s"], [1.0], DateTime.UtcNow));
 
         cache.Count.Should().Be(2);
         cache.Get("a").Should().BeNull();
@@ -75,7 +75,7 @@ public sealed class CompletionCacheServiceTests
     public void Get_ExpiredEntry_ShouldReturnNull()
     {
         var cache = new CompletionCacheService(maxEntries: 100, ttl: TimeSpan.FromMilliseconds(-1));
-        cache.Set("hash1", new CachedCompletion("p", new[] { "s" }, new[] { 1.0 }, DateTime.UtcNow.AddDays(-1)));
+        cache.Set("hash1", new CachedCompletion("p", ["s"], [1.0], DateTime.UtcNow.AddDays(-1)));
 
         var result = cache.Get("hash1");
 

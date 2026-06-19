@@ -105,7 +105,7 @@ public partial class ChatControl : UserControl
                 e.Handled = true;
                 return;
             }
-            if (e.Key == Key.Enter || e.Key == Key.Tab)
+            if (e.Key is Key.Enter or Key.Tab)
             {
                 chatVm.ApplyMentionSuggestion();
                 e.Handled = true;
@@ -134,7 +134,7 @@ public partial class ChatControl : UserControl
                 e.Handled = true;
                 return;
             }
-            if (e.Key == Key.Enter || e.Key == Key.Tab)
+            if (e.Key is Key.Enter or Key.Tab)
             {
                 chatVm.ApplySlashSuggestion();
                 e.Handled = true;

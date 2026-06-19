@@ -53,7 +53,7 @@ public sealed class ChatHistoryService
             for (var i = 0; i < count; i++)
             {
                 var value = store.GetString(CollectionPath, $"Message_{i}", "");
-                var parts = value.Split(new[] { '|' }, 3);
+                var parts = value.Split(['|'], 3);
                 if (parts.Length == 3 &&
                     DateTime.TryParse(parts[0], out var ts) &&
                     !string.IsNullOrEmpty(parts[1]))

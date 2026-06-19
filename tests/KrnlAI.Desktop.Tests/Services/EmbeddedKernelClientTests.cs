@@ -34,10 +34,10 @@ public sealed class EmbeddedKernelClientTests
     {
         var kernel = new Mock<IEmbeddedKrnlAI>();
         kernel.Setup(x => x.SearchMemoryAsync("memory", It.IsAny<CancellationToken>()))
-            .ReturnsAsync((IReadOnlyList<VectorHit>)new List<VectorHit>
-            {
+            .ReturnsAsync((IReadOnlyList<VectorHit>)
+            [
                 new() { Id = "hit-1", Payload = "payload", Score = 0.9f }
-            });
+            ]);
 
         var client = new EmbeddedKernelClient(kernel.Object);
 
@@ -53,10 +53,10 @@ public sealed class EmbeddedKernelClientTests
     {
         var kernel = new Mock<IEmbeddedKrnlAI>();
         kernel.Setup(x => x.GetKanbanGoalsAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync((IReadOnlyList<EmbeddedKanbanGoal>)new List<EmbeddedKanbanGoal>
-            {
+            .ReturnsAsync((IReadOnlyList<EmbeddedKanbanGoal>)
+            [
                 new("goal-1", "ship runtime", "active", 4, DateTimeOffset.UtcNow, null)
-            });
+            ]);
 
         var client = new EmbeddedKernelClient(kernel.Object);
 

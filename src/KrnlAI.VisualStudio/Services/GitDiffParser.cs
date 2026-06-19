@@ -7,7 +7,7 @@ public static class GitDiffParser
         if (string.IsNullOrWhiteSpace(rawDiff))
             return "No changes.";
 
-        var lines = rawDiff.Split(new[] { '\n' }, StringSplitOptions.None);
+        var lines = rawDiff.Split(['\n'], StringSplitOptions.None);
         var added = 0;
         var removed = 0;
         var files = new System.Collections.Generic.HashSet<string>();

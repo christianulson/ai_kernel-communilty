@@ -59,13 +59,13 @@ public class ChatViewModel : ViewModelBase
 
     // @-mentions
     private static readonly (string Label, string Description, string Icon)[] MentionItems =
-    {
+    [
         ("@file", "Reference a file by name", "\U0001f4c4"),
         ("@selection", "Current editor selection", "\U0001f4cc"),
         ("@symbol", "Code symbol (class, function)", "\U0001f523"),
         ("@terminal", "Terminal output", "\U0001f4bb"),
         ("@diagnostics", "Project errors/warnings", "\u26a0\ufe0f"),
-    };
+    ];
 
     private ObservableCollection<string> _mentionSuggestions = [];
     public ObservableCollection<string> MentionSuggestions

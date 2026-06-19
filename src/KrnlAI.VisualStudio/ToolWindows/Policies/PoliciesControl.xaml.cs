@@ -31,7 +31,7 @@ public partial class PoliciesControl : UserControl
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
             var filter = (DomainFilter.SelectedItem as ComboBoxItem)?.Content?.ToString();
-            var filtered = filter is null || filter == "All"
+            var filtered = filter is null or "All"
                 ? policies
                 : [.. policies.Where(p => string.Equals(p.Domain, filter, StringComparison.OrdinalIgnoreCase))];
 

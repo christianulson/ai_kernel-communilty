@@ -109,7 +109,7 @@ public class ViewModelBindingTests
                 if (binding.Contains(", ")) continue;
 
                 var parts = binding.Split('.');
-                if (parts.Length < 2 || parts.Length > 2) continue;
+                if (parts.Length is < 2 or > 2) continue;
 
                 var viewModelName = parts[^2];
                 var propName = parts[^1];

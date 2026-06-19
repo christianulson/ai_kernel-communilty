@@ -16,7 +16,7 @@ public sealed class VsCommandHandler(
     ITerminalService? terminal = null,
     IGitService? git = null) : IVsCommandHandler
 {
-    private readonly SlashCommandRouter _router = new SlashCommandRouter(client, context, applyEdit, agenticLoop, terminal, git);
+    private readonly SlashCommandRouter _router = new(client, context, applyEdit, agenticLoop, terminal, git);
 
     public IReadOnlyDictionary<string, SlashCommand> Commands => _router.Commands;
 

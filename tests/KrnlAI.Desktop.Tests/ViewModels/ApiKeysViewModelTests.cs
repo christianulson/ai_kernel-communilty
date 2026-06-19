@@ -16,14 +16,14 @@ public sealed class ApiKeysViewModelTests
     {
         var service = new Mock<IApiKeyManagementService>();
         service.Setup(x => x.ListAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<ApiKeyListItem>
-            {
+            .ReturnsAsync(
+            [
                 new("kid-1", "krnl_abcd1234", "ci", ApiKeyScope.ReadWrite,
                     new DateTimeOffset(2026, 5, 27, 10, 0, 0, TimeSpan.Zero),
                     new DateTimeOffset(2026, 6, 27, 10, 0, 0, TimeSpan.Zero),
                     new DateTimeOffset(2026, 5, 28, 10, 0, 0, TimeSpan.Zero),
                     true)
-            });
+            ]);
         service.Setup(x => x.GetStatsAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ApiKeyUsageSummary(1, 1, 0, 0, new DateTimeOffset(2026, 5, 28, 10, 0, 0, TimeSpan.Zero)));
 
@@ -42,7 +42,7 @@ public sealed class ApiKeysViewModelTests
     {
         var service = new Mock<IApiKeyManagementService>();
         service.Setup(x => x.ListAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<ApiKeyListItem>());
+            .ReturnsAsync([]);
         service.Setup(x => x.GetStatsAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ApiKeyUsageSummary(0, 0, 0, 0, null));
         service.Setup(x => x.CreateAsync(It.IsAny<ApiKeyCreationRequest>(), It.IsAny<CancellationToken>()))
