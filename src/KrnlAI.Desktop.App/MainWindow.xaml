@@ -208,6 +208,13 @@
                             <TextBlock Text="{loc:Loc nav_privacy}"/>
                         </StackPanel>
                     </Button>
+                    <Button Command="{Binding NavigateToUserServicesCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="UserServicesButton">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🔗" FontSize="14" Margin="0,0,10,0"/>
+                            <TextBlock Text="{loc:Loc nav_user_services}"/>
+                        </StackPanel>
+                    </Button>
                     <Button Command="{Binding NavigateToDocumentsCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
                             AutomationProperties.AutomationId="DocumentsButton">
                         <StackPanel Orientation="Horizontal">
@@ -354,6 +361,13 @@
                             <TextBlock Text="CLI"/>
                         </StackPanel>
                     </Button>
+                    <Button Command="{Binding NavigateToTerminalCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="TerminalButton">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🖥️" FontSize="14" Margin="0,0,10,0"/>
+                            <TextBlock Text="Terminal"/>
+                        </StackPanel>
+                    </Button>
                     <Button Command="{Binding NavigateToPluginCatalogCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
                             AutomationProperties.AutomationId="PluginCatalogButton">
                         <StackPanel Orientation="Horizontal">
@@ -394,6 +408,83 @@
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="🎨" FontSize="14" Margin="0,0,10,0"/>
                             <TextBlock Text="Studio"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding NavigateToKnowledgeCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="KnowledgeButton">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="📚" FontSize="14" Margin="0,0,10,0"/>
+                            <TextBlock Text="Knowledge"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding NavigateToPieCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="PieButton">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🔗" FontSize="14" Margin="0,0,10,0"/>
+                            <TextBlock Text="PIE"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding NavigateToEmotionalCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="EmotionalButton">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="😊" FontSize="14" Margin="0,0,10,0"/>
+                            <TextBlock Text="Emocional"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding NavigateToEventsCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="EventsButton">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="📋" FontSize="14" Margin="0,0,10,0"/>
+                            <TextBlock Text="Eventos"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding NavigateToCodingCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="CodingButton">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="💻" FontSize="14" Margin="0,0,10,0"/>
+                            <TextBlock Text="Coding"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding NavigateToSelfImprovementCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="SelfImprovementButton">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🔄" FontSize="14" Margin="0,0,10,0"/>
+                            <TextBlock Text="Auto-Evolução"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding NavigateToAssistantCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="AssistantButton">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🧠" FontSize="14" Margin="0,0,10,0"/>
+                            <TextBlock Text="Assistant"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding NavigateToMcpConfigCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="McpConfigButton">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🔌" FontSize="14" Margin="0,0,10,0"/>
+                            <TextBlock Text="MCP Config"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding NavigateToPlanCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="PlanButton">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="📋" FontSize="14" Margin="0,0,10,0"/>
+                            <TextBlock Text="Plano"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding NavigateToFeedbackCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="FeedbackButton">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="💬" FontSize="14" Margin="0,0,10,0"/>
+                            <TextBlock Text="Feedback"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding NavigateToEpisodicMemoryCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
+                            AutomationProperties.AutomationId="EpisodicMemoryButton">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🧠" FontSize="14" Margin="0,0,10,0"/>
+                            <TextBlock Text="Mem. Episódica"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>
@@ -497,6 +588,7 @@
             <controls:ApiKeysControl Visibility="{Binding IsApiKeysVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:PeerRankingControl Visibility="{Binding IsPeerRankingVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:PrivacyControl Visibility="{Binding IsPrivacyVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:UserServicesControl Visibility="{Binding IsUserServicesVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:DocumentControl Visibility="{Binding IsDocumentsVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:ArchiveControl Visibility="{Binding IsArchiveVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:ModelRegistryControl Visibility="{Binding IsModelRegistryVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
@@ -518,6 +610,7 @@
             <controls:TemplatesControl Visibility="{Binding IsTemplatesVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:ApprovalControl Visibility="{Binding IsApprovalVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:CliControl Visibility="{Binding IsCliVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:TerminalControl DataContext="{Binding TerminalVM}" Visibility="{Binding DataContext.IsTerminalVisible, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:PluginCatalogControl Visibility="{Binding IsPluginCatalogVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:ExperimentControl Visibility="{Binding IsExperimentVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:AgiDashboardControl Visibility="{Binding IsAgiVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
@@ -525,6 +618,17 @@
             <controls:InitWizardControl Visibility="{Binding IsInitWizardVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:DebugControl Visibility="{Binding IsDebugVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:CognitiveStudioControl Visibility="{Binding IsStudioVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:KnowledgeControl Visibility="{Binding IsKnowledgeVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:PieControl Visibility="{Binding IsPieVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:EmotionalControl Visibility="{Binding IsEmotionalVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:EventsControl Visibility="{Binding IsEventsVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:CodingControl Visibility="{Binding IsCodingVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:SelfImprovementControl Visibility="{Binding IsSelfImprovementVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:AssistantControl Visibility="{Binding IsAssistantVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:McpConfigControl Visibility="{Binding IsMcpConfigVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:PlanControl Visibility="{Binding IsPlanVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:FeedbackControl Visibility="{Binding IsFeedbackVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:EpisodicMemoryControl Visibility="{Binding IsEpisodicMemoryVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <!-- Welcome Wizard Overlay -->
             <Border Visibility="{Binding ShowWelcomeWizard, Converter={StaticResource BoolToVisibilityConverter}}"
                     Panel.ZIndex="200" Background="#CC000000">

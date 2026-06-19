@@ -1,11 +1,6 @@
-using KrnlAI.Desktop.Core.Models;
-
 namespace KrnlAI.Desktop.Core.Abstractions;
 
-public interface IMemoryClient
+/// <summary>Memory domain grouping. Methods are inherited from <see cref="IBackendApi"/>.</summary>
+public interface IMemoryClient : IBackendApi
 {
-    Task<MemorySearchResult> SearchMemoryAsync(string query, int topK = 10, CancellationToken cancellationToken = default);
-    Task<MemoryIngestResult> IngestMemoryAsync(MemoryIngestRequest request, CancellationToken cancellationToken = default);
-    Task<MemoryMetrics?> GetMemoryMetricsAsync(CancellationToken cancellationToken = default);
-    Task<WorkingMemorySummary?> GetWorkingMemoryAsync(CancellationToken cancellationToken = default);
 }

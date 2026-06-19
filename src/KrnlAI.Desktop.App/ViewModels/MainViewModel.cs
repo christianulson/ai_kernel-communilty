@@ -81,6 +81,7 @@ public class MainViewModel : ViewModelBase
     public BenchmarkViewModel BenchmarkVM { get; }
     public CausalGraphViewModel CausalVM { get; }
     public ProfileViewModel ProfileVM { get; }
+    public UserServicesViewModel UserServicesVM { get; private set; }
     public ApiKeysViewModel ApiKeysVM { get; }
     public PeerRankingViewModel PeerRankingVM { get; }
     public ArchiveViewModel ArchiveVM { get; }
@@ -101,15 +102,26 @@ public class MainViewModel : ViewModelBase
     public PluginsViewModel PluginsVM { get; }
     public SchedulerViewModel SchedulerVM { get; }
     public ApprovalViewModel ApprovalVM { get; }
-    public TemplatesViewModel TemplatesVM { get; } = new();
+    public TemplatesViewModel TemplatesVM { get; }
     public CliViewModel CliVM { get; } = new();
     public PluginCatalogViewModel PluginCatalogVM { get; } = new();
-    public ExperimentViewModel ExperimentVM { get; } = new();
+    public ExperimentsViewModel ExperimentsVM { get; }
     public InitWizardViewModel InitWizardVM { get; } = new();
     public DebugViewModel DebugVM { get; } = new();
     public CognitiveStudioViewModel StudioVM { get; } = new();
     public WelcomeWizardViewModel WelcomeVM { get; } = new();
     public AgiDashboardViewModel AgiVM { get; }
+    public KnowledgeViewModel KnowledgeVM { get; }
+    public PieViewModel PieVM { get; }
+    public EmotionalViewModel EmotionalVM { get; }
+    public EventsViewModel EventsVM { get; }
+    public CodingViewModel CodingVM { get; }
+    public SelfImprovementViewModel SelfImprovementVM { get; }
+    public AssistantViewModel AssistantVM { get; }
+    public McpConfigViewModel McpConfigVM { get; }
+    public PlanViewModel PlanVM { get; }
+    public FeedbackViewModel FeedbackVM { get; }
+    public EpisodicMemoryViewModel EpisodicMemoryVM { get; }
 
     public ObservableCollection<MediaDevice> Microphones => SettingsVM.Microphones;
     public ObservableCollection<MediaDevice> Cameras => SettingsVM.Cameras;
@@ -140,7 +152,7 @@ public class MainViewModel : ViewModelBase
     private string _statusMessage = "Iniciando...";
     public string StatusMessage { get => _statusMessage; set => SetProperty(ref _statusMessage, value); }
     private string _currentScreen = "chat";
-    public string CurrentScreen { get => _currentScreen; set { if (SetProperty(ref _currentScreen, value)) { OnPropertyChanged(nameof(IsChatVisible)); OnPropertyChanged(nameof(IsDashboardVisible)); OnPropertyChanged(nameof(IsPoliciesVisible)); OnPropertyChanged(nameof(IsEpisodesVisible)); OnPropertyChanged(nameof(IsMemoryVisible)); OnPropertyChanged(nameof(IsSettingsVisible)); OnPropertyChanged(nameof(IsApiKeysVisible)); OnPropertyChanged(nameof(IsPeerRankingVisible)); OnPropertyChanged(nameof(IsPrivacyVisible)); OnPropertyChanged(nameof(IsBenchmarkVisible)); OnPropertyChanged(nameof(IsCausalVisible)); OnPropertyChanged(nameof(IsProfileVisible)); OnPropertyChanged(nameof(IsDocumentsVisible)); OnPropertyChanged(nameof(IsArchiveVisible)); OnPropertyChanged(nameof(IsModelRegistryVisible)); OnPropertyChanged(nameof(IsVersionsVisible)); OnPropertyChanged(nameof(IsSessionsVisible)); OnPropertyChanged(nameof(IsKanbanVisible)); OnPropertyChanged(nameof(IsTrajectoryVisible)); OnPropertyChanged(nameof(IsP2PPaymentsVisible)); OnPropertyChanged(nameof(IsDisputesVisible));             OnPropertyChanged(nameof(IsSidecarVisible)); OnPropertyChanged(nameof(IsMultimodalVisible)); OnPropertyChanged(nameof(IsObjectivesVisible)); OnPropertyChanged(nameof(IsInvestigationsVisible)); OnPropertyChanged(nameof(IsSnapshotsVisible)); OnPropertyChanged(nameof(IsAdminConfigVisible));             OnPropertyChanged(nameof(IsAdminUsersVisible)); OnPropertyChanged(nameof(IsMomentsVisible)); OnPropertyChanged(nameof(IsPluginsVisible)); OnPropertyChanged(nameof(IsSchedulerVisible)); OnPropertyChanged(nameof(IsTemplatesVisible)); OnPropertyChanged(nameof(IsApprovalVisible)); OnPropertyChanged(nameof(IsCliVisible)); OnPropertyChanged(nameof(IsPluginCatalogVisible)); OnPropertyChanged(nameof(IsExperimentVisible)); OnPropertyChanged(nameof(IsInitWizardVisible)); OnPropertyChanged(nameof(IsDebugVisible)); OnPropertyChanged(nameof(IsStudioVisible)); OnPropertyChanged(nameof(IsAgiVisible)); } } }
+    public string CurrentScreen { get => _currentScreen; set { if (SetProperty(ref _currentScreen, value)) { OnPropertyChanged(nameof(IsChatVisible)); OnPropertyChanged(nameof(IsDashboardVisible)); OnPropertyChanged(nameof(IsPoliciesVisible)); OnPropertyChanged(nameof(IsEpisodesVisible)); OnPropertyChanged(nameof(IsMemoryVisible)); OnPropertyChanged(nameof(IsSettingsVisible)); OnPropertyChanged(nameof(IsApiKeysVisible)); OnPropertyChanged(nameof(IsPeerRankingVisible)); OnPropertyChanged(nameof(IsPrivacyVisible)); OnPropertyChanged(nameof(IsUserServicesVisible)); OnPropertyChanged(nameof(IsBenchmarkVisible)); OnPropertyChanged(nameof(IsCausalVisible)); OnPropertyChanged(nameof(IsProfileVisible)); OnPropertyChanged(nameof(IsDocumentsVisible)); OnPropertyChanged(nameof(IsArchiveVisible)); OnPropertyChanged(nameof(IsModelRegistryVisible)); OnPropertyChanged(nameof(IsVersionsVisible)); OnPropertyChanged(nameof(IsSessionsVisible)); OnPropertyChanged(nameof(IsKanbanVisible)); OnPropertyChanged(nameof(IsTrajectoryVisible)); OnPropertyChanged(nameof(IsP2PPaymentsVisible)); OnPropertyChanged(nameof(IsDisputesVisible));             OnPropertyChanged(nameof(IsSidecarVisible)); OnPropertyChanged(nameof(IsMultimodalVisible)); OnPropertyChanged(nameof(IsObjectivesVisible)); OnPropertyChanged(nameof(IsInvestigationsVisible)); OnPropertyChanged(nameof(IsSnapshotsVisible)); OnPropertyChanged(nameof(IsAdminConfigVisible));             OnPropertyChanged(nameof(IsAdminUsersVisible)); OnPropertyChanged(nameof(IsMomentsVisible)); OnPropertyChanged(nameof(IsPluginsVisible)); OnPropertyChanged(nameof(IsSchedulerVisible)); OnPropertyChanged(nameof(IsTemplatesVisible)); OnPropertyChanged(nameof(IsApprovalVisible));                     OnPropertyChanged(nameof(IsCliVisible)); OnPropertyChanged(nameof(IsTerminalVisible)); OnPropertyChanged(nameof(IsPluginCatalogVisible)); OnPropertyChanged(nameof(IsExperimentVisible)); OnPropertyChanged(nameof(IsInitWizardVisible)); OnPropertyChanged(nameof(IsDebugVisible)); OnPropertyChanged(nameof(IsStudioVisible)); OnPropertyChanged(nameof(IsAgiVisible)); OnPropertyChanged(nameof(IsKnowledgeVisible)); OnPropertyChanged(nameof(IsPieVisible)); OnPropertyChanged(nameof(IsEmotionalVisible)); OnPropertyChanged(nameof(IsEventsVisible)); OnPropertyChanged(nameof(IsCodingVisible)); OnPropertyChanged(nameof(IsSelfImprovementVisible)); OnPropertyChanged(nameof(IsAssistantVisible)); OnPropertyChanged(nameof(IsMcpConfigVisible)); OnPropertyChanged(nameof(IsPlanVisible)); OnPropertyChanged(nameof(IsFeedbackVisible)); OnPropertyChanged(nameof(IsEpisodicMemoryVisible)); } } }
     private bool _showWelcomeWizard = true;
     public bool ShowWelcomeWizard { get => _showWelcomeWizard; set => SetProperty(ref _showWelcomeWizard, value); }
     private bool _showSearch;
@@ -164,6 +176,7 @@ public class MainViewModel : ViewModelBase
     public bool IsApiKeysVisible => _currentScreen == "api-keys";
     public bool IsPeerRankingVisible => _currentScreen == "peer-ranking";
     public bool IsPrivacyVisible => _currentScreen == "privacy";
+    public bool IsUserServicesVisible => _currentScreen == "user-services";
     public bool IsBenchmarkVisible => _currentScreen == "benchmark";
     public bool IsCausalVisible => _currentScreen == "causal";
     public bool IsProfileVisible => _currentScreen == "profile";
@@ -192,9 +205,21 @@ public class MainViewModel : ViewModelBase
     public bool IsDebugVisible => _currentScreen == "debug";
     public bool IsStudioVisible => _currentScreen == "studio";
     public bool IsCliVisible => _currentScreen == "cli";
+    public bool IsTerminalVisible => _currentScreen == "terminal";
     public bool IsPluginCatalogVisible => _currentScreen == "plugin-catalog";
     public bool IsExperimentVisible => _currentScreen == "experiment";
     public bool IsAgiVisible => _currentScreen == "agi";
+    public bool IsKnowledgeVisible => _currentScreen == "knowledge";
+    public bool IsPieVisible => _currentScreen == "pie";
+    public bool IsEmotionalVisible => _currentScreen == "emotional";
+    public bool IsEventsVisible => _currentScreen == "events";
+    public bool IsCodingVisible => _currentScreen == "coding";
+    public bool IsSelfImprovementVisible => _currentScreen == "self-improvement";
+    public bool IsAssistantVisible => _currentScreen == "assistant";
+    public bool IsMcpConfigVisible => _currentScreen == "mcp-config";
+    public bool IsPlanVisible => _currentScreen == "plan";
+    public bool IsFeedbackVisible => _currentScreen == "feedback";
+    public bool IsEpisodicMemoryVisible => _currentScreen == "episodic-memory";
 
     public AgentInfo? SelectedAgent { get; set; }
     private ConversationSession? _activeSession;
@@ -244,6 +269,7 @@ public class MainViewModel : ViewModelBase
     public ICommand NavigateToApiKeysCommand { get; }
     public ICommand NavigateToPeerRankingCommand { get; }
     public ICommand NavigateToPrivacyCommand { get; }
+    public ICommand NavigateToUserServicesCommand { get; }
     public ICommand NavigateToBenchmarkCommand { get; }
     public ICommand NavigateToCausalCommand { get; }
     public ICommand NavigateToDocumentsCommand { get; }
@@ -271,9 +297,21 @@ public class MainViewModel : ViewModelBase
     public ICommand NavigateToDebugCommand { get; }
     public ICommand NavigateToStudioCommand { get; }
     public ICommand NavigateToCliCommand { get; }
+    public ICommand NavigateToTerminalCommand { get; }
     public ICommand NavigateToPluginCatalogCommand { get; }
     public ICommand NavigateToExperimentCommand { get; }
     public ICommand NavigateToAgiCommand { get; }
+    public ICommand NavigateToKnowledgeCommand { get; }
+    public ICommand NavigateToPieCommand { get; }
+    public ICommand NavigateToEmotionalCommand { get; }
+    public ICommand NavigateToEventsCommand { get; }
+    public ICommand NavigateToCodingCommand { get; }
+    public ICommand NavigateToSelfImprovementCommand { get; }
+    public ICommand NavigateToAssistantCommand { get; }
+    public ICommand NavigateToMcpConfigCommand { get; }
+    public ICommand NavigateToPlanCommand { get; }
+    public ICommand NavigateToFeedbackCommand { get; }
+    public ICommand NavigateToEpisodicMemoryCommand { get; }
     public ICommand NavigateToProfileCommand { get; }
     public ICommand ToggleListeningCommand { get; }
     public ICommand LogoutCommand { get; }
@@ -313,13 +351,17 @@ public class MainViewModel : ViewModelBase
             new ChatViewModel(), new DashboardViewModel(), new SettingsViewModel(),
             new MemoryViewModel(), new EpisodesViewModel(), new DocumentViewModel(),
             new PoliciesViewModel(), new BenchmarkViewModel(), new CausalGraphViewModel(),
-            new ProfileViewModel(), new ApiKeysViewModel(), new PeerRankingViewModel(), new ArchiveViewModel(), new ModelRegistryViewModel(),
+            new ProfileViewModel(), new UserServicesViewModel(), new ApiKeysViewModel(), new PeerRankingViewModel(), new ArchiveViewModel(), new ModelRegistryViewModel(),
             new VersionsViewModel(), new SessionsViewModel(), new KanbanViewModel(),
             new P2PPaymentsViewModel(), new DisputesViewModel(), new SidecarViewModel(),
             new ObjectivesViewModel(), new InvestigationsViewModel(), new SnapshotsViewModel(),
             new AdminConfigViewModel(), new AdminUsersViewModel(),
             new MomentsViewModel(), new PluginsViewModel(), new SchedulerViewModel(),
-            new ApprovalViewModel(), new AgiDashboardViewModel())
+            new ApprovalViewModel(), new AgiDashboardViewModel(),
+            new KnowledgeViewModel(), new PieViewModel(), new EmotionalViewModel(), new EventsViewModel(),
+            new CodingViewModel(), new SelfImprovementViewModel(), new AssistantViewModel(), new McpConfigViewModel(),
+            new TemplatesViewModel(), new ExperimentsViewModel(),
+            new PlanViewModel(), new FeedbackViewModel(), new EpisodicMemoryViewModel())
     { }
 
     public MainViewModel(
@@ -332,13 +374,17 @@ public class MainViewModel : ViewModelBase
         ChatViewModel chatVM, DashboardViewModel dashVM, SettingsViewModel settingsVM,
         MemoryViewModel memoryVM, EpisodesViewModel episodesVM, DocumentViewModel documentVM,
         PoliciesViewModel policiesVM, BenchmarkViewModel benchmarkVM, CausalGraphViewModel causalVM,
-        ProfileViewModel profileVM, ApiKeysViewModel apiKeysVM, PeerRankingViewModel peerRankingVM, ArchiveViewModel archiveVM, ModelRegistryViewModel modelRegistryVM,
+        ProfileViewModel profileVM, UserServicesViewModel userServicesVM, ApiKeysViewModel apiKeysVM, PeerRankingViewModel peerRankingVM, ArchiveViewModel archiveVM, ModelRegistryViewModel modelRegistryVM,
         VersionsViewModel versionsVM, SessionsViewModel sessionsVM, KanbanViewModel kanbanVM,
         P2PPaymentsViewModel p2pVM, DisputesViewModel disputesVM, SidecarViewModel sidecarVM,
         ObjectivesViewModel objectivesVM, InvestigationsViewModel investigationsVM, SnapshotsViewModel snapshotsVM,
         AdminConfigViewModel adminConfigVM, AdminUsersViewModel adminUsersVM,
         MomentsViewModel momentsVM, PluginsViewModel pluginsVM, SchedulerViewModel schedulerVM,
-        ApprovalViewModel approvalVM, AgiDashboardViewModel agiVM)
+        ApprovalViewModel approvalVM, AgiDashboardViewModel agiVM,
+        KnowledgeViewModel knowledgeVM, PieViewModel pieVM, EmotionalViewModel emotionalVM, EventsViewModel eventsVM,
+        CodingViewModel codingVM, SelfImprovementViewModel selfImprovementVM, AssistantViewModel assistantVM, McpConfigViewModel mcpConfigVM,
+        TemplatesViewModel templatesVM, ExperimentsViewModel experimentsVM,
+        PlanViewModel planVM, FeedbackViewModel feedbackVM, EpisodicMemoryViewModel episodicMemoryVM)
     {
         ChatVM = chatVM;
         DashVM = dashVM;
@@ -350,6 +396,7 @@ public class MainViewModel : ViewModelBase
         BenchmarkVM = benchmarkVM;
         CausalVM = causalVM;
         ProfileVM = profileVM;
+        UserServicesVM = userServicesVM;
         ApiKeysVM = apiKeysVM;
         PeerRankingVM = peerRankingVM;
         ArchiveVM = archiveVM;
@@ -370,6 +417,19 @@ public class MainViewModel : ViewModelBase
         SchedulerVM = schedulerVM;
         ApprovalVM = approvalVM;
         AgiVM = agiVM;
+        KnowledgeVM = knowledgeVM;
+        PieVM = pieVM;
+        EmotionalVM = emotionalVM;
+        EventsVM = eventsVM;
+        CodingVM = codingVM;
+        SelfImprovementVM = selfImprovementVM;
+        AssistantVM = assistantVM;
+        McpConfigVM = mcpConfigVM;
+        TemplatesVM = templatesVM;
+        ExperimentsVM = experimentsVM;
+        PlanVM = planVM;
+        FeedbackVM = feedbackVM;
+        EpisodicMemoryVM = episodicMemoryVM;
 
         _kernelClient = kernelClient;
         _settingsService = settingsService;
@@ -393,6 +453,7 @@ public class MainViewModel : ViewModelBase
         NavigateToApiKeysCommand = new RelayCommand(() => CurrentScreen = "api-keys");
         NavigateToPeerRankingCommand = new RelayCommand(() => CurrentScreen = "peer-ranking");
         NavigateToPrivacyCommand = new RelayCommand(() => CurrentScreen = "privacy");
+        NavigateToUserServicesCommand = new RelayCommand(() => CurrentScreen = "user-services");
         NavigateToBenchmarkCommand = new RelayCommand(() => CurrentScreen = "benchmark");
         NavigateToCausalCommand = new RelayCommand(() => CurrentScreen = "causal");
         NavigateToDocumentsCommand = new RelayCommand(() => CurrentScreen = "documents");
@@ -421,9 +482,21 @@ public class MainViewModel : ViewModelBase
         NavigateToDebugCommand = new RelayCommand(() => CurrentScreen = "debug");
         NavigateToStudioCommand = new RelayCommand(() => CurrentScreen = "studio");
         NavigateToCliCommand = new RelayCommand(() => CurrentScreen = "cli");
+        NavigateToTerminalCommand = new RelayCommand(() => CurrentScreen = "terminal");
         NavigateToPluginCatalogCommand = new RelayCommand(() => CurrentScreen = "plugin-catalog");
         NavigateToExperimentCommand = new RelayCommand(() => CurrentScreen = "experiment");
         NavigateToAgiCommand = new RelayCommand(() => CurrentScreen = "agi");
+        NavigateToKnowledgeCommand = new RelayCommand(() => CurrentScreen = "knowledge");
+        NavigateToPieCommand = new RelayCommand(() => CurrentScreen = "pie");
+        NavigateToEmotionalCommand = new RelayCommand(() => CurrentScreen = "emotional");
+        NavigateToEventsCommand = new RelayCommand(() => CurrentScreen = "events");
+        NavigateToCodingCommand = new RelayCommand(() => CurrentScreen = "coding");
+        NavigateToSelfImprovementCommand = new RelayCommand(() => CurrentScreen = "self-improvement");
+        NavigateToAssistantCommand = new RelayCommand(() => CurrentScreen = "assistant");
+        NavigateToMcpConfigCommand = new RelayCommand(() => CurrentScreen = "mcp-config");
+        NavigateToPlanCommand = new RelayCommand(() => CurrentScreen = "plan");
+        NavigateToFeedbackCommand = new RelayCommand(() => CurrentScreen = "feedback");
+        NavigateToEpisodicMemoryCommand = new RelayCommand(() => CurrentScreen = "episodic-memory");
         ToggleListeningCommand = new AsyncRelayCommand(ToggleListeningAsync);
         LogoutCommand = new RelayCommand(ExecuteLogout);
         BackupCommand = new AsyncRelayCommand(async () =>

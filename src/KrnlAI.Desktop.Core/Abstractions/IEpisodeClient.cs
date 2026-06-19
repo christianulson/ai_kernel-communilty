@@ -1,9 +1,6 @@
-using KrnlAI.Desktop.Core.Models;
-
 namespace KrnlAI.Desktop.Core.Abstractions;
 
-public interface IEpisodeClient
+/// <summary>Episode domain grouping. Methods are inherited from <see cref="IBackendApi"/>.</summary>
+public interface IEpisodeClient : IBackendApi
 {
-    Task<EpisodeSearchResult> SearchEpisodesAsync(EpisodeSearchRequest request, CancellationToken cancellationToken = default);
-    Task<EpisodeDetails?> GetEpisodeAsync(string episodeId, CancellationToken cancellationToken = default);
 }

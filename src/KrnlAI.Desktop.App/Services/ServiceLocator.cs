@@ -152,6 +152,7 @@ public class ServiceLocator : IDisposable, IAsyncDisposable
         var kernel = EmbeddedKernel ?? throw new InvalidOperationException("Embedded kernel is not available.");
         services.AddSingleton<IEmbeddedKrnlAI>(kernel);
         services.AddSingleton<IKernelClient, EmbeddedKernelClient>();
+        services.AddSingleton<IBackendApi>(sp => sp.GetRequiredService<IKernelClient>());
         services.AddSingleton<IKernelAgentClient>(sp => sp.GetRequiredService<IKernelClient>());
         services.AddSingleton<IKernelSpeechClient>(sp => sp.GetRequiredService<IKernelClient>());
         services.AddSingleton<IApiKeyManagementService, NullApiKeyManagementService>();
@@ -219,6 +220,7 @@ public class ServiceLocator : IDisposable, IAsyncDisposable
             .AddHttpMessageHandler<DynamicBaseUrlHandler>()
             .AddHttpMessageHandler<AuthTokenHandler>();
         services.AddSingleton<IKernelClient, KernelClient>();
+        services.AddSingleton<IBackendApi>(sp => sp.GetRequiredService<IKernelClient>());
         services.AddSingleton<IKernelAgentClient>(sp => sp.GetRequiredService<IKernelClient>());
         services.AddSingleton<IKernelSpeechClient>(sp => sp.GetRequiredService<IKernelClient>());
         services.AddSingleton<IApiKeyManagementService>(sp =>

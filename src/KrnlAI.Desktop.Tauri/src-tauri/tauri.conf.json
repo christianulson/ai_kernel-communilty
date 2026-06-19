@@ -48,15 +48,15 @@
       "frameworks": []
     }
   },
-  "updater": {
-    "active": true,
-    "dialog": true,
-    "pubkey": "PLEASE_GENERATE_ME_RUN_tauri_signer_generate_k",
-    "endpoints": [
-      "https://github.com/krnl-ai/kernel/releases/latest/download/updater.json"
-    ]
-  },
   "plugins": {
+    "updater": {
+      "enabled": true,
+      "showDialog": true,
+      "pubkey": "PLEASE_GENERATE_ME_RUN_tauri_signer_generate_k",
+      "endpoints": [
+        "https://github.com/krnl-ai/kernel/releases/latest/download/updater.json"
+      ]
+    },
     "deep-link": {
       "desktop": {
         "schemes": ["krnl-ai"]

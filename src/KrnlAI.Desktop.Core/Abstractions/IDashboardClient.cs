@@ -1,8 +1,6 @@
 namespace KrnlAI.Desktop.Core.Abstractions;
 
-public interface IDashboardClient
+/// <summary>Dashboard domain grouping. Methods are inherited from <see cref="IBackendApi"/>.</summary>
+public interface IDashboardClient : IBackendApi
 {
-    Task<Models.AgentMetricsSummary?> GetMetricsSummaryAsync(CancellationToken cancellationToken = default);
-    Task<Models.AgentScorecard?> GetScorecardAsync(CancellationToken cancellationToken = default);
-    Task<Models.RuntimeSummary?> GetRuntimeSummaryAsync(CancellationToken cancellationToken = default);
 }
