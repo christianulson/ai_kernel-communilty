@@ -27,7 +27,7 @@ public sealed class ThemeManager : IDisposable
             var settings = ServiceLocator.Instance.SettingsService.LoadSettings();
             if (settings.AutoDarkMode == true)
             {
-                var shouldBeDark = hour < 6 || hour >= 18;
+                var shouldBeDark = hour is < 6 or >= 18;
                 var isDark = _themeService.CurrentTheme == "dark";
                 if (shouldBeDark && !isDark) _themeService.SetTheme("dark");
                 else if (!shouldBeDark && isDark) _themeService.SetTheme("light");
@@ -38,7 +38,7 @@ public sealed class ThemeManager : IDisposable
 
     private void OnSystemPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
     {
-        if (e.Category == UserPreferenceCategory.General || e.Category == UserPreferenceCategory.VisualStyle)
+        if (e.Category is UserPreferenceCategory.General or UserPreferenceCategory.VisualStyle)
         {
             var usesLightTheme = Registry.GetValue(
                 @"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize",

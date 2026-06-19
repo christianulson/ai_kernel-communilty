@@ -70,7 +70,7 @@ public sealed class ReadlineService
                     break;
 
                 case ConsoleKey.Enter:
-                    if (key.Modifiers == ConsoleModifiers.Control || key.Modifiers == ConsoleModifiers.Alt)
+                    if (key.Modifiers is ConsoleModifiers.Control or ConsoleModifiers.Alt)
                     {
                         // Ctrl+Enter or Alt+Enter = new line in multi-line mode
                         _buffer.Insert(_cursorPos, '\n');
@@ -141,7 +141,7 @@ public sealed class ReadlineService
                     break;
 
                 default:
-                    if (key.KeyChar >= 32 && key.KeyChar < 127)
+                    if (key.KeyChar is >= (char)32 and < (char)127)
                     {
                         _buffer.Insert(_cursorPos, key.KeyChar);
                         _cursorPos++;

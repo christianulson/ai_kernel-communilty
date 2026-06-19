@@ -50,7 +50,7 @@ public sealed class ApplyEditService : IApplyEditService
 
             startPoint.Delete(endPoint);
 
-            var lines = diff.Split(new[] { '\n' }, StringSplitOptions.None);
+            var lines = diff.Split(['\n'], StringSplitOptions.None);
             foreach (var line in lines)
             {
                 if (!line.StartsWith("+") && !line.StartsWith("-"))

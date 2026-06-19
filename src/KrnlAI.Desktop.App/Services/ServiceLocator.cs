@@ -31,7 +31,7 @@ public class ServiceLocator : IDisposable, IAsyncDisposable
 
     private readonly ServiceProvider _provider;
     private volatile bool _disposed;
-    private Lazy<EmbeddedKrnlAI>? _embeddedKernelLazy = new(() =>
+    private readonly Lazy<EmbeddedKrnlAI>? _embeddedKernelLazy = new(() =>
         new EmbeddedKrnlAI(CreateLocalEmbeddedKernelOptions()),
         LazyThreadSafetyMode.ExecutionAndPublication);
 

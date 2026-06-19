@@ -10,12 +10,12 @@ public sealed class CompletionCacheServiceExtendedTests
     public void Get_ShouldUpdateAccessOrder()
     {
         var cache = new CompletionCacheService(maxEntries: 3);
-        cache.Set("a", new CachedCompletion("p", new[] { "1" }, new[] { 1.0 }, DateTime.UtcNow));
-        cache.Set("b", new CachedCompletion("p", new[] { "2" }, new[] { 1.0 }, DateTime.UtcNow));
-        cache.Set("c", new CachedCompletion("p", new[] { "3" }, new[] { 1.0 }, DateTime.UtcNow));
+        cache.Set("a", new CachedCompletion("p", ["1"], [1.0], DateTime.UtcNow));
+        cache.Set("b", new CachedCompletion("p", ["2"], [1.0], DateTime.UtcNow));
+        cache.Set("c", new CachedCompletion("p", ["3"], [1.0], DateTime.UtcNow));
 
         cache.Get("a"); // Access 'a' — moves to front
-        cache.Set("d", new CachedCompletion("p", new[] { "4" }, new[] { 1.0 }, DateTime.UtcNow)); // 'b' is evicted (LRU)
+        cache.Set("d", new CachedCompletion("p", ["4"], [1.0], DateTime.UtcNow)); // 'b' is evicted (LRU)
 
         cache.Get("a").Should().NotBeNull();
         cache.Get("b").Should().BeNull();
@@ -27,8 +27,8 @@ public sealed class CompletionCacheServiceExtendedTests
     public void Set_ExistingKey_ShouldUpdate()
     {
         var cache = new CompletionCacheService();
-        cache.Set("k", new CachedCompletion("p", new[] { "old" }, new[] { 0.5 }, DateTime.UtcNow));
-        cache.Set("k", new CachedCompletion("p", new[] { "new" }, new[] { 0.9 }, DateTime.UtcNow));
+        cache.Set("k", new CachedCompletion("p", ["old"], [0.5], DateTime.UtcNow));
+        cache.Set("k", new CachedCompletion("p", ["new"], [0.9], DateTime.UtcNow));
 
         var result = cache.Get("k");
         result.Should().NotBeNull();
@@ -40,8 +40,8 @@ public sealed class CompletionCacheServiceExtendedTests
     public void Count_ShouldReflectCacheSize()
     {
         var cache = new CompletionCacheService(maxEntries: 100);
-        cache.Set("a", new CachedCompletion("p", new[] { "1" }, new[] { 1.0 }, DateTime.UtcNow));
-        cache.Set("b", new CachedCompletion("p", new[] { "2" }, new[] { 1.0 }, DateTime.UtcNow));
+        cache.Set("a", new CachedCompletion("p", ["1"], [1.0], DateTime.UtcNow));
+        cache.Set("b", new CachedCompletion("p", ["2"], [1.0], DateTime.UtcNow));
         cache.Count.Should().Be(2);
     }
 
@@ -49,7 +49,7 @@ public sealed class CompletionCacheServiceExtendedTests
     public void Clear_ShouldRemoveAll()
     {
         var cache = new CompletionCacheService();
-        cache.Set("a", new CachedCompletion("p", new[] { "1" }, new[] { 1.0 }, DateTime.UtcNow));
+        cache.Set("a", new CachedCompletion("p", ["1"], [1.0], DateTime.UtcNow));
         cache.Clear();
         cache.Count.Should().Be(0);
         cache.Get("a").Should().BeNull();

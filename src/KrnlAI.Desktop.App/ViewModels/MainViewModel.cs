@@ -25,7 +25,7 @@ public class MainViewModel : ViewModelBase
     private string? _updateVersion;
     public string? UpdateVersion { get => _updateVersion; set { SetProperty(ref _updateVersion, value); OnPropertyChanged(nameof(IsUpdateAvailable)); } }
     public bool IsUpdateAvailable => _updateVersion != null;
-    private System.ComponentModel.PropertyChangedEventHandler? _chatPropertyChangedHandler;
+    private readonly System.ComponentModel.PropertyChangedEventHandler? _chatPropertyChangedHandler;
     private string _executiveMode = "auto";
     public string ExecutiveMode { get => _executiveMode; set => SetProperty(ref _executiveMode, value); }
     public string ExecutiveModeIcon => _executiveMode switch { "focus" => "🎯", "deep" => "🧠", "sleep" => "💤", "crisis" => "🚨", _ => "⚡" };

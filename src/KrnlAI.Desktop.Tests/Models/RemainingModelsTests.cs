@@ -37,7 +37,7 @@ public class AudioCaptureEventArgsTests
     [Fact]
     public void AudioCaptureEventArgs_ShouldCreate()
     {
-        var args = new AudioArgs(new byte[] { 1, 2, 3 }, 16000, 1, 16, TimeSpan.FromSeconds(2));
+        var args = new AudioArgs([1, 2, 3], 16000, 1, 16, TimeSpan.FromSeconds(2));
         Assert.Equal(16000, args.SampleRate);
     }
 }
@@ -47,7 +47,7 @@ public class VideoCaptureEventArgsTests
     [Fact]
     public void VideoCaptureEventArgs_ShouldCreate()
     {
-        var args = new VideoArgs(new byte[] { 255, 0, 128 }, 1920, 1080, TimeSpan.FromSeconds(1));
+        var args = new VideoArgs([255, 0, 128], 1920, 1080, TimeSpan.FromSeconds(1));
         Assert.Equal(1920, args.Width);
     }
 }
@@ -57,7 +57,7 @@ public class ListeningEventArgsTests
     [Fact]
     public void ListeningEventArgs_ShouldCreate()
     {
-        var args = new ListenArgs(new byte[] { 10, 20, 30 }, TimeSpan.FromSeconds(3));
+        var args = new ListenArgs([10, 20, 30], TimeSpan.FromSeconds(3));
         Assert.Equal(TimeSpan.FromSeconds(3), args.Duration);
     }
 }

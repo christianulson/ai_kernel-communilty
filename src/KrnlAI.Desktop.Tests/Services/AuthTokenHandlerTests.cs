@@ -185,7 +185,7 @@ public class AuthTokenHandlerTests
 
     private class SequentialHandler(params HttpResponseMessage[] responses) : HttpMessageHandler
     {
-        private readonly Queue<HttpResponseMessage> _responses = new Queue<HttpResponseMessage>(responses);
+        private readonly Queue<HttpResponseMessage> _responses = new(responses);
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {

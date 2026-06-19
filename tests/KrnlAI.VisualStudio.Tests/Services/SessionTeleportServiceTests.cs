@@ -13,7 +13,7 @@ public sealed class SessionTeleportServiceTests
     public async Task SaveAndRestore_ShouldRoundTrip()
     {
         var service = CreateService();
-        var state = new SessionState("s1", "goal1", new[] { "file1.cs" }, 5, DateTime.UtcNow);
+        var state = new SessionState("s1", "goal1", ["file1.cs"], 5, DateTime.UtcNow);
 
         await service.SaveSessionAsync(state);
         var restored = await service.RestoreSessionAsync();

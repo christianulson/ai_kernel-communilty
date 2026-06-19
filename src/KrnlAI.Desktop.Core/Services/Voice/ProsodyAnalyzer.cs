@@ -81,7 +81,7 @@ public sealed class ProsodyAnalyzer
         for (var start = 0; start + frameSize < samples.Length; start += hopSize)
         {
             var pitch = EstimateFramePitch(samples, start, frameSize);
-            if (pitch > 50 && pitch < 500)
+            if (pitch is > 50 and < 500)
                 pitches.Add(pitch);
         }
 

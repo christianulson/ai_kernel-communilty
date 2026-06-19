@@ -56,7 +56,7 @@ public static class EndpointRouteExtensions
             catch { body = null; }
             var reqId = ctx.Items["RequestId"]?.ToString();
             if (body == null) return Results.BadRequest(new ErrorResponse("invalid_request", null, reqId));
-            if (body.Keys.Except(new[] { "query", "limit", "topK", "offset", "domain" }).Any())
+            if (body.Keys.Except(["query", "limit", "topK", "offset", "domain"]).Any())
                 return Results.BadRequest(new ErrorResponse("unexpected_fields", "Allowed: query, limit, topK, offset, domain", reqId));
 
             var proxyResult = await kernel.ProxyPostAsync<Dictionary<string, object>, object>("/memory/search", body, ctx.RequestAborted);

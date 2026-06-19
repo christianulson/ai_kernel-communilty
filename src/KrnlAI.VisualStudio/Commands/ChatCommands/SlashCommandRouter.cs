@@ -38,9 +38,9 @@ public sealed class SlashCommandRouter
 
     private static string[] SplitCommand(string input)
     {
-        var parts = input.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+        var parts = input.Split([' '], StringSplitOptions.RemoveEmptyEntries);
         if (parts.Length <= 1) return parts;
-        return new[] { parts[0], string.Join(" ", parts.Skip(1)) };
+        return [parts[0], string.Join(" ", parts.Skip(1))];
     }
 
     public SlashCommand? Resolve(string input)

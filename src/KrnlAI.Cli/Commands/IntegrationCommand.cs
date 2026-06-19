@@ -145,18 +145,18 @@ public sealed class IntegrationCommand(IAnsiConsole console)
             var configKeys = name switch
             {
                 "OpenAI" => new[] { "OPENAI_API_KEY", "OPENAI_MODEL" },
-                "Anthropic" => new[] { "ANTHROPIC_API_KEY", "ANTHROPIC_MODEL" },
-                "AzureOpenAI" => new[] { "AZURE_API_KEY", "AZURE_ENDPOINT", "AZURE_DEPLOYMENT" },
-                "AWSBedrock" => new[] { "BEDROCK_ACCESS_KEY", "BEDROCK_SECRET_KEY", "BEDROCK_REGION" },
-                "Groq" => new[] { "GROQ_API_KEY", "GROQ_MODEL" },
-                "TogetherAI" => new[] { "TOGETHER_API_KEY", "TOGETHER_MODEL" },
-                "Cohere" => new[] { "COHERE_API_KEY", "COHERE_MODEL" },
-                "DeepSeek" => new[] { "DEEPSEEK_API_KEY", "DEEPSEEK_MODEL" },
-                "Gemini" => new[] { "GEMINI_API_KEY", "GEMINI_MODEL" },
-                "Mistral" => new[] { "MISTRAL_API_KEY", "MISTRAL_MODEL" },
-                "Ollama" => new[] { "OLLAMA_BASE_URL", "OLLAMA_MODEL" },
-                "OpenRouter" => new[] { "OPENROUTER_API_KEY", "OPENROUTER_MODEL" },
-                _ => new[] { $"{name.ToUpperInvariant()}_API_KEY" }
+                "Anthropic" => ["ANTHROPIC_API_KEY", "ANTHROPIC_MODEL"],
+                "AzureOpenAI" => ["AZURE_API_KEY", "AZURE_ENDPOINT", "AZURE_DEPLOYMENT"],
+                "AWSBedrock" => ["BEDROCK_ACCESS_KEY", "BEDROCK_SECRET_KEY", "BEDROCK_REGION"],
+                "Groq" => ["GROQ_API_KEY", "GROQ_MODEL"],
+                "TogetherAI" => ["TOGETHER_API_KEY", "TOGETHER_MODEL"],
+                "Cohere" => ["COHERE_API_KEY", "COHERE_MODEL"],
+                "DeepSeek" => ["DEEPSEEK_API_KEY", "DEEPSEEK_MODEL"],
+                "Gemini" => ["GEMINI_API_KEY", "GEMINI_MODEL"],
+                "Mistral" => ["MISTRAL_API_KEY", "MISTRAL_MODEL"],
+                "Ollama" => ["OLLAMA_BASE_URL", "OLLAMA_MODEL"],
+                "OpenRouter" => ["OPENROUTER_API_KEY", "OPENROUTER_MODEL"],
+                _ => [$"{name.ToUpperInvariant()}_API_KEY"]
             };
 
             var table = new Table();
@@ -200,17 +200,17 @@ public sealed class IntegrationCommand(IAnsiConsole console)
             var newVars = name switch
             {
                 "OpenAI" => new[] { "OPENAI_API_KEY=sk-...", "OPENAI_MODEL=gpt-4o" },
-                "Anthropic" => new[] { "ANTHROPIC_API_KEY=sk-ant-...", "ANTHROPIC_MODEL=claude-sonnet-4-20250514" },
-                "AzureOpenAI" => new[] { "AZURE_API_KEY=...", "AZURE_ENDPOINT=https://...", "AZURE_DEPLOYMENT=gpt-4o" },
-                "Groq" => new[] { "GROQ_API_KEY=gsk_...", "GROQ_MODEL=llama3-70b-8192" },
-                "TogetherAI" => new[] { "TOGETHER_API_KEY=...", "TOGETHER_MODEL=mistralai/Mixtral-8x22B-Instruct-v0.1" },
-                "Cohere" => new[] { "COHERE_API_KEY=...", "COHERE_MODEL=command-r-plus" },
-                "DeepSeek" => new[] { "DEEPSEEK_API_KEY=sk-...", "DEEPSEEK_MODEL=deepseek-chat" },
-                "Gemini" => new[] { "GEMINI_API_KEY=...", "GEMINI_MODEL=gemini-2.5-pro" },
-                "Mistral" => new[] { "MISTRAL_API_KEY=...", "MISTRAL_MODEL=mistral-large-latest" },
-                "Ollama" => new[] { "OLLAMA_BASE_URL=http://localhost:11434", "OLLAMA_MODEL=llama3" },
-                "OpenRouter" => new[] { "OPENROUTER_API_KEY=sk-or-...", "OPENROUTER_MODEL=openai/gpt-4.1-mini" },
-                _ => new[] { $"{name.ToUpperInvariant()}_API_KEY=..." }
+                "Anthropic" => ["ANTHROPIC_API_KEY=sk-ant-...", "ANTHROPIC_MODEL=claude-sonnet-4-20250514"],
+                "AzureOpenAI" => ["AZURE_API_KEY=...", "AZURE_ENDPOINT=https://...", "AZURE_DEPLOYMENT=gpt-4o"],
+                "Groq" => ["GROQ_API_KEY=gsk_...", "GROQ_MODEL=llama3-70b-8192"],
+                "TogetherAI" => ["TOGETHER_API_KEY=...", "TOGETHER_MODEL=mistralai/Mixtral-8x22B-Instruct-v0.1"],
+                "Cohere" => ["COHERE_API_KEY=...", "COHERE_MODEL=command-r-plus"],
+                "DeepSeek" => ["DEEPSEEK_API_KEY=sk-...", "DEEPSEEK_MODEL=deepseek-chat"],
+                "Gemini" => ["GEMINI_API_KEY=...", "GEMINI_MODEL=gemini-2.5-pro"],
+                "Mistral" => ["MISTRAL_API_KEY=...", "MISTRAL_MODEL=mistral-large-latest"],
+                "Ollama" => ["OLLAMA_BASE_URL=http://localhost:11434", "OLLAMA_MODEL=llama3"],
+                "OpenRouter" => ["OPENROUTER_API_KEY=sk-or-...", "OPENROUTER_MODEL=openai/gpt-4.1-mini"],
+                _ => [$"{name.ToUpperInvariant()}_API_KEY=..."]
             };
 
             var added = 0;

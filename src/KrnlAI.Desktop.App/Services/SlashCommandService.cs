@@ -128,7 +128,7 @@ public sealed class SlashCommandHandler
 public sealed class SlashCommandService
 {
     private static readonly SlashCommandInfo[] AllCommands =
-    {
+    [
         new("/undo", "Undo last action", "\U0001f519"),
         new("/diff", "Show last changes diff", "\U0001f4cb"),
         new("/commit", "Generate and create commit", "\U0001f4be"),
@@ -141,7 +141,7 @@ public sealed class SlashCommandService
         new("/refactor", "Refactor code", "\U0001f528"),
         new("/review", "Review code", "\U0001f441\ufe0f"),
         new("/sessions", "List sessions", "\U0001f4cb"),
-    };
+    ];
 
     public static readonly SlashCommandInfo[] Commands = AllCommands;
 

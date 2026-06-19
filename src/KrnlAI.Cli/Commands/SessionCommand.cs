@@ -6,7 +6,7 @@ using Spectre.Console;
 
 namespace KrnlAI.Cli.Commands;
 
-public sealed class SessionCommand(
+internal sealed class SessionCommand(
     IAnsiConsole console,
     InMemorySessionStore sessionStore,
     ISessionStore cognitiveStore)

@@ -10,9 +10,9 @@ public class AudioCaptureService(ILogger<AudioCaptureService> logger, int maxAud
     private readonly List<byte> _audioBuffer = [];
     private bool _isCapturing;
     private string? _selectedDeviceId;
-    private int _sampleRate = 16000;
-    private int _channels = 1;
-    private int _bitsPerSample = 16;
+    private readonly int _sampleRate = 16000;
+    private readonly int _channels = 1;
+    private readonly int _bitsPerSample = 16;
     private readonly object _lock = new();
     private const int BufferSizeMs = 500;
     private readonly int _maxAudioBufferSize = Math.Max(1, maxAudioBufferSize);
