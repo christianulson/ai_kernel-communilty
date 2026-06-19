@@ -1,12 +1,16 @@
+using AutoFixture;
 using System.CommandLine;
 using KrnlAI.Cli.Commands;
 using KrnlAI.Core.Abstractions;
+using Moq;
 using Spectre.Console.Testing;
+using TestHelpers;
 
 namespace KrnlAI.Cli.Tests;
 
 public sealed class PluginCommandTests
 {
+    private static readonly IFixture Fixture = AutoMoq.CreateFixture();
     [Fact]
     public void PluginCommand_Build_ShouldCreateCommand()
     {
@@ -58,10 +62,11 @@ public sealed class PluginCommandTests
     public async Task PluginCommand_Info_ShouldShowPluginDetails()
     {
         var console = new TestConsole();
-        var fakeCatalog = new FakePluginCatalog(
-            new PluginCatalogEntry("test-plugin", "Test Plugin", "A test plugin", "author",
+        var catalog = new Mock<IPluginCatalog>();
+        catalog.Setup(x => x.GetByIdAsync("test-plugin", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PluginCatalogEntry("test-plugin", "Test Plugin", "A test plugin", "author",
                 "1.0", ["test"], 100, true, DateTimeOffset.UtcNow));
-        var cmd = new PluginCommand(console, catalog: fakeCatalog).Build();
+        var cmd = new PluginCommand(console, catalog: catalog.Object).Build();
         var root = new RootCommand { cmd };
 
         var result = await root.Parse("plugin info test-plugin").InvokeAsync();
@@ -76,8 +81,10 @@ public sealed class PluginCommandTests
     public async Task PluginCommand_Info_NotFound_ShouldShowMessage()
     {
         var console = new TestConsole();
-        var fakeCatalog = new FakePluginCatalog();
-        var cmd = new PluginCommand(console, catalog: fakeCatalog).Build();
+        var catalog = new Mock<IPluginCatalog>();
+        catalog.Setup(x => x.GetByIdAsync("nonexistent", It.IsAny<CancellationToken>()))
+            .ReturnsAsync((PluginCatalogEntry?)null);
+        var cmd = new PluginCommand(console, catalog: catalog.Object).Build();
         var root = new RootCommand { cmd };
 
         var result = await root.Parse("plugin info nonexistent").InvokeAsync();
@@ -103,12 +110,15 @@ public sealed class PluginCommandTests
     public async Task PluginCommand_Search_ShouldReturnResults()
     {
         var console = new TestConsole();
-        var fakeCatalog = new FakePluginCatalog(
-            new PluginCatalogEntry("result-1", "Result One", "First result", "author",
-                "1.0", ["test"], 10, true, DateTimeOffset.UtcNow),
-            new PluginCatalogEntry("result-2", "Result Two", "Second result", "author",
-                "2.0", ["demo"], 20, false, DateTimeOffset.UtcNow));
-        var cmd = new PluginCommand(console, catalog: fakeCatalog).Build();
+        var catalog = new Mock<IPluginCatalog>();
+        catalog.Setup(x => x.SearchAsync("result", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PluginSearchResult([
+                new PluginCatalogEntry("result-1", "Result One", "First result", "author",
+                    "1.0", ["test"], 10, true, DateTimeOffset.UtcNow),
+                new PluginCatalogEntry("result-2", "Result Two", "Second result", "author",
+                    "2.0", ["demo"], 20, false, DateTimeOffset.UtcNow)
+            ], 2));
+        var cmd = new PluginCommand(console, catalog: catalog.Object).Build();
         var root = new RootCommand { cmd };
 
         var result = await root.Parse("plugin search result").InvokeAsync();
@@ -122,8 +132,10 @@ public sealed class PluginCommandTests
     public async Task PluginCommand_Search_NoMatch_ShouldShowEmpty()
     {
         var console = new TestConsole();
-        var fakeCatalog = new FakePluginCatalog();
-        var cmd = new PluginCommand(console, catalog: fakeCatalog).Build();
+        var catalog = new Mock<IPluginCatalog>();
+        catalog.Setup(x => x.SearchAsync("nonexistent", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PluginSearchResult([], 0));
+        var cmd = new PluginCommand(console, catalog: catalog.Object).Build();
         var root = new RootCommand { cmd };
 
         var result = await root.Parse("plugin search nonexistent").InvokeAsync();
@@ -147,29 +159,6 @@ public sealed class PluginCommandTests
 
         var registries = await fakeRegistry.ListRegistriesAsync();
         registries.Should().Contain(r => r.Id == "my-reg" && r.Url == "http://my.registry");
-    }
-
-    private sealed class FakePluginCatalog(params PluginCatalogEntry[] entries) : IPluginCatalog
-    {
-        private readonly List<PluginCatalogEntry> _entries = [.. entries];
-
-        public Task<PluginSearchResult> SearchAsync(string query, CancellationToken ct = default)
-        {
-            var q = query.ToLowerInvariant();
-            var matches = _entries.Where(e =>
-                e.Name.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                e.Description.Contains(q, StringComparison.OrdinalIgnoreCase)).ToList();
-            return Task.FromResult(new PluginSearchResult(matches, matches.Count));
-        }
-
-        public Task<PluginCatalogEntry?> GetByIdAsync(string id, CancellationToken ct = default)
-            => Task.FromResult(_entries.FirstOrDefault(e => e.Id == id));
-
-        public Task<IReadOnlyList<PluginCatalogEntry>> ListByTagAsync(string tag, CancellationToken ct = default)
-            => Task.FromResult<IReadOnlyList<PluginCatalogEntry>>([.. _entries.Where(e => e.Tags.Contains(tag))]);
-
-        public Task<PluginCatalogEntry?> GetLatestVersionAsync(string id, CancellationToken ct = default)
-            => GetByIdAsync(id, ct);
     }
 
     private sealed class FakePluginRegistryService : IPluginRegistryService

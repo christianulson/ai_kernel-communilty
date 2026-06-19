@@ -1,16 +1,20 @@
+using AutoFixture;
 using KrnlAI.Cli.Abstractions;
 using KrnlAI.Cli.Commands;
+using Moq;
 using Spectre.Console.Testing;
+using TestHelpers;
 
 namespace KrnlAI.Cli.Tests;
 
 public sealed class InitCommandTests
 {
+    private static readonly IFixture Fixture = AutoMoq.CreateFixture();
     [Fact]
     public void InitCommand_Build_ShouldCreateCommand()
     {
         var console = new TestConsole();
-        var engine = new FakeTemplateEngine();
+        var engine = Mock.Of<ITemplateEngine>();
         var cmd = new InitCommand(engine, console).Build();
 
         cmd.Name.Should().Be("init");
@@ -21,19 +25,9 @@ public sealed class InitCommandTests
     public void InitCommand_ShouldUseTemplateEngine()
     {
         var console = new TestConsole();
-        var engine = new FakeTemplateEngine();
+        var engine = Mock.Of<ITemplateEngine>();
         var cmd = new InitCommand(engine, console).Build();
 
         cmd.Should().NotBeNull();
-    }
-
-    private sealed class FakeTemplateEngine : ITemplateEngine
-    {
-        public Task ScaffoldAsync(TemplateType type, string name, string outputDir,
-            IReadOnlyDictionary<string, string>? variables = null)
-            => Task.CompletedTask;
-
-        public Task<IReadOnlyList<TemplateInfo>> ListTemplatesAsync()
-            => Task.FromResult<IReadOnlyList<TemplateInfo>>([]);
     }
 }

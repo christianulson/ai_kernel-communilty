@@ -1,12 +1,16 @@
+using AutoFixture;
 using KrnlAI.Desktop.App.ViewModels;
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
 using Moq;
+using TestHelpers;
 
 namespace KrnlAI.Desktop.Tests.ViewModels;
 
 public sealed class MemoryViewModelDiTests
 {
+    private static readonly IFixture Fixture = AutoMoq.CreateFixture();
+
     private MemoryViewModel CreateVm(Mock<IKernelClient>? kc = null)
         => new(kc?.Object ?? Mock.Of<IKernelClient>());
 
@@ -47,6 +51,8 @@ public sealed class MemoryViewModelDiTests
 
 public sealed class PoliciesViewModelDiTests
 {
+    private static readonly IFixture Fixture = AutoMoq.CreateFixture();
+
     [Fact]
     public void PolicyDomains_ShouldContainDefault()
     {
@@ -56,6 +62,8 @@ public sealed class PoliciesViewModelDiTests
 
 public sealed class EpisodesViewModelDiTests
 {
+    private static readonly IFixture Fixture = AutoMoq.CreateFixture();
+
     [Fact]
     public void IsLoading_Default_ShouldBeFalse()
     {
@@ -79,6 +87,8 @@ public sealed class EpisodesViewModelDiTests
 
 public sealed class CausalGraphViewModelDiTests
 {
+    private static readonly IFixture Fixture = AutoMoq.CreateFixture();
+
     [Fact]
     public void DefaultTab_ShouldBeQuery()
     {
@@ -128,6 +138,8 @@ public sealed class CausalGraphViewModelDiTests
 
 public sealed class ProfileViewModelDiTests
 {
+    private static readonly IFixture Fixture = AutoMoq.CreateFixture();
+
     [Fact]
     public void DefaultState_ShouldBeCorrect()
     {
@@ -139,6 +151,8 @@ public sealed class ProfileViewModelDiTests
 
 public sealed class DocumentViewModelDiTests
 {
+    private static readonly IFixture Fixture = AutoMoq.CreateFixture();
+
     [Fact]
     public void IsLoading_Default_ShouldBeFalse()
     {
@@ -148,6 +162,8 @@ public sealed class DocumentViewModelDiTests
 
 public sealed class ArchiveViewModelDiTests
 {
+    private static readonly IFixture Fixture = AutoMoq.CreateFixture();
+
     [Fact]
     public void Stats_Default_ShouldBeNull()
     {
@@ -157,6 +173,8 @@ public sealed class ArchiveViewModelDiTests
 
 public sealed class ModelRegistryViewModelDiTests
 {
+    private static readonly IFixture Fixture = AutoMoq.CreateFixture();
+
     [Fact]
     public void Models_Default_ShouldBeEmpty()
     {
@@ -166,6 +184,8 @@ public sealed class ModelRegistryViewModelDiTests
 
 public sealed class VersionsViewModelDiTests
 {
+    private static readonly IFixture Fixture = AutoMoq.CreateFixture();
+
     [Fact]
     public void Contracts_Default_ShouldBeEmpty()
     {
@@ -175,6 +195,8 @@ public sealed class VersionsViewModelDiTests
 
 public sealed class SessionsViewModelDiTests
 {
+    private static readonly IFixture Fixture = AutoMoq.CreateFixture();
+
     [Fact]
     public void Shares_Default_ShouldBeEmpty()
     {
@@ -184,6 +206,8 @@ public sealed class SessionsViewModelDiTests
 
 public sealed class VideoCallViewModelDiTests
 {
+    private static readonly IFixture Fixture = AutoMoq.CreateFixture();
+
     [Fact]
     public void DefaultState_ShouldBeIdle()
     {
@@ -195,6 +219,8 @@ public sealed class VideoCallViewModelDiTests
 
 public sealed class BenchmarkViewModelDiTests
 {
+    private static readonly IFixture Fixture = AutoMoq.CreateFixture();
+
     [Fact]
     public void IsLoading_Default_ShouldBeFalse()
     {

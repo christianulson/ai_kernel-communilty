@@ -1,3 +1,4 @@
+using AutoFixture;
 using System.CommandLine;
 using KrnlAI.Cli.Commands;
 using KrnlAI.Cli.Services;
@@ -15,11 +16,13 @@ using KrnlAI.Anticipation;
 using KrnlAI.Executive;
 using KrnlAI.Snapshot;
 using KrnlAI.Memory;
+using TestHelpers;
 
 namespace KrnlAI.Cli.Tests;
 
 public sealed class MomentsCommandTests
 {
+    private static readonly IFixture Fixture = AutoMoq.CreateFixture();
     private static (ConsoleRenderer Renderer, TestConsole Console, CliContext Ctx) Setup()
     {
         var console = new TestConsole();
@@ -44,8 +47,15 @@ public sealed class MomentsCommandTests
         {
             var store = new InMemoryMomentClassifierStore();
             store.StoreAsync(
-                new MomentClassification("mom-001", MomentCategory.Anomaly, 0.92,
-                    MomentImportance.Zero, MomentNarrativeRole.None, [], new Dictionary<string, string>()),
+                Fixture.Build<MomentClassification>()
+                    .With(x => x.MomentId, "mom-001")
+                    .With(x => x.Category, MomentCategory.Anomaly)
+                    .With(x => x.Confidence, 0.92)
+                    .With(x => x.Importance, MomentImportance.Zero)
+                    .With(x => x.NarrativeRole, MomentNarrativeRole.None)
+                    .With(x => x.Tags, (IReadOnlyList<string>)[])
+                    .With(x => x.Metadata, new Dictionary<string, string>())
+                    .Create(),
                 CancellationToken.None).GetAwaiter().GetResult();
             return store;
         });

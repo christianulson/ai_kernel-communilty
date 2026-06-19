@@ -1,22 +1,26 @@
+using AutoFixture;
 using System.Reflection;
 using Cts = KrnlAI.Contracts.Contracts;
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
 using KrnlAI.Desktop.Core.Services;
 using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
 using NAudio.Wave;
+using TestHelpers;
 
 namespace KrnlAI.Desktop.Tests.Services;
 
 public sealed class DesktopServiceLifecycleTests
 {
+    private static readonly IFixture Fixture = AutoMoq.CreateFixture();
     [Fact]
     public async Task ListeningService_StartStop_ShouldManageCaptureLifecycle()
     {
         var capture = new FakeAudioCapture();
         var kernelAgent = new FakeKernelClient();
         var kernelSpeech = kernelAgent;
-        var playback = new FakeAudioPlayback();
+        var playback = Mock.Of<IAudioPlayback>();
         var sut = new ListeningService(capture, kernelAgent, kernelSpeech, playback, NullLogger<ListeningService>.Instance);
 
         Assert.False(sut.IsListening);
@@ -38,7 +42,7 @@ public sealed class DesktopServiceLifecycleTests
         var capture = new FakeAudioCapture();
         var kernelAgent = new FakeKernelClient();
         var kernelSpeech = kernelAgent;
-        var playback = new FakeAudioPlayback();
+        var playback = Mock.Of<IAudioPlayback>();
         var sut = new ListeningService(capture, kernelAgent, kernelSpeech, playback, NullLogger<ListeningService>.Instance);
 
         await sut.StartListeningAsync(CancellationToken.None);
@@ -175,29 +179,6 @@ public sealed class DesktopServiceLifecycleTests
         {
             IsCapturing = false;
         }
-    }
-
-    private sealed class FakeAudioPlayback : IAudioPlayback
-    {
-        public event EventHandler? PlaybackStarted;
-        public event EventHandler? PlaybackStopped;
-
-        public bool IsPlaying { get; private set; }
-
-        public Task PlayAsync(byte[] audioData, CancellationToken cancellationToken = default)
-        {
-            IsPlaying = true;
-            PlaybackStarted?.Invoke(this, EventArgs.Empty);
-            PlaybackStopped?.Invoke(this, EventArgs.Empty);
-            IsPlaying = false;
-            return Task.CompletedTask;
-        }
-
-        public void Stop() => IsPlaying = false;
-        public IReadOnlyList<MediaDevice> GetAvailableDevices() => [];
-        public void SetDevice(string? deviceId) { }
-        public void SetVolume(float volume) { }
-        public void Dispose() { }
     }
 
     private sealed class FakeKernelClient : IKernelClient, IKernelAgentClient, IKernelSpeechClient

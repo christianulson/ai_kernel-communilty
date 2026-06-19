@@ -1,13 +1,16 @@
+using AutoFixture;
 using KrnlAI.Desktop.App.ViewModels;
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
+using TestHelpers;
 
 namespace KrnlAI.Desktop.Tests.ViewModels;
 
 public sealed class DashboardViewModelDiTests
 {
+    private static readonly IFixture Fixture = AutoMoq.CreateFixture();
     private DashboardViewModel CreateVm(Mock<IKernelClient>? kc = null)
     {
         return new DashboardViewModel(

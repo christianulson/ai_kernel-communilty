@@ -1,14 +1,32 @@
+using AutoFixture;
 using System.CommandLine;
 using KrnlAI.Cli.Commands;
 using KrnlAI.Cli.Services;
 using KrnlAI.Cognition.Contracts;
 using KrnlAI.Cognition.Infrastructure;
 using Spectre.Console.Testing;
+using TestHelpers;
 
 namespace KrnlAI.Cli.Tests;
 
 public sealed class SessionCommandTests
 {
+    private static readonly IFixture Fixture = AutoMoq.CreateFixture();
+
+    private static CognitiveSession MakeSession(
+        string sessionId, string? goalId, string? userId,
+        string[] cycleIds, DateTimeOffset startedAt, DateTimeOffset? completedAt,
+        CognitiveSessionStatus status, string summary) =>
+        Fixture.Build<CognitiveSession>()
+            .With(x => x.SessionId, sessionId)
+            .With(x => x.GoalId, goalId)
+            .With(x => x.UserId, userId)
+            .With(x => x.CycleIds, (IReadOnlyList<string>)cycleIds)
+            .With(x => x.StartedAt, startedAt)
+            .With(x => x.CompletedAt, completedAt)
+            .With(x => x.Status, status)
+            .With(x => x.Summary, summary)
+            .Create();
     [Fact]
     public async Task SessionCommand_Fork_ShouldCallStore()
     {
@@ -16,15 +34,7 @@ public sealed class SessionCommandTests
         var sessionStore = new InMemorySessionStore();
         var cognitiveStore = new InMemoryCognitiveSessionStore();
 
-        var session = new CognitiveSession(
-            SessionId: "session-fork-1",
-            GoalId: null,
-            UserId: null,
-            CycleIds: [],
-            StartedAt: DateTimeOffset.UtcNow,
-            CompletedAt: null,
-            Status: CognitiveSessionStatus.Active,
-            Summary: "fork test");
+        var session = MakeSession("session-fork-1", null, null, [], DateTimeOffset.UtcNow, null, CognitiveSessionStatus.Active, "fork test");
         await cognitiveStore.SaveAsync(session, TestContext.Current.CancellationToken);
 
         var cmd = new SessionCommand(console, sessionStore, cognitiveStore).Build();
@@ -64,15 +74,10 @@ public sealed class SessionCommandTests
         var sessionStore = new InMemorySessionStore();
         var cognitiveStore = new InMemoryCognitiveSessionStore();
 
-        var session = new CognitiveSession(
-            SessionId: "session-show-1",
-            GoalId: "goal-1",
-            UserId: "user-1",
-            CycleIds: ["cycle-1"],
-            StartedAt: new DateTimeOffset(2026, 6, 12, 10, 0, 0, TimeSpan.Zero),
-            CompletedAt: new DateTimeOffset(2026, 6, 12, 10, 5, 0, TimeSpan.Zero),
-            Status: CognitiveSessionStatus.Completed,
-            Summary: "show test session");
+        var session = MakeSession("session-show-1", "goal-1", "user-1", ["cycle-1"],
+            new DateTimeOffset(2026, 6, 12, 10, 0, 0, TimeSpan.Zero),
+            new DateTimeOffset(2026, 6, 12, 10, 5, 0, TimeSpan.Zero),
+            CognitiveSessionStatus.Completed, "show test session");
         await cognitiveStore.SaveAsync(session, TestContext.Current.CancellationToken);
 
         var cmd = new SessionCommand(console, sessionStore, cognitiveStore).Build();

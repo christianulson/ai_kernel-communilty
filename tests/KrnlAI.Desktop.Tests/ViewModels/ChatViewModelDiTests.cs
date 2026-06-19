@@ -1,14 +1,17 @@
+using AutoFixture;
 using KrnlAI.Desktop.App.ViewModels;
 using Cts = KrnlAI.Contracts.Contracts;
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
 using KrnlAI.Desktop.Core.Services;
 using Moq;
+using TestHelpers;
 
 namespace KrnlAI.Desktop.Tests.ViewModels;
 
 public sealed class ChatViewModelDiTests
 {
+    private static readonly IFixture Fixture = AutoMoq.CreateFixture();
     private ChatViewModel CreateVm(Mock<IKernelClient>? kernelClient = null)
     {
         var kc = kernelClient?.Object ?? Mock.Of<IKernelClient>();

@@ -1,12 +1,16 @@
+using AutoFixture;
+using AutoFixture.AutoMoq;
 using KrnlAI.VisualStudio.Commands.ChatCommands;
 using KrnlAI.VisualStudio.Services;
 using FluentAssertions;
+using Moq;
 using Xunit;
 
 namespace KrnlAI.VisualStudio.Tests.Commands;
 
 public sealed class SlashCommandRouterTests
 {
+    private static readonly IFixture Fixture = new Fixture().Customize(new AutoMoqCustomization());
     [Fact]
     public void IsSlashCommand_WithSlashPrefix_ShouldReturnTrue()
     {
@@ -83,33 +87,9 @@ public sealed class SlashCommandRouterTests
     private static SlashCommandRouter CreateRouter()
     {
         var client = new KernelClientService();
-        var context = new FakeSolutionContext();
-        var applyEdit = new FakeApplyEdit();
-        var agenticLoop = new FakeAgenticLoop();
+        var context = Mock.Of<ISolutionContextService>();
+        var applyEdit = Mock.Of<IApplyEditService>();
+        var agenticLoop = Mock.Of<IAgenticLoopService>();
         return new SlashCommandRouter(client, context, applyEdit, agenticLoop);
-    }
-
-    private sealed class FakeSolutionContext : ISolutionContextService
-    {
-        public CodeSelection? GetActiveSelection() =>
-            new CodeSelection("test.cs", ".cs", "csharp", "var x = 1;", null, 1, 1);
-        public string? GetActiveFilePath() => "test.cs";
-        public string? GetSolutionDirectory() => @"C:\Projects\test";
-    }
-
-    private sealed class FakeApplyEdit : IApplyEditService
-    {
-        public Task<bool> PreviewAndApplyAsync(string diff, CancellationToken ct) => Task.FromResult(true);
-        public Task<ApplyEditResult> PreviewDiffAsync(string diff, CancellationToken ct)
-            => Task.FromResult(new ApplyEditResult(true, diff, null));
-        public Task<bool> ApplyAsync(string diff, CancellationToken ct) => Task.FromResult(true);
-        public Task UndoAsync() => Task.CompletedTask;
-    }
-
-    private sealed class FakeAgenticLoop : IAgenticLoopService
-    {
-        public Task<AgenticLoopResult> ExecuteAsync(string goal, CancellationToken ct)
-            => Task.FromResult(new AgenticLoopResult("Completed", $"Executed: {goal}", null, null));
-        public Task CancelAsync() => Task.CompletedTask;
     }
 }
