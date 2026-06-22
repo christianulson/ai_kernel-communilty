@@ -122,6 +122,8 @@ public class MainViewModel : ViewModelBase
     public PlanViewModel PlanVM { get; }
     public FeedbackViewModel FeedbackVM { get; }
     public EpisodicMemoryViewModel EpisodicMemoryVM { get; }
+    public CreativityViewModel CreativityVM { get; }
+    public CognitiveCycleViewModel CognitiveCycleVM { get; }
 
     public ObservableCollection<MediaDevice> Microphones => SettingsVM.Microphones;
     public ObservableCollection<MediaDevice> Cameras => SettingsVM.Cameras;
@@ -152,7 +154,7 @@ public class MainViewModel : ViewModelBase
     private string _statusMessage = "Iniciando...";
     public string StatusMessage { get => _statusMessage; set => SetProperty(ref _statusMessage, value); }
     private string _currentScreen = "chat";
-    public string CurrentScreen { get => _currentScreen; set { if (SetProperty(ref _currentScreen, value)) { OnPropertyChanged(nameof(IsChatVisible)); OnPropertyChanged(nameof(IsDashboardVisible)); OnPropertyChanged(nameof(IsPoliciesVisible)); OnPropertyChanged(nameof(IsEpisodesVisible)); OnPropertyChanged(nameof(IsMemoryVisible)); OnPropertyChanged(nameof(IsSettingsVisible)); OnPropertyChanged(nameof(IsApiKeysVisible)); OnPropertyChanged(nameof(IsPeerRankingVisible)); OnPropertyChanged(nameof(IsPrivacyVisible)); OnPropertyChanged(nameof(IsUserServicesVisible)); OnPropertyChanged(nameof(IsBenchmarkVisible)); OnPropertyChanged(nameof(IsCausalVisible)); OnPropertyChanged(nameof(IsProfileVisible)); OnPropertyChanged(nameof(IsDocumentsVisible)); OnPropertyChanged(nameof(IsArchiveVisible)); OnPropertyChanged(nameof(IsModelRegistryVisible)); OnPropertyChanged(nameof(IsVersionsVisible)); OnPropertyChanged(nameof(IsSessionsVisible)); OnPropertyChanged(nameof(IsKanbanVisible)); OnPropertyChanged(nameof(IsTrajectoryVisible)); OnPropertyChanged(nameof(IsP2PPaymentsVisible)); OnPropertyChanged(nameof(IsDisputesVisible));             OnPropertyChanged(nameof(IsSidecarVisible)); OnPropertyChanged(nameof(IsMultimodalVisible)); OnPropertyChanged(nameof(IsObjectivesVisible)); OnPropertyChanged(nameof(IsInvestigationsVisible)); OnPropertyChanged(nameof(IsSnapshotsVisible)); OnPropertyChanged(nameof(IsAdminConfigVisible));             OnPropertyChanged(nameof(IsAdminUsersVisible)); OnPropertyChanged(nameof(IsMomentsVisible)); OnPropertyChanged(nameof(IsPluginsVisible)); OnPropertyChanged(nameof(IsSchedulerVisible)); OnPropertyChanged(nameof(IsTemplatesVisible)); OnPropertyChanged(nameof(IsApprovalVisible));                     OnPropertyChanged(nameof(IsCliVisible)); OnPropertyChanged(nameof(IsTerminalVisible)); OnPropertyChanged(nameof(IsPluginCatalogVisible)); OnPropertyChanged(nameof(IsExperimentVisible)); OnPropertyChanged(nameof(IsInitWizardVisible)); OnPropertyChanged(nameof(IsDebugVisible)); OnPropertyChanged(nameof(IsStudioVisible)); OnPropertyChanged(nameof(IsAgiVisible)); OnPropertyChanged(nameof(IsKnowledgeVisible)); OnPropertyChanged(nameof(IsPieVisible)); OnPropertyChanged(nameof(IsEmotionalVisible)); OnPropertyChanged(nameof(IsEventsVisible)); OnPropertyChanged(nameof(IsCodingVisible)); OnPropertyChanged(nameof(IsSelfImprovementVisible)); OnPropertyChanged(nameof(IsAssistantVisible)); OnPropertyChanged(nameof(IsMcpConfigVisible)); OnPropertyChanged(nameof(IsPlanVisible)); OnPropertyChanged(nameof(IsFeedbackVisible)); OnPropertyChanged(nameof(IsEpisodicMemoryVisible)); } } }
+    public string CurrentScreen { get => _currentScreen; set { if (SetProperty(ref _currentScreen, value)) { OnPropertyChanged(nameof(IsChatVisible)); OnPropertyChanged(nameof(IsDashboardVisible)); OnPropertyChanged(nameof(IsPoliciesVisible)); OnPropertyChanged(nameof(IsEpisodesVisible)); OnPropertyChanged(nameof(IsMemoryVisible)); OnPropertyChanged(nameof(IsSettingsVisible)); OnPropertyChanged(nameof(IsApiKeysVisible)); OnPropertyChanged(nameof(IsPeerRankingVisible)); OnPropertyChanged(nameof(IsPrivacyVisible)); OnPropertyChanged(nameof(IsUserServicesVisible)); OnPropertyChanged(nameof(IsBenchmarkVisible)); OnPropertyChanged(nameof(IsCausalVisible)); OnPropertyChanged(nameof(IsProfileVisible)); OnPropertyChanged(nameof(IsDocumentsVisible)); OnPropertyChanged(nameof(IsArchiveVisible)); OnPropertyChanged(nameof(IsModelRegistryVisible)); OnPropertyChanged(nameof(IsVersionsVisible)); OnPropertyChanged(nameof(IsSessionsVisible)); OnPropertyChanged(nameof(IsKanbanVisible)); OnPropertyChanged(nameof(IsTrajectoryVisible)); OnPropertyChanged(nameof(IsP2PPaymentsVisible)); OnPropertyChanged(nameof(IsDisputesVisible));             OnPropertyChanged(nameof(IsSidecarVisible)); OnPropertyChanged(nameof(IsMultimodalVisible)); OnPropertyChanged(nameof(IsObjectivesVisible)); OnPropertyChanged(nameof(IsInvestigationsVisible)); OnPropertyChanged(nameof(IsSnapshotsVisible)); OnPropertyChanged(nameof(IsAdminConfigVisible));             OnPropertyChanged(nameof(IsAdminUsersVisible)); OnPropertyChanged(nameof(IsMomentsVisible)); OnPropertyChanged(nameof(IsPluginsVisible)); OnPropertyChanged(nameof(IsSchedulerVisible)); OnPropertyChanged(nameof(IsTemplatesVisible)); OnPropertyChanged(nameof(IsApprovalVisible));                     OnPropertyChanged(nameof(IsCliVisible)); OnPropertyChanged(nameof(IsTerminalVisible)); OnPropertyChanged(nameof(IsPluginCatalogVisible)); OnPropertyChanged(nameof(IsExperimentVisible)); OnPropertyChanged(nameof(IsInitWizardVisible)); OnPropertyChanged(nameof(IsDebugVisible)); OnPropertyChanged(nameof(IsStudioVisible)); OnPropertyChanged(nameof(IsAgiVisible)); OnPropertyChanged(nameof(IsKnowledgeVisible)); OnPropertyChanged(nameof(IsPieVisible)); OnPropertyChanged(nameof(IsEmotionalVisible)); OnPropertyChanged(nameof(IsEventsVisible)); OnPropertyChanged(nameof(IsCodingVisible)); OnPropertyChanged(nameof(IsSelfImprovementVisible)); OnPropertyChanged(nameof(IsAssistantVisible)); OnPropertyChanged(nameof(IsMcpConfigVisible)); OnPropertyChanged(nameof(IsPlanVisible)); OnPropertyChanged(nameof(IsFeedbackVisible)); OnPropertyChanged(nameof(IsEpisodicMemoryVisible)); OnPropertyChanged(nameof(IsCreativityVisible)); OnPropertyChanged(nameof(IsCognitiveCycleVisible)); } } }
     private bool _showWelcomeWizard = true;
     public bool ShowWelcomeWizard { get => _showWelcomeWizard; set => SetProperty(ref _showWelcomeWizard, value); }
     private bool _showSearch;
@@ -220,6 +222,8 @@ public class MainViewModel : ViewModelBase
     public bool IsPlanVisible => _currentScreen == "plan";
     public bool IsFeedbackVisible => _currentScreen == "feedback";
     public bool IsEpisodicMemoryVisible => _currentScreen == "episodic-memory";
+    public bool IsCreativityVisible => _currentScreen == "creativity";
+    public bool IsCognitiveCycleVisible => _currentScreen == "cognitive-cycle";
 
     public AgentInfo? SelectedAgent { get; set; }
     private ConversationSession? _activeSession;
@@ -312,6 +316,8 @@ public class MainViewModel : ViewModelBase
     public ICommand NavigateToPlanCommand { get; }
     public ICommand NavigateToFeedbackCommand { get; }
     public ICommand NavigateToEpisodicMemoryCommand { get; }
+    public ICommand NavigateToCreativityCommand { get; }
+    public ICommand NavigateToCognitiveCycleCommand { get; }
     public ICommand NavigateToProfileCommand { get; }
     public ICommand ToggleListeningCommand { get; }
     public ICommand LogoutCommand { get; }
@@ -361,7 +367,8 @@ public class MainViewModel : ViewModelBase
             new KnowledgeViewModel(), new PieViewModel(), new EmotionalViewModel(), new EventsViewModel(),
             new CodingViewModel(), new SelfImprovementViewModel(), new AssistantViewModel(), new McpConfigViewModel(),
             new TemplatesViewModel(), new ExperimentsViewModel(),
-            new PlanViewModel(), new FeedbackViewModel(), new EpisodicMemoryViewModel())
+            new PlanViewModel(), new FeedbackViewModel(), new EpisodicMemoryViewModel(),
+            new CreativityViewModel(), new CognitiveCycleViewModel())
     { }
 
     public MainViewModel(
@@ -384,7 +391,8 @@ public class MainViewModel : ViewModelBase
         KnowledgeViewModel knowledgeVM, PieViewModel pieVM, EmotionalViewModel emotionalVM, EventsViewModel eventsVM,
         CodingViewModel codingVM, SelfImprovementViewModel selfImprovementVM, AssistantViewModel assistantVM, McpConfigViewModel mcpConfigVM,
         TemplatesViewModel templatesVM, ExperimentsViewModel experimentsVM,
-        PlanViewModel planVM, FeedbackViewModel feedbackVM, EpisodicMemoryViewModel episodicMemoryVM)
+        PlanViewModel planVM, FeedbackViewModel feedbackVM, EpisodicMemoryViewModel episodicMemoryVM,
+        CreativityViewModel creativityVM, CognitiveCycleViewModel cognitiveCycleVM)
     {
         ChatVM = chatVM;
         DashVM = dashVM;
@@ -430,6 +438,8 @@ public class MainViewModel : ViewModelBase
         PlanVM = planVM;
         FeedbackVM = feedbackVM;
         EpisodicMemoryVM = episodicMemoryVM;
+        CreativityVM = creativityVM;
+        CognitiveCycleVM = cognitiveCycleVM;
 
         _kernelClient = kernelClient;
         _settingsService = settingsService;
@@ -497,6 +507,8 @@ public class MainViewModel : ViewModelBase
         NavigateToPlanCommand = new RelayCommand(() => CurrentScreen = "plan");
         NavigateToFeedbackCommand = new RelayCommand(() => CurrentScreen = "feedback");
         NavigateToEpisodicMemoryCommand = new RelayCommand(() => CurrentScreen = "episodic-memory");
+        NavigateToCreativityCommand = new RelayCommand(() => CurrentScreen = "creativity");
+        NavigateToCognitiveCycleCommand = new RelayCommand(() => CurrentScreen = "cognitive-cycle");
         ToggleListeningCommand = new AsyncRelayCommand(ToggleListeningAsync);
         LogoutCommand = new RelayCommand(ExecuteLogout);
         BackupCommand = new AsyncRelayCommand(async () =>
@@ -528,8 +540,8 @@ public class MainViewModel : ViewModelBase
         CheckUpdateCommand = new AsyncRelayCommand(async () => UpdateVersion = await new Services.UpdateChecker().CheckForUpdatesAsync());
         DownloadUpdateCommand = new AsyncRelayCommand(async () =>
         {
-            try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("https://github.com/krnlai/krnl-ai/releases/latest") { UseShellExecute = true }); }
-            catch (Exception ex) { KrnlLogger.Write($"DownloadUpdate: {ex.Message}"); }
+            if (UpdateVersion != null)
+                await new Services.UpdateChecker().DownloadAndInstallAsync(UpdateVersion);
         });
         StartSidecarCommand = new AsyncRelayCommand(async () =>
         {

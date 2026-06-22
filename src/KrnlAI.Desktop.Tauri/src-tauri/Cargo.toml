@@ -13,7 +13,7 @@ crate-type = ["lib", "cdylib", "staticlib"]
 tauri-build = { version = "2", features = [] }
 
 [features]
-default = ["audio"]
+default = ["audio", "camera"]
 audio = ["dep:cpal", "dep:hound"]
 camera = ["dep:opencv"]
 

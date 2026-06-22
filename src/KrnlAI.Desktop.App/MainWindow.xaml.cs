@@ -5,6 +5,7 @@ using KrnlAI.Desktop.App.ViewModels;
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Services;
 using System.Windows.Media;
+using Microsoft.Win32;
 
 namespace KrnlAI.Desktop.App;
 
@@ -44,6 +45,8 @@ public partial class MainWindow : Window
             };
         }
 
+        RegisterDeepLinkProtocol();
+
         Loaded += (_, _) =>
         {
             var args = Environment.GetCommandLineArgs();
@@ -52,6 +55,7 @@ public partial class MainWindow : Window
                 WindowState = WindowState.Minimized;
                 Hide();
             }
+            HandleDeepLinkArgs(args);
         };
         Closing += MainWindow_Closing;
     }
@@ -119,6 +123,71 @@ public partial class MainWindow : Window
     private void OnCommandPaletteKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
     {
         if (e.Key == System.Windows.Input.Key.Escape && _vm != null) { _vm.ShowCommandPalette = false; e.Handled = true; }
+    }
+
+    public static void RegisterDeepLinkProtocol()
+    {
+        try
+        {
+            using var key = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Classes\krnl-ai");
+            if (key != null)
+            {
+                key.SetValue("", "URL:Krnl-AI Protocol");
+                key.SetValue("URL Protocol", "");
+
+                using var shellKey = key.CreateSubKey(@"shell\open\command");
+                var exePath = System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName ?? "";
+                shellKey?.SetValue("", $"\"{exePath}\" \"%1\"");
+            }
+        }
+        catch (Exception ex)
+        {
+            KrnlLogger.Write($"Deep link registration failed: {ex.Message}");
+        }
+    }
+
+    private void HandleDeepLinkArgs(string[] args)
+    {
+        if (args.Length <= 1) return;
+        var uri = args[1];
+        if (!uri.StartsWith("krnl-ai://", StringComparison.OrdinalIgnoreCase)) return;
+
+        try
+        {
+            var parsed = new Uri(uri);
+            var path = parsed.AbsolutePath.TrimStart('/');
+            // Map deep link paths to screens
+            var screenMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["chat"] = "chat",
+                ["dashboard"] = "dashboard",
+                ["memory"] = "memory",
+                ["policies"] = "policies",
+                ["episodes"] = "episodes",
+                ["settings"] = "settings",
+                ["studio"] = "studio",
+                ["scheduler"] = "scheduler",
+                ["creativity"] = "creativity",
+                ["cognitive-cycle"] = "cognitive-cycle",
+            };
+
+            if (screenMap.TryGetValue(path, out var screen) && _vm != null)
+            {
+                _vm.CurrentScreen = screen;
+            }
+
+            // Handle action parameter
+            var query = System.Web.HttpUtility.ParseQueryString(parsed.Query);
+            var action = query["action"];
+            if (action == "listen" && _vm != null)
+            {
+                _vm.ToggleListeningCommand.Execute(null);
+            }
+        }
+        catch (Exception ex)
+        {
+            KrnlLogger.Write($"Deep link parse failed: {ex.Message}");
+        }
     }
 
     private static BitmapSource? ConvertToBitmapSource(byte[] frameData, int width, int height)

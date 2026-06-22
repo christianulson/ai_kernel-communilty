@@ -22,6 +22,9 @@ public partial class KrnlAIToolWindowControl : UserControl
     private readonly System.Threading.CancellationTokenSource _cts = new();
     private CancellationTokenSource? _currentStreamCts;
     private string? _streamingBuffer;
+    private Border? _streamingMessageBorder;
+    private System.Windows.Threading.DispatcherTimer? _thinkingTimer;
+    private int _thinkingDotCount;
 
     // Message history for up/down navigation
     private readonly System.Collections.Generic.List<string> _messageHistory = [];
@@ -216,19 +219,45 @@ public partial class KrnlAIToolWindowControl : UserControl
     private void OnStreamTokenReceived(string token)
     {
         _streamingBuffer += token;
+#pragma warning disable VSTHRD001, VSTHRD110
+        if (!Dispatcher.CheckAccess())
+        {
+            Dispatcher.InvokeAsync(() => AppendStreamToken(token));
+            return;
+        }
+#pragma warning restore VSTHRD001, VSTHRD110
+        AppendStreamToken(token);
+    }
+
+    private void AppendStreamToken(string token)
+    {
+        if (_streamingMessageBorder?.Child is TextBlock tb)
+        {
+            tb.Text += token;
+            ChatScrollViewer?.ScrollToBottom();
+        }
     }
 
     private void OnStreamCompleted()
     {
 #pragma warning disable VSTHRD001, VSTHRD110
-        Dispatcher.InvokeAsync(() => ShowThinking(false));
+        Dispatcher.InvokeAsync(() =>
+        {
+            _streamingMessageBorder = null;
+            ShowThinking(false);
+        });
 #pragma warning restore VSTHRD001, VSTHRD110
     }
 
     private void OnStreamError(string error)
     {
 #pragma warning disable VSTHRD001, VSTHRD110
-        Dispatcher.InvokeAsync(() => AddErrorMessage(error));
+        Dispatcher.InvokeAsync(() =>
+        {
+            _streamingMessageBorder = null;
+            AddErrorMessage(error);
+            ShowThinking(false);
+        });
 #pragma warning restore VSTHRD001, VSTHRD110
     }
 
@@ -241,7 +270,30 @@ public partial class KrnlAIToolWindowControl : UserControl
     private void ShowThinking(bool visible)
     {
         ThinkingIndicator.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
+        StreamingProgress.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
         StopButton.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
+        ChatInput.IsEnabled = !visible;
+        SendButton.IsEnabled = !visible && _clientService.State == ConnectionState.Connected;
+
+        if (visible)
+        {
+            _thinkingDotCount = 0;
+            _thinkingTimer = new System.Windows.Threading.DispatcherTimer(
+                TimeSpan.FromMilliseconds(500),
+                System.Windows.Threading.DispatcherPriority.Normal,
+                (_, _) =>
+                {
+                    _thinkingDotCount = (_thinkingDotCount + 1) % 4;
+                    ThinkingIndicator.Text = "Agent thinking" + new string('.', _thinkingDotCount);
+                },
+                Dispatcher);
+        }
+        else
+        {
+            _thinkingTimer?.Stop();
+            _thinkingTimer = null;
+            ThinkingIndicator.Text = "Agent thinking...";
+        }
     }
 
     private void AddUserMessage(string text)
@@ -299,6 +351,8 @@ public partial class KrnlAIToolWindowControl : UserControl
             CornerRadius = new CornerRadius(8)
         };
         ChatItems.Items.Add(border);
+        _streamingMessageBorder = border;
+        ChatScrollViewer?.ScrollToBottom();
         return border;
     }
 
@@ -316,6 +370,7 @@ public partial class KrnlAIToolWindowControl : UserControl
         {
             ((TextBlock)border.Child).Text = "AI: " + fullText;
         }
+        _streamingMessageBorder = null;
     }
 
     private void AddSystemMessage(string text)

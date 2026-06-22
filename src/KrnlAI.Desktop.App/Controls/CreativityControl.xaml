@@ -1,0 +1,85 @@
+<UserControl x:Class="KrnlAI.Desktop.App.Controls.CreativityControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <TextBlock Text="Criatividade" FontSize="22" FontWeight="Bold"
+                   Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+        <TextBox Grid.Row="1" Text="{Binding CreativityVM.Prompt, UpdateSourceTrigger=PropertyChanged}"
+                 MinHeight="80" MaxHeight="160" AcceptsReturn="True" TextWrapping="Wrap"
+                 Margin="0,0,0,12" Padding="12" FontSize="14"
+                 Background="{DynamicResource PanelBrush}"
+                 Foreground="{DynamicResource TextPrimaryBrush}"
+                 BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"/>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,12">
+            <Button Command="{Binding CreativityVM.GenerateCommand}" Padding="16,8" Margin="0,0,8,0"
+                    Style="{StaticResource PrimaryButton}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="✨" FontSize="14" Margin="0,0,8,0"/>
+                    <TextBlock Text="Gerar Ideia"/>
+                </StackPanel>
+            </Button>
+            <Button Command="{Binding CreativityVM.ChainCommand}" Padding="16,8"
+                    Style="{StaticResource GhostButton}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="🔗" FontSize="14" Margin="0,0,8,0"/>
+                    <TextBlock Text="Encadear (5 passos)"/>
+                </StackPanel>
+            </Button>
+        </StackPanel>
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <Border Visibility="{Binding CreativityVM.HasResult, Converter={StaticResource BoolToVisibilityConverter}}"
+                        Padding="16" CornerRadius="12" Margin="0,0,0,12"
+                        Background="{DynamicResource PanelBrush}">
+                    <StackPanel>
+                        <TextBlock Text="Resultado" FontWeight="Bold" FontSize="14"
+                                   Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,8"/>
+                        <TextBlock Text="{Binding CreativityVM.Result}" TextWrapping="Wrap" FontSize="14"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        <TextBlock Margin="0,8,0,0" FontSize="11"
+                                   Foreground="{DynamicResource TextSecondaryBrush}">
+                            <Run Text="Confiança: "/>
+                            <Run Text="{Binding CreativityVM.Confidence, StringFormat={}{0:P1}}"/>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+                <ItemsControl ItemsSource="{Binding CreativityVM.ChainSteps}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Padding="12" CornerRadius="8" Margin="0,0,0,8"
+                                    Background="{DynamicResource PanelSoftBrush}">
+                                <StackPanel>
+                                    <TextBlock FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}">
+                                        <Run Text="Passo "/><Run Text="{Binding Step}"/></TextBlock>
+                                    <TextBlock Text="{Binding Conclusion}" TextWrapping="Wrap" FontSize="13"
+                                               Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,4,0,0"/>
+                                    <TextBlock Text="{Binding Confidence, StringFormat=Confiança: {0:P1}}"
+                                               FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <Border Visibility="{Binding CreativityVM.IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"
+                        Padding="16">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="⏳" FontSize="16" Margin="0,0,8,0"/>
+                        <TextBlock Text="Processando..." FontStyle="Italic"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
+                    </StackPanel>
+                </Border>
+                <TextBlock Visibility="{Binding CreativityVM.HasError, Converter={StaticResource BoolToVisibilityConverter}}"
+                           Text="{Binding CreativityVM.ErrorMessage}" Foreground="{DynamicResource ErrorBrush}"
+                           TextWrapping="Wrap" Margin="0,8,0,0"/>
+            </StackPanel>
+        </ScrollViewer>
+        <Button Grid.Row="3" Command="{Binding CreativityVM.ClearResultCommand}" Content="Limpar"
+                Style="{StaticResource GhostButton}" HorizontalAlignment="Right" Margin="0,8,0,0"/>
+    </Grid>
+</UserControl>

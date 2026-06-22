@@ -36,10 +36,12 @@
           <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,4">
             <TextBlock x:Name="ThinkingIndicator" Text="Agent thinking..." Visibility="Collapsed"
                        Foreground="{DynamicResource VsBrush.GrayText}" FontStyle="Italic" VerticalAlignment="Center" />
+            <ProgressBar x:Name="StreamingProgress" Width="80" Height="6" Margin="8,0,0,0"
+                         Visibility="Collapsed" IsIndeterminate="True" VerticalAlignment="Center" />
             <Button x:Name="StopButton" Content="Stop" Width="50" Height="22" Margin="8,0,0,0"
                     Visibility="Collapsed" Click="OnStop" />
           </StackPanel>
-          <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+          <ScrollViewer x:Name="ChatScrollViewer" Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <ItemsControl x:Name="ChatItems" BorderThickness="0"
                           Foreground="{DynamicResource VsBrush.WindowText}" />
           </ScrollViewer>
