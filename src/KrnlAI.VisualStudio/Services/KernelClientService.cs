@@ -4,8 +4,11 @@ using KrnlAI.Sdk.Models;
 
 namespace KrnlAI.VisualStudio.Services;
 
-public sealed class KernelClientService(HttpClient? http = null) : IKernelClientService, IDisposable
+public sealed class KernelClientService(
+    HttpClient? http = null,
+    IVsOperationTracker? debugTracker = null) : IKernelClientService, IDisposable
 {
+    private readonly IVsOperationTracker _debugTracker = debugTracker ?? new VsOperationTracker();
     private KrnlAIClient? _client;
     private readonly HttpClient _http = http ?? new HttpClient();
     private ConnectionState _state = ConnectionState.Disconnected;
@@ -29,6 +32,8 @@ public sealed class KernelClientService(HttpClient? http = null) : IKernelClient
 
     public async Task<bool> ConnectAsync(string endpoint, CancellationToken ct = default)
     {
+        using var op = _debugTracker.Start("kernel.connect", endpoint);
+
         State = ConnectionState.Connecting;
 
         for (var attempt = 0; attempt < MaxRetries; attempt++)
@@ -42,17 +47,23 @@ public sealed class KernelClientService(HttpClient? http = null) : IKernelClient
                 if (health.Ok)
                 {
                     State = ConnectionState.Connected;
+                    op.SetResult("Connected");
                     return true;
                 }
             }
-            catch
+            catch (Exception) when (attempt < MaxRetries - 1)
             {
-                if (attempt < MaxRetries - 1)
-                    await Task.Delay(1000 * (attempt + 1), ct);
+                await Task.Delay(1000 * (attempt + 1), ct);
+            }
+            catch (Exception ex)
+            {
+                op.SetError(ex.Message);
+                // Fall through — will return false after the loop
             }
         }
 
         State = ConnectionState.Failed;
+        op.SetResult("Failed after retries");
         return false;
     }
 
@@ -65,8 +76,13 @@ public sealed class KernelClientService(HttpClient? http = null) : IKernelClient
 
     public async Task<AgentRunResponse> RunAgentAsync(string goal, AgentRunRequest? request = null, CancellationToken ct = default)
     {
+        using var op = _debugTracker.Start("kernel.run_agent", goal);
+
         if (_client is null)
+        {
+            op.SetError("Not connected");
             throw new InvalidOperationException("Not connected. Call ConnectAsync first.");
+        }
 
         var req = request ?? new AgentRunRequest(
             Goal: goal,
@@ -75,23 +91,63 @@ public sealed class KernelClientService(HttpClient? http = null) : IKernelClient
             ApproveMetaCriticStops: false
         );
 
-        return await _client.AgentRunAsync(req, ct);
+        try
+        {
+            var response = await _client.AgentRunAsync(req, ct);
+            op.SetResult(response.Status ?? "completed");
+            return response;
+        }
+        catch (Exception ex)
+        {
+            op.SetError(ex.Message);
+            throw;
+        }
     }
 
     public async Task<MemorySearchResponse> SearchMemoryAsync(string query, int topK = 10, CancellationToken ct = default)
     {
-        if (_client is null)
-            throw new InvalidOperationException("Not connected. Call ConnectAsync first.");
+        using var op = _debugTracker.Start("kernel.search_memory", query);
 
-        return await _client.MemorySearchAsync(new MemorySearchRequest(Query: query, TopK: topK), ct);
+        if (_client is null)
+        {
+            op.SetError("Not connected");
+            throw new InvalidOperationException("Not connected. Call ConnectAsync first.");
+        }
+
+        try
+        {
+            var response = await _client.MemorySearchAsync(new MemorySearchRequest(Query: query, TopK: topK), ct);
+            op.SetResult($"{response.Hits?.Count ?? 0} hits");
+            return response;
+        }
+        catch (Exception ex)
+        {
+            op.SetError(ex.Message);
+            throw;
+        }
     }
 
     public async Task<HealthStatus> CheckHealthAsync(CancellationToken ct = default)
     {
-        if (_client is null)
-            throw new InvalidOperationException("Not connected. Call ConnectAsync first.");
+        using var op = _debugTracker.Start("kernel.health_check");
 
-        return await _client.HealthCheckAsync(ct);
+        if (_client is null)
+        {
+            op.SetError("Not connected");
+            throw new InvalidOperationException("Not connected. Call ConnectAsync first.");
+        }
+
+        try
+        {
+            var result = await _client.HealthCheckAsync(ct);
+            op.SetResult(result.Ok ? "Healthy" : "Unhealthy");
+            return result;
+        }
+        catch (Exception ex)
+        {
+            op.SetError(ex.Message);
+            throw;
+        }
     }
 
     public async Task<string?> GetEmotionalMoodAsync(CancellationToken ct = default)

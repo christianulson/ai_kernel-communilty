@@ -12,6 +12,7 @@ public sealed class SlashCommandRouter
     private readonly IAgenticLoopService _agenticLoop;
     private readonly ITerminalService _terminal;
     private readonly IGitService _git;
+    private readonly IVsOperationTracker _debugTracker;
 
     public SlashCommandRouter(
         IKernelClientService client,
@@ -19,7 +20,8 @@ public sealed class SlashCommandRouter
         IApplyEditService applyEdit,
         IAgenticLoopService agenticLoop,
         ITerminalService? terminal = null,
-        IGitService? git = null)
+        IGitService? git = null,
+        IVsOperationTracker? debugTracker = null)
     {
         _client = client;
         _context = context;
@@ -27,6 +29,7 @@ public sealed class SlashCommandRouter
         _agenticLoop = agenticLoop;
         _terminal = terminal ?? new TerminalService();
         _git = git ?? new GitService();
+        _debugTracker = debugTracker ?? new VsOperationTracker();
         _commands = new Dictionary<string, SlashCommand>(StringComparer.OrdinalIgnoreCase);
         RegisterDefaultCommands();
     }
@@ -90,6 +93,7 @@ public sealed class SlashCommandRouter
         Register(GitBranchHandler.Create(_git));
         Register(GitCommitHandler.Create(_git));
         Register(GitReviewPrHandler.Create(_git, _client));
+        Register(DebugHandler.Create(_debugTracker));
     }
 
     private void Register(SlashCommand cmd) => _commands[cmd.Name] = cmd;

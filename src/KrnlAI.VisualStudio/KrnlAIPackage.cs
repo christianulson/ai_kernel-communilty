@@ -30,6 +30,7 @@ public sealed class KrnlAIPackage : AsyncPackage
     private EditorContextProvider? _editorContextProvider;
     private VsCommandHandler? _commandHandler;
     private ISettingsService? _settings;
+    private VsOperationTracker? _debugTracker;
 
     protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
     {
@@ -38,6 +39,7 @@ public sealed class KrnlAIPackage : AsyncPackage
         _settings = new SettingsService();
         _settings.Load();
 
+        _debugTracker = new VsOperationTracker();
         _editorContextProvider = new EditorContextProvider();
         _commandHandler = CreateCommandHandler();
 
@@ -50,10 +52,10 @@ public sealed class KrnlAIPackage : AsyncPackage
     private VsCommandHandler CreateCommandHandler()
     {
         var httpClient = new HttpClient();
-        var client = new KernelClientService(httpClient);
+        var client = new KernelClientService(httpClient, _debugTracker);
         var context = new SolutionContextService(this);
         var applyEdit = new ApplyEditService();
-        var agenticLoop = new AgenticLoopService(client);
+        var agenticLoop = new AgenticLoopService(client, _debugTracker);
         var terminal = new TerminalService();
         var git = new GitService();
 
@@ -66,10 +68,11 @@ public sealed class KrnlAIPackage : AsyncPackage
             _ = client.ConnectAsync(endpoint);
         }
 
-        return new VsCommandHandler(client, context, applyEdit, agenticLoop, terminal, git);
+        return new VsCommandHandler(client, context, applyEdit, agenticLoop, terminal, git, _debugTracker);
     }
 
     public IEditorContextProvider? GetEditorContextProvider() => _editorContextProvider;
     public IVsCommandHandler? GetCommandHandler() => _commandHandler;
+    public IVsOperationTracker? GetDebugTracker() => _debugTracker;
 }
 #endif
