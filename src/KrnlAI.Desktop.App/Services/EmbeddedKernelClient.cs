@@ -8,6 +8,14 @@ using KrnlAI.Embedded.Abstractions;
 
 namespace KrnlAI.Desktop.App.Services;
 
+/// <summary>
+/// In-memory implementation of <see cref="IKernelClient"/> for local/embedded mode (<c>KRNL__RUN_MODE=Local</c>).
+/// All state is held in ConcurrentDictionary / List fields — no database or external services.
+/// <list type="bullet">
+///   <item><b>Fully functional locally:</b> Policies, Episodes, Memory (basic), Templates, Experiments, Goals (Kanban), MCP servers, Documents, Snapshots, Objectives, Investigations, Approvals, Knowledge, Emotional state, Events, User Services, Plans, Feedback, Assistant threads, PIE (symbolic), Cognitive dashboard, Metrics, Archives, Contracts, Model registry.</item>
+///   <item><b>Stub / limited locally (requires cloud/LLM):</b> TTS (GenerateSpeechAsync), STT (TranscribeAudioAsync), Coding (Explain/Fix/Test/Review/Diff/Complete), Causal inference (GetCausalQueryAsync / GetCausalPredictionAsync), Cognitive Flow execution (CognitiveFlowExecuteAsync), PIE statistical inference, Self-Improvement.</item>
+/// </list>
+/// </summary>
 public sealed class EmbeddedKernelClient : IKernelClient
 {
     private readonly IEmbeddedKrnlAI _kernel;
@@ -19,12 +27,55 @@ public sealed class EmbeddedKernelClient : IKernelClient
     private readonly List<InvestigationInfo> _investigations = [];
     private readonly List<McpServerInfo> _mcpServers = [];
     private readonly List<MemoryMoment> _memoryMoments = [];
+
+    // Stateful approvals
+    private readonly ConcurrentDictionary<string, ApprovalRequest> _approvalRequests = new();
+
+    // Stateful emotional/affective
+    private double _currentValence = 0.3;
+    private double _currentArousal = 0.5;
+    private readonly List<EmotionalHistoryEntry> _emotionalHistory = [];
+
+    // Stateful events
+    private int _eventCounter;
+    private readonly List<EventInfo> _events = [];
+
+    // Stateful knowledge
+    private int _knowledgeCounter;
+    private readonly List<KnowledgeHit> _knowledgeEntries = [];
+
+    // Stateful user services
+    private readonly ConcurrentDictionary<string, UserServiceInfo> _userServices = new();
+
+    // Stateful scheduled tasks
+    private readonly List<ScheduledTask> _scheduledTasks = [];
+
+    // Stateful assistant threads/messages
+    private readonly ConcurrentDictionary<string, ThreadInfo> _threads = new();
+    private readonly ConcurrentDictionary<string, List<MessageInfo>> _threadMessages = new();
+
+    // Stateful policy rollbacks / goal cycles
+    private readonly List<PolicyRollbackEntry> _policyRollbacks = [];
+    private readonly ConcurrentDictionary<string, List<GoalCycleSummary>> _goalCycles = new();
+
+    // Plan steps
+    private readonly List<PlanStep> _planSteps =
+    [
+        new(0, "Inicialização do kernel", "Módulo cognitivo iniciado em modo local", PlanStepStatus.Completed, DateTime.UtcNow.AddMinutes(-10), DateTime.UtcNow.AddMinutes(-9), "Ok"),
+        new(1, "Processamento de memória", "Indexando episódios locais", PlanStepStatus.InProgress, DateTime.UtcNow.AddMinutes(-9), null, null),
+        new(2, "Consolidação", "Consolidando aprendizado do dia", PlanStepStatus.Pending, null, null, null),
+    ];
+
     private int _feedbackCount;
 
     public EmbeddedKernelClient(IEmbeddedKrnlAI kernel)
     {
         _kernel = kernel;
         SeedData();
+        AddEvent("system", "Local mode started", "embedded");
+        AddEvent("cognitive", "Thinking cycle", "kernel");
+        AddEmotionalHistory("Local boot", "startup", 0.3, 0.5);
+        AddEmotionalHistory("Ready", "system", 0.4, 0.6);
     }
 
     private void SeedData()
@@ -46,6 +97,17 @@ public sealed class EmbeddedKernelClient : IKernelClient
 
     private string MakeId() => Guid.NewGuid().ToString("N");
 
+    private void AddEvent(string type, string description, string? source)
+    {
+        _eventCounter++;
+        _events.Add(new EventInfo($"e{_eventCounter}", type, description, source, DateTimeOffset.UtcNow, null));
+    }
+
+    private void AddEmotionalHistory(string @event, string? trigger, double valence, double arousal)
+    {
+        _emotionalHistory.Add(new EmotionalHistoryEntry(DateTimeOffset.UtcNow, @event, valence, arousal, trigger));
+    }
+
     public void SetBaseUrl(string baseUrl) { }
     public void SetAuthToken(string? token) { }
     public void SetTokens(string? token, string? refreshToken) { }
@@ -53,11 +115,13 @@ public sealed class EmbeddedKernelClient : IKernelClient
     public Task<LoginResponse> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default)
     {
         var token = MakeId();
+        AddEvent("auth", $"User {request.Email} logged in", "system");
         return Task.FromResult(new LoginResponse(true, token) { Username = request.Email });
     }
 
     public async Task<Cts.AgentRunTransportResponse> RunAgentAsync(Cts.AgentRunTransportRequest request, CancellationToken cancellationToken = default)
     {
+        AddEvent("agent", $"Agent run: {request.Prompt[..Math.Min(request.Prompt.Length, 50)]}", "system");
         var result = await _kernel.RunAsync(request.Prompt, cancellationToken);
         return new Cts.AgentRunTransportResponse(
             result.Narration,
@@ -72,6 +136,7 @@ public sealed class EmbeddedKernelClient : IKernelClient
 
     public async Task<MemorySearchResult> SearchMemoryAsync(string query, int topK = 10, CancellationToken cancellationToken = default)
     {
+        AddEvent("memory", $"Memory search: {query[..Math.Min(query.Length, 50)]}", "kernel");
         var hits = await _kernel.SearchMemoryAsync(query, cancellationToken);
         return new MemorySearchResult(
             [.. hits.Take(Math.Max(1, topK)).Select(hit => new MemoryHit(hit.Id, hit.Payload ?? "", "embedded", hit.Score, DateTime.UtcNow, null))],
@@ -80,7 +145,10 @@ public sealed class EmbeddedKernelClient : IKernelClient
     }
 
     public Task<MemoryIngestResult> IngestMemoryAsync(MemoryIngestRequest request, CancellationToken cancellationToken = default)
-        => Task.FromResult(new MemoryIngestResult(true, MakeId(), 1, "Memory ingested locally."));
+    {
+        AddEvent("memory", $"Memory ingest: {request.Content[..Math.Min(request.Content.Length, 50)]}", "user");
+        return Task.FromResult(new MemoryIngestResult(true, MakeId(), 1, "Memory ingested locally."));
+    }
 
     public Task<MemoryMetrics?> GetMemoryMetricsAsync(CancellationToken cancellationToken = default)
         => Task.FromResult<MemoryMetrics?>(new MemoryMetrics(0, 0, 0, [], null, null));
@@ -104,6 +172,7 @@ public sealed class EmbeddedKernelClient : IKernelClient
         var now = DateTime.UtcNow;
         var policy = new PolicyDetails(id, request.Name, request.Domain, "1.0", request.Content, now, now, true, null);
         _policies[id] = policy;
+        AddEvent("policy", $"Policy created: {request.Name}", "user");
         return Task.FromResult<PolicyInfo?>(new PolicyInfo(id, request.Name, request.Domain, "1.0", now, now, true));
     }
 
@@ -112,12 +181,21 @@ public sealed class EmbeddedKernelClient : IKernelClient
         if (!_policies.TryGetValue(policyId, out var existing)) return Task.FromResult<PolicyInfo?>(null);
         var now = DateTime.UtcNow;
         _policies[policyId] = existing with { Name = request.Name, Content = request.Content, UpdatedAt = now };
+        _policyRollbacks.Add(new PolicyRollbackEntry(MakeId(), policyId, existing.Version, "system", $"Rollback snapshot before update to {request.Name}", now));
+        AddEvent("policy", $"Policy updated: {request.Name}", "user");
         var p = _policies[policyId];
         return Task.FromResult<PolicyInfo?>(new PolicyInfo(policyId, p.Name, p.Domain, p.Version, p.CreatedAt, now, true));
     }
 
     public Task<bool> DeletePolicyAsync(string policyId, CancellationToken ct = default)
-        => Task.FromResult(_policies.TryRemove(policyId, out _));
+    {
+        if (_policies.TryRemove(policyId, out _))
+        {
+            AddEvent("policy", $"Policy deleted: {policyId}", "user");
+            return Task.FromResult(true);
+        }
+        return Task.FromResult(false);
+    }
 
     public Task<EpisodeSearchResult> SearchEpisodesAsync(EpisodeSearchRequest request, CancellationToken ct = default)
     {
@@ -129,18 +207,21 @@ public sealed class EmbeddedKernelClient : IKernelClient
     public Task<EpisodeDetails?> GetEpisodeAsync(string episodeId, CancellationToken ct = default)
         => Task.FromResult(_episodes.GetValueOrDefault(episodeId));
 
+    /// <summary>Generates speech from text. Returns a minimal RIFF/WAV header — no real TTS available in local mode.</summary>
     public Task<byte[]> GenerateSpeechAsync(string text, string? language = null, string? voice = null, CancellationToken ct = default)
     {
         var wavHeader = new byte[] { 0x52, 0x49, 0x46, 0x46, 0x24, 0x00, 0x00, 0x00, 0x57, 0x41, 0x56, 0x45, 0x66, 0x6D, 0x74, 0x20 };
         return Task.FromResult(wavHeader);
     }
 
+    /// <summary>Transcribes audio to text. Always returns an error message — STT requires a cloud engine.</summary>
     public Task<string?> TranscribeAudioAsync(byte[] audioData, CancellationToken ct = default)
-        => Task.FromResult<string?>("[Local mode: transcription not available]");
+        => Task.FromResult<string?>("[Local mode: transcription requires a cloud STT engine]");
 
     public Task<FeedbackResponse> SubmitFeedbackAsync(FeedbackRequest request, CancellationToken ct = default)
     {
         _feedbackCount++;
+        AddEvent("feedback", $"Feedback recorded: rating {request.Rating}", "user");
         return Task.FromResult(new FeedbackResponse(true, "fb-" + _feedbackCount, "Feedback recorded locally."));
     }
 
@@ -180,11 +261,20 @@ public sealed class EmbeddedKernelClient : IKernelClient
             DateTimeOffset.UtcNow,
             request.Deadline);
         var saved = await _kernel.UpsertKanbanGoalAsync(goal, cancellationToken);
+        if (saved)
+        {
+            AddEvent("goal", $"Goal created: {request.Description}", "user");
+            _goalCycles.GetOrAdd(goal.Id, _ => []).Add(new GoalCycleSummary(goal.Id, "created", "completed", DateTime.UtcNow, 100));
+        }
         return saved ? MapGoal(goal) : null;
     }
 
     public Task<bool> UpdateGoalStatusAsync(string goalId, string action, CancellationToken cancellationToken = default)
-        => _kernel.MoveKanbanCardAsync(goalId, MapGoalAction(action), cancellationToken);
+    {
+        AddEvent("goal", $"Goal {goalId} action: {action}", "user");
+        _goalCycles.GetOrAdd(goalId, _ => []).Add(new GoalCycleSummary(goalId, action, MapGoalAction(action), DateTime.UtcNow, 0));
+        return _kernel.MoveKanbanCardAsync(goalId, MapGoalAction(action), cancellationToken);
+    }
 
     public Task<CognitiveDashboardData?> GetCognitiveDashboardAsync(CancellationToken ct = default)
         => Task.FromResult<CognitiveDashboardData?>(new CognitiveDashboardData(82,
@@ -199,17 +289,22 @@ public sealed class EmbeddedKernelClient : IKernelClient
         => Task.FromResult<BenchmarkSummary?>(new BenchmarkSummary(3, 12, 84.5, 95, 0.93,
             [new BenchmarkSuite("Local Reasoning", 4, 86.0, 80, 0.95), new BenchmarkSuite("Memory Recall", 4, 82.0, 110, 0.90), new BenchmarkSuite("Policy Eval", 4, 85.5, 95, 0.94)]));
 
+    /// <summary>Queries the causal graph. Returns empty results — causal inference requires a trained GNN model (cloud).</summary>
     public Task<CausalQueryResult?> GetCausalQueryAsync(string query, CancellationToken ct = default)
         => Task.FromResult<CausalQueryResult?>(new CausalQueryResult(query, [], []));
 
+    /// <summary>Predicts the outcome of an action. Returns a stub — requires a trained GNN model (cloud).</summary>
     public Task<CausalPrediction?> GetCausalPredictionAsync(string action, CancellationToken ct = default)
-        => Task.FromResult<CausalPrediction?>(new CausalPrediction(action, "unknown", 0.5, ["limited local mode"]));
+        => Task.FromResult<CausalPrediction?>(new CausalPrediction(action, "unknown", 0.5,
+            ["Local mode: causal prediction requires a trained GNN model"]));
 
     public Task<AffectiveState?> GetAffectiveStateAsync(CancellationToken ct = default)
-        => Task.FromResult<AffectiveState?>(new AffectiveState(0.3, 0.5, 0.2, 0.1, DateTimeOffset.UtcNow));
+        => Task.FromResult<AffectiveState?>(new AffectiveState(_currentValence, _currentArousal,
+            Math.Max(0, 0.5 - _currentValence), Math.Max(0, _currentValence - 0.2), DateTimeOffset.UtcNow));
 
     public Task<EmotionalState?> GetEmotionalStateAsync(string userId, CancellationToken ct = default)
-        => Task.FromResult<EmotionalState?>(new EmotionalState(0.2, 0.6, 0.1, DateTimeOffset.UtcNow));
+        => Task.FromResult<EmotionalState?>(new EmotionalState(_currentValence * 0.8, _currentArousal * 0.9,
+            (_currentValence + _currentArousal) / 2, DateTimeOffset.UtcNow));
 
     public Task<CrossSummaryData?> GetCrossSummaryAsync(CancellationToken ct = default)
         => Task.FromResult<CrossSummaryData?>(new CrossSummaryData(
@@ -218,16 +313,27 @@ public sealed class EmbeddedKernelClient : IKernelClient
             new HybridWeightsData(0.6, 0.2, 0.1, 0.1)));
 
     public Task<MetricsByGoalData?> GetMetricsByGoalAsync(CancellationToken ct = default)
-        => Task.FromResult<MetricsByGoalData?>(new MetricsByGoalData([], 0));
+    {
+        var goals = _goalCycles.Select(g => new GoalMetrics(g.Key, g.Value.Count, g.Value.Count(c => c.Status == "completed"), 0, 1.0, 0, 0)).ToList();
+        return Task.FromResult<MetricsByGoalData?>(new MetricsByGoalData(goals, goals.Count));
+    }
 
     public Task<PolicyVersionList?> GetPolicyVersionsAsync(string policyId, CancellationToken ct = default)
-        => Task.FromResult<PolicyVersionList?>(new PolicyVersionList([new PolicyVersionExtended(policyId, "1.0", DateTime.UtcNow, "system", "Initial", 95.0)]));
+    {
+        if (_policies.TryGetValue(policyId, out var policy))
+            return Task.FromResult<PolicyVersionList?>(new PolicyVersionList(
+            [new PolicyVersionExtended(policyId, policy.Version, policy.CreatedAt, "system", "Current version", 95.0)]));
+        return Task.FromResult<PolicyVersionList?>(new PolicyVersionList([]));
+    }
 
     public Task<List<PolicyRollbackEntry>> GetPolicyRollbacksAsync(string policyId, CancellationToken ct = default)
-        => Task.FromResult(new List<PolicyRollbackEntry>());
+        => Task.FromResult(_policyRollbacks.Where(r => r.PolicyId == policyId).ToList());
 
     public Task<GoalCycleList?> GetGoalCyclesAsync(string goalId, CancellationToken ct = default)
-        => Task.FromResult<GoalCycleList?>(new GoalCycleList([new GoalCycleSummary(goalId, "created", "completed", DateTime.UtcNow, 100)]));
+    {
+        var cycles = _goalCycles.GetValueOrDefault(goalId);
+        return Task.FromResult<GoalCycleList?>(new GoalCycleList(cycles ?? [new GoalCycleSummary(goalId, "created", "completed", DateTime.UtcNow, 100)]));
+    }
 
     public Task<List<McpServerInfo>> GetMcpServersAsync(CancellationToken ct = default)
         => Task.FromResult(_mcpServers.ToList());
@@ -238,6 +344,7 @@ public sealed class EmbeddedKernelClient : IKernelClient
         if (idx < 0) return Task.FromResult(false);
         var old = _mcpServers[idx];
         _mcpServers[idx] = new McpServerInfo(old.ServerId, old.Name, old.TransportType, enabled, old.IsConnected, old.ToolCount, old.LastUsedAt);
+        AddEvent("mcp", $"MCP server {serverId} toggled: {enabled}", "user");
         return Task.FromResult(true);
     }
 
@@ -266,7 +373,10 @@ public sealed class EmbeddedKernelClient : IKernelClient
             new Dictionary<string, string> { ["mode"] = "local", ["theme"] = "dark" }, DateTime.UtcNow));
 
     public Task<bool> UpdateUserProfileAsync(UserProfile profile, CancellationToken ct = default)
-        => Task.FromResult(true);
+    {
+        AddEvent("admin", $"Profile updated for {profile.UserId}", "user");
+        return Task.FromResult(true);
+    }
 
     public Task<ShareListResponse?> GetSharesAsync(CancellationToken ct = default)
         => Task.FromResult<ShareListResponse?>(null);
@@ -286,29 +396,62 @@ public sealed class EmbeddedKernelClient : IKernelClient
 
     public Task<List<McpServerInfo>> GetPluginsAsync(CancellationToken ct = default) => GetMcpServersAsync(ct);
     public Task<BenchmarkSummary?> GetSafetyReportAsync(CancellationToken ct = default) => GetBenchmarkSummaryAsync(ct);
-    public Task<List<ApprovalRequest>> GetPendingApprovalsAsync(string? role = null, CancellationToken ct = default) => Task.FromResult(new List<ApprovalRequest>());
-    public Task<ApprovalRequest?> GetApprovalDetailAsync(string requestId, CancellationToken ct = default) => Task.FromResult<ApprovalRequest?>(null);
-    public Task<ApprovalRequest?> ApproveRequestAsync(string requestId, string? comment = null, CancellationToken ct = default) => Task.FromResult<ApprovalRequest?>(null);
-    public Task<ApprovalRequest?> RejectRequestAsync(string requestId, string? comment = null, CancellationToken ct = default) => Task.FromResult<ApprovalRequest?>(null);
-    public Task<List<ScheduledTask>> GetScheduledTasksAsync(CancellationToken ct = default) => Task.FromResult(new List<ScheduledTask>());
-    public Task<List<MemoryMoment>> GetMemoryMomentsAsync(int limit = 20, CancellationToken ct = default) => Task.FromResult(_memoryMoments.Take(limit).ToList());
+
+    // ───── Approvals (stateful) ─────
+    public Task<List<ApprovalRequest>> GetPendingApprovalsAsync(string? role = null, CancellationToken ct = default)
+    {
+        var pending = _approvalRequests.Values
+            .Where(a => a.Status == ApprovalStatus.Pending)
+            .Where(a => role == null || a.RequiredApprovers.Contains(role))
+            .ToList();
+        return Task.FromResult(pending);
+    }
+
+    public Task<ApprovalRequest?> GetApprovalDetailAsync(string requestId, CancellationToken ct = default)
+        => Task.FromResult(_approvalRequests.GetValueOrDefault(requestId));
+
+    public Task<ApprovalRequest?> ApproveRequestAsync(string requestId, string? comment = null, CancellationToken ct = default)
+    {
+        if (!_approvalRequests.TryGetValue(requestId, out var existing)) return Task.FromResult<ApprovalRequest?>(null);
+        var updated = existing with
+        {
+            Status = ApprovalStatus.Approved,
+            Responses = existing.Responses.Concat([new ApprovalResponse("local-user", "Local User", true, comment ?? "Approved", DateTimeOffset.UtcNow)]).ToList()
+        };
+        _approvalRequests[requestId] = updated;
+        AddEvent("approval", $"Approval {requestId} approved", "user");
+        return Task.FromResult<ApprovalRequest?>(updated);
+    }
+
+    public Task<ApprovalRequest?> RejectRequestAsync(string requestId, string? comment = null, CancellationToken ct = default)
+    {
+        if (!_approvalRequests.TryGetValue(requestId, out var existing)) return Task.FromResult<ApprovalRequest?>(null);
+        var updated = existing with
+        {
+            Status = ApprovalStatus.Rejected,
+            Responses = existing.Responses.Concat([new ApprovalResponse("local-user", "Local User", false, comment ?? "Rejected", DateTimeOffset.UtcNow)]).ToList()
+        };
+        _approvalRequests[requestId] = updated;
+        AddEvent("approval", $"Approval {requestId} rejected", "user");
+        return Task.FromResult<ApprovalRequest?>(updated);
+    }
+
+    public Task<List<ScheduledTask>> GetScheduledTasksAsync(CancellationToken ct = default)
+        => Task.FromResult(_scheduledTasks.ToList());
+
+    public Task<List<MemoryMoment>> GetMemoryMomentsAsync(int limit = 20, CancellationToken ct = default)
+        => Task.FromResult(_memoryMoments.Take(limit).ToList());
 
     // Plan
     public Task<PlanExecutionResult?> GetCurrentPlanAsync(CancellationToken ct = default)
     {
-        var steps = new List<PlanStep>
-        {
-            new(0, "Inicialização do kernel", "Módulo cognitivo iniciado em modo local", PlanStepStatus.Completed, DateTime.UtcNow.AddMinutes(-10), DateTime.UtcNow.AddMinutes(-9), "Ok"),
-            new(1, "Processamento de memória", "Indexando episódios locais", PlanStepStatus.InProgress, DateTime.UtcNow.AddMinutes(-9), null, null),
-            new(2, "Consolidação", "Consolidando aprendizado do dia", PlanStepStatus.Pending, null, null, null),
-        };
         var plan = new PlanInfo("local-plan-1", "Operação local", "Plano de execução do kernel embarcado",
-            PlanStatus.InProgress, 0.33, 3, 1, DateTime.UtcNow.AddHours(-1), null);
-        return Task.FromResult<PlanExecutionResult?>(new PlanExecutionResult("local-plan-1", true, plan, steps, null));
+            PlanStatus.InProgress, 0.33, _planSteps.Count, _planSteps.Count(s => s.Status == PlanStepStatus.Completed), DateTime.UtcNow.AddHours(-1), null);
+        return Task.FromResult<PlanExecutionResult?>(new PlanExecutionResult("local-plan-1", true, plan, [.. _planSteps], null));
     }
 
     public Task<List<PlanStep>> GetPlanStepsAsync(string planId, CancellationToken ct = default)
-        => Task.FromResult(new List<PlanStep>());
+        => Task.FromResult(_planSteps.ToList());
 
     // Feedback History
     public Task<List<FeedbackHistoryEntry>> GetFeedbackHistoryAsync(CancellationToken ct = default)
@@ -335,109 +478,194 @@ public sealed class EmbeddedKernelClient : IKernelClient
         return Task.FromResult<EpisodicMemorySearchResult?>(new EpisodicMemorySearchResult(hits, all.Count, request.Query));
     }
 
-    // Knowledge
+    // Knowledge (stateful)
     public Task<KnowledgeQueryResult?> KnowledgeAskAsync(string query, CancellationToken ct = default)
-        => Task.FromResult<KnowledgeQueryResult?>(new KnowledgeQueryResult(query,
-            [new KnowledgeHit("k1", $"Local result for '{query}'", 0.9, "embedded", DateTimeOffset.UtcNow)], 1));
-    public Task<KnowledgeStats?> KnowledgeStatsAsync(CancellationToken ct = default)
-        => Task.FromResult<KnowledgeStats?>(new KnowledgeStats(42, 3, 7, DateTimeOffset.UtcNow));
-    public Task<KnowledgeLearnResponse?> KnowledgeLearnAsync(string content, string source, string? category = null, CancellationToken ct = default)
-        => Task.FromResult<KnowledgeLearnResponse?>(new KnowledgeLearnResponse(true, MakeId(), null));
+    {
+        var hits = _knowledgeEntries
+            .Where(k => k.Content.Contains(query, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+        if (hits.Count == 0)
+            hits = [new KnowledgeHit("k1", $"Local result for '{query}'", 0.9, "embedded", DateTimeOffset.UtcNow)];
+        return Task.FromResult<KnowledgeQueryResult?>(new KnowledgeQueryResult(query, hits, hits.Count));
+    }
 
-    // PIE
+    public Task<KnowledgeStats?> KnowledgeStatsAsync(CancellationToken ct = default)
+        => Task.FromResult<KnowledgeStats?>(new KnowledgeStats(_knowledgeEntries.Count,
+            _knowledgeEntries.Select(k => k.Source).Distinct().Count(),
+            0, DateTimeOffset.UtcNow));
+
+    public Task<KnowledgeLearnResponse?> KnowledgeLearnAsync(string content, string source, string? category = null, CancellationToken ct = default)
+    {
+        _knowledgeCounter++;
+        var id = $"k{_knowledgeCounter}";
+        _knowledgeEntries.Add(new KnowledgeHit(id, content, 1.0, source, DateTimeOffset.UtcNow));
+        AddEvent("knowledge", $"Knowledge learned from {source}", "system");
+        return Task.FromResult<KnowledgeLearnResponse?>(new KnowledgeLearnResponse(true, id, null));
+    }
+
+    /// <summary>Performs PIE causal inference. Symbolic stub only — statistical inference requires a cloud PIE engine.</summary>
     public Task<PieInferResponse?> PieInferAsync(string premise, string? context = null, CancellationToken ct = default)
-        => Task.FromResult<PieInferResponse?>(new PieInferResponse($"Therefore: {premise}", 0.85, ["local inference"]));
+        => Task.FromResult<PieInferResponse?>(new PieInferResponse($"Therefore: {premise}", 0.85,
+            ["Local PIE inference: symbolic entailment only — use cloud for statistical inference"]));
+
     public Task<PieChainResponse?> PieChainAsync(string initialPremise, int steps = 3, string? context = null, CancellationToken ct = default)
         => Task.FromResult<PieChainResponse?>(new PieChainResponse(
             Enumerable.Range(1, steps).Select(i => new PieChainStep(i, $"Step {i}", $"Conclusion {i}", 0.9 - i * 0.1)).ToList()));
+
     public Task<PieKnowledgeResponse?> PieKnowledgeAsync(string domain, string fact, double certainty = 1.0, CancellationToken ct = default)
         => Task.FromResult<PieKnowledgeResponse?>(new PieKnowledgeResponse(true));
+
     public Task<PieCoherenceData?> PieCoherenceAsync(CancellationToken ct = default)
         => Task.FromResult<PieCoherenceData?>(new PieCoherenceData(0.82,
             [new PieCoherenceEntry("s1", "Local coherence check", 0.85), new PieCoherenceEntry("s2", "Consistency verified", 0.79)]));
+
     public Task<List<PieTerm>> PieTermsAsync(CancellationToken ct = default)
         => Task.FromResult(new List<PieTerm> { new("t1", "Logic", "Logical entailment", 15), new("t2", "Causality", "Cause-effect", 10) });
 
-    // Emotional history
+    // Emotional history (stateful)
     public Task<List<EmotionalHistoryEntry>> EmotionalHistoryAsync(CancellationToken ct = default)
-        => Task.FromResult(new List<EmotionalHistoryEntry>
-        {
-            new(DateTimeOffset.UtcNow.AddMinutes(-10), "Local boot", 0.3, 0.5, "startup"),
-            new(DateTimeOffset.UtcNow, "Ready", 0.4, 0.6, "system")
-        });
+        => Task.FromResult(_emotionalHistory.ToList());
+
     public Task<bool> EmotionalEventAsync(string @event, string? trigger = null, double? valenceDelta = null, double? arousalDelta = null, CancellationToken ct = default)
-        => Task.FromResult(true);
+    {
+        if (valenceDelta.HasValue) _currentValence = Math.Clamp(_currentValence + valenceDelta.Value, -1.0, 1.0);
+        if (arousalDelta.HasValue) _currentArousal = Math.Clamp(_currentArousal + arousalDelta.Value, -1.0, 1.0);
+        AddEmotionalHistory(@event, trigger, _currentValence, _currentArousal);
+        AddEvent("emotional", $"Emotional event: {@event}", "kernel");
+        return Task.FromResult(true);
+    }
 
-    // Events
+    // Events (stateful)
     public Task<List<EventInfo>> EventsRecentAsync(int take = 50, CancellationToken ct = default)
-        => Task.FromResult(new List<EventInfo>
-        {
-            new("e1", "system", "Local mode started", "embedded", DateTimeOffset.UtcNow.AddMinutes(-5), null),
-            new("e2", "cognitive", "Thinking cycle", "kernel", DateTimeOffset.UtcNow.AddMinutes(-2), null)
-        });
-    public Task<EventDetail?> EventDetailAsync(string eventId, CancellationToken ct = default)
-        => Task.FromResult<EventDetail?>(new EventDetail(eventId, "system", "Local event detail", "embedded", DateTimeOffset.UtcNow, null, null, null));
-    public Task<List<EventInfo>> EventsByMomentAsync(string momentId, CancellationToken ct = default)
-        => Task.FromResult(new List<EventInfo>
-        {
-            new("e3", "cognitive", $"Event in moment {momentId}", "kernel", DateTimeOffset.UtcNow, null)
-        });
+        => Task.FromResult(_events.TakeLast(take).ToList());
 
-    // Coding
+    public Task<EventDetail?> EventDetailAsync(string eventId, CancellationToken ct = default)
+    {
+        var ev = _events.FirstOrDefault(e => e.EventId == eventId);
+        if (ev is null) return Task.FromResult<EventDetail?>(null);
+        return Task.FromResult<EventDetail?>(new EventDetail(ev.EventId, ev.Type, ev.Description, ev.Source, ev.Timestamp, ev.Metadata, null, null));
+    }
+
+    public Task<List<EventInfo>> EventsByMomentAsync(string momentId, CancellationToken ct = default)
+        => Task.FromResult(_events.Where(e => e.Description?.Contains(momentId, StringComparison.OrdinalIgnoreCase) ?? false).ToList());
+
+    /// <summary>Explains code. Not available locally — requires a cloud LLM.</summary>
     public Task<CodingResponse?> CodingExplainAsync(CodingRequest request, CancellationToken ct = default)
-        => Task.FromResult<CodingResponse?>(new CodingResponse(null, "Local: explain not available", false, null));
+        => Task.FromResult<CodingResponse?>(new CodingResponse(null,
+            "Local mode: code explanation requires a cloud LLM — use KrnlAI API for this feature", false, null));
+    /// <summary>Fixes code. Not available locally — requires a cloud LLM.</summary>
     public Task<CodingResponse?> CodingFixAsync(CodingRequest request, CancellationToken ct = default)
-        => Task.FromResult<CodingResponse?>(new CodingResponse(null, "Local: fix not available", false, null));
+        => Task.FromResult<CodingResponse?>(new CodingResponse(null,
+            "Local mode: code fixing requires a cloud LLM — use KrnlAI API for this feature", false, null));
+    /// <summary>Generates tests for code. Not available locally — requires a cloud LLM.</summary>
     public Task<CodingResponse?> CodingGenerateTestsAsync(CodingRequest request, CancellationToken ct = default)
-        => Task.FromResult<CodingResponse?>(new CodingResponse(null, "Local: test generation not available", false, null));
+        => Task.FromResult<CodingResponse?>(new CodingResponse(null,
+            "Local mode: test generation requires a cloud LLM — use KrnlAI API for this feature", false, null));
+    /// <summary>Reviews code. Not available locally — requires a cloud LLM.</summary>
     public Task<CodingResponse?> CodingReviewAsync(CodingRequest request, CancellationToken ct = default)
-        => Task.FromResult<CodingResponse?>(new CodingResponse(null, "Local: review not available", false, null));
+        => Task.FromResult<CodingResponse?>(new CodingResponse(null,
+            "Local mode: code review requires a cloud LLM — use KrnlAI API for this feature", false, null));
+    /// <summary>Applies a diff to code. Not available locally — requires a cloud LLM.</summary>
     public Task<CodingResponse?> CodingApplyDiffAsync(CodingRequest request, CancellationToken ct = default)
-        => Task.FromResult<CodingResponse?>(new CodingResponse(null, "Local: diff apply not available", false, null));
+        => Task.FromResult<CodingResponse?>(new CodingResponse(null,
+            "Local mode: diff apply requires a cloud LLM — use KrnlAI API for this feature", false, null));
+    /// <summary>Completes code. Not available locally — requires a cloud LLM.</summary>
     public Task<CodingResponse?> CodingCompleteAsync(CodingRequest request, CancellationToken ct = default)
-        => Task.FromResult<CodingResponse?>(new CodingResponse(null, "Local: complete not available", false, null));
+        => Task.FromResult<CodingResponse?>(new CodingResponse(null,
+            "Local mode: code completion requires a cloud LLM — use KrnlAI API for this feature", false, null));
+    /// <summary>Gets coding cycle status. Stub in local mode — no real coding cycles exist.</summary>
     public Task<CodingStatus?> GetCodingStatusAsync(string cycleId, CancellationToken ct = default)
         => Task.FromResult<CodingStatus?>(new CodingStatus(cycleId, "unknown", null, 0, null, null, DateTime.UtcNow, null));
 
-    // Self-Improvement
+    /// <summary>Gets self-improvement status. Returns disabled stub — self-improvement requires a cloud LLM.</summary>
     public Task<SelfImprovementStatus?> GetSelfImprovementStatusAsync(CancellationToken ct = default)
         => Task.FromResult<SelfImprovementStatus?>(new SelfImprovementStatus(false, false, DateTime.UtcNow, 0, 0, 0, [], []));
 
-    // Assistant (Threads)
+    // Assistant (Threads) — stateful
     public Task<ThreadInfo?> CreateThreadAsync(string? title = null, CancellationToken ct = default)
-        => Task.FromResult<ThreadInfo?>(new ThreadInfo(MakeId(), title ?? "Local Thread", DateTime.UtcNow, "active"));
+    {
+        var id = MakeId();
+        var thread = new ThreadInfo(id, title ?? "Local Thread", DateTimeOffset.UtcNow, "active");
+        _threads[id] = thread;
+        _threadMessages[id] = [];
+        AddEvent("thread", $"Thread created: {thread.Title}", "user");
+        return Task.FromResult<ThreadInfo?>(thread);
+    }
+
     public Task<ThreadInfo?> GetThreadAsync(string threadId, CancellationToken ct = default)
-        => Task.FromResult<ThreadInfo?>(new ThreadInfo(threadId, "Local Thread", DateTime.UtcNow, "active"));
+        => Task.FromResult<ThreadInfo?>(_threads.GetValueOrDefault(threadId) ?? new ThreadInfo(threadId, "Local Thread", DateTime.UtcNow, "active"));
+
     public Task<MessageInfo?> SendMessageAsync(string threadId, string content, CancellationToken ct = default)
-        => Task.FromResult<MessageInfo?>(new MessageInfo(MakeId(), threadId, "user", content, DateTime.UtcNow, null));
+    {
+        var msg = new MessageInfo(MakeId(), threadId, "user", content, DateTimeOffset.UtcNow, null);
+        _threadMessages.AddOrUpdate(threadId,
+            _ => [msg],
+            (_, list) => { list.Add(msg); return list; });
+        AddEvent("thread", $"Message sent to thread {threadId}", "user");
+        return Task.FromResult<MessageInfo?>(msg);
+    }
+
     public Task<List<MessageInfo>> GetMessagesAsync(string threadId, CancellationToken ct = default)
-        => Task.FromResult(new List<MessageInfo>());
+        => Task.FromResult(_threadMessages.GetValueOrDefault(threadId) ?? []);
+
     public Task<RunInfo?> CreateRunAsync(string threadId, CancellationToken ct = default)
-        => Task.FromResult<RunInfo?>(new RunInfo(MakeId(), threadId, "completed", null, DateTime.UtcNow, null, null));
+    {
+        AddEvent("thread", $"Run created for thread {threadId}", "system");
+        return Task.FromResult<RunInfo?>(new RunInfo(MakeId(), threadId, "completed", null, DateTime.UtcNow, null, null));
+    }
+
     public Task<RunInfo?> GetRunAsync(string threadId, string runId, CancellationToken ct = default)
         => Task.FromResult<RunInfo?>(new RunInfo(runId, threadId, "completed", null, DateTime.UtcNow, null, null));
+
     public Task<bool> CancelRunAsync(string threadId, string runId, CancellationToken ct = default)
-        => Task.FromResult(true);
+    {
+        AddEvent("thread", $"Run {runId} cancelled for thread {threadId}", "user");
+        return Task.FromResult(true);
+    }
 
     // MCP Config
     public Task<McpServerConfig?> GetMcpServerConfigAsync(string serverId, CancellationToken ct = default)
         => Task.FromResult<McpServerConfig?>(new McpServerConfig(serverId, serverId, "stdio", "", null, null));
+
     public Task<bool> UpdateMcpServerAsync(string serverId, McpServerConfig config, CancellationToken ct = default)
-        => Task.FromResult(true);
+    {
+        AddEvent("mcp", $"MCP server config updated: {serverId}", "user");
+        return Task.FromResult(true);
+    }
 
-    // User Services
+    // User Services (stateful)
     public Task<List<UserServiceInfo>> GetUserServicesAsync(CancellationToken ct = default)
-        => Task.FromResult(new List<UserServiceInfo>());
-    public Task<bool> UpdateUserServiceAsync(string serviceType, UserServiceUpdateRequest request, CancellationToken ct = default)
-        => Task.FromResult(true);
-    public Task<bool> DeleteUserServiceAsync(string serviceType, CancellationToken ct = default)
-        => Task.FromResult(true);
+        => Task.FromResult(_userServices.Values.ToList());
 
-    // Cognitive Flow (Studio)
+    public Task<bool> UpdateUserServiceAsync(string serviceType, UserServiceUpdateRequest request, CancellationToken ct = default)
+    {
+        var existing = _userServices.GetValueOrDefault(serviceType);
+        _userServices[serviceType] = new UserServiceInfo(serviceType, request.Credentials.Count > 0,
+            request.Enabled ?? existing?.Enabled ?? true, DateTimeOffset.UtcNow);
+        AddEvent("user-service", $"Service configured: {serviceType}", "user");
+        return Task.FromResult(true);
+    }
+
+    public Task<bool> DeleteUserServiceAsync(string serviceType, CancellationToken ct = default)
+    {
+        if (_userServices.TryRemove(serviceType, out _))
+        {
+            AddEvent("user-service", $"Service removed: {serviceType}", "user");
+            return Task.FromResult(true);
+        }
+        return Task.FromResult(true);
+    }
+
+    /// <summary>Executes a cognitive flow. Not available locally — requires the LLM Gateway.</summary>
     public Task<CognitiveFlowResult?> CognitiveFlowExecuteAsync(FlowDefinition flow, CancellationToken ct = default)
-        => Task.FromResult<CognitiveFlowResult?>(new CognitiveFlowResult(false, null, "Not available in embedded mode"));
+        => Task.FromResult<CognitiveFlowResult?>(new CognitiveFlowResult(false, null,
+            "Local mode: cognitive flow execution requires the LLM Gateway — use KrnlAI API for this feature"));
+
+    /// <summary>Saves a cognitive flow. Not available locally.</summary>
     public Task<bool> CognitiveFlowSaveAsync(FlowDefinition flow, CancellationToken ct = default)
         => Task.FromResult(false);
+
+    /// <summary>Loads a cognitive flow. Not available locally.</summary>
     public Task<FlowDefinition?> CognitiveFlowLoadAsync(string flowName, CancellationToken ct = default)
         => Task.FromResult<FlowDefinition?>(null);
 
@@ -456,6 +684,7 @@ public sealed class EmbeddedKernelClient : IKernelClient
         var now = DateTimeOffset.UtcNow;
         var template = new TemplateInfo(id, request.Name, request.Description, request.Content, request.Category ?? "general", "1.0", now, now);
         _templates.Add(template);
+        AddEvent("template", $"Template created: {request.Name}", "user");
         return Task.FromResult<TemplateInfo?>(template);
     }
 
@@ -500,6 +729,7 @@ public sealed class EmbeddedKernelClient : IKernelClient
         var exp = new ExperimentInfo(id, request.Name, "running", request.Description, now, null);
         _experiments.Add(exp);
         _experimentMetrics[id] = [];
+        AddEvent("experiment", $"Experiment started: {request.Name}", "user");
         return Task.FromResult<ExperimentInfo?>(exp);
     }
 
@@ -509,6 +739,7 @@ public sealed class EmbeddedKernelClient : IKernelClient
         if (idx < 0) return Task.FromResult(false);
         var old = _experiments[idx];
         _experiments[idx] = new ExperimentInfo(old.Id, old.Name, "completed", old.Description, old.CreatedAt, DateTimeOffset.UtcNow);
+        AddEvent("experiment", $"Experiment completed: {old.Name}", "system");
         return Task.FromResult(true);
     }
 
