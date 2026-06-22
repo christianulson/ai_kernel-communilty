@@ -106,10 +106,10 @@ describe('Extension', () => {
         require('../extension').deactivate();
     });
 
-    it('should register all 8 commands on activation', async () => {
+    it('should register all commands on activation', async () => {
         const { activate } = require('../extension');
         await activate(context);
-        expect(vscode.commands.registerCommand).toHaveBeenCalledTimes(9); // 8 command + 1 navigate
+        expect(vscode.commands.registerCommand).toHaveBeenCalledTimes(18); // 10 panel commands + 8 debug + 1 navigate
     });
 
     it('should register chat command', async () => {
@@ -168,6 +168,35 @@ describe('Extension', () => {
         );
         expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
             'krnlai.stop', expect.any(Function)
+        );
+    });
+
+    it('should register debug commands', async () => {
+        const { activate } = require('../extension');
+        await activate(context);
+        expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
+            'krnlai.debugTrace', expect.any(Function)
+        );
+        expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
+            'krnlai.debugBuild', expect.any(Function)
+        );
+        expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
+            'krnlai.debugLaunch', expect.any(Function)
+        );
+        expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
+            'krnlai.debugStop', expect.any(Function)
+        );
+        expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
+            'krnlai.debugStepOver', expect.any(Function)
+        );
+        expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
+            'krnlai.debugStepInto', expect.any(Function)
+        );
+        expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
+            'krnlai.debugContinue', expect.any(Function)
+        );
+        expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
+            'krnlai.debugBreakpoint', expect.any(Function)
         );
     });
 

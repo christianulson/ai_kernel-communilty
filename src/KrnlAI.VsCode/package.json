@@ -105,6 +105,38 @@
       {
         "command": "krnlai.acceptNextWord",
         "title": "Krnl-AI: Aceitar próxima palavra da sugestão"
+      },
+      {
+        "command": "krnlai.debugTrace",
+        "title": "Krnl-AI: Debug Trace (ver operações internas)"
+      },
+      {
+        "command": "krnlai.debugBuild",
+        "title": "Krnl-AI: Debug Build"
+      },
+      {
+        "command": "krnlai.debugLaunch",
+        "title": "Krnl-AI: Debug Launch"
+      },
+      {
+        "command": "krnlai.debugStop",
+        "title": "Krnl-AI: Debug Stop"
+      },
+      {
+        "command": "krnlai.debugStepOver",
+        "title": "Krnl-AI: Debug Step Over"
+      },
+      {
+        "command": "krnlai.debugStepInto",
+        "title": "Krnl-AI: Debug Step Into"
+      },
+      {
+        "command": "krnlai.debugContinue",
+        "title": "Krnl-AI: Debug Continue"
+      },
+      {
+        "command": "krnlai.debugBreakpoint",
+        "title": "Krnl-AI: Debug Breakpoint"
       }
     ],
     "keybindings": [

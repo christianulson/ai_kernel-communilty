@@ -8,6 +8,7 @@ import { DashboardPanel } from './panels/dashboardPanel';
 import { PoliciesPanel } from './panels/policiesPanel';
 import { EpisodesPanel } from './panels/episodesPanel';
 import { MemoryPanel } from './panels/memoryPanel';
+import { KanbanPanel } from './panels/KanbanPanel';
 import { SettingsPanel } from './panels/settingsPanel';
 import { ChatViewProvider } from './chat/ChatViewProvider';
 import { EditorContextProvider } from './codingAgent/EditorContextProvider';
@@ -23,6 +24,8 @@ import { GitManager } from './codingAgent/GitManager';
 import { AgenticLoopManager } from './codingAgent/AgenticLoopManager';
 import { SessionManager } from './services/SessionManager';
 import { UsageTracker } from './services/UsageTracker';
+import { DebugManager } from './services/DebugManager';
+import { OperationTracker } from './services/OperationTracker';
 import { registerKernelChatParticipant } from './chat/KernelChatParticipant';
 
 let sidecarProcess: any = undefined;
@@ -126,6 +129,9 @@ export function activate(context: vscode.ExtensionContext) {
     if (codingAgentEnabled) {
         registerCodingAgentFeatures(context, client);
     }
+
+    // Debug commands (always registered)
+    registerDebugCommands(context, client);
 
     // Watch for config changes to enable/disable coding agent dynamically
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(e => {
@@ -272,6 +278,87 @@ function registerCodingAgentFeatures(context: vscode.ExtensionContext, client: K
         const hoverProvider = new CodingHoverProvider(() => client.getBaseUrl());
         pushSub(vscode.languages.registerHoverProvider({ pattern: '**' }, hoverProvider));
     }
+}
+
+function registerDebugCommands(context: vscode.ExtensionContext, client: KernelClient) {
+    const debugTracker = new OperationTracker();
+    const debugMgr = new DebugManager(debugTracker);
+
+    // Debug trace viewer
+    context.subscriptions.push(vscode.commands.registerCommand('krnlai.debugTrace', async () => {
+        const trace = debugTracker.formatTrace();
+        const doc = await vscode.workspace.openTextDocument({ content: trace, language: 'markdown' });
+        vscode.window.showTextDocument(doc, { preview: true, viewColumn: vscode.ViewColumn.Beside });
+    }));
+
+    // Debug build
+    context.subscriptions.push(vscode.commands.registerCommand('krnlai.debugBuild', async () => {
+        using op = debugTracker.start('debug.build');
+        try {
+            const terminal = vscode.window.createTerminal('Krnl-AI Build');
+            terminal.show();
+            terminal.sendText('dotnet build --no-restore');
+            op.setResult('Build started in terminal');
+        } catch (ex: any) {
+            op.setError(ex.message ?? String(ex));
+            vscode.window.showErrorMessage(`Build failed: ${ex.message}`);
+        }
+    }));
+
+    // Debug launch
+    context.subscriptions.push(vscode.commands.registerCommand('krnlai.debugLaunch', async () => {
+        const ok = await debugMgr.launch();
+        if (ok) {
+            vscode.window.showInformationMessage('🚀 Debugger launched.');
+        } else {
+            vscode.window.showWarningMessage('⚠️ Could not launch debugger (already running or failed).');
+        }
+    }));
+
+    // Debug stop
+    context.subscriptions.push(vscode.commands.registerCommand('krnlai.debugStop', async () => {
+        await debugMgr.stop();
+        vscode.window.showInformationMessage('🛑 Debugger stopped.');
+    }));
+
+    // Debug step over
+    context.subscriptions.push(vscode.commands.registerCommand('krnlai.debugStepOver', async () => {
+        await debugMgr.stepOver();
+    }));
+
+    // Debug step into
+    context.subscriptions.push(vscode.commands.registerCommand('krnlai.debugStepInto', async () => {
+        await debugMgr.stepInto();
+    }));
+
+    // Debug continue
+    context.subscriptions.push(vscode.commands.registerCommand('krnlai.debugContinue', async () => {
+        await debugMgr.continue();
+    }));
+
+    // Debug set breakpoint (prompts for file:line)
+    context.subscriptions.push(vscode.commands.registerCommand('krnlai.debugBreakpoint', async () => {
+        const input = await vscode.window.showInputBox({
+            prompt: 'Enter file:line (e.g., src/main.ts:42)',
+            placeHolder: 'file.ts:10',
+        });
+        if (!input) return;
+
+        const match = input.match(/^(.+):(\d+)$/);
+        if (!match) {
+            vscode.window.showErrorMessage('Invalid format. Use file:line (e.g., src/main.ts:42)');
+            return;
+        }
+
+        const filePath = match[1].replace(/"/g, '');
+        const line = parseInt(match[2], 10);
+        const ok = await debugMgr.setBreakpoint(filePath, line);
+        if (ok) {
+            vscode.window.showInformationMessage(`🔴 Breakpoint set at ${filePath}:${line}`);
+        } else {
+            vscode.window.showErrorMessage(`Failed to set breakpoint at ${filePath}:${line}`);
+        }
+    }));
 }
 
 export function deactivate() {
