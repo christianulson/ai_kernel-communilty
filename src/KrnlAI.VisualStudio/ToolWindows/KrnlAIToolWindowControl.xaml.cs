@@ -99,7 +99,7 @@ public partial class KrnlAIToolWindowControl : UserControl
             MoodText.Text = !string.IsNullOrEmpty(mood) ? mood : "";
             StatusMoodText.Text = !string.IsNullOrEmpty(mood) ? "Estado Emocional: " + mood : "";
         }
-        catch { }
+        catch (Exception ex) { KrnlLogger.Write(ex); }
     }
 
     private async System.Threading.Tasks.Task DoConnectAsync()

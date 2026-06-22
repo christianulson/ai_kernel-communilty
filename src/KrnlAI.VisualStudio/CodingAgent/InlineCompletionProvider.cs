@@ -2,6 +2,7 @@ using System.ComponentModel.Composition;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using KrnlAI.VisualStudio.Services;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Operations;
@@ -62,7 +63,7 @@ internal sealed class KrnlAIInlineCompletionSession
         {
             try { await ProcessTextChangeAsync(token); }
             catch (OperationCanceledException) { }
-            catch { }
+            catch (Exception ex) { KrnlLogger.Write(ex); }
         }, token);
     }
 
@@ -117,7 +118,7 @@ internal sealed class KrnlAIInlineCompletionSession
             await ShowSuggestionAsync(result.Completions[0]);
         }
         catch (OperationCanceledException) { }
-        catch { }
+        catch (Exception ex) { KrnlLogger.Write(ex); }
     }
 
     private async System.Threading.Tasks.Task ShowSuggestionAsync(string suggestion)
@@ -133,7 +134,7 @@ internal sealed class KrnlAIInlineCompletionSession
             edit.Insert(caret, $" /* completion: {insertText.Replace("\n", " ")} */");
             edit.Apply();
         }
-        catch { }
+        catch (Exception ex) { KrnlLogger.Write(ex); }
     }
 
     private void ShowSuggestion(string suggestion)

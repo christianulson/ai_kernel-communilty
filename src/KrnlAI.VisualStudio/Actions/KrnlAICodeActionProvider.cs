@@ -1,5 +1,6 @@
 #if AUTOCODE_ENABLE_CODELENS
 using System.ComponentModel.Composition;
+using KrnlAI.VisualStudio.Services;
 using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text;
@@ -142,7 +143,7 @@ public sealed class KrnlAISuggestedAction : ISuggestedAction
                 Microsoft.VisualStudio.Shell.Interop.OLEMSGBUTTON.OLEMSGBUTTON_OK,
                 Microsoft.VisualStudio.Shell.Interop.OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
         }
-        catch { }
+        catch (Exception ex) { KrnlLogger.Write(ex); }
 
         return Task.CompletedTask;
     }

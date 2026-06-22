@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 
@@ -22,7 +23,10 @@ public static class KrnlLogger
                 Directory.CreateDirectory(_logDir);
             RotateIfNeeded();
         }
-        catch { }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[KrnlLogger] Init failed: {ex.Message}");
+        }
     }
 
     public static void Write(
@@ -49,7 +53,10 @@ public static class KrnlLogger
                 File.AppendAllText(_logFile, entry + Environment.NewLine);
             }
         }
-        catch { }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[KrnlLogger] Write failed: {ex.Message}");
+        }
     }
 
     private static void RotateIfNeeded()
@@ -58,7 +65,11 @@ public static class KrnlLogger
         var info = new FileInfo(_logFile);
         if (info.Length < MaxLogSize) return;
         var rotated = Path.Combine(_logDir, $"vs-krnl.{DateTime.UtcNow:yyyyMMddHHmmss}.log");
-        try { File.Move(_logFile, rotated); } catch { }
+        try { File.Move(_logFile, rotated); }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[KrnlLogger] Rotate failed: {ex.Message}");
+        }
     }
 
     public static string GetLogPath() => _logFile;

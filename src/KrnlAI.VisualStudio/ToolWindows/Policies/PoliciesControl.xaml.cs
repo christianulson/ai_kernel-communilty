@@ -37,7 +37,7 @@ public partial class PoliciesControl : UserControl
 
             PoliciesList.ItemsSource = filtered;
         }
-        catch { }
+        catch (Exception ex) { KrnlLogger.Write(ex); }
     }
 
     private void OnDomainFilterChanged(object sender, SelectionChangedEventArgs e)
