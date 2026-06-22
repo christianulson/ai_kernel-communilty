@@ -43,7 +43,8 @@ public partial class KrnlAIToolWindowControl : UserControl
         _applyEdit = new ApplyEditService();
         _agenticLoop = new AgenticLoopService(_clientService);
         var debugTracker = new VsOperationTracker();
-        _commandRouter = new SlashCommandRouter(_clientService, _solutionContext, _applyEdit, _agenticLoop, debugTracker: debugTracker);
+        var debugService = new VsDebugService(debugTracker: debugTracker);
+        _commandRouter = new SlashCommandRouter(_clientService, _solutionContext, _applyEdit, _agenticLoop, debugTracker: debugTracker, debugService: debugService);
         _streamingService = new SignalRStreamingService();
         _approvalService = new ApprovalService(_settings);
         _artifactDispatcher = new ArtifactDispatcher();

@@ -15,9 +15,10 @@ public sealed class VsCommandHandler(
     IAgenticLoopService agenticLoop,
     ITerminalService? terminal = null,
     IGitService? git = null,
-    IVsOperationTracker? debugTracker = null) : IVsCommandHandler
+    IVsOperationTracker? debugTracker = null,
+    IVsDebugService? debugService = null) : IVsCommandHandler
 {
-    private readonly SlashCommandRouter _router = new(client, context, applyEdit, agenticLoop, terminal, git, debugTracker);
+    private readonly SlashCommandRouter _router = new(client, context, applyEdit, agenticLoop, terminal, git, debugTracker, debugService);
 
     public IReadOnlyDictionary<string, SlashCommand> Commands => _router.Commands;
 

@@ -31,6 +31,7 @@ public sealed class KrnlAIPackage : AsyncPackage
     private VsCommandHandler? _commandHandler;
     private ISettingsService? _settings;
     private VsOperationTracker? _debugTracker;
+    private VsDebugService? _debugService;
 
     protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
     {
@@ -40,6 +41,7 @@ public sealed class KrnlAIPackage : AsyncPackage
         _settings.Load();
 
         _debugTracker = new VsOperationTracker();
+        _debugService = new VsDebugService(debugTracker: _debugTracker);
         _editorContextProvider = new EditorContextProvider();
         _commandHandler = CreateCommandHandler();
 
@@ -68,7 +70,7 @@ public sealed class KrnlAIPackage : AsyncPackage
             _ = client.ConnectAsync(endpoint);
         }
 
-        return new VsCommandHandler(client, context, applyEdit, agenticLoop, terminal, git, _debugTracker);
+        return new VsCommandHandler(client, context, applyEdit, agenticLoop, terminal, git, _debugTracker, _debugService);
     }
 
     public IEditorContextProvider? GetEditorContextProvider() => _editorContextProvider;

@@ -13,6 +13,7 @@ public sealed class SlashCommandRouter
     private readonly ITerminalService _terminal;
     private readonly IGitService _git;
     private readonly IVsOperationTracker _debugTracker;
+    private readonly IVsDebugService _debugService;
 
     public SlashCommandRouter(
         IKernelClientService client,
@@ -21,7 +22,8 @@ public sealed class SlashCommandRouter
         IAgenticLoopService agenticLoop,
         ITerminalService? terminal = null,
         IGitService? git = null,
-        IVsOperationTracker? debugTracker = null)
+        IVsOperationTracker? debugTracker = null,
+        IVsDebugService? debugService = null)
     {
         _client = client;
         _context = context;
@@ -30,6 +32,7 @@ public sealed class SlashCommandRouter
         _terminal = terminal ?? new TerminalService();
         _git = git ?? new GitService();
         _debugTracker = debugTracker ?? new VsOperationTracker();
+        _debugService = debugService ?? new VsDebugService(debugTracker: _debugTracker);
         _commands = new Dictionary<string, SlashCommand>(StringComparer.OrdinalIgnoreCase);
         RegisterDefaultCommands();
     }
@@ -94,6 +97,13 @@ public sealed class SlashCommandRouter
         Register(GitCommitHandler.Create(_git));
         Register(GitReviewPrHandler.Create(_git, _client));
         Register(DebugHandler.Create(_debugTracker));
+        Register(DebugRunHandler.Create(_debugService));
+        Register(DebugStopHandler.Create(_debugService));
+        Register(DebugStepHandler.CreateStepOver(_debugService));
+        Register(DebugStepHandler.CreateStepInto(_debugService));
+        Register(DebugStepHandler.CreateContinue(_debugService));
+        Register(DebugBreakpointHandler.Create(_debugService));
+        Register(DebugBuildHandler.Create(_debugService));
     }
 
     private void Register(SlashCommand cmd) => _commands[cmd.Name] = cmd;
