@@ -56,7 +56,7 @@
                                     <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold"
                                                Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     <TextBlock FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,2,0,0">
-                                        <Run Text="{Binding Email}"/> · <Run Text="{Binding Role}"/>
+                                        <Run Text="{Binding Email, Mode=OneWay}"/> · <Run Text="{Binding Role, Mode=OneWay}"/>
                                     </TextBlock>
                                 </StackPanel>
                                 <Border Grid.Column="1" VerticalAlignment="Center" Padding="8,4" CornerRadius="8"

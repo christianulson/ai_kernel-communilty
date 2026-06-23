@@ -45,7 +45,7 @@
                         <TextBlock Margin="0,8,0,0" FontSize="11"
                                    Foreground="{DynamicResource TextSecondaryBrush}">
                             <Run Text="Confiança: "/>
-                            <Run Text="{Binding CreativityVM.Confidence, StringFormat={}{0:P1}}"/>
+                            <Run Text="{Binding CreativityVM.Confidence, Mode=OneWay, StringFormat={}{0:P1}}"/>
                         </TextBlock>
                     </StackPanel>
                 </Border>
@@ -56,7 +56,7 @@
                                     Background="{DynamicResource PanelSoftBrush}">
                                 <StackPanel>
                                     <TextBlock FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}">
-                                        <Run Text="Passo "/><Run Text="{Binding Step}"/></TextBlock>
+                                        <Run Text="Passo "/><Run Text="{Binding Step, Mode=OneWay}"/></TextBlock>
                                     <TextBlock Text="{Binding Conclusion}" TextWrapping="Wrap" FontSize="13"
                                                Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,4,0,0"/>
                                     <TextBlock Text="{Binding Confidence, StringFormat=Confiança: {0:P1}}"

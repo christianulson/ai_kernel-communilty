@@ -31,7 +31,7 @@
                                     <TextBlock Text="{Binding Label}" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     <TextBlock Text="{Binding Description}" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" TextTrimming="CharacterEllipsis"/>
                                     <TextBlock FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0">
-                                        <Run Text="{Binding Category}"/> · <Run Text="{Binding CapturedAt, StringFormat=dd/MM HH:mm}"/> · Salience: <Run Text="{Binding Salience, StringFormat={}{0:P1}}"/>
+                                        <Run Text="{Binding Category, Mode=OneWay}"/> · <Run Text="{Binding CapturedAt, Mode=OneWay, StringFormat=dd/MM HH:mm}"/> · Salience: <Run Text="{Binding Salience, Mode=OneWay, StringFormat={}{0:P1}}"/>
                                     </TextBlock>
                                 </StackPanel>
                             </Grid>

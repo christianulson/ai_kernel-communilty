@@ -102,7 +102,7 @@
                               Height="160" RowHeaderWidth="0">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Batch ID" Binding="{Binding BatchId}" Width="240"/>
-                            <DataGridTextColumn Header="Itens" Binding="{Binding Receipts.Count}" Width="80"/>
+                            <DataGridTextColumn Header="Itens" Binding="{Binding Receipts.Count, Mode=OneWay}" Width="80"/>
                             <DataGridTextColumn Header="Total" Binding="{Binding TotalCents, StringFormat={}{0:F2}¢}" Width="100"/>
                             <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="120"/>
                             <DataGridTextColumn Header="Criado em" Binding="{Binding CreatedAt, StringFormat=dd/MM HH:mm}" Width="120"/>

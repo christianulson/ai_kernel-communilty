@@ -156,18 +156,18 @@
                                         <StackPanel>
                                             <TextBlock FontSize="13" FontWeight="SemiBold"
                                                        Foreground="{DynamicResource TextPrimaryBrush}">
-                                                <Run Text="{Binding EventType}"/>
+                                                <Run Text="{Binding EventType, Mode=OneWay}"/>
                                                 <Run Text=" · "/>
-                                                <Run Text="{Binding OverallScore, StringFormat=Score: {0:F1}}"/>
+                                                <Run Text="{Binding OverallScore, Mode=OneWay, StringFormat=Score: {0:F1}}"/>
                                                 <Run Text=" · "/>
-                                                <Run Text="{Binding Tier, StringFormat=Tier: {0}}"/>
+                                                <Run Text="{Binding Tier, Mode=OneWay, StringFormat=Tier: {0}}"/>
                                             </TextBlock>
                                             <TextBlock FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}">
-                                                <Run Text="{Binding Delta, StringFormat=Delta: {0:+0.0;-0.0;0.0}}"/>
+                                                <Run Text="{Binding Delta, Mode=OneWay, StringFormat=Delta: {0:+0.0;-0.0;0.0}}"/>
                                                 <Run Text=" · "/>
-                                                <Run Text="{Binding Reason, StringFormat=Motivo: {0}}"/>
+                                                <Run Text="{Binding Reason, Mode=OneWay, StringFormat=Motivo: {0}}"/>
                                                 <Run Text=" · "/>
-                                                <Run Text="{Binding Timestamp, StringFormat={}{0:dd/MM/yyyy HH:mm:ss}}"/>
+                                                <Run Text="{Binding Timestamp, Mode=OneWay, StringFormat={}{0:dd/MM/yyyy HH:mm:ss}}"/>
                                             </TextBlock>
                                         </StackPanel>
                                         <TextBlock Grid.Column="1" Text="{Binding NodeId}" FontSize="11"

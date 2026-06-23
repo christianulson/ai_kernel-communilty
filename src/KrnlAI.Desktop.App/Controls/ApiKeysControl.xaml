@@ -111,18 +111,23 @@
                                         <StackPanel>
                                             <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold"
                                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                            <TextBlock FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,2,0,0">
-                                                <Run Text="{Binding DisplayPrefix}"/>
-                                                <Run Text=" · "/>
-                                                <Run Text="{Binding Scope}"/>
-                                                <Run Text=" · "/>
-                                                <Run Text="{Binding Active, StringFormat=Ativa: {0}}"/>
-                                            </TextBlock>
-                                            <TextBlock FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}">
-                                                <Run Text="{Binding CreatedAt, StringFormat=Criada em: {0:dd/MM/yyyy HH:mm:ss}}"/>
-                                                <Run Text=" · "/>
-                                                <Run Text="{Binding ExpiresAt, StringFormat=Expira em: {0:dd/MM/yyyy HH:mm:ss}}"/>
-                                            </TextBlock>
+                                            <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                                <TextBlock FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"
+                                                           Text="{Binding DisplayPrefix, Mode=OneWay}"/>
+                                                <TextBlock FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" Text=" · "/>
+                                                <TextBlock FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"
+                                                           Text="{Binding Scope, Mode=OneWay}"/>
+                                                <TextBlock FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" Text=" · "/>
+                                                <TextBlock FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"
+                                                           Text="{Binding Active, Mode=OneWay, StringFormat=Ativa: {0}}"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"
+                                                           Text="{Binding CreatedAt, Mode=OneWay, StringFormat=Criada em: {0:dd/MM/yyyy HH:mm:ss}}"/>
+                                                <TextBlock FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" Text=" · "/>
+                                                <TextBlock FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"
+                                                           Text="{Binding ExpiresAt, Mode=OneWay, StringFormat=Expira em: {0:dd/MM/yyyy HH:mm:ss}}"/>
+                                            </StackPanel>
                                             <TextBlock FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"
                                                        Text="{Binding LastUsedAt, StringFormat=Último uso: {0:dd/MM/yyyy HH:mm:ss}}"/>
                                         </StackPanel>

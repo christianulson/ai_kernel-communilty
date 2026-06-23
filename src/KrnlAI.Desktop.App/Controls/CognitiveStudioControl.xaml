@@ -37,8 +37,8 @@
                                 <TextBlock FontSize="12" Foreground="#E5EEFC"
                                            MouseDown="OnPaletteItemMouseDown"
                                            Tag="{Binding}">
-                                    <Run Text="{Binding Converter={StaticResource CognitiveStepIconConverter}}"/> 
-                                    <Run Text="{Binding Converter={StaticResource CognitiveStepLabelConverter}}"/>
+                                    <Run Text="{Binding Mode=OneWay, Converter={StaticResource CognitiveStepIconConverter}}"/> 
+                                    <Run Text="{Binding Mode=OneWay, Converter={StaticResource CognitiveStepLabelConverter}}"/>
                                 </TextBlock>
                             </Border>
                         </DataTemplate>

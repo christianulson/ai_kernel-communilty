@@ -60,10 +60,10 @@
                                                     <TextBlock Text="{Binding Description}" FontWeight="SemiBold" FontSize="14" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                     <TextBlock Margin="0,4,0,0" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}">
                                                         <Run Text="{loc:Loc approval_type}" FontWeight="SemiBold"/>
-                                                        <Run Text="{Binding ActionType}"/>
+                                                        <Run Text="{Binding ActionType, Mode=OneWay}"/>
                                                         <Run Text=" · "/>
                                                         <Run Text="{loc:Loc approval_risk}"/>
-                                                        <Run Text="{Binding RiskScore, StringFormat={}{0:P0}}"/>
+                                                        <Run Text="{Binding RiskScore, Mode=OneWay, StringFormat={}{0:P0}}"/>
                                                     </TextBlock>
                                                 </StackPanel>
                                                 <Border Grid.Column="1" CornerRadius="12" Padding="8,4" Background="{DynamicResource WarningBrush}" Opacity="0.8">
@@ -72,9 +72,9 @@
                                             </Grid>
                                             <TextBlock Margin="0,8,0,0" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}">
                                                 <Run Text="{loc:Loc approval_requested_by}"/>
-                                                <Run Text="{Binding RequestedBy, TargetNullValue=—}"/>
+                                                <Run Text="{Binding RequestedBy, Mode=OneWay, TargetNullValue=—}"/>
                                                 <Run Text=" · "/>
-                                                <Run Text="{Binding CreatedAt, StringFormat={}{0:g}}"/>
+                                                <Run Text="{Binding CreatedAt, Mode=OneWay, StringFormat={}{0:g}}"/>
                                             </TextBlock>
                                             <StackPanel Orientation="Horizontal" Margin="0,8,0,0" HorizontalAlignment="Right">
                                                 <Button Command="{Binding DataContext.ApprovalVM.ApproveCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"

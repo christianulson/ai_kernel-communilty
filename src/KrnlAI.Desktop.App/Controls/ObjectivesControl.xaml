@@ -49,7 +49,7 @@
                                     <TextBlock Text="{Binding Description}" FontSize="14" FontWeight="SemiBold"
                                                Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     <TextBlock FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0">
-                                        <Run Text="{Binding Status}"/> · <Run Text="{Binding Progress, StringFormat={}{0:P1}}"/>
+                                        <Run Text="{Binding Status, Mode=OneWay}"/> · <Run Text="{Binding Progress, Mode=OneWay, StringFormat={}{0:P1}}"/>
                                     </TextBlock>
                                 </StackPanel>
                                 <Border Grid.Column="1" Width="80" Height="8" CornerRadius="4" Background="#12FFFFFF" VerticalAlignment="Center">
