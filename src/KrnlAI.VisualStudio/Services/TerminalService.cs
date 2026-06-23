@@ -2,30 +2,65 @@ using System.Diagnostics;
 
 namespace KrnlAI.VisualStudio.Services;
 
-public sealed class TerminalService : ITerminalService
+public sealed class TerminalService(
+    IVsOperationTracker? debugTracker = null) : ITerminalService
 {
+    private readonly IVsOperationTracker _debugTracker = debugTracker ?? new VsOperationTracker();
     private const int DefaultTimeoutSec = 120;
 
     public async Task<TerminalResult> RunAsync(string command, string workingDir,
         CancellationToken ct)
     {
-        return await ExecuteProcessAsync(command, workingDir, ct);
+        using var op = _debugTracker.Start("terminal.run", command);
+        try
+        {
+            var result = await ExecuteProcessAsync(command, workingDir, ct);
+            op.SetResult($"exit:{result.ExitCode}");
+            return result;
+        }
+        catch (Exception ex)
+        {
+            op.SetError(ex.Message);
+            throw;
+        }
     }
 
     public async Task<TerminalResult> BuildSolutionAsync(CancellationToken ct)
     {
-        return await ExecuteProcessAsync(
-            "dotnet build --no-restore",
-            await DetectSolutionDirAsync() ?? ".",
-            ct);
+        using var op = _debugTracker.Start("terminal.build");
+        try
+        {
+            var result = await ExecuteProcessAsync(
+                "dotnet build --no-restore",
+                await DetectSolutionDirAsync() ?? ".",
+                ct);
+            op.SetResult(result.ExitCode == 0 ? "Success" : $"Failed ({result.ExitCode})");
+            return result;
+        }
+        catch (Exception ex)
+        {
+            op.SetError(ex.Message);
+            throw;
+        }
     }
 
     public async Task<TerminalResult> RunTestsAsync(string? filter, CancellationToken ct)
     {
-        var cmd = "dotnet test --no-restore --no-build -v minimal";
-        if (!string.IsNullOrWhiteSpace(filter))
-            cmd += $" --filter \"{filter}\"";
-        return await ExecuteProcessAsync(cmd, await DetectSolutionDirAsync() ?? ".", ct);
+        using var op = _debugTracker.Start("terminal.test", filter);
+        try
+        {
+            var cmd = "dotnet test --no-restore --no-build -v minimal";
+            if (!string.IsNullOrWhiteSpace(filter))
+                cmd += $" --filter \"{filter}\"";
+            var result = await ExecuteProcessAsync(cmd, await DetectSolutionDirAsync() ?? ".", ct);
+            op.SetResult(result.ExitCode == 0 ? "Passed" : $"Failed ({result.ExitCode})");
+            return result;
+        }
+        catch (Exception ex)
+        {
+            op.SetError(ex.Message);
+            throw;
+        }
     }
 
     private static async Task<TerminalResult> ExecuteProcessAsync(

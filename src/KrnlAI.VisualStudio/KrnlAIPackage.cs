@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using KrnlAI.VisualStudio.Commands;
 using KrnlAI.VisualStudio.Options;
+using KrnlAI.VisualStudio.ToolWindows;
 using KrnlAI.VisualStudio.Services;
 using KrnlAI.VisualStudio.ToolWindows;
 using KrnlAI.VisualStudio.ToolWindows.Dashboard;
@@ -19,6 +20,7 @@ namespace KrnlAI.VisualStudio;
 [ProvideToolWindow(typeof(PoliciesToolWindow), Style = VsDockStyle.Tabbed, DockedHeight = 300, DockedWidth = 400)]
 [ProvideToolWindow(typeof(EpisodesToolWindow), Style = VsDockStyle.Tabbed, DockedHeight = 300, DockedWidth = 400)]
 [ProvideToolWindow(typeof(KanbanToolWindow), Style = VsDockStyle.Tabbed, DockedHeight = 300, DockedWidth = 500)]
+[ProvideToolWindow(typeof(DebugToolWindow), Style = VsDockStyle.Tabbed, DockedHeight = 300, DockedWidth = 500)]
 [ProvideOptionPage(typeof(KrnlAIOptionsPage), "Krnl-AI", "General", 0, 0, true)]
 [ProvideMenuResource("Menus.ctmenu", 1)]
 [ProvideService(typeof(IEditorContextProvider), ServiceName = "KrnlAI Editor Context Provider")]
@@ -30,7 +32,6 @@ public sealed class KrnlAIPackage : AsyncPackage
     private EditorContextProvider? _editorContextProvider;
     private VsCommandHandler? _commandHandler;
     private ISettingsService? _settings;
-    private VsOperationTracker? _debugTracker;
     private VsDebugService? _debugService;
 
     protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
@@ -40,8 +41,7 @@ public sealed class KrnlAIPackage : AsyncPackage
         _settings = new SettingsService();
         _settings.Load();
 
-        _debugTracker = new VsOperationTracker();
-        _debugService = new VsDebugService(debugTracker: _debugTracker);
+        _debugService = new VsDebugService(debugTracker: VsGlobalTracker.Instance);
         _editorContextProvider = new EditorContextProvider();
         _commandHandler = CreateCommandHandler();
 
@@ -49,17 +49,18 @@ public sealed class KrnlAIPackage : AsyncPackage
         await SendSelectionToChat.InitializeAsync(this);
         await AnalyzeErrorCommand.InitializeAsync(this);
         await OpenKanbanCommand.InitializeAsync(this);
+        await OpenDebugCommand.InitializeAsync(this);
     }
 
     private VsCommandHandler CreateCommandHandler()
     {
         var httpClient = new HttpClient();
-        var client = new KernelClientService(httpClient, _debugTracker);
+        var client = new KernelClientService(httpClient, VsGlobalTracker.Instance);
         var context = new SolutionContextService(this);
-        var applyEdit = new ApplyEditService();
-        var agenticLoop = new AgenticLoopService(client, _debugTracker);
-        var terminal = new TerminalService();
-        var git = new GitService();
+        var applyEdit = new ApplyEditService(VsGlobalTracker.Instance);
+        var agenticLoop = new AgenticLoopService(client, VsGlobalTracker.Instance);
+        var terminal = new TerminalService(VsGlobalTracker.Instance);
+        var git = new GitService(VsGlobalTracker.Instance);
 
         if (_settings is not null)
         {
@@ -70,11 +71,10 @@ public sealed class KrnlAIPackage : AsyncPackage
             _ = client.ConnectAsync(endpoint);
         }
 
-        return new VsCommandHandler(client, context, applyEdit, agenticLoop, terminal, git, _debugTracker, _debugService);
+        return new VsCommandHandler(client, context, applyEdit, agenticLoop, terminal, git, VsGlobalTracker.Instance, _debugService);
     }
 
     public IEditorContextProvider? GetEditorContextProvider() => _editorContextProvider;
     public IVsCommandHandler? GetCommandHandler() => _commandHandler;
-    public IVsOperationTracker? GetDebugTracker() => _debugTracker;
 }
 #endif

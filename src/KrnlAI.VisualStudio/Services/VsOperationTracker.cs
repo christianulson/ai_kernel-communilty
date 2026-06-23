@@ -1,5 +1,10 @@
 namespace KrnlAI.VisualStudio.Services;
 
+public static class VsGlobalTracker
+{
+    public static VsOperationTracker Instance { get; } = new();
+}
+
 public sealed class VsOperationTracker : IVsOperationTracker
 {
     private readonly List<VsOperationCall> _history = [];

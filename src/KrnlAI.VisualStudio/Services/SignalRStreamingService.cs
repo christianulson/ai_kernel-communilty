@@ -2,8 +2,10 @@ using Microsoft.AspNetCore.SignalR.Client;
 
 namespace KrnlAI.VisualStudio.Services;
 
-public sealed class SignalRStreamingService : ISignalRStreamingService, IAsyncDisposable
+public sealed class SignalRStreamingService(
+    IVsOperationTracker? debugTracker = null) : ISignalRStreamingService, IAsyncDisposable
 {
+    private readonly IVsOperationTracker _debugTracker = debugTracker ?? new VsOperationTracker();
     private HubConnection? _connection;
     private ConnectionState _state = ConnectionState.Disconnected;
     private readonly SemaphoreSlim _connectLock = new(1, 1);
@@ -29,6 +31,7 @@ public sealed class SignalRStreamingService : ISignalRStreamingService, IAsyncDi
 
     public async Task ConnectAsync(string hubUrl, CancellationToken ct = default)
     {
+        using var op = _debugTracker.Start("signalr.connect", hubUrl);
         await _connectLock.WaitAsync(ct);
         try
         {
@@ -82,9 +85,11 @@ public sealed class SignalRStreamingService : ISignalRStreamingService, IAsyncDi
 
             await _connection.StartAsync(ct);
             State = ConnectionState.Connected;
+            op.SetResult("Connected");
         }
-        catch
+        catch (Exception ex)
         {
+            op.SetError(ex.Message);
             State = ConnectionState.Failed;
             throw;
         }

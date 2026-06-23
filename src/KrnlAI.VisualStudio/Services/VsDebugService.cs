@@ -1,3 +1,4 @@
+using System.Linq;
 using Microsoft.VisualStudio.Shell;
 
 namespace KrnlAI.VisualStudio.Services;
@@ -15,6 +16,9 @@ public sealed class VsDebugService : IVsDebugService
     private readonly Action _continueAction;
     private readonly Func<string, int, bool> _setBreakpointFunc;
     private readonly Func<string, int, bool> _removeBreakpointFunc;
+    private readonly Action<int> _attachAction;
+    private readonly Func<IReadOnlyList<DebugProcessInfo>> _getProcessesFunc;
+    private readonly Func<IReadOnlyList<LaunchProfile>> _getLaunchProfilesFunc;
     private DebugState _state;
 
     public DebugState State => _state;
@@ -30,6 +34,9 @@ public sealed class VsDebugService : IVsDebugService
         Action? continueAction = null,
         Func<string, int, bool>? setBreakpointFunc = null,
         Func<string, int, bool>? removeBreakpointFunc = null,
+        Action<int>? attachAction = null,
+        Func<IReadOnlyList<DebugProcessInfo>>? getProcessesFunc = null,
+        Func<IReadOnlyList<LaunchProfile>>? getLaunchProfilesFunc = null,
         DebugState state = DebugState.Stopped)
     {
         _debugTracker = debugTracker ?? new VsOperationTracker();
@@ -41,6 +48,9 @@ public sealed class VsDebugService : IVsDebugService
         _continueAction = continueAction ?? DefaultContinueAction;
         _setBreakpointFunc = setBreakpointFunc ?? DefaultSetBreakpoint;
         _removeBreakpointFunc = removeBreakpointFunc ?? DefaultRemoveBreakpoint;
+        _attachAction = attachAction ?? DefaultAttachAction;
+        _getProcessesFunc = getProcessesFunc ?? DefaultGetProcesses;
+        _getLaunchProfilesFunc = getLaunchProfilesFunc ?? DefaultGetLaunchProfiles;
         _state = state;
     }
 
@@ -155,6 +165,36 @@ public sealed class VsDebugService : IVsDebugService
         }
     }
 
+    public Task<bool> AttachToProcessAsync(int processId, CancellationToken ct = default)
+    {
+        using var op = _debugTracker.Start("debug.attach", $"pid:{processId}");
+
+        try
+        {
+            _attachAction(processId);
+            SetState(DebugState.Running);
+            op.SetResult("Attached");
+            return Task.FromResult(true);
+        }
+        catch (Exception ex)
+        {
+            op.SetError(ex.Message);
+            return Task.FromResult(false);
+        }
+    }
+
+    public Task<IReadOnlyList<LaunchProfile>> GetLaunchProfilesAsync(CancellationToken ct = default)
+    {
+        var profiles = _getLaunchProfilesFunc();
+        return Task.FromResult(profiles);
+    }
+
+    public Task<IReadOnlyList<DebugProcessInfo>> GetProcessesAsync(CancellationToken ct = default)
+    {
+        var processes = _getProcessesFunc();
+        return Task.FromResult(processes);
+    }
+
     private Task ExecuteDebugCommandAsync(Action command, string opName, string resultText)
     {
         using var op = _debugTracker.Start(opName);
@@ -256,5 +296,64 @@ public sealed class VsDebugService : IVsDebugService
             }
         }
         return false;
+    }
+
+    private static void DefaultAttachAction(int processId)
+    {
+        ThreadHelper.ThrowIfNotOnUIThread();
+        var dte = Package.GetGlobalService(typeof(EnvDTE.DTE)) as EnvDTE.DTE;
+        if (dte is null) return;
+
+        foreach (EnvDTE.Process proc in dte.Debugger.LocalProcesses)
+        {
+            if (proc.ProcessID == processId)
+            {
+                proc.Attach();
+                return;
+            }
+        }
+    }
+
+    private static IReadOnlyList<DebugProcessInfo> DefaultGetProcesses()
+    {
+        ThreadHelper.ThrowIfNotOnUIThread();
+        var dte = Package.GetGlobalService(typeof(EnvDTE.DTE)) as EnvDTE.DTE;
+        if (dte is null) return [];
+
+        return [.. dte.Debugger.LocalProcesses
+            .Cast<EnvDTE.Process>()
+            .Select(p => new DebugProcessInfo(p.ProcessID, p.Name, p.ProcessID > 0 ? null : null))];
+    }
+
+    private static IReadOnlyList<LaunchProfile> DefaultGetLaunchProfiles()
+    {
+        ThreadHelper.ThrowIfNotOnUIThread();
+        var dte = Package.GetGlobalService(typeof(EnvDTE.DTE)) as EnvDTE.DTE;
+        var profiles = new List<LaunchProfile>();
+
+        try
+        {
+            var solutionDir = System.IO.Path.GetDirectoryName(dte?.Solution?.FullName);
+            if (solutionDir is null) return profiles;
+
+            var launchSettings = System.IO.Directory.GetFiles(solutionDir, "launchSettings.json", System.IO.SearchOption.AllDirectories);
+            foreach (var file in launchSettings)
+            {
+                var json = System.IO.File.ReadAllText(file);
+                var doc = System.Text.Json.JsonDocument.Parse(json);
+                if (doc.RootElement.TryGetProperty("profiles", out var profNode))
+                {
+                    foreach (var profile in profNode.EnumerateObject())
+                    {
+                        var cmdLine = profile.Value.TryGetProperty("commandLineArgs", out var args)
+                            ? args.GetString() : null;
+                        profiles.Add(new LaunchProfile(profile.Name, cmdLine, false));
+                    }
+                }
+            }
+        }
+        catch { /* ignore parse errors */ }
+
+        return profiles;
     }
 }
