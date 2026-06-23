@@ -4,6 +4,7 @@ import { KernelClient } from '../api/client';
 import { TerminalManager } from './TerminalManager';
 import { GitManager } from './GitManager';
 import { AgenticLoopManager } from './AgenticLoopManager';
+import { OperationTracker } from '../services/OperationTracker';
 
 export type SlashCommandHandler = (args: string, context: EditorContext, client: KernelClient) => Promise<string>;
 
@@ -20,12 +21,44 @@ export class SlashCommandManager {
     private _gitManager?: GitManager;
     private _loopManager?: AgenticLoopManager;
 
-    constructor(client: KernelClient, terminalManager?: TerminalManager, gitManager?: GitManager, loopManager?: AgenticLoopManager) {
+    constructor(client: KernelClient, terminalManager?: TerminalManager, gitManager?: GitManager, loopManager?: AgenticLoopManager, debugTracker?: OperationTracker) {
         this._client = client;
-        this._terminalManager = terminalManager;
-        this._gitManager = gitManager;
+        this._terminalManager = debugTracker && terminalManager ? this._wrapTerminal(terminalManager, debugTracker) : terminalManager;
+        this._gitManager = debugTracker && gitManager ? this._wrapGit(gitManager, debugTracker) : gitManager;
         this._loopManager = loopManager;
         this.registerDefaults();
+    }
+
+    private _wrapTerminal(tm: TerminalManager, tracker: OperationTracker): TerminalManager {
+        const origRunCommand = tm.runCommand.bind(tm);
+        tm.runCommand = async (cmd: string) => {
+            using op = tracker.start('terminal.run', cmd);
+            try {
+                const result = await origRunCommand(cmd);
+                op.setResult(`exit:${result.exitCode}`);
+                return result;
+            } catch (ex: any) {
+                op.setError(ex.message ?? String(ex));
+                throw ex;
+            }
+        };
+        return tm;
+    }
+
+    private _wrapGit(gm: GitManager, tracker: OperationTracker): GitManager {
+        const origCommit = gm.commit.bind(gm);
+        gm.commit = async (msg: string) => {
+            using op = tracker.start('git.commit', msg);
+            try {
+                const result = await origCommit(msg);
+                op.setResult(result.success ? 'Committed' : 'Failed');
+                return result;
+            } catch (ex: any) {
+                op.setError(ex.message ?? String(ex));
+                throw ex;
+            }
+        };
+        return gm;
     }
 
     private registerDefaults() {

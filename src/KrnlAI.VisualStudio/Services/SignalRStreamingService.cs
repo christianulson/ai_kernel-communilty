@@ -140,7 +140,7 @@ public sealed class SignalRStreamingService(
             }
             catch
             {
-                KrnlLogger.Write("Reconnect attempt {i + 1} failed");
+                KrnlLogger.Write($"Reconnect attempt {i + 1} failed");
             }
         }
     }

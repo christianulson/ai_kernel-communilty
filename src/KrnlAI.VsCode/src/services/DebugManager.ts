@@ -73,15 +73,30 @@ export class DebugManager {
     }
 
     async stepOver(ct?: AbortSignal): Promise<void> {
-        await vscode.commands.executeCommand('workbench.action.debug.stepOver');
+        using op = this._tracker.start('debug.step_over');
+        if (this._state === DebugState.Stopped) { op.setError('Debugger is not running'); return; }
+        try {
+            await vscode.commands.executeCommand('workbench.action.debug.stepOver');
+            op.setResult('Step over executed');
+        } catch (ex: any) { op.setError(ex.message ?? String(ex)); }
     }
 
     async stepInto(ct?: AbortSignal): Promise<void> {
-        await vscode.commands.executeCommand('workbench.action.debug.stepInto');
+        using op = this._tracker.start('debug.step_into');
+        if (this._state === DebugState.Stopped) { op.setError('Debugger is not running'); return; }
+        try {
+            await vscode.commands.executeCommand('workbench.action.debug.stepInto');
+            op.setResult('Step into executed');
+        } catch (ex: any) { op.setError(ex.message ?? String(ex)); }
     }
 
     async continue(ct?: AbortSignal): Promise<void> {
-        await vscode.commands.executeCommand('workbench.action.debug.continue');
+        using op = this._tracker.start('debug.continue');
+        if (this._state === DebugState.Stopped) { op.setError('Debugger is not running'); return; }
+        try {
+            await vscode.commands.executeCommand('workbench.action.debug.continue');
+            op.setResult('Continue executed');
+        } catch (ex: any) { op.setError(ex.message ?? String(ex)); }
     }
 
     async setBreakpoint(filePath: string, lineNumber: number, ct?: AbortSignal): Promise<boolean> {

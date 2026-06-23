@@ -10,6 +10,7 @@ import { EpisodesPanel } from './panels/episodesPanel';
 import { MemoryPanel } from './panels/memoryPanel';
 import { KanbanPanel } from './panels/KanbanPanel';
 import { SettingsPanel } from './panels/settingsPanel';
+import { DebugPanel } from './panels/DebugPanel';
 import { ChatViewProvider } from './chat/ChatViewProvider';
 import { EditorContextProvider } from './codingAgent/EditorContextProvider';
 import { SlashCommandManager } from './codingAgent/SlashCommandManager';
@@ -116,29 +117,34 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('krnlai.memory', () => MemoryPanel.createOrShow()));
     context.subscriptions.push(vscode.commands.registerCommand('krnlai.kanban', () => KanbanPanel.createOrShow()));
     context.subscriptions.push(vscode.commands.registerCommand('krnlai.settings', () => SettingsPanel.createOrShow()));
+    context.subscriptions.push(vscode.commands.registerCommand('krnlai.debugPanel', () => DebugPanel.createOrShow(debugTracker)));
 
     // TreeView
     const treeProvider = new NavTreeProvider();
     vscode.window.registerTreeDataProvider('krnlai.nav', treeProvider);
     context.subscriptions.push(vscode.commands.registerCommand('krnlai.navigate', (id: string) => vscode.commands.executeCommand(`krnlai.${id}`)));
 
+    // Debug tracker + manager (used by both debug commands and coding agent)
+    const debugTracker = new OperationTracker();
+    const debugMgr = new DebugManager(debugTracker);
+
     // Coding Agent mode (feature flag: krnlai.codingAgent.enabled)
     const config = vscode.workspace.getConfiguration('krnlai');
     const codingAgentEnabled = config.get<boolean>('codingAgent.enabled', false);
 
     if (codingAgentEnabled) {
-        registerCodingAgentFeatures(context, client);
+        registerCodingAgentFeatures(context, client, debugTracker);
     }
 
     // Debug commands (always registered)
-    registerDebugCommands(context, client);
+    registerDebugCommands(context, client, debugTracker, debugMgr);
 
     // Watch for config changes to enable/disable coding agent dynamically
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(e => {
         if (e.affectsConfiguration('krnlai.codingAgent.enabled')) {
             const enabled = vscode.workspace.getConfiguration('krnlai').get<boolean>('codingAgent.enabled', false);
             if (enabled && codingAgentDisposables.length === 0) {
-                registerCodingAgentFeatures(context, client);
+                registerCodingAgentFeatures(context, client, debugTracker);
             } else if (!enabled && codingAgentDisposables.length > 0) {
                 unregisterCodingAgentFeatures();
             }
@@ -152,7 +158,7 @@ function unregisterCodingAgentFeatures() {
     slashMgr = undefined;
 }
 
-function registerCodingAgentFeatures(context: vscode.ExtensionContext, client: KernelClient) {
+function registerCodingAgentFeatures(context: vscode.ExtensionContext, client: KernelClient, debugTracker?: OperationTracker) {
     if (codingAgentDisposables.length > 0) return;
 
     const ctxProvider = new EditorContextProvider();
@@ -166,7 +172,7 @@ function registerCodingAgentFeatures(context: vscode.ExtensionContext, client: K
     const loopManager = agenticLoopsEnabled && terminalManager
         ? new AgenticLoopManager(client, undefined, terminalManager, gitManager, approvalManager.getMode() !== ApprovalMode.Chat ? approvalManager : undefined)
         : undefined;
-    slashMgr = new SlashCommandManager(client, terminalManager, gitManager, loopManager);
+    slashMgr = new SlashCommandManager(client, terminalManager, gitManager, loopManager, debugTracker);
 
     function pushSub(d: vscode.Disposable) {
         codingAgentDisposables.push(d);
@@ -280,9 +286,12 @@ function registerCodingAgentFeatures(context: vscode.ExtensionContext, client: K
     }
 }
 
-function registerDebugCommands(context: vscode.ExtensionContext, client: KernelClient) {
-    const debugTracker = new OperationTracker();
-    const debugMgr = new DebugManager(debugTracker);
+function registerDebugCommands(
+    context: vscode.ExtensionContext,
+    client: KernelClient,
+    debugTracker: OperationTracker,
+    debugMgr: DebugManager
+) {
 
     // Debug trace viewer
     context.subscriptions.push(vscode.commands.registerCommand('krnlai.debugTrace', async () => {

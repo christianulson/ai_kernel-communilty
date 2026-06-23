@@ -41,7 +41,7 @@ public sealed class ApplyEditService(
         return new ApplyEditResult(approved, diff, approved ? null : "Cancelled by user");
     }
 
-    public async Task<bool> ApplyAsync(string diff, CancellationToken ct)
+    public async Task<bool> ApplyAsync(string content, CancellationToken ct)
     {
         using var op = _debugTracker.Start("apply_edit.apply");
         await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(ct);
@@ -62,18 +62,30 @@ public sealed class ApplyEditService(
                 return false;
             }
 
-            var startPoint = textDoc.StartPoint.CreateEditPoint();
-            var endPoint = textDoc.EndPoint.CreateEditPoint();
-            _undoStack.Push(doc.FullName);
+            // Extract code from markdown blocks if present, or use content as-is
+            var code = content;
+            var codeMatch = System.Text.RegularExpressions.Regex.Match(content,
+                @"```(?:\w+)?\s*\n([\s\S]*?)```");
+            if (codeMatch.Success)
+                code = codeMatch.Groups[1].Value.Trim();
 
-            startPoint.Delete(endPoint);
-
-            var lines = diff.Split(['\n'], StringSplitOptions.None);
-            foreach (var line in lines)
+            // Apply unified diff if content looks like one
+            if (content.Contains("\n--- ") && content.Contains("\n+++ ") && content.Contains("\n@@"))
             {
-                if (!line.StartsWith("+") && !line.StartsWith("-"))
-                    startPoint.Insert(line + "\n");
+                var originalText = textDoc.StartPoint.CreateEditPoint()
+                    .GetText(textDoc.EndPoint.CreateEditPoint());
+                var patched = ApplyUnifiedDiff(originalText, content);
+                if (patched is not null)
+                    code = patched;
+                else
+                    op.SetResult("Diff parse failed, using raw content");
             }
+
+            _undoStack.Push(doc.FullName);
+            var editPoint = textDoc.StartPoint.CreateEditPoint();
+            var endPoint = textDoc.EndPoint.CreateEditPoint();
+            editPoint.Delete(endPoint);
+            editPoint.Insert(code);
 
             doc.Save(doc.FullName);
             op.SetResult("Applied");
@@ -84,6 +96,90 @@ public sealed class ApplyEditService(
             op.SetError(ex.Message);
             KrnlLogger.Write(ex);
             return false;
+        }
+    }
+
+    private static string? ApplyUnifiedDiff(string originalText, string diff)
+    {
+        try
+        {
+            var originalLines = originalText
+                .Split(['\n'], StringSplitOptions.None)
+                .Select((line, i) => new { Index = i, Text = line })
+                .ToList();
+
+            var result = new List<string>(originalLines.Select(l => l.Text));
+            var diffLines = diff.Split(['\n'], StringSplitOptions.None);
+            var i = 0;
+
+            while (i < diffLines.Length)
+            {
+                var line = diffLines[i];
+                if (line.StartsWith("@@"))
+                {
+                    // Parse hunk header: @@ -start,count +start,count @@
+                    var match = System.Text.RegularExpressions.Regex.Match(line,
+                        @"@@\s*-(\d+)(?:,\d+)?\s*\+(\d+)(?:,\d+)?\s*@@");
+                    if (!match.Success) { i++; continue; }
+
+                    var oldStart = int.Parse(match.Groups[1].Value) - 1;
+                    i++;
+
+                    // Apply hunk
+                    var hunkLines = new List<string>();
+                    while (i < diffLines.Length && !diffLines[i].StartsWith("@@") && !diffLines[i].StartsWith("diff") && !diffLines[i].StartsWith("---") && !diffLines[i].StartsWith("+++"))
+                    {
+                        hunkLines.Add(diffLines[i]);
+                        i++;
+                    }
+
+                    // Apply hunk to result at oldStart position
+                    var insertPos = Math.Min(oldStart, result.Count);
+                    var linesToRemove = 0;
+                    var linesToInsert = new List<string>();
+                    var contextMatch = 0;
+
+                    foreach (var hl in hunkLines)
+                    {
+                        if (hl.StartsWith("-"))
+                        {
+                            linesToRemove++;
+                            contextMatch = 0;
+                        }
+                        else if (hl.StartsWith("+"))
+                        {
+                            linesToInsert.Add(hl.Substring(1));
+                            contextMatch = 0;
+                        }
+                        else
+                        {
+                            var text = hl.StartsWith(" ") ? hl.Substring(1) : hl;
+                            if (linesToRemove == 0 && linesToInsert.Count == 0)
+                            {
+                                // Context before changes — find matching position
+                                insertPos = oldStart + contextMatch;
+                            }
+                            contextMatch++;
+                        }
+                    }
+
+                    // Apply: remove old lines, insert new ones
+                    if (linesToRemove > 0 && insertPos < result.Count)
+                        result.RemoveRange(insertPos, Math.Min(linesToRemove, result.Count - insertPos));
+                    if (linesToInsert.Count > 0)
+                        result.InsertRange(insertPos, linesToInsert);
+                }
+                else
+                {
+                    i++;
+                }
+            }
+
+            return string.Join("\n", result);
+        }
+        catch
+        {
+            return null; // Fall back to raw content
         }
     }
 

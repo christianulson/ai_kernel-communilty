@@ -61,10 +61,17 @@ public sealed class GitService(
     public async Task<string> ReviewPullRequestAsync(int prNumber, CancellationToken ct)
     {
         using var op = _debugTracker.Start("git.review_pr", $"#{prNumber}");
-        var diffUrl = $"https://github.com/pulls/{prNumber}.diff";
         try
         {
+            var dir = await DetectGitDirAsync() ?? ".";
+            var remoteUrl = await RunGitAsync("remote get-url origin", ct);
+            var match = System.Text.RegularExpressions.Regex.Match(remoteUrl,
+                @"(?:github\.com[/:])([\w.-]+/[\w.-]+?)(?:\.git)?\s*$");
+            var repoPath = match.Success ? match.Groups[1].Value : "owner/repo";
+            var diffUrl = $"https://github.com/{repoPath}/pull/{prNumber}.diff";
+
             using var http = new HttpClient();
+            http.Timeout = TimeSpan.FromSeconds(15);
             var response = await http.GetAsync(diffUrl, ct);
             var diff = await response.Content.ReadAsStringAsync();
             var truncated = TerminalOutputParser.Truncate(diff, 5000);
@@ -100,31 +107,39 @@ public sealed class GitService(
             var output = new StringBuilder();
             process.Start();
 
-            var readTask = Task.Run(() =>
-            {
-                var timeoutCt = CancellationTokenSource.CreateLinkedTokenSource(ct);
-                timeoutCt.CancelAfter(TimeSpan.FromSeconds(DefaultTimeoutSec));
+            using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            timeoutCts.CancelAfter(TimeSpan.FromSeconds(DefaultTimeoutSec));
+            var timeoutToken = timeoutCts.Token;
 
-                while (!process.StandardOutput.EndOfStream)
+            // Read both streams concurrently
+            var readStdout = Task.Run(() =>
+            {
+                while (!process.StandardOutput.EndOfStream && !timeoutToken.IsCancellationRequested)
                 {
                     var line = process.StandardOutput.ReadLine();
                     if (line is not null) output.AppendLine(line);
                 }
-                while (!process.StandardError.EndOfStream)
+            }, timeoutToken);
+
+            var readStderr = Task.Run(() =>
+            {
+                while (!process.StandardError.EndOfStream && !timeoutToken.IsCancellationRequested)
                 {
                     var line = process.StandardError.ReadLine();
                     if (line is not null) output.AppendLine(line);
                 }
-            }, ct);
+            }, timeoutToken);
 
-            await readTask;
+            await Task.WhenAll(readStdout, readStderr);
+
             try
             {
-                process.WaitForExit(5000);
+                await Task.Run(() => process.WaitForExit(DefaultTimeoutSec * 1000), timeoutToken);
             }
-            catch (Exception ex)
+            catch (OperationCanceledException)
             {
-                KrnlLogger.Write(ex);
+                try { process.Kill(); } catch { /* best effort */ }
+                return $"Error: Command timed out after {DefaultTimeoutSec} seconds.";
             }
 
             return output.ToString().Trim();

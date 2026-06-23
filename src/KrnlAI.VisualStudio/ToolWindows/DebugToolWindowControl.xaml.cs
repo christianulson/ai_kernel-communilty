@@ -27,7 +27,17 @@ public partial class DebugToolWindowControl : UserControl
         {
             _tracker.OperationCompleted += OnOperationCompleted;
         }
+        Unloaded += OnUnloaded;
         RefreshDisplay();
+    }
+
+    private void OnUnloaded(object sender, RoutedEventArgs e)
+    {
+        if (_tracker is not null)
+        {
+            _tracker.OperationCompleted -= OnOperationCompleted;
+        }
+        _tracker = null;
     }
 
     private void OnOperationCompleted(VsOperationCall op)

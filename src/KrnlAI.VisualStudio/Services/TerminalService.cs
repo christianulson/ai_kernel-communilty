@@ -87,52 +87,40 @@ public sealed class TerminalService(
 
             process.Start();
 
-            var readTask = Task.Run(() =>
+            using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            timeoutCts.CancelAfter(TimeSpan.FromSeconds(DefaultTimeoutSec));
+            var timeoutToken = timeoutCts.Token;
+
+            // Read stdout and stderr concurrently to avoid deadlock
+            var readStdout = Task.Run(() =>
             {
-                var timeoutCt = CancellationTokenSource.CreateLinkedTokenSource(ct);
-                timeoutCt.CancelAfter(TimeSpan.FromSeconds(DefaultTimeoutSec));
-                var timeoutToken = timeoutCt.Token;
-
-                try
+                while (!process.StandardOutput.EndOfStream && !timeoutToken.IsCancellationRequested)
                 {
-                    while (!process.StandardOutput.EndOfStream && !timeoutToken.IsCancellationRequested)
-                    {
-                        var line = process.StandardOutput.ReadLine();
-                        if (line is not null)
-                            outputBuilder.AppendLine(line);
-                    }
-                    while (!process.StandardError.EndOfStream && !timeoutToken.IsCancellationRequested)
-                    {
-                        var line = process.StandardError.ReadLine();
-                        if (line is not null)
-                            errorBuilder.AppendLine(line);
-                    }
+                    var line = process.StandardOutput.ReadLine();
+                    if (line is not null) outputBuilder.AppendLine(line);
                 }
-                catch (OperationCanceledException ex)
+            }, timeoutToken);
+
+            var readStderr = Task.Run(() =>
+            {
+                while (!process.StandardError.EndOfStream && !timeoutToken.IsCancellationRequested)
                 {
-                    KrnlLogger.Write(ex);
+                    var line = process.StandardError.ReadLine();
+                    if (line is not null) errorBuilder.AppendLine(line);
                 }
-            }, ct);
+            }, timeoutToken);
 
-            await readTask;
+            await Task.WhenAll(readStdout, readStderr);
 
-            using var exitCts = new CancellationTokenSource(5000);
+            // Wait for process exit (net472 compat)
             try
             {
-                process.WaitForExit(5000);
+                await Task.Run(() => process.WaitForExit(DefaultTimeoutSec * 1000), timeoutToken);
             }
-            catch (Exception ex)
-            {
-                KrnlLogger.Write(ex);
-            }
-
-            if (!process.HasExited)
+            catch (OperationCanceledException)
             {
                 try { process.Kill(); }
-                catch (Exception ex)
-                {
-                    KrnlLogger.Write(ex);
-                }
+                catch { /* best effort */ }
                 return new TerminalResult(-1, outputBuilder.ToString(),
                     "Command timed out after " + DefaultTimeoutSec + " seconds.");
             }

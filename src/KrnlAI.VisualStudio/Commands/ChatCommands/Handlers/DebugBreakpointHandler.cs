@@ -39,10 +39,5 @@ Set a breakpoint at a specific file and line:
 /debug-bp Program.cs:10
 ```
 
-Remove a breakpoint:
-
-```
-/debug-bp-remove <file>:<line>
-```
 """;
 }

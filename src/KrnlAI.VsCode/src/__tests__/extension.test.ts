@@ -109,7 +109,7 @@ describe('Extension', () => {
     it('should register all commands on activation', async () => {
         const { activate } = require('../extension');
         await activate(context);
-        expect(vscode.commands.registerCommand).toHaveBeenCalledTimes(18); // 10 panel commands + 8 debug + 1 navigate
+        expect(vscode.commands.registerCommand).toHaveBeenCalledTimes(19); // 10 panel + 9 debug + 1 navigate
     });
 
     it('should register chat command', async () => {
@@ -197,6 +197,9 @@ describe('Extension', () => {
         );
         expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
             'krnlai.debugBreakpoint', expect.any(Function)
+        );
+        expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
+            'krnlai.debugPanel', expect.any(Function)
         );
     });
 

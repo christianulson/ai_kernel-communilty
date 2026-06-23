@@ -137,6 +137,10 @@
       {
         "command": "krnlai.debugBreakpoint",
         "title": "Krnl-AI: Debug Breakpoint"
+      },
+      {
+        "command": "krnlai.debugPanel",
+        "title": "Krnl-AI: Debug Trace Panel"
       }
     ],
     "keybindings": [
@@ -164,6 +168,36 @@
         "command": "krnlai.acceptNextWord",
         "key": "ctrl+right",
         "when": "config.krnlai.codingAgent.inlineCompletion && editorTextFocus"
+      },
+      {
+        "command": "krnlai.debugLaunch",
+        "key": "ctrl+shift+d",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "krnlai.debugStepOver",
+        "key": "f10",
+        "when": "debugState == 'running'"
+      },
+      {
+        "command": "krnlai.debugStepInto",
+        "key": "f11",
+        "when": "debugState == 'running'"
+      },
+      {
+        "command": "krnlai.debugContinue",
+        "key": "f5",
+        "when": "debugState == 'running'"
+      },
+      {
+        "command": "krnlai.debugStop",
+        "key": "shift+f5",
+        "when": "debugState == 'running'"
+      },
+      {
+        "command": "krnlai.debugPanel",
+        "key": "ctrl+shift+'",
+        "when": "editorTextFocus"
       }
     ],
     "menus": {
