@@ -23,7 +23,7 @@
                                 <StackPanel>
                                     <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     <TextBlock FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}">
-                                        <Run Text="{Binding CronExpression}"/> · <Run Text="{Binding Action}"/>
+                                        <Run Text="{Binding CronExpression, Mode=OneWay}"/> · <Run Text="{Binding Action, Mode=OneWay}"/>
                                     </TextBlock>
                                 </StackPanel>
                                 <Border Grid.Column="1" Padding="8,4" CornerRadius="8" BorderThickness="1" VerticalAlignment="Center"

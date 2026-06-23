@@ -320,14 +320,14 @@ public class LoginViewModel : ViewModelBase
                     if (!verificationResult)
                     {
                         ErrorMessage = "Falha na verificação biométrica. Tente o login com senha.";
-                        KrnlLogger.Write($"Windows Hello verification failed for user {settings.Username}");
+                        Core.Services.KrnlLogger.Write($"Windows Hello verification failed for user {settings.Username}");
                         return;
                     }
                 }
             }
             catch (Exception ex)
             {
-                KrnlLogger.Write($"Windows Hello unavailable: {ex.Message}");
+                Core.Services.KrnlLogger.Write($"Windows Hello unavailable: {ex.Message}");
                 // Fall through to silent login if biometrics are unavailable on this system
             }
 

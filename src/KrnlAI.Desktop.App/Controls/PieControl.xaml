@@ -36,7 +36,7 @@
                             <TextBlock Text="Conclusão" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,6"/>
                             <TextBlock Text="{Binding PieVM.Conclusion}" FontSize="14" Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap"/>
                             <TextBlock Margin="0,8,0,0" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}">
-                                <Run Text="Confiança: "/><Run Text="{Binding PieVM.Confidence, StringFormat={}{0:P1}}" FontWeight="Bold"/>
+                                <Run Text="Confiança: "/><Run Text="{Binding PieVM.Confidence, Mode=OneWay, StringFormat={}{0:P1}}" FontWeight="Bold"/>
                             </TextBlock>
                         </StackPanel>
                     </Border>

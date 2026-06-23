@@ -47,7 +47,7 @@
             <Border CornerRadius="12" Padding="10,6" Background="#2EF59E0B">
                 <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                     <TextBlock VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource TextPrimaryBrush}">
-                        <Run Text="🚀 Atualização disponível: "/><Run Text="{Binding UpdateVersion}" FontWeight="Bold"/></TextBlock>
+                        <Run Text="🚀 Atualização disponível: "/><Run Text="{Binding UpdateVersion, Mode=OneWay}" FontWeight="Bold"/></TextBlock>
                     <Button Grid.Column="1" Command="{Binding DownloadUpdateCommand}" Style="{StaticResource SmallButton}" Padding="8,4" FontSize="10" Content="Baixar"/>
                 </Grid>
             </Border>
@@ -712,7 +712,7 @@
                     Panel.ZIndex="300" Background="#CC000000">
                 <Border Width="500" Height="Auto" Background="{DynamicResource PanelBrush}" CornerRadius="24"
                         BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
-                        Padding="24" VerticalAlignment="Start" Margin="0,80,0,0">
+                        Padding="24" VerticalAlignment="Top" Margin="0,80,0,0">
                     <StackPanel>
                         <TextBox x:Name="CommandSearchBox" Height="44" FontSize="16"
                                  ToolTip="Digite o nome da tela..." KeyDown="OnCommandPaletteKeyDown"

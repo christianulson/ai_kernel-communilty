@@ -119,11 +119,11 @@
                                             <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold"
                                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
                                             <TextBlock FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}">
-                                                <Run Text="{Binding TransportType}"/>
+                                                <Run Text="{Binding TransportType, Mode=OneWay}"/>
                                                 <Run Text="·"/>
-                                                <Run Text="{Binding ToolCount, StringFormat='{}{0} tools'}"/>
+                                                <Run Text="{Binding ToolCount, Mode=OneWay, StringFormat='{}{0} tools'}"/>
                                                 <Run Text="·"/>
-                                                <Run Text="{Binding IsConnected, StringFormat='{}{0}'}"/>
+                                                <Run Text="{Binding IsConnected, Mode=OneWay, StringFormat='{}{0}'}"/>
                                             </TextBlock>
                                         </StackPanel>
                                         <CheckBox Grid.Column="1" IsChecked="{Binding Enabled}"

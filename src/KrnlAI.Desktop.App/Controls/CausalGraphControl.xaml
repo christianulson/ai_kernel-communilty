@@ -67,7 +67,7 @@
                                     <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                                         <TextBlock Text="→" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
                                         <StackPanel Grid.Column="1">
-                                            <TextBlock FontSize="12" Foreground="{DynamicResource TextPrimaryBrush}"><Run Text="{Binding SourceId}"/> → <Run Text="{Binding TargetId}"/></TextBlock>
+                                            <TextBlock FontSize="12" Foreground="{DynamicResource TextPrimaryBrush}"><Run Text="{Binding SourceId, Mode=OneWay}"/> → <Run Text="{Binding TargetId, Mode=OneWay}"/></TextBlock>
                                             <TextBlock Text="{Binding Label}" FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}"/>
                                         </StackPanel>
                                     </Grid>

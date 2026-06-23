@@ -53,7 +53,7 @@
                                     <TextBlock Text="{Binding Title}" FontSize="14" FontWeight="SemiBold"
                                                Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     <TextBlock FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0">
-                                        <Run Text="{Binding Status}"/> · <Run Text="{Binding CaseId}"/> · <Run Text="{Binding EvidenceCount, StringFormat={}{0} evidências}"/>
+                                        <Run Text="{Binding Status, Mode=OneWay}"/> · <Run Text="{Binding CaseId, Mode=OneWay}"/> · <Run Text="{Binding EvidenceCount, Mode=OneWay, StringFormat={}{0} evidências}"/>
                                     </TextBlock>
                                 </StackPanel>
                             </Grid>

@@ -56,7 +56,7 @@
             </Grid.RowDefinitions>
             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                 <TextBlock FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center">
-                    <Run Text="{Binding CognitiveCycleVM.Events.Count}"/><Run Text=" eventos"/>
+                    <Run Text="{Binding CognitiveCycleVM.Events.Count, Mode=OneWay}"/><Run Text=" eventos"/>
                 </TextBlock>
                 <Button Command="{Binding CognitiveCycleVM.ClearEventsCommand}" Content="Limpar"
                         Style="{StaticResource GhostButton}" FontSize="11" Padding="8,4" Margin="8,0,0,0"/>
