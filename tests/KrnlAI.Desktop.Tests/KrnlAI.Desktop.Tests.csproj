@@ -19,6 +19,10 @@
   </ItemGroup>
   <ItemGroup>
     <Using Include="Xunit" />
+    <Using Include="KrnlAI.Desktop.App.Controls" />
+    <Using Include="KrnlAI.Desktop.App.ViewModels" />
+    <Using Include="KrnlAI.Desktop.Core.Abstractions" />
+    <Using Include="KrnlAI.Desktop.Core.Models" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\KrnlAI.Desktop.App\KrnlAI.Desktop.App.csproj" />
