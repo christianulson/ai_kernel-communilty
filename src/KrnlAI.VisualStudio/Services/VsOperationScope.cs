@@ -17,6 +17,7 @@ public sealed class VsOperationScope : IDisposable
     private string? _error;
     private VsOperationState _state = VsOperationState.Running;
     private readonly List<VsOperationScope> _childScopes = [];
+    private readonly object _childLock = new();
 
     internal VsOperationScope(
         VsOperationTracker tracker,
@@ -52,9 +53,11 @@ public sealed class VsOperationScope : IDisposable
         if (_disposed)
             throw new ObjectDisposedException(nameof(VsOperationScope), "Cannot start child on a disposed operation scope.");
 
-        var childId = $"{_id}.{_childScopes.Count + 1}";
-        var child = new VsOperationScope(_tracker, childId, name, arguments, isRoot: false);
-        _childScopes.Add(child);
+        var child = new VsOperationScope(_tracker, $"{_id}.{_childScopes.Count + 1}", name, arguments, isRoot: false);
+        lock (_childLock)
+        {
+            _childScopes.Add(child);
+        }
         return child;
     }
 
@@ -65,13 +68,16 @@ public sealed class VsOperationScope : IDisposable
         _stopwatch.Stop();
 
         // Auto-dispose any children that weren't explicitly disposed
-        foreach (var child in _childScopes)
+        lock (_childLock)
         {
-            if (!child._disposed)
+            foreach (var child in _childScopes)
             {
-                child._disposed = true;
-                child._stopwatch.Stop();
-                child._state = child._hasError ? VsOperationState.Failed : VsOperationState.Completed;
+                if (!child._disposed)
+                {
+                    child._disposed = true;
+                    child._stopwatch.Stop();
+                    child._state = child._hasError ? VsOperationState.Failed : VsOperationState.Completed;
+                }
             }
         }
 
@@ -95,9 +101,12 @@ public sealed class VsOperationScope : IDisposable
     internal VsOperationCall ToOperationCall()
     {
         IReadOnlyList<VsOperationCall>? children = null;
-        if (_childScopes.Count > 0)
+        lock (_childLock)
         {
-            children = _childScopes.Select(c => c.ToOperationCall()).ToList();
+            if (_childScopes.Count > 0)
+            {
+                children = _childScopes.Select(c => c.ToOperationCall()).ToList();
+            }
         }
 
         return new VsOperationCall(

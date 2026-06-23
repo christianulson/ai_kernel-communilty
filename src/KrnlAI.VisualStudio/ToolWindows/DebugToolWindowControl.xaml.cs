@@ -90,23 +90,48 @@ public partial class DebugToolWindowControl : UserControl
 
         CountText.Text = $"{_tracker?.History.Count ?? 0} operations";
     }
-
     private void RefreshDisplay()
     {
         OperationList.Items.Clear();
         if (_tracker is null) return;
 
-        // Show last 50 operations
         var history = _tracker.History;
         var ops = history.Count > 50
             ? history.Skip(history.Count - 50).ToList()
             : [.. history];
+
         foreach (var op in ops)
-        {
             AddOperationItem(op);
-        }
+
         CountText.Text = $"{_tracker.History.Count} operations";
         StatusText.Text = $"Showing {ops.Count} of {_tracker.History.Count} operations";
+        UpdateSummary();
+    }
+
+    private void UpdateSummary()
+    {
+        if (_tracker is null) return;
+        var all = _tracker.History;
+        var total = all.Count;
+        var success = all.Count(o => o.State == VsOperationState.Completed);
+        var failed = all.Count(o => o.State == VsOperationState.Failed);
+
+        SummaryTotal.Text = $"Total: {total}";
+        SummarySuccess.Text = $"✅ {success}";
+        SummaryFailed.Text = $"❌ {failed}";
+
+        // Average duration of completed operations
+        var completed = all.Where(o => o.State == VsOperationState.Completed && o.ElapsedMs > 0).ToList();
+        if (completed.Count > 0)
+        {
+            var avg = completed.Average(o => o.ElapsedMs);
+            SummaryAvgDuration.Text = $"Ø {avg:F0}ms";
+
+            // Top 3 slowest
+            var slowest = completed.OrderByDescending(o => o.ElapsedMs).Take(3);
+            var slowestText = string.Join(" | ", slowest.Select(o => $"{o.Name}: {o.ElapsedMs}ms"));
+            SummarySlowest.Text = $"🐌 {slowestText}";
+        }
     }
 
     private void OnClear(object sender, RoutedEventArgs e)
@@ -114,6 +139,11 @@ public partial class DebugToolWindowControl : UserControl
         _tracker?.Clear();
         OperationList.Items.Clear();
         CountText.Text = "0 operations";
+        SummaryTotal.Text = "Total: 0";
+        SummarySuccess.Text = "✅ 0";
+        SummaryFailed.Text = "❌ 0";
+        SummaryAvgDuration.Text = "Ø 0ms";
+        SummarySlowest.Text = "";
         StatusText.Text = "Cleared";
     }
 

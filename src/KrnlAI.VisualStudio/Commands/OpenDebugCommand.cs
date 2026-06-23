@@ -8,7 +8,7 @@ namespace KrnlAI.VisualStudio.Commands;
 public sealed class OpenDebugCommand
 {
     public const int CommandId = 0x0400;
-    public static readonly Guid CommandSet = Guid.Parse("F1E2D3C4-B5A6-7890-ABCD-EF1234567890");
+    public static readonly Guid CommandSet = new("7A8B9C0D-1E2F-3A4B-5C6D-7E8F9A0B1C2D");
 
     private readonly AsyncPackage _package;
 

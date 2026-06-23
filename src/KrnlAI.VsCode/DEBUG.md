@@ -237,3 +237,90 @@ src/KrnlAI.Sidecar/
     "debug.javascript.autoAttachFilter": "always"
 }
 ```
+
+---
+
+## 🧠 Sistema de Debug Interno
+
+### OperationTracker
+
+Todas as operações internas da extensão são rastreadas automaticamente via `OperationTracker`:
+
+```
+TerminalManager.runCommand()
+GitManager.commit()
+DebugManager.launch()
+DebugManager.stop()
+DebugManager.setBreakpoint()
+DebugManager.stepOver()
+DebugManager.stepInto()
+DebugManager.continue()
+```
+
+Para ver o trace em tempo real:
+
+```bash
+# Comando via Command Palette
+Ctrl+Shift+P → "Krnl-AI: Debug Trace Panel"
+
+# Ou atalho
+Ctrl+Shift+'  (abre o DebugPanel com auto-refresh 2s)
+```
+
+O painel mostra:
+
+```
+### Debug Trace
+
+✅ **debug.launch** — Completed (1.2s)
+✅ **debug.stop** — Completed (0.3s)
+❌ **debug.breakpoint.set** — Failed (0.1s)
+  Args: `src/main.ts:42`
+  Error: `File not found`
+```
+
+### DebugManager (vscode.debug API)
+
+| Comando | Atalho | Ação |
+|---------|--------|------|
+| `Krnl-AI: Debug Launch` | `Ctrl+Shift+D` | `vscode.debug.startDebugging()` |
+| `Krnl-AI: Debug Stop` | `Shift+F5` | `vscode.debug.stopDebugging()` |
+| `Krnl-AI: Debug Step Over` | `F10` | `workbench.action.debug.stepOver` |
+| `Krnl-AI: Debug Step Into` | `F11` | `workbench.action.debug.stepInto` |
+| `Krnl-AI: Debug Continue` | `F5` | `workbench.action.debug.continue` |
+| `Krnl-AI: Debug Breakpoint` | — | Prompt para `file:line` |
+| `Krnl-AI: Debug Build` | — | `dotnet build` no terminal |
+| `Krnl-AI: Debug Trace` | — | Webview com trace internos |
+
+### Toolcall Debug (LLM)
+
+O LLM pode invocar debug tools diretamente através do `DebugAgentTool` no LLMGateway:
+
+```json
+// Exemplo: LLM chama debug.run("MyApp")
+{
+    "tool": "debug.run",
+    "input": { "project": "MyApp" }
+}
+
+// Mapeamento:
+// debug.run         → /debug-run <project>
+// debug.stop        → /debug-stop
+// debug.breakpoint  → /debug-bp <file>:<line>
+// debug.step_over   → /debug-step-over
+// debug.step_into   → /debug-step-into
+// debug.continue    → /debug-continue
+// debug.build       → /debug-build
+// debug.trace       → /debug [limit]
+```
+
+O fluxo completo:
+
+```
+LLM → debug.run("MyApp")
+  → DebugAgentTool (LLMGateway.Core)
+    → POST /commands/handle { command: "/debug-run MyApp" }
+      → Kernel API → SlashCommandRouter
+        → DebugManager.launch("MyApp")
+          → vscode.debug.startDebugging()
+```

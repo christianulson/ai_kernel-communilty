@@ -7,6 +7,7 @@ public static class VsGlobalTracker
 
 public sealed class VsOperationTracker : IVsOperationTracker
 {
+    private const int MaxHistoryItems = 500;
     private readonly List<VsOperationCall> _history = [];
     private readonly object _lock = new();
     private int _counter;
@@ -45,6 +46,8 @@ public sealed class VsOperationTracker : IVsOperationTracker
         lock (_lock)
         {
             _history.Add(startedOp);
+            if (_history.Count > MaxHistoryItems)
+                _history.RemoveAt(0);
         }
 
         OperationStarted?.Invoke(startedOp);

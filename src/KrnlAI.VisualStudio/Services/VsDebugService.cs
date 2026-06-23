@@ -322,7 +322,7 @@ public sealed class VsDebugService : IVsDebugService
 
         return [.. dte.Debugger.LocalProcesses
             .Cast<EnvDTE.Process>()
-            .Select(p => new DebugProcessInfo(p.ProcessID, p.Name, p.ProcessID > 0 ? null : null))];
+            .Select(p => new DebugProcessInfo(p.ProcessID, p.Name, p.Name))];
     }
 
     private static IReadOnlyList<LaunchProfile> DefaultGetLaunchProfiles()
