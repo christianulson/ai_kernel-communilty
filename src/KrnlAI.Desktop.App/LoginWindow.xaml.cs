@@ -292,17 +292,48 @@ public class LoginViewModel : ViewModelBase
             var kernelClient = ServiceLocator.Instance.KernelClient;
             var settingsService = ServiceLocator.Instance.SettingsService;
             var settings = settingsService.LoadSettings();
-            if (!string.IsNullOrEmpty(settings.AuthToken))
-            {
-                kernelClient.SetTokens(settings.AuthToken, settings.RefreshToken);
-                _token = settings.AuthToken;
-                _refreshToken = settings.RefreshToken;
-                LoginCompleted?.Invoke(this, EventArgs.Empty);
-            }
-            else
+
+            if (string.IsNullOrEmpty(settings.AuthToken))
             {
                 ErrorMessage = "Nenhuma sessão anterior encontrada. Faça login manual primeiro para salvar o token.";
+                return;
             }
+
+            try
+            {
+                var userConsentVerifierType = Type.GetType("Windows.Security.Credentials.UI.UserConsentVerifier, Windows.Security, Version=10.0.0.0, Culture=neutral, PublicKeyToken=cee3e3a7c98f7b10");
+                if (userConsentVerifierType != null)
+                {
+                    var verificationResult = await Task.Run(async () =>
+                    {
+                        var requestTask = userConsentVerifierType.GetMethod("RequestVerificationAsync")?
+                            .Invoke(null, new object[] { $"Krnl-AI - {settings.Username ?? "Biometric Login"}" });
+                        if (requestTask is not null)
+                        {
+                            var result = await ((dynamic)requestTask);
+                            return result?.Status?.ToString() == "Verified";
+                        }
+                        return false;
+                    });
+
+                    if (!verificationResult)
+                    {
+                        ErrorMessage = "Falha na verificação biométrica. Tente o login com senha.";
+                        KrnlLogger.Write($"Windows Hello verification failed for user {settings.Username}");
+                        return;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                KrnlLogger.Write($"Windows Hello unavailable: {ex.Message}");
+                // Fall through to silent login if biometrics are unavailable on this system
+            }
+
+            kernelClient.SetTokens(settings.AuthToken, settings.RefreshToken);
+            _token = settings.AuthToken;
+            _refreshToken = settings.RefreshToken;
+            LoginCompleted?.Invoke(this, EventArgs.Empty);
         }
         catch (Exception ex)
         {

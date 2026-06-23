@@ -1,20 +1,17 @@
-use serde::{Deserialize, Serialize};
-use std::sync::{
-    atomic::{AtomicBool, Ordering},
-    Arc, Mutex,
-};
-use tauri::Emitter;
+use serde::Serialize;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Arc, Mutex};
+use tauri::{AppHandle, Emitter};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Clone, Serialize)]
 pub struct AudioConfig {
     pub sample_rate: u32,
     pub channels: u16,
 }
 
 pub struct AudioCapture {
-    running: Arc<AtomicBool>,
-    config: Mutex<Option<AudioConfig>>,
+    pub running: Arc<AtomicBool>,
+    pub config: Mutex<Option<AudioConfig>>,
 }
 
 impl AudioCapture {
@@ -24,274 +21,189 @@ impl AudioCapture {
             config: Mutex::new(None),
         }
     }
-
-    pub fn is_running(&self) -> bool {
-        self.running.load(Ordering::SeqCst)
-    }
-
-    pub fn start_capture(&self, app_handle: tauri::AppHandle) -> Result<(), String> {
-        #[cfg(not(feature = "audio"))]
-        {
-            let _ = app_handle;
-            return Err("Audio feature not enabled. Rebuild with --features audio.".to_string());
-        }
-
-        #[cfg(feature = "audio")]
-        self.start_capture_impl(app_handle)
-    }
-
-    pub fn stop_capture(&self) -> Result<(), String> {
-        if !self.running.load(Ordering::SeqCst) {
-            return Err("Audio capture is not running".to_string());
-        }
-        self.running.store(false, Ordering::SeqCst);
-        Ok(())
-    }
-
-    pub fn play_audio(&self, data: Vec<u8>) -> Result<(), String> {
-        #[cfg(not(feature = "audio"))]
-        {
-            let _ = data;
-            return Err("Audio feature not enabled. Rebuild with --features audio.".to_string());
-        }
-
-        #[cfg(feature = "audio")]
-        self.play_audio_impl(data)
-    }
 }
 
-// ── Real implementation behind `audio` feature ────────────────────────────────
+#[derive(Clone, Serialize)]
+pub struct VadEvent {
+    pub status: String,
+    pub energy: f32,
+    pub duration_ms: u64,
+}
 
-#[cfg(feature = "audio")]
 impl AudioCapture {
-    fn start_capture_impl(&self, app_handle: tauri::AppHandle) -> Result<(), String> {
-        use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
-
-        let host = cpal::default_host();
-        let device = host
-            .default_input_device()
-            .ok_or_else(|| "No audio input device available".to_string())?;
-
-        let config = device
-            .default_input_config()
-            .map_err(|e| format!("Failed to get default input config: {}", e))?;
-
-        let sample_rate = config.sample_rate().0;
-        let channels = config.channels();
-
-        *self.config.lock().unwrap() = Some(AudioConfig {
-            sample_rate,
-            channels,
-        });
-
-        let _ = app_handle.emit(
-            "audio-config",
-            AudioConfig {
-                sample_rate,
-                channels,
-            },
-        );
-
+    pub fn start_capture(&self, app: AppHandle) -> Result<(), String> {
         self.running.store(true, Ordering::SeqCst);
-        let running_outer = self.running.clone();
 
-        let err_fn = |err: cpal::StreamError| {
-            eprintln!("Audio capture stream error: {}", err);
-        };
+        let running = self.running.clone();
+        let app_clone = app.clone();
 
-        // Spawn a thread where the stream will live (cpal::Stream is not Send on Windows)
+        app_clone
+            .emit("audio-config", AudioConfig {
+                sample_rate: 16000,
+                channels: 1,
+            })
+            .map_err(|e| format!("Failed to emit audio-config: {e}"))?;
+
         std::thread::spawn(move || {
-            let running = running_outer.clone();
-            let running_f32 = running_outer.clone();
-            let running_i16 = running_outer.clone();
-            let running_u16 = running_outer.clone();
-            let app_f32 = app_handle.clone();
-            let app_i16 = app_handle.clone();
-            let app_u16 = app_handle.clone();
+            #[cfg(feature = "audio")]
+            {
+                let (_stream, stream_handle) =
+                    match cpal::default_input_stream(&cpal::default_input_device().unwrap()) {
+                        Ok(s) => s,
+                        Err(e) => {
+                            let _ = app_clone.emit("audio-error", format!("{e}"));
+                            return;
+                        }
+                    };
 
-            let stream_result = match config.sample_format() {
-                cpal::SampleFormat::F32 => device.build_input_stream(
-                    &config.config(),
-                    move |data: &[f32], _: &cpal::InputCallbackInfo| {
-                        if !running_f32.load(Ordering::SeqCst) {
-                            return;
-                        }
-                        let mut bytes = Vec::with_capacity(data.len() * 2);
-                        for &sample in data {
-                            let clamped = sample.clamp(-1.0, 1.0);
-                            let i16_sample = (clamped * 32767.0) as i16;
-                            bytes.extend_from_slice(&i16_sample.to_le_bytes());
-                        }
-                        let _ = app_f32.emit("audio-data", &bytes);
-                    },
-                    err_fn,
-                    None,
-                ),
-                cpal::SampleFormat::I16 => device.build_input_stream(
-                    &config.config(),
-                    move |data: &[i16], _: &cpal::InputCallbackInfo| {
-                        if !running_i16.load(Ordering::SeqCst) {
-                            return;
-                        }
-                        let mut bytes = Vec::with_capacity(data.len() * 2);
-                        for &sample in data {
-                            bytes.extend_from_slice(&sample.to_le_bytes());
-                        }
-                        let _ = app_i16.emit("audio-data", &bytes);
-                    },
-                    err_fn,
-                    None,
-                ),
-                cpal::SampleFormat::U16 => device.build_input_stream(
-                    &config.config(),
-                    move |data: &[u16], _: &cpal::InputCallbackInfo| {
-                        if !running_u16.load(Ordering::SeqCst) {
-                            return;
-                        }
-                        let mut bytes = Vec::with_capacity(data.len() * 2);
-                        for &sample in data {
-                            let i16_sample = (sample as i32 - 32768) as i16;
-                            bytes.extend_from_slice(&i16_sample.to_le_bytes());
-                        }
-                        let _ = app_u16.emit("audio-data", &bytes);
-                    },
-                    err_fn,
-                    None,
-                ),
-                _ => {
-                    eprintln!("Unsupported input sample format: {:?}", config.sample_format());
-                    return;
-                }
-            };
+                let mut buffer: Vec<f32> = Vec::new();
+                let mut speech_detected = false;
+                let mut silence_frames = 0;
+                let vad_threshold: f32 = 0.02;
+                let silence_timeout_frames = 30;
+                let mut frame_count = 0u64;
 
-            match stream_result {
-                Ok(stream) => {
-                    if let Err(e) = stream.play() {
-                        eprintln!("Failed to start audio stream: {}", e);
-                        return;
-                    }
-                    // Keep stream alive on this thread until stopped
+                let stream = stream_handle
+                    .build_input_stream(
+                        &cpal::StreamConfig {
+                            channels: 1,
+                            sample_rate: cpal::SampleRate(16000),
+                            buffer_size: cpal::BufferSize::Fixed(512),
+                        },
+                        move |data: &[f32], _: &cpal::InputCallbackInfo| {
+                            for &sample in data {
+                                let energy = sample.abs();
+                                buffer.push(sample);
+
+                                if energy > vad_threshold {
+                                    if !speech_detected {
+                                        speech_detected = true;
+                                        silence_frames = 0;
+                                        let _ = app_clone.emit(
+                                            "voice-start",
+                                            VadEvent {
+                                                status: "speech_start".into(),
+                                                energy,
+                                                duration_ms: (buffer.len() as u64 * 1000) / 16000,
+                                            },
+                                        );
+                                    }
+                                    silence_frames = 0;
+                                } else if speech_detected {
+                                    silence_frames += 1;
+                                    if silence_frames >= silence_timeout_frames {
+                                        let audio_data: Vec<i16> = buffer
+                                            .iter()
+                                            .map(|&s| (s * 32767.0) as i16)
+                                            .collect();
+                                        let bytes: Vec<u8> = audio_data
+                                            .iter()
+                                            .flat_map(|s| s.to_le_bytes())
+                                            .collect();
+                                        let _ = app_clone.emit(
+                                            "voice-end",
+                                            VadEvent {
+                                                status: "speech_end".into(),
+                                                energy: 0.0,
+                                                duration_ms: (buffer.len() as u64 * 1000) / 16000,
+                                            },
+                                        );
+                                        let _ = app_clone.emit("audio-data", bytes);
+                                        buffer.clear();
+                                        speech_detected = false;
+                                        silence_frames = 0;
+                                    }
+                                }
+
+                                frame_count += 1;
+                                if frame_count % 1600 == 0 {
+                                    let avg_energy: f32 =
+                                        buffer.iter().rev().take(160).map(|s| s.abs()).sum::<f32>()
+                                            / 160.0;
+                                    let _ = app_clone.emit(
+                                        "audio-level",
+                                        VadEvent {
+                                            status: "level".into(),
+                                            energy: avg_energy,
+                                            duration_ms: 0,
+                                        },
+                                    );
+                                }
+                            }
+                        },
+                        move |err| {
+                            let _ = app_clone.emit("audio-error", format!("{err}"));
+                        },
+                        None,
+                    )
+                    .map_err(|e| format!("Failed to build input stream: {e}"));
+
+                if let Ok(stream) = stream {
+                    stream.play();
                     while running.load(Ordering::SeqCst) {
                         std::thread::sleep(std::time::Duration::from_millis(100));
                     }
-                    // Stream is dropped here
+                    drop(stream);
                 }
-                Err(e) => {
-                    eprintln!("Failed to create audio input stream: {}", e);
-                }
+            }
+
+            #[cfg(not(feature = "audio"))]
+            {
+                let _ = &app_clone;
+                let _ = &running;
             }
         });
 
         Ok(())
     }
 
-    fn play_audio_impl(&self, data: Vec<u8>) -> Result<(), String> {
-        use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
+    pub fn stop_capture(&self) {
+        self.running.store(false, Ordering::SeqCst);
+    }
 
-        if data.len() % 2 != 0 {
-            return Err("Audio data length must be even (16-bit samples)".to_string());
-        }
+    pub fn play_audio(&self, app: AppHandle, data: Vec<u8>) -> Result<(), String> {
+        #[cfg(feature = "audio")]
+        {
+            let samples: Vec<i16> = data
+                .chunks(2)
+                .map(|c| i16::from_le_bytes([c[0], c[1]]))
+                .collect();
 
-        let host = cpal::default_host();
-        let device = host
-            .default_output_device()
-            .ok_or_else(|| "No audio output device available".to_string())?;
+            let (_stream, stream_handle) = cpal::default_output_stream(
+                &cpal::default_output_device().ok_or("No output device")?,
+            )
+            .map_err(|e| format!("{e}"))?;
 
-        let config = device
-            .default_output_config()
-            .map_err(|e| format!("Failed to get default output config: {}", e))?;
-
-        let samples: Vec<i16> = data
-            .chunks_exact(2)
-            .map(|c| i16::from_le_bytes([c[0], c[1]]))
-            .collect();
-
-        let sample_count = samples.len();
-        let cursor = Arc::new(Mutex::new(0usize));
-
-        let err_fn = |err: cpal::StreamError| {
-            eprintln!("Audio playback stream error: {}", err);
-        };
-
-        let stream = match config.sample_format() {
-            cpal::SampleFormat::F32 => {
-                let cursor = cursor.clone();
-                device.build_output_stream(
-                    &config.config(),
+            let duration = samples.len() as u64 * 1000 / 16000;
+            stream_handle
+                .build_output_stream(
+                    &cpal::StreamConfig {
+                        channels: 1,
+                        sample_rate: cpal::SampleRate(16000),
+                        buffer_size: cpal::BufferSize::Fixed(512),
+                    },
                     move |output: &mut [f32], _: &cpal::OutputCallbackInfo| {
-                        let mut pos = cursor.lock().unwrap();
-                        for sample in output.iter_mut() {
-                            if *pos < sample_count {
-                                *sample = samples[*pos] as f32 / 32767.0;
-                                *pos += 1;
-                            } else {
-                                *sample = 0.0;
-                            }
+                        for (out, &sample) in output.iter_mut().zip(samples.iter()) {
+                            *out = sample as f32 / 32767.0;
                         }
                     },
-                    err_fn,
-                    None,
-                )
-            }
-            cpal::SampleFormat::I16 => {
-                let cursor = cursor.clone();
-                device.build_output_stream(
-                    &config.config(),
-                    move |output: &mut [i16], _: &cpal::OutputCallbackInfo| {
-                        let mut pos = cursor.lock().unwrap();
-                        let to_copy = output.len().min(sample_count.saturating_sub(*pos));
-                        if to_copy > 0 {
-                            output[..to_copy].copy_from_slice(&samples[*pos..*pos + to_copy]);
-                            *pos += to_copy;
-                        }
-                        for sample in output[to_copy..].iter_mut() {
-                            *sample = 0;
-                        }
+                    move |err| {
+                        let _ = app.emit("audio-error", format!("{err}"));
                     },
-                    err_fn,
                     None,
                 )
-            }
-            cpal::SampleFormat::U16 => {
-                let cursor = cursor.clone();
-                device.build_output_stream(
-                    &config.config(),
-                    move |output: &mut [u16], _: &cpal::OutputCallbackInfo| {
-                        let mut pos = cursor.lock().unwrap();
-                        for sample in output.iter_mut() {
-                            if *pos < sample_count {
-                                *sample = (samples[*pos] as i32 + 32768) as u16;
-                                *pos += 1;
-                            } else {
-                                *sample = 32768;
-                            }
-                        }
-                    },
-                    err_fn,
-                    None,
-                )
-            }
-            _ => return Err(format!("Unsupported output sample format: {:?}", config.sample_format())),
+                .map_err(|e| format!("Failed to build output stream: {e}"))?
+                .play();
+
+            std::thread::sleep(std::time::Duration::from_millis(duration + 50));
+            Ok(())
         }
-        .map_err(|e| format!("Failed to create audio output stream: {}", e))?;
 
-        stream
-            .play()
-            .map_err(|e| format!("Failed to start playback stream: {}", e))?;
-
-        let playback_ms = if config.sample_rate().0 > 0 {
-            let sample_rate_hz = config.sample_rate().0 as u64;
-            let channels = config.channels() as u64;
-            (sample_count as u64 * 1000) / (sample_rate_hz * channels)
-        } else {
-            100
-        };
-
-        // Block on this thread to keep the stream alive during playback.
-        // The stream is dropped when the function returns.
-        std::thread::sleep(std::time::Duration::from_millis(playback_ms + 50));
-
-        Ok(())
+        #[cfg(not(feature = "audio"))]
+        {
+            let _ = (app, data);
+            Err("Audio feature not enabled".into())
+        }
     }
 }
 
