@@ -6,6 +6,7 @@ using KrnlAI.Desktop.App.Services;
 using KrnlAI.Desktop.App.ViewModels;
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
+using KrnlAI.Desktop.Core.Services;
 
 namespace KrnlAI.Desktop.App;
 

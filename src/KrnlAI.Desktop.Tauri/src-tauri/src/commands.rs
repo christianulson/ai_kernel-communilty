@@ -520,15 +520,17 @@ pub async fn start_audio_capture(
 
 #[tauri::command]
 pub async fn stop_audio_capture(audio: State<'_, AudioCapture>) -> Result<(), String> {
-    audio.stop_capture()
+    audio.stop_capture();
+    Ok(())
 }
 
 #[tauri::command]
 pub async fn play_audio(
+    app_handle: tauri::AppHandle,
     data: Vec<u8>,
     audio: State<'_, AudioCapture>,
 ) -> Result<(), String> {
-    audio.play_audio(data)
+    audio.play_audio(app_handle, data)
 }
 
 #[tauri::command]
