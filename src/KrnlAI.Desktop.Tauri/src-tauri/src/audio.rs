@@ -1,6 +1,6 @@
 use serde::Serialize;
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 use tauri::{AppHandle, Emitter};
 
 #[cfg(feature = "audio")]
@@ -21,14 +21,12 @@ pub struct VadEvent {
 
 pub struct AudioCapture {
     pub running: Arc<AtomicBool>,
-    pub config: Mutex<Option<AudioConfig>>,
 }
 
 impl AudioCapture {
     pub fn new() -> Self {
         Self {
             running: Arc::new(AtomicBool::new(false)),
-            config: Mutex::new(None),
         }
     }
 
@@ -74,6 +72,7 @@ impl AudioCapture {
                 let mut silence_frames = 0;
                 let vad_threshold: f32 = 0.02;
                 let silence_timeout_frames = 30;
+                let max_buffer_samples = 16000 * 30; // 30s max at 16kHz
                 let mut frame_count = 0u64;
 
                 let app_err = app_clone.clone();
@@ -86,6 +85,9 @@ impl AudioCapture {
                     for &sample in data {
                         let energy = sample.abs();
                         buffer.push(sample);
+                        if buffer.len() > max_buffer_samples {
+                            buffer.drain(0..buffer.len() / 2);
+                        }
 
                         if energy > vad_threshold {
                             if !speech_detected {
@@ -149,7 +151,7 @@ impl AudioCapture {
                     .map_err(|e| format!("Failed to build input stream: {e}"));
 
                 if let Ok(stream) = stream {
-                    stream.play();
+                    let _ = stream.play();
                     while running.load(Ordering::SeqCst) {
                         std::thread::sleep(std::time::Duration::from_millis(100));
                     }
@@ -212,7 +214,7 @@ impl AudioCapture {
                 )
                 .map_err(|e| format!("Failed to build output stream: {e}"))?;
 
-            stream.play();
+            let _ = stream.play();
             let duration = samples.len() as u64 * 1000 / 16000;
             std::thread::sleep(std::time::Duration::from_millis(duration + 50));
             Ok(())

@@ -1,17 +1,14 @@
-using System.Runtime.InteropServices;
+using System.Security;
 using KrnlAI.Desktop.Core.Services;
 
 namespace KrnlAI.Desktop.App.Services;
 
-/// <summary>
-/// Gerencia notificações nativas do Windows.
-/// Usa ToastService (balloon tips) como implementação principal.
-/// Quando habilitado, tenta usar Windows.UI.Notifications via reflection.
-/// </summary>
 public sealed class WindowsNotificationService
 {
     private readonly ToastService _toast;
-    private bool _useActionCenter;
+    private bool _actionCenterAvailable;
+    private bool _actionCenterChecked;
+    private static readonly object CheckLock = new();
 
     public WindowsNotificationService(ToastService toast)
     {
@@ -20,52 +17,57 @@ public sealed class WindowsNotificationService
 
     public void Show(string title, string message, ToastType type = ToastType.Info)
     {
-        if (_useActionCenter)
-        {
-            TryShowActionCenter(title, message);
-        }
-        else
-        {
-            _toast.Show(title, message, type);
-        }
+        if (TryGetActionCenter() && TryShowActionCenter(title, message))
+            return;
+
+        _toast.Show(title, message, type);
     }
 
-    public void EnableActionCenter()
+    private bool TryGetActionCenter()
+    {
+        if (_actionCenterChecked) return _actionCenterAvailable;
+        lock (CheckLock)
+        {
+            if (_actionCenterChecked) return _actionCenterAvailable;
+            try
+            {
+                var managerType = Type.GetType(
+                    "Windows.UI.Notifications.ToastNotificationManager, Windows.Win32, Version=10.0.0.0, Culture=neutral",
+                    false);
+                _actionCenterAvailable = managerType != null;
+            }
+            catch
+            {
+                _actionCenterAvailable = false;
+            }
+            _actionCenterChecked = true;
+        }
+        return _actionCenterAvailable;
+    }
+
+    private bool TryShowActionCenter(string title, string message)
     {
         try
         {
-            var managerType = Type.GetType("Windows.UI.Notifications.ToastNotificationManager, Windows.Win32, Version=10.0.0.0, Culture=neutral", false);
-            _useActionCenter = managerType != null;
-        }
-        catch
-        {
-            _useActionCenter = false;
-        }
-    }
+            var safeTitle = SecurityElement.Escape(title);
+            var safeMessage = SecurityElement.Escape(message);
 
-    private void TryShowActionCenter(string title, string message)
-    {
-        try
-        {
             var xml = $@"<?xml version=""1.0"" encoding=""utf-8""?>
 <toast>
   <visual>
     <binding template=""ToastGeneric"">
-      <text>{title}</text>
-      <text>{message}</text>
+      <text>{safeTitle}</text>
+      <text>{safeMessage}</text>
     </binding>
   </visual>
 </toast>";
 
-            var docType = Type.GetType("Windows.Data.Xml.Dom.XmlDocument, Windows.Data, Version=10.0.0.0, Culture=neutral");
-            var managerType = Type.GetType("Windows.UI.Notifications.ToastNotificationManager, Windows.Win32, Version=10.0.0.0, Culture=neutral");
-            var notifType = Type.GetType("Windows.UI.Notifications.ToastNotification, Windows.Win32, Version=10.0.0.0, Culture=neutral");
+            var docType = Type.GetType("Windows.Data.Xml.Dom.XmlDocument, Windows.Data, Version=10.0.0.0, Culture=neutral", false);
+            var managerType = Type.GetType("Windows.UI.Notifications.ToastNotificationManager, Windows.Win32, Version=10.0.0.0, Culture=neutral", false);
+            var notifType = Type.GetType("Windows.UI.Notifications.ToastNotification, Windows.Win32, Version=10.0.0.0, Culture=neutral", false);
 
             if (docType == null || managerType == null || notifType == null)
-            {
-                _toast.Show(title, message, ToastType.Info);
-                return;
-            }
+                return false;
 
             var doc = Activator.CreateInstance(docType);
             docType.GetMethod("LoadXml")?.Invoke(doc, [xml]);
@@ -73,11 +75,13 @@ public sealed class WindowsNotificationService
             var toast = Activator.CreateInstance(notifType, [doc]);
             var notifier = managerType.GetMethod("CreateToastNotifier", Type.EmptyTypes)?.Invoke(null, null);
             notifier?.GetType().GetMethod("Show")?.Invoke(notifier, [toast]);
+
+            return true;
         }
         catch (Exception ex)
         {
-            KrnlLogger.Write($"Action Center toast failed: {ex.Message}");
-            _toast.Show(title, message, ToastType.Error);
+            KrnlLogger.Write($"Native toast failed: {ex.Message}");
+            return false;
         }
     }
 }
