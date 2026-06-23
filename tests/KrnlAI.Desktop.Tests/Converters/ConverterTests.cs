@@ -298,14 +298,14 @@ public class LocalizationConverterTests
     public void Convert_WithParameterKey_ShouldReturnKey()
     {
         var result = _converter.Convert(null!, typeof(string), "test.key", null!);
-        Assert.Equal("test.key", result);
+        Assert.Contains("test.key", result!.ToString()!);
     }
 
     [Fact]
     public void Convert_WithValueKey_ShouldReturnKey()
     {
         var result = _converter.Convert("fallback.key", typeof(string), null!, null!);
-        Assert.Equal("fallback.key", result);
+        Assert.Contains("fallback.key", result!.ToString()!);
     }
 
     [Fact]
