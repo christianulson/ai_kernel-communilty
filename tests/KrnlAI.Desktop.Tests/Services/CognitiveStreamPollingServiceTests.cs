@@ -11,7 +11,7 @@ public sealed class CognitiveStreamPollingServiceTests
         var sut = new CognitiveStreamPollingService("http://localhost:5000", handler);
 
         await sut.ConnectAsync("cycle-123", CancellationToken.None);
-        await Task.Delay(50);
+        await Task.Delay(500);
         sut.Disconnect();
 
         Assert.Equal("/api/cognitive/stream/cycle-123", handler.LastPath);
