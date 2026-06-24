@@ -65,3 +65,22 @@ impl SidecarWatchdog {
         self.running.store(false, Ordering::SeqCst);
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn watchdog_new_starts_stopped() {
+        let w = SidecarWatchdog::new();
+        assert!(!w.running.load(Ordering::SeqCst));
+    }
+
+    #[test]
+    fn watchdog_stop_sets_running_false() {
+        let w = SidecarWatchdog::new();
+        w.running.store(true, Ordering::SeqCst);
+        w.stop();
+        assert!(!w.running.load(Ordering::SeqCst));
+    }
+}

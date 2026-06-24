@@ -142,3 +142,33 @@ fn extract_field(content: &str, field: &str) -> Option<String> {
     None
 }
 
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn plugin_host_new_creates_empty() {
+        let host = PluginHost::new(std::path::PathBuf::from("/tmp/test-plugins"));
+        assert!(host.list_plugins().is_empty());
+    }
+
+    #[test]
+    fn discover_plugins_returns_empty_when_dir_missing() {
+        let host = PluginHost::new(std::path::PathBuf::from("/nonexistent-dir-12345"));
+        let discovered = host.discover_plugins();
+        assert!(discovered.is_empty());
+    }
+
+    #[test]
+    fn extract_field_parses_toml_values() {
+        let content = "name = \"test-plugin\"\nversion = \"1.0.0\"\n";
+        assert_eq!(extract_field(content, "name"), Some("test-plugin".to_string()));
+        assert_eq!(extract_field(content, "version"), Some("1.0.0".to_string()));
+    }
+
+    #[test]
+    fn extract_field_returns_none_for_missing() {
+        assert_eq!(extract_field("key = \"value\"", "missing"), None);
+    }
+}
