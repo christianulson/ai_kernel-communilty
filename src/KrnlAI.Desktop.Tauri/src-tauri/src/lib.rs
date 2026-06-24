@@ -5,9 +5,11 @@ mod camera;
 mod commands;
 mod hotkey;
 mod notifications;
+mod plugin_sdk;
 mod sidecar;
 mod tray;
 mod updater;
+mod watchdog;
 
 pub fn run() {
     let _ = env_logger::try_init();
@@ -37,6 +39,17 @@ pub fn run() {
         .setup(|app| {
             tray::TrayManager::setup(app)?;
             hotkey::setup_hotkeys(app.handle())?;
+
+            // Start sidecar watchdog for auto-recovery
+            let watchdog = crate::watchdog::SidecarWatchdog::new();
+            watchdog.start(app.handle().clone());
+            app.manage(watchdog);
+
+            // Initialize plugin host
+            let data_dir = app.path().app_data_dir().unwrap_or_default();
+            let plugin_host = crate::plugin_sdk::PluginHost::new(data_dir);
+            app.manage(plugin_host);
+
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
