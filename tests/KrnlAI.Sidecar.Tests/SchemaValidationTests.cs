@@ -8,10 +8,10 @@ public sealed class SchemaValidationTests(SidecarWebAppFactory factory) : IClass
     public async Task MemorySearch_WithUnexpectedFields_ShouldReturn400()
     {
         var payload = new { query = "test", extraField = "hack" };
-        var res = await _http.PostAsJsonAsync("/memory/search", payload, TestContext.Current.CancellationToken).ConfigureAwait(false);
+        var res = await _http.PostAsJsonAsync("/memory/search", payload, TestContext.Current.CancellationToken);
 
         res.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
-        var body = await res.Content.ReadFromJsonAsync<Dictionary<string, object>>(cancellationToken: TestContext.Current.CancellationToken).ConfigureAwait(false);
+        var body = await res.Content.ReadFromJsonAsync<Dictionary<string, object>>(cancellationToken: TestContext.Current.CancellationToken);
         body.Should().ContainKey("error");
     }
 
@@ -19,7 +19,7 @@ public sealed class SchemaValidationTests(SidecarWebAppFactory factory) : IClass
     public async Task MemorySearch_WithEmptyBody_ShouldReturn200WithEmptyHits()
     {
         var payload = new { };
-        var res = await _http.PostAsJsonAsync("/memory/search", payload, TestContext.Current.CancellationToken).ConfigureAwait(false);
+        var res = await _http.PostAsJsonAsync("/memory/search", payload, TestContext.Current.CancellationToken);
 
         res.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
     }
@@ -27,7 +27,7 @@ public sealed class SchemaValidationTests(SidecarWebAppFactory factory) : IClass
     [Fact]
     public async Task MemorySearch_WithNullBody_ShouldReturn400()
     {
-        var res = await _http.PostAsync("/memory/search", content: null, cancellationToken: TestContext.Current.CancellationToken).ConfigureAwait(false);
+        var res = await _http.PostAsync("/memory/search", content: null, cancellationToken: TestContext.Current.CancellationToken);
 
         res.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
     }
@@ -36,9 +36,9 @@ public sealed class SchemaValidationTests(SidecarWebAppFactory factory) : IClass
     public async Task MemorySearch_WithValidQuery_ShouldReturn200()
     {
         var payload = new { query = "test" };
-        var res = await _http.PostAsJsonAsync("/memory/search", payload, TestContext.Current.CancellationToken).ConfigureAwait(false);
+        var res = await _http.PostAsJsonAsync("/memory/search", payload, TestContext.Current.CancellationToken);
 
-        var body = await res.Content.ReadFromJsonAsync<Dictionary<string, object>>(cancellationToken: TestContext.Current.CancellationToken).ConfigureAwait(false);
+        var body = await res.Content.ReadFromJsonAsync<Dictionary<string, object>>(cancellationToken: TestContext.Current.CancellationToken);
         body.Should().ContainKey("hits");
     }
 }
@@ -51,7 +51,7 @@ public sealed class SchemaValidationTests_CommunityMode(CommunitySidecarWebAppFa
     public async Task MemorySearch_Community_WithUnexpectedFields_ShouldReturn400()
     {
         var payload = new { query = "test", extraField = "hack" };
-        var res = await _http.PostAsJsonAsync("/memory/search", payload, TestContext.Current.CancellationToken).ConfigureAwait(false);
+        var res = await _http.PostAsJsonAsync("/memory/search", payload, TestContext.Current.CancellationToken);
 
         res.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
     }
@@ -60,7 +60,7 @@ public sealed class SchemaValidationTests_CommunityMode(CommunitySidecarWebAppFa
     public async Task MemorySearch_Community_WithEmptyQuery_ShouldReturn400()
     {
         var payload = new { query = "" };
-        var res = await _http.PostAsJsonAsync("/memory/search", payload, TestContext.Current.CancellationToken).ConfigureAwait(false);
+        var res = await _http.PostAsJsonAsync("/memory/search", payload, TestContext.Current.CancellationToken);
 
         res.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
     }
@@ -69,7 +69,7 @@ public sealed class SchemaValidationTests_CommunityMode(CommunitySidecarWebAppFa
     public async Task MemorySearch_Community_WithValidQuery_ShouldReturn200()
     {
         var payload = new { query = "test" };
-        var res = await _http.PostAsJsonAsync("/memory/search", payload, TestContext.Current.CancellationToken).ConfigureAwait(false);
+        var res = await _http.PostAsJsonAsync("/memory/search", payload, TestContext.Current.CancellationToken);
 
         res.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
     }

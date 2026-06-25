@@ -96,10 +96,10 @@ public sealed class KanbanCommandTests
         await store.UpsertAsync(new PersistentGoal(
             "g1", null, "Test", GoalStatus.Active, 0, 0.8,
             FixedNow, null, [], [], new Dictionary<string, string>()),
-            CancellationToken.None).ConfigureAwait(false);
+            CancellationToken.None);
 
         var service = new KrnlAI.LLMGateway.Core.Services.Goals.KanbanService(store, new FrozenClock(FixedNow));
-        var result = await service.GetKanbanAsync(ct: CancellationToken.None).ConfigureAwait(false);
+        var result = await service.GetKanbanAsync(ct: CancellationToken.None);
 
         result.Should().NotBeNull();
         result.Metadata.TotalGoals.Should().Be(1);
@@ -113,7 +113,7 @@ public sealed class KanbanCommandTests
         var cmd = new KanbanCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("kanban").InvokeAsync().ConfigureAwait(false);
+        var result = await root.Parse("kanban").InvokeAsync();
 
         var output = console.Output;
         result.Should().Be(0, $"Console output: {output}");
@@ -126,7 +126,7 @@ public sealed class KanbanCommandTests
         var cmd = new KanbanCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("kanban").InvokeAsync().ConfigureAwait(false);
+        var result = await root.Parse("kanban").InvokeAsync();
 
         result.Should().Be(0);
         var output = console.Output;
@@ -143,7 +143,7 @@ public sealed class KanbanCommandTests
         var cmd = new KanbanCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("kanban --days 3").InvokeAsync().ConfigureAwait(false);
+        var result = await root.Parse("kanban --days 3").InvokeAsync();
 
         result.Should().Be(0);
         console.Output.Should().Contain("Days back: 3");
@@ -156,7 +156,7 @@ public sealed class KanbanCommandTests
         var cmd = new KanbanCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("kanban --min-priority 0.5").InvokeAsync().ConfigureAwait(false);
+        var result = await root.Parse("kanban --min-priority 0.5").InvokeAsync();
         result.Should().Be(0);
         console.Output.Should().Contain("Min priority: 0.5");
     }
@@ -168,7 +168,7 @@ public sealed class KanbanCommandTests
         var cmd = new KanbanCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("kanban --search infra").InvokeAsync().ConfigureAwait(false);
+        var result = await root.Parse("kanban --search infra").InvokeAsync();
 
         result.Should().Be(0);
         console.Output.Should().Contain("Total: 1");
@@ -213,7 +213,7 @@ public sealed class KanbanCommandTests
         var cmd = new KanbanCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("kanban").InvokeAsync().ConfigureAwait(false);
+        var result = await root.Parse("kanban").InvokeAsync();
 
         result.Should().Be(0);
         console.Output.Should().Contain("No goals found");
@@ -226,7 +226,7 @@ public sealed class KanbanCommandTests
         var cmd = new KanbanCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("kanban --domain testing").InvokeAsync().ConfigureAwait(false);
+        var result = await root.Parse("kanban --domain testing").InvokeAsync();
 
         result.Should().Be(0);
         console.Output.Should().Contain("Domain: testing");

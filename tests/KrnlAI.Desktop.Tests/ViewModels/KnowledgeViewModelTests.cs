@@ -26,7 +26,7 @@ public sealed class KnowledgeViewModelTests
         var kernelClient = new Mock<IKernelClient>();
         var vm = new KnowledgeViewModel(kernelClient.Object);
 
-        await vm.SearchAsync().ConfigureAwait(false);
+        await vm.SearchAsync();
 
         kernelClient.Verify(k => k.KnowledgeAskAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -38,7 +38,7 @@ public sealed class KnowledgeViewModelTests
         var vm = new KnowledgeViewModel(kernelClient.Object);
         vm.Query = "   ";
 
-        await vm.SearchAsync().ConfigureAwait(false);
+        await vm.SearchAsync();
 
         kernelClient.Verify(k => k.KnowledgeAskAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -58,7 +58,7 @@ public sealed class KnowledgeViewModelTests
         var vm = new KnowledgeViewModel(kernelClient.Object);
         vm.Query = "test query";
 
-        await vm.SearchAsync().ConfigureAwait(false);
+        await vm.SearchAsync();
 
         Assert.Equal(2, vm.Results.Count);
         Assert.Equal("content1", vm.Results[0].Content);
@@ -79,7 +79,7 @@ public sealed class KnowledgeViewModelTests
         var searchTask = vm.SearchAsync();
         Assert.True(vm.IsLoading);
         tcs.SetResult(new KnowledgeQueryResult("query", [], 0));
-        await searchTask.ConfigureAwait(false);
+        await searchTask;
         Assert.False(vm.IsLoading);
     }
 
@@ -93,7 +93,7 @@ public sealed class KnowledgeViewModelTests
         var vm = new KnowledgeViewModel(kernelClient.Object);
         vm.Query = "query";
 
-        await vm.SearchAsync().ConfigureAwait(false);
+        await vm.SearchAsync();
 
         Assert.Empty(vm.Results);
         Assert.False(vm.HasError);
@@ -109,7 +109,7 @@ public sealed class KnowledgeViewModelTests
         var vm = new KnowledgeViewModel(kernelClient.Object);
         vm.Query = "query";
 
-        await vm.SearchAsync().ConfigureAwait(false);
+        await vm.SearchAsync();
 
         Assert.True(vm.HasError);
         Assert.Contains("network error", vm.ErrorMessage);
@@ -126,7 +126,7 @@ public sealed class KnowledgeViewModelTests
 
         var vm = new KnowledgeViewModel(kernelClient.Object);
 
-        await vm.LoadStatsAsync().ConfigureAwait(false);
+        await vm.LoadStatsAsync();
 
         Assert.Equal(100, vm.Stats?.TotalEntries);
         Assert.Equal(5, vm.Stats?.TotalSources);
@@ -141,7 +141,7 @@ public sealed class KnowledgeViewModelTests
 
         var vm = new KnowledgeViewModel(kernelClient.Object);
 
-        await vm.LoadStatsAsync().ConfigureAwait(false);
+        await vm.LoadStatsAsync();
 
         Assert.True(vm.HasError);
         Assert.Contains("stats error", vm.ErrorMessage);

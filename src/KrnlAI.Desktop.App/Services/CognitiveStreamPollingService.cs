@@ -74,7 +74,7 @@ public sealed class CognitiveStreamPollingService
                 ct).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode) return;
 
-            await using var stream = (await response.Content.ReadAsStreamAsync(ct).ConfigureAwait(false)).ConfigureAwait(false);
+            await using var stream = (await response.Content.ReadAsStreamAsync(ct).ConfigureAwait(false));
             using var reader = new StreamReader(stream);
             var eventLines = new List<string>();
 

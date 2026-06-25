@@ -29,7 +29,7 @@ public sealed class ApiKeysViewModelTests
 
         var vm = new ApiKeysViewModel(service.Object);
 
-        await vm.LoadAsync(CancellationToken.None).ConfigureAwait(false);
+        await vm.LoadAsync(CancellationToken.None);
 
         Assert.Single(vm.Keys);
         Assert.Contains("1 chave ativa", vm.StatusMessage);
@@ -57,7 +57,7 @@ public sealed class ApiKeysViewModelTests
             SelectedScope = ApiKeyScope.ReadWrite
         };
 
-        await vm.CreateAsync(CancellationToken.None).ConfigureAwait(false);
+        await vm.CreateAsync(CancellationToken.None);
 
         Assert.Equal("krnl_full_secret", vm.CreatedFullKey);
         Assert.Equal("pipeline", vm.CreatedName);

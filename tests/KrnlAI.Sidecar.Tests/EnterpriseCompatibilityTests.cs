@@ -6,8 +6,8 @@ public sealed class EnterpriseCompatibilityTests(SidecarWebAppFactory factory) :
     public async Task CommunityMode_DefaultConfig_ShouldReportCommunity()
     {
         var client = factory.CreateClient();
-        var response = await client.GetAsync("/sidecar/diagnostics", TestContext.Current.CancellationToken).ConfigureAwait(false);
-        var body = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>(cancellationToken: TestContext.Current.CancellationToken).ConfigureAwait(false);
+        var response = await client.GetAsync("/sidecar/diagnostics", TestContext.Current.CancellationToken);
+        var body = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>(cancellationToken: TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
         body!["mode"].ToString().Should().Be("community");
@@ -17,7 +17,7 @@ public sealed class EnterpriseCompatibilityTests(SidecarWebAppFactory factory) :
     public async Task CommunityMode_HealthEndpoint_ShouldStillWork()
     {
         var client = factory.CreateClient();
-        var response = await client.GetAsync("/health", TestContext.Current.CancellationToken).ConfigureAwait(false);
+        var response = await client.GetAsync("/health", TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
     }
@@ -43,8 +43,8 @@ public sealed class EnterpriseCompatibilityTests(SidecarWebAppFactory factory) :
             });
         }).CreateClient();
 
-        var response = await client.GetAsync("/sidecar/diagnostics", TestContext.Current.CancellationToken).ConfigureAwait(false);
-        var body = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>(cancellationToken: TestContext.Current.CancellationToken).ConfigureAwait(false);
+        var response = await client.GetAsync("/sidecar/diagnostics", TestContext.Current.CancellationToken);
+        var body = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>(cancellationToken: TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
         body!["mode"].ToString().Should().Be("enterprise");
@@ -71,7 +71,7 @@ public sealed class EnterpriseCompatibilityTests(SidecarWebAppFactory factory) :
             });
         }).CreateClient();
 
-        var response = await client.GetAsync("/health", TestContext.Current.CancellationToken).ConfigureAwait(false);
+        var response = await client.GetAsync("/health", TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
     }
 

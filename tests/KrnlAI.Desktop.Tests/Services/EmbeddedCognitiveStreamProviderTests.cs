@@ -16,7 +16,7 @@ public sealed class EmbeddedCognitiveStreamProviderTests
         var provider = new EmbeddedCognitiveStreamProvider(streamer);
         provider.OnStateChanged += s => stateChanges.Add(s);
 
-        await provider.ConnectAsync(ct: CancellationToken.None).ConfigureAwait(false);
+        await provider.ConnectAsync(ct: CancellationToken.None);
 
         Assert.Contains(CoreAbstractions.CognitiveStreamState.Connected, stateChanges);
     }
@@ -42,7 +42,7 @@ public sealed class EmbeddedCognitiveStreamProviderTests
         var provider = new EmbeddedCognitiveStreamProvider(streamer);
         provider.OnEvent += e => receivedEvents.Add(e);
 
-        await provider.ConnectAsync(ct: CancellationToken.None).ConfigureAwait(false);
+        await provider.ConnectAsync(ct: CancellationToken.None);
         streamer.EmitTestEvent(new CoreCognitiveCycleEvent(
             CognitiveEventType.StepStarted, "test-step", "content", null,
             DateTimeOffset.UtcNow, "cycle-1", null));
@@ -60,7 +60,7 @@ public sealed class EmbeddedCognitiveStreamProviderTests
         var provider = new EmbeddedCognitiveStreamProvider(streamer);
         provider.OnEvent += e => receivedEvents.Add(e);
 
-        await provider.ConnectAsync(ct: CancellationToken.None).ConfigureAwait(false);
+        await provider.ConnectAsync(ct: CancellationToken.None);
 
         streamer.EmitTestEvent(new CoreCognitiveCycleEvent(CognitiveEventType.StepStarted, "s1", "c1", null, DateTimeOffset.UtcNow, "c1", null));
         streamer.EmitTestEvent(new CoreCognitiveCycleEvent(CognitiveEventType.StepCompleted, "s2", "c2", null, DateTimeOffset.UtcNow, "c1", null));
@@ -80,7 +80,7 @@ public sealed class EmbeddedCognitiveStreamProviderTests
         var provider = new EmbeddedCognitiveStreamProvider(streamer);
         provider.OnEvent += e => receivedEvents.Add(e);
 
-        await provider.ConnectAsync(ct: CancellationToken.None).ConfigureAwait(false);
+        await provider.ConnectAsync(ct: CancellationToken.None);
         provider.Disconnect();
 
         streamer.EmitTestEvent(new CoreCognitiveCycleEvent(CognitiveEventType.StepStarted, "after-disc", "", null, DateTimeOffset.UtcNow, "c1", null));
@@ -104,9 +104,9 @@ public sealed class EmbeddedCognitiveStreamProviderTests
         var provider = new EmbeddedCognitiveStreamProvider(streamer);
         provider.OnStateChanged += s => stateChanges.Add(s);
 
-        await provider.ConnectAsync(ct: CancellationToken.None).ConfigureAwait(false);
+        await provider.ConnectAsync(ct: CancellationToken.None);
         provider.Disconnect();
-        await provider.ConnectAsync(ct: CancellationToken.None).ConfigureAwait(false);
+        await provider.ConnectAsync(ct: CancellationToken.None);
 
         Assert.Equal(CoreAbstractions.CognitiveStreamState.Connected, provider.State);
     }
@@ -119,7 +119,7 @@ public sealed class EmbeddedCognitiveStreamProviderTests
         var provider = new EmbeddedCognitiveStreamProvider(streamer);
         provider.OnEvent += e => received.Add(e);
 
-        await provider.ConnectAsync(ct: CancellationToken.None).ConfigureAwait(false);
+        await provider.ConnectAsync(ct: CancellationToken.None);
 
         var types = new[] {
             (CognitiveEventType.StepStarted, "StepStarted"),

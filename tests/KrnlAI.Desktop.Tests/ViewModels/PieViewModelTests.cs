@@ -32,7 +32,7 @@ public sealed class PieViewModelTests
         var kernelClient = new Mock<IKernelClient>();
         var vm = new PieViewModel(kernelClient.Object);
 
-        await vm.InferAsync().ConfigureAwait(false);
+        await vm.InferAsync();
 
         kernelClient.Verify(k => k.PieInferAsync(It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -48,7 +48,7 @@ public sealed class PieViewModelTests
         vm.Premise = "all men are mortal";
         vm.Context = "Socrates";
 
-        await vm.InferAsync().ConfigureAwait(false);
+        await vm.InferAsync();
 
         Assert.Equal("Socrates is mortal", vm.Conclusion);
         Assert.Equal(0.95, vm.Confidence);
@@ -64,7 +64,7 @@ public sealed class PieViewModelTests
         var vm = new PieViewModel(kernelClient.Object);
         vm.Premise = "premise";
 
-        await vm.InferAsync().ConfigureAwait(false);
+        await vm.InferAsync();
 
         Assert.Empty(vm.Conclusion);
         Assert.Equal(0, vm.Confidence);
@@ -84,7 +84,7 @@ public sealed class PieViewModelTests
         var task = vm.InferAsync();
         Assert.True(vm.IsLoading);
         tcs.SetResult(new PieInferResponse("conclusion", 0.8, null));
-        await task.ConfigureAwait(false);
+        await task;
         Assert.False(vm.IsLoading);
     }
 
@@ -98,7 +98,7 @@ public sealed class PieViewModelTests
         var vm = new PieViewModel(kernelClient.Object);
         vm.Premise = "premise";
 
-        await vm.InferAsync().ConfigureAwait(false);
+        await vm.InferAsync();
 
         Assert.True(vm.HasError);
         Assert.Contains("inference failed", vm.ErrorMessage);
@@ -111,7 +111,7 @@ public sealed class PieViewModelTests
         var kernelClient = new Mock<IKernelClient>();
         var vm = new PieViewModel(kernelClient.Object);
 
-        await vm.ChainAsync().ConfigureAwait(false);
+        await vm.ChainAsync();
 
         kernelClient.Verify(k => k.PieChainAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -131,7 +131,7 @@ public sealed class PieViewModelTests
         var vm = new PieViewModel(kernelClient.Object);
         vm.ChainPremise = "start";
 
-        await vm.ChainAsync().ConfigureAwait(false);
+        await vm.ChainAsync();
 
         Assert.Equal(2, vm.ChainResults.Count);
         Assert.Equal("B", vm.ChainResults[0].Conclusion);
@@ -148,7 +148,7 @@ public sealed class PieViewModelTests
         var vm = new PieViewModel(kernelClient.Object);
         vm.ChainPremise = "start";
 
-        await vm.ChainAsync().ConfigureAwait(false);
+        await vm.ChainAsync();
 
         Assert.True(vm.HasError);
         Assert.Contains("chain error", vm.ErrorMessage);
@@ -168,7 +168,7 @@ public sealed class PieViewModelTests
 
         var vm = new PieViewModel(kernelClient.Object);
 
-        await vm.LoadTermsAsync().ConfigureAwait(false);
+        await vm.LoadTermsAsync();
 
         Assert.Equal(2, vm.Terms.Count);
         Assert.Equal("term1", vm.Terms[0].Name);
@@ -183,7 +183,7 @@ public sealed class PieViewModelTests
 
         var vm = new PieViewModel(kernelClient.Object);
 
-        await vm.LoadTermsAsync().ConfigureAwait(false);
+        await vm.LoadTermsAsync();
 
         Assert.True(vm.HasError);
         Assert.Contains("terms error", vm.ErrorMessage);
@@ -199,7 +199,7 @@ public sealed class PieViewModelTests
 
         var vm = new PieViewModel(kernelClient.Object);
 
-        await vm.LoadCoherenceAsync().ConfigureAwait(false);
+        await vm.LoadCoherenceAsync();
 
         Assert.NotNull(vm.Coherence);
         Assert.Equal(0.85, vm.Coherence.OverallCoherence);
@@ -214,7 +214,7 @@ public sealed class PieViewModelTests
 
         var vm = new PieViewModel(kernelClient.Object);
 
-        await vm.LoadCoherenceAsync().ConfigureAwait(false);
+        await vm.LoadCoherenceAsync();
 
         Assert.True(vm.HasError);
         Assert.Contains("coherence error", vm.ErrorMessage);

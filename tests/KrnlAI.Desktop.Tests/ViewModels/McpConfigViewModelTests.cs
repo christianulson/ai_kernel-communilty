@@ -32,7 +32,7 @@ public sealed class McpConfigViewModelTests
 
         var vm = new McpConfigViewModel(kernelClient.Object);
 
-        await vm.LoadServersAsync().ConfigureAwait(false);
+        await vm.LoadServersAsync();
 
         Assert.Equal(2, vm.Servers.Count);
         Assert.Equal("Server 1", vm.Servers[0].Name);
@@ -53,7 +53,7 @@ public sealed class McpConfigViewModelTests
         var task = vm.LoadServersAsync();
         Assert.True(vm.IsLoading);
         tcs.SetResult([]);
-        await task.ConfigureAwait(false);
+        await task;
         Assert.False(vm.IsLoading);
     }
 
@@ -66,7 +66,7 @@ public sealed class McpConfigViewModelTests
 
         var vm = new McpConfigViewModel(kernelClient.Object);
 
-        await vm.LoadServersAsync().ConfigureAwait(false);
+        await vm.LoadServersAsync();
 
         Assert.True(vm.HasError);
         Assert.Contains("servers error", vm.ErrorMessage);
@@ -82,7 +82,7 @@ public sealed class McpConfigViewModelTests
 
         var vm = new McpConfigViewModel(kernelClient.Object);
 
-        var result = await vm.ToggleServerAsync("s1", true).ConfigureAwait(false);
+        var result = await vm.ToggleServerAsync("s1", true);
 
         Assert.True(result);
     }
@@ -96,7 +96,7 @@ public sealed class McpConfigViewModelTests
 
         var vm = new McpConfigViewModel(kernelClient.Object);
 
-        var result = await vm.ToggleServerAsync("s1", true).ConfigureAwait(false);
+        var result = await vm.ToggleServerAsync("s1", true);
 
         Assert.False(result);
         Assert.True(vm.HasError);
@@ -113,7 +113,7 @@ public sealed class McpConfigViewModelTests
 
         var vm = new McpConfigViewModel(kernelClient.Object);
 
-        var result = await vm.UpdateServerAsync("s1", config).ConfigureAwait(false);
+        var result = await vm.UpdateServerAsync("s1", config);
 
         Assert.True(result);
     }
@@ -128,7 +128,7 @@ public sealed class McpConfigViewModelTests
 
         var vm = new McpConfigViewModel(kernelClient.Object);
 
-        var result = await vm.UpdateServerAsync("s1", config).ConfigureAwait(false);
+        var result = await vm.UpdateServerAsync("s1", config);
 
         Assert.False(result);
         Assert.True(vm.HasError);

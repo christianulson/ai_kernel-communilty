@@ -58,7 +58,7 @@ public sealed class OfflineServiceTests
         var sut = new OfflineService();
         var request = new Cts.AgentRunTransportRequest("test action");
 
-        var result = await sut.CacheCommandAsync(request).ConfigureAwait(false);
+        var result = await sut.CacheCommandAsync(request);
 
         Assert.True(result);
     }
@@ -68,9 +68,9 @@ public sealed class OfflineServiceTests
     {
         var sut = new OfflineService();
         var request = new Cts.AgentRunTransportRequest("test action");
-        await sut.CacheCommandAsync(request).ConfigureAwait(false);
+        await sut.CacheCommandAsync(request);
 
-        var cached = await sut.GetCachedCommandsAsync().ConfigureAwait(false);
+        var cached = await sut.GetCachedCommandsAsync();
 
         Assert.Single(cached);
         Assert.Equal("test action", cached[0].Prompt);
@@ -81,7 +81,7 @@ public sealed class OfflineServiceTests
     {
         var sut = new OfflineService();
 
-        var cached = await sut.GetCachedCommandsAsync().ConfigureAwait(false);
+        var cached = await sut.GetCachedCommandsAsync();
 
         Assert.Empty(cached);
     }
@@ -90,12 +90,12 @@ public sealed class OfflineServiceTests
     public async Task ClearCacheAsync_ShouldRemoveAllCommands()
     {
         var sut = new OfflineService();
-        await sut.CacheCommandAsync(new Cts.AgentRunTransportRequest("first cmd")).ConfigureAwait(false);
-        await sut.CacheCommandAsync(new Cts.AgentRunTransportRequest("second cmd")).ConfigureAwait(false);
+        await sut.CacheCommandAsync(new Cts.AgentRunTransportRequest("first cmd"));
+        await sut.CacheCommandAsync(new Cts.AgentRunTransportRequest("second cmd"));
 
-        await sut.ClearCacheAsync().ConfigureAwait(false);
+        await sut.ClearCacheAsync();
 
-        var cached = await sut.GetCachedCommandsAsync().ConfigureAwait(false);
+        var cached = await sut.GetCachedCommandsAsync();
         Assert.Empty(cached);
     }
 
@@ -104,10 +104,10 @@ public sealed class OfflineServiceTests
     {
         var sut = new OfflineService();
 
-        await sut.CacheCommandAsync(new Cts.AgentRunTransportRequest("first cmd")).ConfigureAwait(false);
-        await sut.CacheCommandAsync(new Cts.AgentRunTransportRequest("second cmd")).ConfigureAwait(false);
+        await sut.CacheCommandAsync(new Cts.AgentRunTransportRequest("first cmd"));
+        await sut.CacheCommandAsync(new Cts.AgentRunTransportRequest("second cmd"));
 
-        var cached = await sut.GetCachedCommandsAsync().ConfigureAwait(false);
+        var cached = await sut.GetCachedCommandsAsync();
 
         Assert.Equal(2, cached.Count);
         Assert.Equal("first cmd", cached[0].Prompt);

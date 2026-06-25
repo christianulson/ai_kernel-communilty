@@ -80,7 +80,7 @@ public sealed class EmotionalViewModelTests
             .ReturnsAsync(state);
 
         var vm = new EmotionalViewModel(kernelClient.Object, "user1");
-        await vm.LoadCurrentStateAsync().ConfigureAwait(false);
+        await vm.LoadCurrentStateAsync();
 
         Assert.NotNull(vm.CurrentState);
         Assert.Equal(0.3, vm.CurrentState.Valence);
@@ -99,7 +99,7 @@ public sealed class EmotionalViewModelTests
         var task = vm.LoadCurrentStateAsync();
         Assert.True(vm.IsLoading);
         tcs.SetResult(new EmotionalState(0.3, 0.6, 0.5, DateTimeOffset.UtcNow));
-        await task.ConfigureAwait(false);
+        await task;
         Assert.False(vm.IsLoading);
     }
 
@@ -111,7 +111,7 @@ public sealed class EmotionalViewModelTests
             .ThrowsAsync(new HttpRequestException("emotional error"));
 
         var vm = new EmotionalViewModel(kernelClient.Object, "user1");
-        await vm.LoadCurrentStateAsync().ConfigureAwait(false);
+        await vm.LoadCurrentStateAsync();
 
         Assert.True(vm.HasError);
         Assert.Contains("emotional error", vm.ErrorMessage);
@@ -131,7 +131,7 @@ public sealed class EmotionalViewModelTests
             .ReturnsAsync(entries);
 
         var vm = new EmotionalViewModel(kernelClient.Object, "user1");
-        await vm.LoadHistoryAsync().ConfigureAwait(false);
+        await vm.LoadHistoryAsync();
 
         Assert.Equal(2, vm.History.Count);
         Assert.Equal("event1", vm.History[0].Event);
@@ -146,7 +146,7 @@ public sealed class EmotionalViewModelTests
             .ThrowsAsync(new HttpRequestException("history error"));
 
         var vm = new EmotionalViewModel(kernelClient.Object, "user1");
-        await vm.LoadHistoryAsync().ConfigureAwait(false);
+        await vm.LoadHistoryAsync();
 
         Assert.True(vm.HasError);
         Assert.Contains("history error", vm.ErrorMessage);
@@ -160,7 +160,7 @@ public sealed class EmotionalViewModelTests
             .ReturnsAsync(true);
 
         var vm = new EmotionalViewModel(kernelClient.Object, "user1");
-        var result = await vm.LogEventAsync("joy").ConfigureAwait(false);
+        var result = await vm.LogEventAsync("joy");
 
         Assert.True(result);
         kernelClient.Verify(k => k.EmotionalEventAsync("joy", null, null, null, It.IsAny<CancellationToken>()), Times.Once);
@@ -174,7 +174,7 @@ public sealed class EmotionalViewModelTests
             .ThrowsAsync(new HttpRequestException("log error"));
 
         var vm = new EmotionalViewModel(kernelClient.Object, "user1");
-        var result = await vm.LogEventAsync("sad").ConfigureAwait(false);
+        var result = await vm.LogEventAsync("sad");
 
         Assert.False(result);
     }

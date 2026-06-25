@@ -33,7 +33,7 @@ public sealed class PlanViewModelTests
             .ReturnsAsync(result);
 
         var vm = new PlanViewModel(kernelClient.Object);
-        await vm.LoadPlanAsync().ConfigureAwait(false);
+        await vm.LoadPlanAsync();
 
         Assert.NotNull(vm.CurrentPlan);
         Assert.Equal("plan-1", vm.CurrentPlan!.Id);
@@ -51,7 +51,7 @@ public sealed class PlanViewModelTests
             .ReturnsAsync((PlanExecutionResult?)null);
 
         var vm = new PlanViewModel(kernelClient.Object);
-        await vm.LoadPlanAsync().ConfigureAwait(false);
+        await vm.LoadPlanAsync();
 
         Assert.Null(vm.CurrentPlan);
         Assert.Empty(vm.Steps);
@@ -65,7 +65,7 @@ public sealed class PlanViewModelTests
             .ThrowsAsync(new HttpRequestException("plan error"));
 
         var vm = new PlanViewModel(kernelClient.Object);
-        await vm.LoadPlanAsync().ConfigureAwait(false);
+        await vm.LoadPlanAsync();
 
         Assert.True(vm.HasError);
         Assert.Contains("plan error", vm.ErrorMessage);
@@ -84,7 +84,7 @@ public sealed class PlanViewModelTests
         var loadTask = vm.LoadPlanAsync();
         Assert.True(vm.IsLoading);
         tcs.SetResult(new PlanExecutionResult("p1", false, null, [], null));
-        await loadTask.ConfigureAwait(false);
+        await loadTask;
         Assert.False(vm.IsLoading);
     }
 
@@ -127,7 +127,7 @@ public sealed class PlanViewModelTests
             .ReturnsAsync(new PlanExecutionResult("p1", true, plan, steps, null));
 
         var vm = new PlanViewModel(kernelClient.Object);
-        await vm.LoadPlanAsync().ConfigureAwait(false);
+        await vm.LoadPlanAsync();
         Assert.Equal(0.5, vm.Progress);
     }
 
@@ -140,7 +140,7 @@ public sealed class PlanViewModelTests
             .ReturnsAsync(new PlanExecutionResult("p1", false, plan, [], null));
 
         var vm = new PlanViewModel(kernelClient.Object);
-        await vm.RefreshAsync().ConfigureAwait(false);
+        await vm.RefreshAsync();
 
         Assert.NotNull(vm.CurrentPlan);
         Assert.Equal(PlanStatus.Completed, vm.CurrentPlan!.Status);

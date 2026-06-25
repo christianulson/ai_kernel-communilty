@@ -23,7 +23,7 @@ public class PieViewModelTests
 
         _vm.Premise = "All men are mortal";
         _vm.Context = "Socrates";
-        await _vm.InferAsync().ConfigureAwait(false);
+        await _vm.InferAsync();
 
         Assert.Equal("Therefore X", _vm.Conclusion);
         Assert.Equal(0.92, _vm.Confidence);
@@ -33,7 +33,7 @@ public class PieViewModelTests
     public async Task InferAsync_EmptyPremise_ShouldNotCallApi()
     {
         _vm.Premise = "";
-        await _vm.InferAsync().ConfigureAwait(false);
+        await _vm.InferAsync();
 
         _kernelMock.Verify(k => k.PieInferAsync(It.IsAny<string>(), It.IsAny<string>(), default), Times.Never);
     }
@@ -52,7 +52,7 @@ public class PieViewModelTests
         _vm.ChainPremise = "A";
         _vm.ChainSteps = 2;
         _vm.ChainContext = "ctx";
-        await _vm.ChainAsync().ConfigureAwait(false);
+        await _vm.ChainAsync();
 
         Assert.Equal(2, _vm.ChainResults.Count);
         Assert.Equal("A", _vm.ChainResults[0].Premise);
@@ -69,7 +69,7 @@ public class PieViewModelTests
         _kernelMock.Setup(k => k.PieTermsAsync(default))
             .ReturnsAsync(terms);
 
-        await _vm.LoadTermsAsync().ConfigureAwait(false);
+        await _vm.LoadTermsAsync();
 
         Assert.Equal(2, _vm.Terms.Count);
         Assert.Equal("Logic", _vm.Terms[0].Name);
@@ -86,7 +86,7 @@ public class PieViewModelTests
         _kernelMock.Setup(k => k.PieCoherenceAsync(default))
             .ReturnsAsync(new PieCoherenceData(0.75, entries));
 
-        await _vm.LoadCoherenceAsync().ConfigureAwait(false);
+        await _vm.LoadCoherenceAsync();
 
         Assert.NotNull(_vm.Coherence);
         Assert.Equal(0.75, _vm.Coherence.OverallCoherence);
@@ -98,7 +98,7 @@ public class PieViewModelTests
         _kernelMock.Setup(k => k.PieKnowledgeAsync("math", "2+2=4", 1.0, default))
             .ReturnsAsync(new PieKnowledgeResponse(true));
 
-        var success = await _vm.LearnFactAsync("math", "2+2=4", 1.0).ConfigureAwait(false);
+        var success = await _vm.LearnFactAsync("math", "2+2=4", 1.0);
 
         Assert.True(success);
     }
@@ -110,7 +110,7 @@ public class PieViewModelTests
             .ThrowsAsync(new HttpRequestException("PIE error"));
 
         _vm.Premise = "test";
-        await _vm.InferAsync().ConfigureAwait(false);
+        await _vm.InferAsync();
 
         Assert.True(_vm.HasError);
         Assert.Contains("PIE error", _vm.ErrorMessage);

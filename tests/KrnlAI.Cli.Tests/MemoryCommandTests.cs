@@ -56,11 +56,11 @@ public sealed class MemoryCommandTests
     {
         var (renderer, console, ctx) = Setup();
         var seeder = new CliSeeder(ctx.MomentStore, ctx.MomentClassifierStore);
-        await seeder.SeedAsync().ConfigureAwait(false);
+        await seeder.SeedAsync();
         var cmd = new MemoryCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("memory search mom").InvokeAsync().ConfigureAwait(false);
+        var result = await root.Parse("memory search mom").InvokeAsync();
 
         result.Should().Be(0);
         var output = console.Output;
@@ -74,7 +74,7 @@ public sealed class MemoryCommandTests
         var cmd = new MemoryCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("memory working").InvokeAsync().ConfigureAwait(false);
+        var result = await root.Parse("memory working").InvokeAsync();
 
         result.Should().Be(0);
         var output = console.Output;
@@ -87,11 +87,11 @@ public sealed class MemoryCommandTests
     {
         var (renderer, console, ctx) = Setup();
         var seeder = new CliSeeder(ctx.MomentStore, ctx.MomentClassifierStore);
-        await seeder.SeedAsync().ConfigureAwait(false);
+        await seeder.SeedAsync();
         var cmd = new MemoryCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("memory search --category Anomaly").InvokeAsync().ConfigureAwait(false);
+        var result = await root.Parse("memory search --category Anomaly").InvokeAsync();
 
         result.Should().Be(0);
         var output = console.Output;
@@ -103,11 +103,11 @@ public sealed class MemoryCommandTests
     {
         var (renderer, console, ctx) = Setup();
         var seeder = new CliSeeder(ctx.MomentStore, ctx.MomentClassifierStore);
-        await seeder.SeedAsync().ConfigureAwait(false);
+        await seeder.SeedAsync();
         var cmd = new MemoryCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("memory search --category Anomaly").InvokeAsync().ConfigureAwait(false);
+        var result = await root.Parse("memory search --category Anomaly").InvokeAsync();
 
         result.Should().Be(0);
         var output = console.Output;
@@ -120,11 +120,11 @@ public sealed class MemoryCommandTests
     {
         var (renderer, console, ctx) = Setup();
         var seeder = new CliSeeder(ctx.MomentStore, ctx.MomentClassifierStore);
-        await seeder.SeedAsync().ConfigureAwait(false);
+        await seeder.SeedAsync();
         var cmd = new MemoryCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("memory search mom-0002").InvokeAsync().ConfigureAwait(false);
+        var result = await root.Parse("memory search mom-0002").InvokeAsync();
 
         result.Should().Be(0);
         var output = console.Output;

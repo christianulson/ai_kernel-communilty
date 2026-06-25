@@ -58,7 +58,7 @@ public sealed class AnticipateCommandTests
         var cmd = new AnticipateCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("anticipate").InvokeAsync().ConfigureAwait(false);
+        var result = await root.Parse("anticipate").InvokeAsync();
 
         result.Should().Be(0);
         console.Output.Should().Contain("No active projections");

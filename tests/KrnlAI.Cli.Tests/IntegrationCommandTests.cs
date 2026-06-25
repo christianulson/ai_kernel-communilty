@@ -23,7 +23,7 @@ public sealed class IntegrationCommandTests
             var console = new TestConsole();
             var cmd = new IntegrationCommand(console).Build();
 
-            var result = await cmd.Parse("config OpenAI").InvokeAsync().ConfigureAwait(false);
+            var result = await cmd.Parse("config OpenAI").InvokeAsync();
 
             result.Should().Be(0);
             console.Output.Should().Contain("OPENAI_API_KEY");
@@ -40,7 +40,7 @@ public sealed class IntegrationCommandTests
         var console = new TestConsole();
         var cmd = new IntegrationCommand(console).Build();
 
-        var result = await cmd.Parse("config UnknownProvider").InvokeAsync().ConfigureAwait(false);
+        var result = await cmd.Parse("config UnknownProvider").InvokeAsync();
 
         result.Should().Be(0);
         console.Output.Should().Contain("UNKNOWNPROVIDER_API_KEY");
@@ -59,12 +59,12 @@ public sealed class IntegrationCommandTests
             var console = new TestConsole();
             var cmd = new IntegrationCommand(console).Build();
 
-            var result = await cmd.Parse("add OpenAI").InvokeAsync().ConfigureAwait(false);
+            var result = await cmd.Parse("add OpenAI").InvokeAsync();
 
             result.Should().Be(0);
             var envFile = Path.Combine(tmpDir, ".env");
             File.Exists(envFile).Should().BeTrue();
-            var content = await File.ReadAllTextAsync(envFile).ConfigureAwait(false);
+            var content = await File.ReadAllTextAsync(envFile);
             content.Should().Contain("OPENAI_API_KEY");
         }
         finally

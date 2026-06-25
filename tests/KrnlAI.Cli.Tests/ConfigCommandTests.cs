@@ -24,7 +24,7 @@ public sealed class ConfigCommandTests
         var cmd = new ConfigCommand(console, null).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("config show").InvokeAsync().ConfigureAwait(false);
+        var result = await root.Parse("config show").InvokeAsync();
 
         result.Should().Be(0);
         console.Output.Should().Contain("Current configuration");
@@ -37,7 +37,7 @@ public sealed class ConfigCommandTests
         var cmd = new ConfigCommand(console, null).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("config export test-config --format yaml").InvokeAsync().ConfigureAwait(false);
+        var result = await root.Parse("config export test-config --format yaml").InvokeAsync();
 
         result.Should().Be(0);
         console.Output.Should().Contain("Exported configuration");
@@ -50,7 +50,7 @@ public sealed class ConfigCommandTests
         var cmd = new ConfigCommand(console, null).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("config validate nonexistent.yaml").InvokeAsync().ConfigureAwait(false);
+        var result = await root.Parse("config validate nonexistent.yaml").InvokeAsync();
 
         result.Should().Be(1);
         console.Output.Should().Contain("File not found");

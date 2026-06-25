@@ -90,7 +90,7 @@ public sealed class BenchmarkCommandTests
         var cmd = new BenchmarkCommand(runner, reporter, console).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("benchmark list").InvokeAsync().ConfigureAwait(false);
+        var result = await root.Parse("benchmark list").InvokeAsync();
 
         Assert.Equal(0, result);
         var output = console.Output;

@@ -26,7 +26,7 @@ public sealed class TelemetryPrivacyServiceTests
 
         var service = new HttpTelemetryPrivacyService(new HttpClient(handler) { BaseAddress = new Uri("http://localhost") });
 
-        var state = await service.GetConsentAsync(CancellationToken.None).ConfigureAwait(false);
+        var state = await service.GetConsentAsync(CancellationToken.None);
 
         Assert.Equal(TelemetryConsentLevel.Anonymous, state.ConsentLevel);
         Assert.Equal(new DateTimeOffset(2026, 5, 27, 10, 0, 0, TimeSpan.Zero), state.GrantedAt);
@@ -57,7 +57,7 @@ public sealed class TelemetryPrivacyServiceTests
 
         var service = new HttpTelemetryPrivacyService(new HttpClient(handler) { BaseAddress = new Uri("http://localhost") });
 
-        var state = await service.SetConsentAsync(TelemetryConsentLevel.Full, CancellationToken.None).ConfigureAwait(false);
+        var state = await service.SetConsentAsync(TelemetryConsentLevel.Full, CancellationToken.None);
 
         Assert.Equal(TelemetryConsentLevel.Full, state.ConsentLevel);
         Assert.Equal(new DateTimeOffset(2026, 5, 27, 10, 30, 0, TimeSpan.Zero), state.GrantedAt);
@@ -83,7 +83,7 @@ public sealed class TelemetryPrivacyServiceTests
 
         var service = new HttpTelemetryPrivacyService(new HttpClient(handler) { BaseAddress = new Uri("http://localhost") });
 
-        var result = await service.RequestExportAsync(CancellationToken.None).ConfigureAwait(false);
+        var result = await service.RequestExportAsync(CancellationToken.None);
 
         Assert.True(result.Accepted);
         Assert.Equal("req-123", result.RequestId);
@@ -110,7 +110,7 @@ public sealed class TelemetryPrivacyServiceTests
 
         var service = new HttpTelemetryPrivacyService(new HttpClient(handler) { BaseAddress = new Uri("http://localhost") });
 
-        var result = await service.RequestDeletionAsync(CancellationToken.None).ConfigureAwait(false);
+        var result = await service.RequestDeletionAsync(CancellationToken.None);
 
         Assert.True(result.Accepted);
         Assert.Equal("req-456", result.RequestId);

@@ -28,7 +28,7 @@ public sealed class PluginCommandTests
         var cmd = new PluginCommand(console).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("plugin install /tmp/test.dll --endpoint http://localhost:9999").InvokeAsync().ConfigureAwait(false);
+        var result = await root.Parse("plugin install /tmp/test.dll --endpoint http://localhost:9999").InvokeAsync();
 
         console.Output.Should().Contain("Installing plugin");
     }
@@ -40,7 +40,7 @@ public sealed class PluginCommandTests
         var cmd = new PluginCommand(console).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("plugin remove test-plugin --local").InvokeAsync().ConfigureAwait(false);
+        var result = await root.Parse("plugin remove test-plugin --local").InvokeAsync();
 
         result.Should().Be(0);
         console.Output.Should().Contain("removed");
@@ -53,7 +53,7 @@ public sealed class PluginCommandTests
         var cmd = new PluginCommand(console).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("plugin install test.dll --type dotnet-assembly --local").InvokeAsync().ConfigureAwait(false);
+        var result = await root.Parse("plugin install test.dll --type dotnet-assembly --local").InvokeAsync();
 
         result.Should().Be(0);
     }
@@ -69,7 +69,7 @@ public sealed class PluginCommandTests
         var cmd = new PluginCommand(console, catalog: catalog.Object).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("plugin info test-plugin").InvokeAsync().ConfigureAwait(false);
+        var result = await root.Parse("plugin info test-plugin").InvokeAsync();
 
         result.Should().Be(0);
         console.Output.Should().Contain("Test Plugin");
@@ -87,7 +87,7 @@ public sealed class PluginCommandTests
         var cmd = new PluginCommand(console, catalog: catalog.Object).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("plugin info nonexistent").InvokeAsync().ConfigureAwait(false);
+        var result = await root.Parse("plugin info nonexistent").InvokeAsync();
 
         result.Should().Be(0);
         console.Output.Should().Contain("not found");
@@ -100,7 +100,7 @@ public sealed class PluginCommandTests
         var cmd = new PluginCommand(console).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("plugin info test").InvokeAsync().ConfigureAwait(false);
+        var result = await root.Parse("plugin info test").InvokeAsync();
 
         result.Should().Be(1);
         console.Output.Should().Contain("not available");
@@ -121,7 +121,7 @@ public sealed class PluginCommandTests
         var cmd = new PluginCommand(console, catalog: catalog.Object).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("plugin search result").InvokeAsync().ConfigureAwait(false);
+        var result = await root.Parse("plugin search result").InvokeAsync();
 
         result.Should().Be(0);
         console.Output.Should().Contain("Result One");
@@ -138,7 +138,7 @@ public sealed class PluginCommandTests
         var cmd = new PluginCommand(console, catalog: catalog.Object).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("plugin search nonexistent").InvokeAsync().ConfigureAwait(false);
+        var result = await root.Parse("plugin search nonexistent").InvokeAsync();
 
         result.Should().Be(0);
         console.Output.Should().Contain("No plugins found");
@@ -152,12 +152,12 @@ public sealed class PluginCommandTests
         var cmd = new PluginCommand(console, registry: fakeRegistry).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("plugin registry add my-reg http://my.registry").InvokeAsync().ConfigureAwait(false);
+        var result = await root.Parse("plugin registry add my-reg http://my.registry").InvokeAsync();
 
         result.Should().Be(0);
         console.Output.Should().Contain("added");
 
-        var registries = await fakeRegistry.ListRegistriesAsync().ConfigureAwait(false);
+        var registries = await fakeRegistry.ListRegistriesAsync();
         registries.Should().Contain(r => r.Id == "my-reg" && r.Url == "http://my.registry");
     }
 

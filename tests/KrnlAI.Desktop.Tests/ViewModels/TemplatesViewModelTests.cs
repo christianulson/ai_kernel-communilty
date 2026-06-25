@@ -42,7 +42,7 @@ public sealed class TemplatesViewModelTests
             .ReturnsAsync(templates);
 
         var vm = new TemplatesViewModel(kernelClient.Object);
-        await vm.LoadTemplatesAsync().ConfigureAwait(false);
+        await vm.LoadTemplatesAsync();
 
         Assert.Equal(2, vm.FilteredTemplates.Count);
         Assert.Equal("Template 1", vm.FilteredTemplates[0].Name);
@@ -62,7 +62,7 @@ public sealed class TemplatesViewModelTests
 
         Assert.True(vm.IsLoading);
         tcs.SetResult([]);
-        await loadTask.ConfigureAwait(false);
+        await loadTask;
         Assert.False(vm.IsLoading);
     }
 
@@ -74,7 +74,7 @@ public sealed class TemplatesViewModelTests
             .ThrowsAsync(new HttpRequestException("API error"));
 
         var vm = new TemplatesViewModel(kernelClient.Object);
-        await vm.LoadTemplatesAsync().ConfigureAwait(false);
+        await vm.LoadTemplatesAsync();
 
         Assert.True(vm.HasError);
         Assert.Contains("API error", vm.ErrorMessage);
@@ -95,7 +95,7 @@ public sealed class TemplatesViewModelTests
             .ReturnsAsync(templates);
 
         var vm = new TemplatesViewModel(kernelClient.Object);
-        await vm.LoadTemplatesAsync().ConfigureAwait(false);
+        await vm.LoadTemplatesAsync();
 
         Assert.Contains("Todos", vm.Categories);
         Assert.Contains("general", vm.Categories);
@@ -119,7 +119,7 @@ public sealed class TemplatesViewModelTests
         vm.NewTemplateContent = "content";
         vm.NewTemplateCategory = "general";
 
-        await vm.CreateTemplateAsync().ConfigureAwait(false);
+        await vm.CreateTemplateAsync();
 
         Assert.Single(vm.FilteredTemplates);
         Assert.Equal("New T", vm.FilteredTemplates[0].Name);
@@ -135,7 +135,7 @@ public sealed class TemplatesViewModelTests
         vm.NewTemplateDescription = "desc";
         vm.NewTemplateContent = "content";
 
-        await vm.CreateTemplateAsync().ConfigureAwait(false);
+        await vm.CreateTemplateAsync();
 
         kernelClient.Verify(k => k.TemplateCreateAsync(It.IsAny<CreateTemplateRequest>(), It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -151,7 +151,7 @@ public sealed class TemplatesViewModelTests
         vm.NewTemplateName = "Test";
         vm.NewTemplateContent = "content";
 
-        await vm.CreateTemplateAsync().ConfigureAwait(false);
+        await vm.CreateTemplateAsync();
 
         Assert.True(vm.HasError);
         Assert.Contains("create error", vm.ErrorMessage);
@@ -173,7 +173,7 @@ public sealed class TemplatesViewModelTests
         vm.NewTemplateContent = "content";
         vm.NewTemplateCategory = "general";
 
-        await vm.CreateTemplateAsync().ConfigureAwait(false);
+        await vm.CreateTemplateAsync();
 
         Assert.Empty(vm.NewTemplateName);
         Assert.Empty(vm.NewTemplateDescription);
@@ -192,7 +192,7 @@ public sealed class TemplatesViewModelTests
 
         var vm = new TemplatesViewModel(kernelClient.Object);
 
-        await vm.DeleteTemplateAsync("t1").ConfigureAwait(false);
+        await vm.DeleteTemplateAsync("t1");
 
         Assert.Empty(vm.FilteredTemplates);
     }
@@ -206,7 +206,7 @@ public sealed class TemplatesViewModelTests
 
         var vm = new TemplatesViewModel(kernelClient.Object);
 
-        await vm.DeleteTemplateAsync("t1").ConfigureAwait(false);
+        await vm.DeleteTemplateAsync("t1");
 
         Assert.True(vm.HasError);
     }
@@ -221,7 +221,7 @@ public sealed class TemplatesViewModelTests
 
         var vm = new TemplatesViewModel(kernelClient.Object);
 
-        await vm.RenderTemplateAsync("t1").ConfigureAwait(false);
+        await vm.RenderTemplateAsync("t1");
 
         Assert.Equal("rendered output", vm.RenderedContent);
     }
@@ -235,7 +235,7 @@ public sealed class TemplatesViewModelTests
 
         var vm = new TemplatesViewModel(kernelClient.Object);
 
-        await vm.RenderTemplateAsync("t1").ConfigureAwait(false);
+        await vm.RenderTemplateAsync("t1");
 
         Assert.True(vm.HasError);
         Assert.Null(vm.RenderedContent);
@@ -254,7 +254,7 @@ public sealed class TemplatesViewModelTests
             .ReturnsAsync(templates);
 
         var vm = new TemplatesViewModel(kernelClient.Object);
-        await vm.LoadTemplatesAsync().ConfigureAwait(false);
+        await vm.LoadTemplatesAsync();
 
         Assert.Equal(2, vm.FilteredTemplates.Count);
 

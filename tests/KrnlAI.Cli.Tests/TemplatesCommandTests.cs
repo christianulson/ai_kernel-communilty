@@ -20,7 +20,7 @@ public sealed class TemplatesCommandTests
     public async Task TemplatesCommand_Engine_ShouldListTemplates()
     {
         var engine = new TemplateEngine(NullLogger<TemplateEngine>.Instance);
-        var templates = await engine.ListTemplatesAsync().ConfigureAwait(false);
+        var templates = await engine.ListTemplatesAsync();
         Assert.NotEmpty(templates);
         Assert.Contains(templates, t => t.Type == TemplateType.Agent);
     }

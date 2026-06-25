@@ -29,7 +29,7 @@ public sealed class PeerRankingManagementServiceTests
             BaseAddress = new Uri("http://localhost")
         });
 
-        var ranking = await service.GetRankingAsync(CancellationToken.None).ConfigureAwait(false);
+        var ranking = await service.GetRankingAsync(CancellationToken.None);
 
         Assert.Single(ranking);
         Assert.Equal("peer-1", ranking[0].NodeId);
@@ -42,9 +42,9 @@ public sealed class PeerRankingManagementServiceTests
     {
         var service = new NullPeerRankingManagementService();
 
-        var ranking = await service.GetRankingAsync(CancellationToken.None).ConfigureAwait(false);
-        var weights = await service.GetWeightsAsync(CancellationToken.None).ConfigureAwait(false);
-        var strategy = await service.GetStrategyAsync(CancellationToken.None).ConfigureAwait(false);
+        var ranking = await service.GetRankingAsync(CancellationToken.None);
+        var weights = await service.GetWeightsAsync(CancellationToken.None);
+        var strategy = await service.GetStrategyAsync(CancellationToken.None);
 
         Assert.Empty(ranking);
         Assert.Equal(0.35, weights.SuccessRateWeight, 2);
@@ -76,7 +76,7 @@ public sealed class PeerRankingManagementServiceTests
             BaseAddress = new Uri("http://localhost")
         });
 
-        var history = await service.GetHistoryAsync("peer-1", CancellationToken.None).ConfigureAwait(false);
+        var history = await service.GetHistoryAsync("peer-1", CancellationToken.None);
 
         Assert.Single(history);
         Assert.Equal("bonus", history[0].EventType);

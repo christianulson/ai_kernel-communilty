@@ -41,7 +41,7 @@ public sealed class EmbeddedKernelClientTests
     public async Task LoginAsync_ShouldReturnSuccess()
     {
         var sut = CreateSut();
-        var result = await sut.LoginAsync(new LoginRequest("a@b.com", "pwd")).ConfigureAwait(false);
+        var result = await sut.LoginAsync(new LoginRequest("a@b.com", "pwd"));
         Assert.True(result.Success);
         Assert.NotNull(result.Token);
         Assert.Equal("a@b.com", result.Username);
@@ -51,7 +51,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task CheckHealthAsync_ShouldReturnTrue()
     {
-        var result = await CreateSut().CheckHealthAsync().ConfigureAwait(false);
+        var result = await CreateSut().CheckHealthAsync();
         Assert.True(result);
     }
 
@@ -64,7 +64,7 @@ public sealed class EmbeddedKernelClientTests
             .ReturnsAsync(new EmbeddedAgentRunResult("embedded: hello", ["step1"], null, "embedded"));
         var sut = new EmbeddedKernelClient(kernel.Object);
 
-        var result = await sut.RunAgentAsync(new Cts.AgentRunTransportRequest("hello")).ConfigureAwait(false);
+        var result = await sut.RunAgentAsync(new Cts.AgentRunTransportRequest("hello"));
 
         Assert.Equal("embedded: hello", result.Narration);
         Assert.Contains("embedded", result.ActiveStages!);
@@ -79,7 +79,7 @@ public sealed class EmbeddedKernelClientTests
             .ReturnsAsync((IReadOnlyList<VectorHit>)[new() { Id = "h1", Payload = "p1", Score = 0.9f }]);
         var sut = new EmbeddedKernelClient(kernel.Object);
 
-        var result = await sut.SearchMemoryAsync("mem", 10).ConfigureAwait(false);
+        var result = await sut.SearchMemoryAsync("mem", 10);
 
         Assert.Single(result.Hits);
         Assert.Equal("h1", result.Hits[0].Id);
@@ -89,7 +89,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task IngestMemoryAsync_ShouldReturnSuccess()
     {
-        var result = await CreateSut().IngestMemoryAsync(new MemoryIngestRequest("content")).ConfigureAwait(false);
+        var result = await CreateSut().IngestMemoryAsync(new MemoryIngestRequest("content"));
         Assert.True(result.Success);
         Assert.NotNull(result.DocumentId);
     }
@@ -97,7 +97,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetMemoryMetricsAsync_ShouldReturnDefaults()
     {
-        var result = await CreateSut().GetMemoryMetricsAsync().ConfigureAwait(false);
+        var result = await CreateSut().GetMemoryMetricsAsync();
         Assert.NotNull(result);
         Assert.Equal(0, result.TotalChunks);
     }
@@ -105,7 +105,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetWorkingMemoryAsync_ShouldReturnDefaults()
     {
-        var result = await CreateSut().GetWorkingMemoryAsync().ConfigureAwait(false);
+        var result = await CreateSut().GetWorkingMemoryAsync();
         Assert.NotNull(result);
         Assert.Equal(0, result.ActiveSlots);
     }
@@ -114,7 +114,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetPoliciesAsync_InitiallyEmpty()
     {
-        var result = await CreateSut().GetPoliciesAsync().ConfigureAwait(false);
+        var result = await CreateSut().GetPoliciesAsync();
         Assert.Empty(result.Policies);
         Assert.Equal(0, result.TotalCount);
     }
@@ -123,12 +123,12 @@ public sealed class EmbeddedKernelClientTests
     public async Task CreatePolicyAsync_ShouldStoreAndReturn()
     {
         var sut = CreateSut();
-        var result = await sut.CreatePolicyAsync(new CreatePolicyRequest("p1", "security", "content")).ConfigureAwait(false);
+        var result = await sut.CreatePolicyAsync(new CreatePolicyRequest("p1", "security", "content"));
         Assert.NotNull(result);
         Assert.Equal("p1", result.Name);
         Assert.Equal("security", result.Domain);
 
-        var all = await sut.GetPoliciesAsync().ConfigureAwait(false);
+        var all = await sut.GetPoliciesAsync();
         Assert.Single(all.Policies);
     }
 
@@ -136,8 +136,8 @@ public sealed class EmbeddedKernelClientTests
     public async Task GetPolicyAsync_ShouldReturnCreated()
     {
         var sut = CreateSut();
-        var created = await sut.CreatePolicyAsync(new CreatePolicyRequest("p1", "sec", "content")).ConfigureAwait(false);
-        var result = await sut.GetPolicyAsync(created!.Id).ConfigureAwait(false);
+        var created = await sut.CreatePolicyAsync(new CreatePolicyRequest("p1", "sec", "content"));
+        var result = await sut.GetPolicyAsync(created!.Id);
         Assert.NotNull(result);
         Assert.Equal("content", result.Content);
     }
@@ -145,7 +145,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetPolicyAsync_NotFound_ShouldReturnNull()
     {
-        var result = await CreateSut().GetPolicyAsync("nonexistent").ConfigureAwait(false);
+        var result = await CreateSut().GetPolicyAsync("nonexistent");
         Assert.Null(result);
     }
 
@@ -153,19 +153,19 @@ public sealed class EmbeddedKernelClientTests
     public async Task UpdatePolicyAsync_ShouldModifyExisting()
     {
         var sut = CreateSut();
-        var created = await sut.CreatePolicyAsync(new CreatePolicyRequest("p1", "sec", "old")).ConfigureAwait(false);
-        var updated = await sut.UpdatePolicyAsync(created!.Id, new UpdatePolicyRequest("p1-new", "sec", "new-content")).ConfigureAwait(false);
+        var created = await sut.CreatePolicyAsync(new CreatePolicyRequest("p1", "sec", "old"));
+        var updated = await sut.UpdatePolicyAsync(created!.Id, new UpdatePolicyRequest("p1-new", "sec", "new-content"));
         Assert.NotNull(updated);
         Assert.Equal("p1-new", updated.Name);
 
-        var stored = await sut.GetPolicyAsync(created.Id).ConfigureAwait(false);
+        var stored = await sut.GetPolicyAsync(created.Id);
         Assert.Equal("new-content", stored!.Content);
     }
 
     [Fact]
     public async Task UpdatePolicyAsync_NotFound_ShouldReturnNull()
     {
-        var result = await CreateSut().UpdatePolicyAsync("x", new UpdatePolicyRequest("n", "d", "c")).ConfigureAwait(false);
+        var result = await CreateSut().UpdatePolicyAsync("x", new UpdatePolicyRequest("n", "d", "c"));
         Assert.Null(result);
     }
 
@@ -173,16 +173,16 @@ public sealed class EmbeddedKernelClientTests
     public async Task DeletePolicyAsync_ShouldRemove()
     {
         var sut = CreateSut();
-        var created = await sut.CreatePolicyAsync(new CreatePolicyRequest("p1", "sec", "c")).ConfigureAwait(false);
-        var deleted = await sut.DeletePolicyAsync(created!.Id).ConfigureAwait(false);
+        var created = await sut.CreatePolicyAsync(new CreatePolicyRequest("p1", "sec", "c"));
+        var deleted = await sut.DeletePolicyAsync(created!.Id);
         Assert.True(deleted);
-        Assert.Null(await sut.GetPolicyAsync(created.Id).ConfigureAwait(false));
+        Assert.Null(await sut.GetPolicyAsync(created.Id));
     }
 
     [Fact]
     public async Task DeletePolicyAsync_NotFound_ShouldReturnFalse()
     {
-        var result = await CreateSut().DeletePolicyAsync("x").ConfigureAwait(false);
+        var result = await CreateSut().DeletePolicyAsync("x");
         Assert.False(result);
     }
 
@@ -190,10 +190,10 @@ public sealed class EmbeddedKernelClientTests
     public async Task GetPoliciesAsync_ShouldFilterByDomain()
     {
         var sut = CreateSut();
-        await sut.CreatePolicyAsync(new CreatePolicyRequest("p1", "security", "c1")).ConfigureAwait(false);
-        await sut.CreatePolicyAsync(new CreatePolicyRequest("p2", "privacy", "c2")).ConfigureAwait(false);
+        await sut.CreatePolicyAsync(new CreatePolicyRequest("p1", "security", "c1"));
+        await sut.CreatePolicyAsync(new CreatePolicyRequest("p2", "privacy", "c2"));
 
-        var sec = await sut.GetPoliciesAsync("security").ConfigureAwait(false);
+        var sec = await sut.GetPoliciesAsync("security");
         Assert.Single(sec.Policies);
     }
 
@@ -202,7 +202,7 @@ public sealed class EmbeddedKernelClientTests
     public async Task SearchEpisodesAsync_ShouldReturnSeeded()
     {
         var sut = CreateSut();
-        var result = await sut.SearchEpisodesAsync(new EpisodeSearchRequest()).ConfigureAwait(false);
+        var result = await sut.SearchEpisodesAsync(new EpisodeSearchRequest());
         Assert.NotEmpty(result.Episodes);
         Assert.Contains(result.Episodes, e => e.Id == "ep-1");
     }
@@ -210,7 +210,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetEpisodeAsync_ShouldReturnSeeded()
     {
-        var result = await CreateSut().GetEpisodeAsync("ep-1").ConfigureAwait(false);
+        var result = await CreateSut().GetEpisodeAsync("ep-1");
         Assert.NotNull(result);
         Assert.Equal("init", result.GoalId);
     }
@@ -218,7 +218,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetEpisodeAsync_NotFound_ShouldReturnNull()
     {
-        var result = await CreateSut().GetEpisodeAsync("x").ConfigureAwait(false);
+        var result = await CreateSut().GetEpisodeAsync("x");
         Assert.Null(result);
     }
 
@@ -226,7 +226,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetMetricsSummaryAsync_ShouldReturnFromState()
     {
-        var result = await CreateSut().GetMetricsSummaryAsync().ConfigureAwait(false);
+        var result = await CreateSut().GetMetricsSummaryAsync();
         Assert.NotNull(result);
         Assert.True(result.TotalRuns >= 1); // seeded episode + policies
     }
@@ -234,7 +234,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetScorecardAsync_ShouldReturnFixed()
     {
-        var result = await CreateSut().GetScorecardAsync().ConfigureAwait(false);
+        var result = await CreateSut().GetScorecardAsync();
         Assert.NotNull(result);
         Assert.Equal(85, result.Reliability);
     }
@@ -244,7 +244,7 @@ public sealed class EmbeddedKernelClientTests
     {
         var kernel = CreateKernelMock();
         var sut = new EmbeddedKernelClient(kernel.Object);
-        var result = await sut.GetRuntimeSummaryAsync().ConfigureAwait(false);
+        var result = await sut.GetRuntimeSummaryAsync();
         Assert.NotNull(result);
         Assert.True(result.KernelHealthy);
         Assert.Equal("embedded", result.KernelVersion);
@@ -253,7 +253,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetCognitiveDashboardAsync_ShouldReturnData()
     {
-        var result = await CreateSut().GetCognitiveDashboardAsync().ConfigureAwait(false);
+        var result = await CreateSut().GetCognitiveDashboardAsync();
         Assert.NotNull(result);
         Assert.Equal(82, result.OverallHealth);
         Assert.NotEmpty(result.ActiveModules);
@@ -262,7 +262,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetBenchmarkSummaryAsync_ShouldReturnData()
     {
-        var result = await CreateSut().GetBenchmarkSummaryAsync().ConfigureAwait(false);
+        var result = await CreateSut().GetBenchmarkSummaryAsync();
         Assert.NotNull(result);
         Assert.Equal(3, result.TotalSuites);
         Assert.NotEmpty(result.Suites);
@@ -284,7 +284,7 @@ public sealed class EmbeddedKernelClientTests
             .ReturnsAsync((IReadOnlyList<VectorHit>)[]);
         var sut = new EmbeddedKernelClient(kernel.Object);
 
-        var result = await sut.GetActiveGoalsAsync().ConfigureAwait(false);
+        var result = await sut.GetActiveGoalsAsync();
 
         Assert.Single(result.Goals);
         Assert.Equal("g1", result.Goals[0].GoalId);
@@ -306,7 +306,7 @@ public sealed class EmbeddedKernelClientTests
             .ReturnsAsync((IReadOnlyList<VectorHit>)[]);
         var sut = new EmbeddedKernelClient(kernel.Object);
 
-        var result = await sut.GetGoalAsync("g1").ConfigureAwait(false);
+        var result = await sut.GetGoalAsync("g1");
         Assert.NotNull(result);
         Assert.Equal("g1", result.GoalId);
     }
@@ -323,7 +323,7 @@ public sealed class EmbeddedKernelClientTests
             .ReturnsAsync((IReadOnlyList<VectorHit>)[]);
         var sut = new EmbeddedKernelClient(kernel.Object);
 
-        var result = await sut.GetGoalAsync("x").ConfigureAwait(false);
+        var result = await sut.GetGoalAsync("x");
         Assert.Null(result);
     }
 
@@ -333,7 +333,7 @@ public sealed class EmbeddedKernelClientTests
         var kernel = CreateKernelMock();
         var sut = new EmbeddedKernelClient(kernel.Object);
 
-        var result = await sut.CreateGoalAsync(new CreateGoalRequest("new goal", 3)).ConfigureAwait(false);
+        var result = await sut.CreateGoalAsync(new CreateGoalRequest("new goal", 3));
 
         Assert.NotNull(result);
         Assert.Equal("new goal", result.Description);
@@ -345,7 +345,7 @@ public sealed class EmbeddedKernelClientTests
         var kernel = CreateKernelMock();
         var sut = new EmbeddedKernelClient(kernel.Object);
 
-        var result = await sut.UpdateGoalStatusAsync("g1", "pause").ConfigureAwait(false);
+        var result = await sut.UpdateGoalStatusAsync("g1", "pause");
 
         Assert.True(result);
     }
@@ -354,7 +354,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetCausalQueryAsync_ShouldReturnResult()
     {
-        var result = await CreateSut().GetCausalQueryAsync("test query").ConfigureAwait(false);
+        var result = await CreateSut().GetCausalQueryAsync("test query");
         Assert.NotNull(result);
         Assert.Equal("test query", result.Query);
         Assert.Empty(result.Nodes);
@@ -363,7 +363,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetCausalPredictionAsync_ShouldReturnPrediction()
     {
-        var result = await CreateSut().GetCausalPredictionAsync("action").ConfigureAwait(false);
+        var result = await CreateSut().GetCausalPredictionAsync("action");
         Assert.NotNull(result);
         Assert.Equal("action", result.Action);
     }
@@ -373,7 +373,7 @@ public sealed class EmbeddedKernelClientTests
     public async Task SubmitFeedbackAsync_ShouldRecord()
     {
         var sut = CreateSut();
-        var result = await sut.SubmitFeedbackAsync(new FeedbackRequest("ep1", 5, "great", "general")).ConfigureAwait(false);
+        var result = await sut.SubmitFeedbackAsync(new FeedbackRequest("ep1", 5, "great", "general"));
         Assert.True(result.Success);
         Assert.NotNull(result.FeedbackId);
     }
@@ -381,14 +381,14 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetFeedbackHistoryAsync_ShouldReturnEntries()
     {
-        var result = await CreateSut().GetFeedbackHistoryAsync().ConfigureAwait(false);
+        var result = await CreateSut().GetFeedbackHistoryAsync();
         Assert.NotEmpty(result);
     }
 
     [Fact]
     public async Task GetFeedbackAverageAsync_ShouldReturnAverage()
     {
-        var result = await CreateSut().GetFeedbackAverageAsync().ConfigureAwait(false);
+        var result = await CreateSut().GetFeedbackAverageAsync();
         Assert.NotNull(result);
         Assert.Equal(4.5, result.AverageRating);
     }
@@ -397,7 +397,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetVersionsAsync_ShouldReturnInfo()
     {
-        var result = await CreateSut().GetVersionsAsync().ConfigureAwait(false);
+        var result = await CreateSut().GetVersionsAsync();
         Assert.NotNull(result);
         Assert.Contains("local", result.DefaultVersion);
     }
@@ -406,7 +406,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetAffectiveStateAsync_ShouldReturnState()
     {
-        var result = await CreateSut().GetAffectiveStateAsync().ConfigureAwait(false);
+        var result = await CreateSut().GetAffectiveStateAsync();
         Assert.NotNull(result);
         Assert.Equal(0.3, result.Valence);
     }
@@ -414,7 +414,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetEmotionalStateAsync_ShouldReturnState()
     {
-        var result = await CreateSut().GetEmotionalStateAsync("user1").ConfigureAwait(false);
+        var result = await CreateSut().GetEmotionalStateAsync("user1");
         Assert.NotNull(result);
         Assert.Equal(0.24, result.Valence, 2);
     }
@@ -422,14 +422,14 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task EmotionalHistoryAsync_ShouldReturnEntries()
     {
-        var result = await CreateSut().EmotionalHistoryAsync().ConfigureAwait(false);
+        var result = await CreateSut().EmotionalHistoryAsync();
         Assert.NotEmpty(result);
     }
 
     [Fact]
     public async Task EmotionalEventAsync_ShouldReturnTrue()
     {
-        var result = await CreateSut().EmotionalEventAsync("event1").ConfigureAwait(false);
+        var result = await CreateSut().EmotionalEventAsync("event1");
         Assert.True(result);
     }
 
@@ -437,7 +437,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetCrossSummaryAsync_ShouldReturnData()
     {
-        var result = await CreateSut().GetCrossSummaryAsync().ConfigureAwait(false);
+        var result = await CreateSut().GetCrossSummaryAsync();
         Assert.NotNull(result);
         Assert.NotNull(result.Gateway);
     }
@@ -445,7 +445,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetMetricsByGoalAsync_ShouldReturnEmpty()
     {
-        var result = await CreateSut().GetMetricsByGoalAsync().ConfigureAwait(false);
+        var result = await CreateSut().GetMetricsByGoalAsync();
         Assert.NotNull(result);
         Assert.Empty(result.Goals);
     }
@@ -454,7 +454,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetUserProfileAsync_ShouldReturnProfile()
     {
-        var result = await CreateSut().GetUserProfileAsync("u1").ConfigureAwait(false);
+        var result = await CreateSut().GetUserProfileAsync("u1");
         Assert.NotNull(result);
         Assert.Equal("u1", result.UserId);
     }
@@ -463,14 +463,14 @@ public sealed class EmbeddedKernelClientTests
     public async Task UpdateUserProfileAsync_ShouldReturnTrue()
     {
         var profile = new UserProfile("u1", "name", "e@m.com", "admin", null, DateTime.UtcNow);
-        var result = await CreateSut().UpdateUserProfileAsync(profile).ConfigureAwait(false);
+        var result = await CreateSut().UpdateUserProfileAsync(profile);
         Assert.True(result);
     }
 
     [Fact]
     public async Task GetSharesAsync_ShouldReturnNull()
     {
-        var result = await CreateSut().GetSharesAsync().ConfigureAwait(false);
+        var result = await CreateSut().GetSharesAsync();
         Assert.Null(result);
     }
 
@@ -478,7 +478,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GenerateSpeechAsync_ShouldReturnWavHeader()
     {
-        var result = await CreateSut().GenerateSpeechAsync("hello").ConfigureAwait(false);
+        var result = await CreateSut().GenerateSpeechAsync("hello");
         Assert.NotNull(result);
         Assert.True(result.Length > 0);
         Assert.Equal(0x52, result[0]); // RIFF header
@@ -487,7 +487,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task TranscribeAudioAsync_ShouldReturnNotAvailable()
     {
-        var result = await CreateSut().TranscribeAudioAsync([0x00]).ConfigureAwait(false);
+        var result = await CreateSut().TranscribeAudioAsync([0x00]);
         Assert.Contains("requires a cloud", result, StringComparison.OrdinalIgnoreCase);
     }
 
@@ -495,7 +495,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetSnapshotsAsync_ShouldReturnSeeded()
     {
-        var result = await CreateSut().GetSnapshotsAsync().ConfigureAwait(false);
+        var result = await CreateSut().GetSnapshotsAsync();
         Assert.NotEmpty(result);
         Assert.Contains(result, s => s.SnapshotId == "ss-1");
     }
@@ -503,7 +503,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetObjectivesAsync_ShouldReturnSeeded()
     {
-        var result = await CreateSut().GetObjectivesAsync().ConfigureAwait(false);
+        var result = await CreateSut().GetObjectivesAsync();
         Assert.NotEmpty(result);
         Assert.Contains(result, o => o.ObjectiveId == "obj-1");
     }
@@ -511,7 +511,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetObjectiveDetailAsync_ShouldReturnDetail()
     {
-        var result = await CreateSut().GetObjectiveDetailAsync("obj-1").ConfigureAwait(false);
+        var result = await CreateSut().GetObjectiveDetailAsync("obj-1");
         Assert.NotNull(result);
         Assert.Equal("obj-1", result.ObjectiveId);
     }
@@ -519,7 +519,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetInvestigationsAsync_ShouldReturnSeeded()
     {
-        var result = await CreateSut().GetInvestigationsAsync().ConfigureAwait(false);
+        var result = await CreateSut().GetInvestigationsAsync();
         Assert.NotEmpty(result);
         Assert.Contains(result, i => i.CaseId == "inv-1");
     }
@@ -528,28 +528,28 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetPendingApprovalsAsync_InitiallyEmpty()
     {
-        var result = await CreateSut().GetPendingApprovalsAsync().ConfigureAwait(false);
+        var result = await CreateSut().GetPendingApprovalsAsync();
         Assert.Empty(result);
     }
 
     [Fact]
     public async Task GetApprovalDetailAsync_ShouldReturnNull()
     {
-        var result = await CreateSut().GetApprovalDetailAsync("x").ConfigureAwait(false);
+        var result = await CreateSut().GetApprovalDetailAsync("x");
         Assert.Null(result);
     }
 
     [Fact]
     public async Task ApproveRequestAsync_ShouldReturnNull()
     {
-        var result = await CreateSut().ApproveRequestAsync("x").ConfigureAwait(false);
+        var result = await CreateSut().ApproveRequestAsync("x");
         Assert.Null(result);
     }
 
     [Fact]
     public async Task RejectRequestAsync_ShouldReturnNull()
     {
-        var result = await CreateSut().RejectRequestAsync("x").ConfigureAwait(false);
+        var result = await CreateSut().RejectRequestAsync("x");
         Assert.Null(result);
     }
 
@@ -557,7 +557,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task CodingExplainAsync_ShouldReturnNotAvailable()
     {
-        var result = await CreateSut().CodingExplainAsync(new CodingRequest("code", "csharp", null, null)).ConfigureAwait(false);
+        var result = await CreateSut().CodingExplainAsync(new CodingRequest("code", "csharp", null, null));
         Assert.NotNull(result);
         Assert.Contains("requires a cloud", result.Explanation, StringComparison.OrdinalIgnoreCase);
         Assert.False(result.Success);
@@ -566,7 +566,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task CodingFixAsync_ShouldReturnNotAvailable()
     {
-        var result = await CreateSut().CodingFixAsync(new CodingRequest("code", "csharp", null, null)).ConfigureAwait(false);
+        var result = await CreateSut().CodingFixAsync(new CodingRequest("code", "csharp", null, null));
         Assert.Contains("requires a cloud", result!.Explanation, StringComparison.OrdinalIgnoreCase);
         Assert.False(result.Success);
     }
@@ -574,7 +574,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task CodingGenerateTestsAsync_ShouldReturnNotAvailable()
     {
-        var result = await CreateSut().CodingGenerateTestsAsync(new CodingRequest("code", "csharp", null, null)).ConfigureAwait(false);
+        var result = await CreateSut().CodingGenerateTestsAsync(new CodingRequest("code", "csharp", null, null));
         Assert.Contains("requires a cloud", result!.Explanation, StringComparison.OrdinalIgnoreCase);
         Assert.False(result.Success);
     }
@@ -582,7 +582,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task CodingReviewAsync_ShouldReturnNotAvailable()
     {
-        var result = await CreateSut().CodingReviewAsync(new CodingRequest("code", "csharp", null, null)).ConfigureAwait(false);
+        var result = await CreateSut().CodingReviewAsync(new CodingRequest("code", "csharp", null, null));
         Assert.Contains("requires a cloud", result!.Explanation, StringComparison.OrdinalIgnoreCase);
         Assert.False(result.Success);
     }
@@ -590,7 +590,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task CodingApplyDiffAsync_ShouldReturnNotAvailable()
     {
-        var result = await CreateSut().CodingApplyDiffAsync(new CodingRequest("code", "csharp", null, null)).ConfigureAwait(false);
+        var result = await CreateSut().CodingApplyDiffAsync(new CodingRequest("code", "csharp", null, null));
         Assert.Contains("requires a cloud", result!.Explanation, StringComparison.OrdinalIgnoreCase);
         Assert.False(result.Success);
     }
@@ -598,7 +598,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task CodingCompleteAsync_ShouldReturnNotAvailable()
     {
-        var result = await CreateSut().CodingCompleteAsync(new CodingRequest("code", "csharp", null, null)).ConfigureAwait(false);
+        var result = await CreateSut().CodingCompleteAsync(new CodingRequest("code", "csharp", null, null));
         Assert.Contains("requires a cloud", result!.Explanation, StringComparison.OrdinalIgnoreCase);
         Assert.False(result.Success);
     }
@@ -606,7 +606,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetCodingStatusAsync_ShouldReturnStatus()
     {
-        var result = await CreateSut().GetCodingStatusAsync("cycle1").ConfigureAwait(false);
+        var result = await CreateSut().GetCodingStatusAsync("cycle1");
         Assert.NotNull(result);
         Assert.Equal("cycle1", result.CycleId);
     }
@@ -615,7 +615,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetSelfImprovementStatusAsync_ShouldReturnStatus()
     {
-        var result = await CreateSut().GetSelfImprovementStatusAsync().ConfigureAwait(false);
+        var result = await CreateSut().GetSelfImprovementStatusAsync();
         Assert.NotNull(result);
         Assert.False(result.IsRunning);
     }
@@ -624,7 +624,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task CreateThreadAsync_ShouldCreateAndReturn()
     {
-        var result = await CreateSut().CreateThreadAsync("test").ConfigureAwait(false);
+        var result = await CreateSut().CreateThreadAsync("test");
         Assert.NotNull(result);
         Assert.Equal("test", result.Title);
     }
@@ -632,7 +632,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetThreadAsync_ShouldReturn()
     {
-        var result = await CreateSut().GetThreadAsync("t1").ConfigureAwait(false);
+        var result = await CreateSut().GetThreadAsync("t1");
         Assert.NotNull(result);
         Assert.Equal("t1", result.ThreadId);
     }
@@ -640,7 +640,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task SendMessageAsync_ShouldReturn()
     {
-        var result = await CreateSut().SendMessageAsync("t1", "hello").ConfigureAwait(false);
+        var result = await CreateSut().SendMessageAsync("t1", "hello");
         Assert.NotNull(result);
         Assert.Equal("t1", result.ThreadId);
         Assert.Equal("hello", result.Content);
@@ -649,14 +649,14 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetMessagesAsync_ShouldReturnEmpty()
     {
-        var result = await CreateSut().GetMessagesAsync("t1").ConfigureAwait(false);
+        var result = await CreateSut().GetMessagesAsync("t1");
         Assert.Empty(result);
     }
 
     [Fact]
     public async Task CreateRunAsync_ShouldReturn()
     {
-        var result = await CreateSut().CreateRunAsync("t1").ConfigureAwait(false);
+        var result = await CreateSut().CreateRunAsync("t1");
         Assert.NotNull(result);
         Assert.Equal("t1", result.ThreadId);
     }
@@ -664,7 +664,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetRunAsync_ShouldReturn()
     {
-        var result = await CreateSut().GetRunAsync("t1", "r1").ConfigureAwait(false);
+        var result = await CreateSut().GetRunAsync("t1", "r1");
         Assert.NotNull(result);
         Assert.Equal("r1", result.RunId);
     }
@@ -672,7 +672,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task CancelRunAsync_ShouldReturnTrue()
     {
-        var result = await CreateSut().CancelRunAsync("t1", "r1").ConfigureAwait(false);
+        var result = await CreateSut().CancelRunAsync("t1", "r1");
         Assert.True(result);
     }
 
@@ -680,7 +680,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetMcpServersAsync_ShouldReturnSeeded()
     {
-        var result = await CreateSut().GetMcpServersAsync().ConfigureAwait(false);
+        var result = await CreateSut().GetMcpServersAsync();
         Assert.NotEmpty(result);
         Assert.Contains(result, s => s.ServerId == "local-fs");
     }
@@ -689,10 +689,10 @@ public sealed class EmbeddedKernelClientTests
     public async Task ToggleMcpServerAsync_ShouldToggleEnabled()
     {
         var sut = CreateSut();
-        var result = await sut.ToggleMcpServerAsync("local-fs", false).ConfigureAwait(false);
+        var result = await sut.ToggleMcpServerAsync("local-fs", false);
         Assert.True(result);
 
-        var servers = await sut.GetMcpServersAsync().ConfigureAwait(false);
+        var servers = await sut.GetMcpServersAsync();
         var fs = servers.First(s => s.ServerId == "local-fs");
         Assert.False(fs.Enabled);
     }
@@ -700,14 +700,14 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task ToggleMcpServerAsync_NotFound_ShouldReturnFalse()
     {
-        var result = await CreateSut().ToggleMcpServerAsync("x", true).ConfigureAwait(false);
+        var result = await CreateSut().ToggleMcpServerAsync("x", true);
         Assert.False(result);
     }
 
     [Fact]
     public async Task GetMcpServerConfigAsync_ShouldReturnConfig()
     {
-        var result = await CreateSut().GetMcpServerConfigAsync("local-fs").ConfigureAwait(false);
+        var result = await CreateSut().GetMcpServerConfigAsync("local-fs");
         Assert.NotNull(result);
         Assert.Equal("local-fs", result.ServerId);
     }
@@ -716,7 +716,7 @@ public sealed class EmbeddedKernelClientTests
     public async Task UpdateMcpServerAsync_ShouldReturnTrue()
     {
         var config = new McpServerConfig("local-fs", "fs", "stdio", "", null, null);
-        var result = await CreateSut().UpdateMcpServerAsync("local-fs", config).ConfigureAwait(false);
+        var result = await CreateSut().UpdateMcpServerAsync("local-fs", config);
         Assert.True(result);
     }
 
@@ -724,7 +724,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetDocumentsAsync_ShouldReturnSeeded()
     {
-        var result = await CreateSut().GetDocumentsAsync().ConfigureAwait(false);
+        var result = await CreateSut().GetDocumentsAsync();
         Assert.NotEmpty(result);
         Assert.Contains(result, d => d.DocumentId == "doc-1");
     }
@@ -732,7 +732,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetDocumentStatusAsync_ShouldReturn()
     {
-        var result = await CreateSut().GetDocumentStatusAsync("doc-1").ConfigureAwait(false);
+        var result = await CreateSut().GetDocumentStatusAsync("doc-1");
         Assert.NotNull(result);
         Assert.Equal("README.md", result.FileName);
     }
@@ -740,7 +740,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetDocumentStatusAsync_NotFound_ShouldReturnNull()
     {
-        var result = await CreateSut().GetDocumentStatusAsync("x").ConfigureAwait(false);
+        var result = await CreateSut().GetDocumentStatusAsync("x");
         Assert.Null(result);
     }
 
@@ -748,7 +748,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetArchiveStatsAsync_ShouldReturnStats()
     {
-        var result = await CreateSut().GetArchiveStatsAsync().ConfigureAwait(false);
+        var result = await CreateSut().GetArchiveStatsAsync();
         Assert.NotNull(result);
         Assert.True(result.Ok);
     }
@@ -756,7 +756,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetContractsAsync_ShouldReturnContracts()
     {
-        var result = await CreateSut().GetContractsAsync().ConfigureAwait(false);
+        var result = await CreateSut().GetContractsAsync();
         Assert.NotNull(result);
         Assert.Equal("2.1", result.DefaultApiVersion);
     }
@@ -764,7 +764,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetModelRegistryAsync_ShouldReturnDetail()
     {
-        var result = await CreateSut().GetModelRegistryAsync("m1").ConfigureAwait(false);
+        var result = await CreateSut().GetModelRegistryAsync("m1");
         Assert.NotNull(result);
         Assert.Equal("m1", result.ModelId);
     }
@@ -774,8 +774,8 @@ public sealed class EmbeddedKernelClientTests
     public async Task GetPolicyVersionsAsync_ShouldReturnVersions()
     {
         var sut = CreateSut();
-        var policy = await sut.CreatePolicyAsync(new CreatePolicyRequest("p1", "security", "content")).ConfigureAwait(false);
-        var result = await sut.GetPolicyVersionsAsync(policy!.Id).ConfigureAwait(false);
+        var policy = await sut.CreatePolicyAsync(new CreatePolicyRequest("p1", "security", "content"));
+        var result = await sut.GetPolicyVersionsAsync(policy!.Id);
         Assert.NotNull(result);
         Assert.NotEmpty(result.Versions);
     }
@@ -783,14 +783,14 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetPolicyRollbacksAsync_ShouldReturnEmpty()
     {
-        var result = await CreateSut().GetPolicyRollbacksAsync("p1").ConfigureAwait(false);
+        var result = await CreateSut().GetPolicyRollbacksAsync("p1");
         Assert.Empty(result);
     }
 
     [Fact]
     public async Task GetGoalCyclesAsync_ShouldReturnCycles()
     {
-        var result = await CreateSut().GetGoalCyclesAsync("g1").ConfigureAwait(false);
+        var result = await CreateSut().GetGoalCyclesAsync("g1");
         Assert.NotNull(result);
         Assert.NotEmpty(result.Cycles);
     }
@@ -799,14 +799,14 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetPluginsAsync_ShouldDelegateToMcpServers()
     {
-        var result = await CreateSut().GetPluginsAsync().ConfigureAwait(false);
+        var result = await CreateSut().GetPluginsAsync();
         Assert.NotEmpty(result);
     }
 
     [Fact]
     public async Task GetSafetyReportAsync_ShouldDelegateToBenchmark()
     {
-        var result = await CreateSut().GetSafetyReportAsync().ConfigureAwait(false);
+        var result = await CreateSut().GetSafetyReportAsync();
         Assert.NotNull(result);
     }
 
@@ -814,14 +814,14 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetScheduledTasksAsync_ShouldReturnEmpty()
     {
-        var result = await CreateSut().GetScheduledTasksAsync().ConfigureAwait(false);
+        var result = await CreateSut().GetScheduledTasksAsync();
         Assert.Empty(result);
     }
 
     [Fact]
     public async Task GetMemoryMomentsAsync_ShouldReturnSeeded()
     {
-        var result = await CreateSut().GetMemoryMomentsAsync().ConfigureAwait(false);
+        var result = await CreateSut().GetMemoryMomentsAsync();
         Assert.NotEmpty(result);
         Assert.Contains(result, m => m.MomentId == "mm-1");
     }
@@ -830,7 +830,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task KnowledgeAskAsync_ShouldReturnResult()
     {
-        var result = await CreateSut().KnowledgeAskAsync("test query").ConfigureAwait(false);
+        var result = await CreateSut().KnowledgeAskAsync("test query");
         Assert.NotNull(result);
         Assert.Equal("test query", result.Query);
         Assert.NotEmpty(result.Hits);
@@ -840,9 +840,9 @@ public sealed class EmbeddedKernelClientTests
     public async Task KnowledgeStatsAsync_ShouldReturnStats()
     {
         var sut = CreateSut();
-        await sut.KnowledgeLearnAsync("content1", "source1").ConfigureAwait(false);
-        await sut.KnowledgeLearnAsync("content2", "source2").ConfigureAwait(false);
-        var result = await sut.KnowledgeStatsAsync().ConfigureAwait(false);
+        await sut.KnowledgeLearnAsync("content1", "source1");
+        await sut.KnowledgeLearnAsync("content2", "source2");
+        var result = await sut.KnowledgeStatsAsync();
         Assert.NotNull(result);
         Assert.Equal(2, result.TotalEntries);
     }
@@ -850,7 +850,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task KnowledgeLearnAsync_ShouldReturnSuccess()
     {
-        var result = await CreateSut().KnowledgeLearnAsync("content", "source", "category").ConfigureAwait(false);
+        var result = await CreateSut().KnowledgeLearnAsync("content", "source", "category");
         Assert.NotNull(result);
         Assert.True(result.Success);
         Assert.NotNull(result.EntryId);
@@ -860,7 +860,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task PieInferAsync_ShouldReturnInference()
     {
-        var result = await CreateSut().PieInferAsync("premise", "context").ConfigureAwait(false);
+        var result = await CreateSut().PieInferAsync("premise", "context");
         Assert.NotNull(result);
         Assert.Contains("premise", result.Conclusion);
         Assert.Equal(0.85, result.Confidence);
@@ -869,7 +869,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task PieChainAsync_ShouldReturnChain()
     {
-        var result = await CreateSut().PieChainAsync("premise", 3).ConfigureAwait(false);
+        var result = await CreateSut().PieChainAsync("premise", 3);
         Assert.NotNull(result);
         Assert.Equal(3, result.Steps.Count);
     }
@@ -877,7 +877,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task PieKnowledgeAsync_ShouldReturnSuccess()
     {
-        var result = await CreateSut().PieKnowledgeAsync("math", "2+2=4").ConfigureAwait(false);
+        var result = await CreateSut().PieKnowledgeAsync("math", "2+2=4");
         Assert.NotNull(result);
         Assert.True(result.Success);
     }
@@ -885,7 +885,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task PieCoherenceAsync_ShouldReturnData()
     {
-        var result = await CreateSut().PieCoherenceAsync().ConfigureAwait(false);
+        var result = await CreateSut().PieCoherenceAsync();
         Assert.NotNull(result);
         Assert.Equal(0.82, result.OverallCoherence);
         Assert.NotEmpty(result.Entries);
@@ -894,7 +894,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task PieTermsAsync_ShouldReturnTerms()
     {
-        var result = await CreateSut().PieTermsAsync().ConfigureAwait(false);
+        var result = await CreateSut().PieTermsAsync();
         Assert.NotEmpty(result);
         Assert.Contains(result, t => t.Id == "t1");
     }
@@ -903,7 +903,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task EventsRecentAsync_ShouldReturnEvents()
     {
-        var result = await CreateSut().EventsRecentAsync().ConfigureAwait(false);
+        var result = await CreateSut().EventsRecentAsync();
         Assert.NotEmpty(result);
         Assert.Contains(result, e => e.EventId == "e1");
     }
@@ -911,7 +911,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task EventDetailAsync_ShouldReturnDetail()
     {
-        var result = await CreateSut().EventDetailAsync("e1").ConfigureAwait(false);
+        var result = await CreateSut().EventDetailAsync("e1");
         Assert.NotNull(result);
         Assert.Equal("e1", result.EventId);
     }
@@ -919,7 +919,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task EventsByMomentAsync_ShouldReturnEvents()
     {
-        var result = await CreateSut().EventsByMomentAsync("started").ConfigureAwait(false);
+        var result = await CreateSut().EventsByMomentAsync("started");
         Assert.NotEmpty(result);
     }
 
@@ -927,7 +927,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task SearchMultimodalAsync_ShouldReturnResult()
     {
-        var result = await CreateSut().SearchMultimodalAsync("test").ConfigureAwait(false);
+        var result = await CreateSut().SearchMultimodalAsync("test");
         Assert.NotNull(result);
         Assert.Equal("test", result.Query);
         Assert.Empty(result.Hits);
@@ -938,7 +938,7 @@ public sealed class EmbeddedKernelClientTests
     public async Task CognitiveFlowExecuteAsync_ShouldReturnNotAvailable()
     {
         var flow = new FlowDefinition("f1", "desc", [], []);
-        var result = await CreateSut().CognitiveFlowExecuteAsync(flow).ConfigureAwait(false);
+        var result = await CreateSut().CognitiveFlowExecuteAsync(flow);
         Assert.NotNull(result);
         Assert.False(result.Success);
         Assert.Contains("requires the", result.Error, StringComparison.OrdinalIgnoreCase);
@@ -948,14 +948,14 @@ public sealed class EmbeddedKernelClientTests
     public async Task CognitiveFlowSaveAsync_ShouldReturnFalse()
     {
         var flow = new FlowDefinition("f1", "desc", [], []);
-        var result = await CreateSut().CognitiveFlowSaveAsync(flow).ConfigureAwait(false);
+        var result = await CreateSut().CognitiveFlowSaveAsync(flow);
         Assert.False(result);
     }
 
     [Fact]
     public async Task CognitiveFlowLoadAsync_ShouldReturnNull()
     {
-        var result = await CreateSut().CognitiveFlowLoadAsync("f1").ConfigureAwait(false);
+        var result = await CreateSut().CognitiveFlowLoadAsync("f1");
         Assert.Null(result);
     }
 
@@ -963,7 +963,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetUserServicesAsync_ShouldReturnEmpty()
     {
-        var result = await CreateSut().GetUserServicesAsync().ConfigureAwait(false);
+        var result = await CreateSut().GetUserServicesAsync();
         Assert.Empty(result);
     }
 
@@ -971,14 +971,14 @@ public sealed class EmbeddedKernelClientTests
     public async Task UpdateUserServiceAsync_ShouldReturnTrue()
     {
         var request = new UserServiceUpdateRequest(new Dictionary<string, string>(), true);
-        var result = await CreateSut().UpdateUserServiceAsync("slack", request).ConfigureAwait(false);
+        var result = await CreateSut().UpdateUserServiceAsync("slack", request);
         Assert.True(result);
     }
 
     [Fact]
     public async Task DeleteUserServiceAsync_ShouldReturnTrue()
     {
-        var result = await CreateSut().DeleteUserServiceAsync("slack").ConfigureAwait(false);
+        var result = await CreateSut().DeleteUserServiceAsync("slack");
         Assert.True(result);
     }
 
@@ -986,7 +986,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetCurrentPlanAsync_ShouldReturnPlan()
     {
-        var result = await CreateSut().GetCurrentPlanAsync().ConfigureAwait(false);
+        var result = await CreateSut().GetCurrentPlanAsync();
         Assert.NotNull(result);
         Assert.Equal("local-plan-1", result.PlanId);
         Assert.True(result.IsRunning);
@@ -997,7 +997,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetPlanStepsAsync_ShouldReturnSteps()
     {
-        var result = await CreateSut().GetPlanStepsAsync("local-plan-1").ConfigureAwait(false);
+        var result = await CreateSut().GetPlanStepsAsync("local-plan-1");
         Assert.NotEmpty(result);
         Assert.Contains(result, s => s.Description == "Inicialização do kernel");
     }
@@ -1006,7 +1006,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task SearchEpisodicMemoryAsync_ShouldReturnSeededEpisodes()
     {
-        var result = await CreateSut().SearchEpisodicMemoryAsync(new EpisodicMemorySearchRequest("init", TopK: 10)).ConfigureAwait(false);
+        var result = await CreateSut().SearchEpisodicMemoryAsync(new EpisodicMemorySearchRequest("init", TopK: 10));
         Assert.NotNull(result);
         Assert.NotEmpty(result.Hits);
     }
@@ -1014,7 +1014,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task SearchEpisodicMemoryAsync_FilterByStatus_ShouldFilter()
     {
-        var result = await CreateSut().SearchEpisodicMemoryAsync(new EpisodicMemorySearchRequest("", TopK: 10, Status: "completed")).ConfigureAwait(false);
+        var result = await CreateSut().SearchEpisodicMemoryAsync(new EpisodicMemorySearchRequest("", TopK: 10, Status: "completed"));
         Assert.NotNull(result);
         Assert.All(result.Hits, h => Assert.Equal("completed", h.Status));
     }
@@ -1023,7 +1023,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task TemplateListAsync_InitiallyEmpty()
     {
-        var result = await CreateSut().TemplateListAsync().ConfigureAwait(false);
+        var result = await CreateSut().TemplateListAsync();
         Assert.Empty(result);
     }
 
@@ -1031,11 +1031,11 @@ public sealed class EmbeddedKernelClientTests
     public async Task TemplateCreateAsync_ShouldStoreAndReturn()
     {
         var sut = CreateSut();
-        var result = await sut.TemplateCreateAsync(new CreateTemplateRequest("t1", "desc", "content {{var}}", "general")).ConfigureAwait(false);
+        var result = await sut.TemplateCreateAsync(new CreateTemplateRequest("t1", "desc", "content {{var}}", "general"));
         Assert.NotNull(result);
         Assert.Equal("t1", result.Name);
 
-        var all = await sut.TemplateListAsync().ConfigureAwait(false);
+        var all = await sut.TemplateListAsync();
         Assert.Single(all);
     }
 
@@ -1043,8 +1043,8 @@ public sealed class EmbeddedKernelClientTests
     public async Task TemplateGetAsync_ShouldReturnCreated()
     {
         var sut = CreateSut();
-        var created = await sut.TemplateCreateAsync(new CreateTemplateRequest("t1", "desc", "content", "general")).ConfigureAwait(false);
-        var result = await sut.TemplateGetAsync(created!.Id).ConfigureAwait(false);
+        var created = await sut.TemplateCreateAsync(new CreateTemplateRequest("t1", "desc", "content", "general"));
+        var result = await sut.TemplateGetAsync(created!.Id);
         Assert.NotNull(result);
         Assert.Equal("content", result.Content);
     }
@@ -1052,7 +1052,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task TemplateGetAsync_NotFound_ShouldReturnNull()
     {
-        var result = await CreateSut().TemplateGetAsync("x").ConfigureAwait(false);
+        var result = await CreateSut().TemplateGetAsync("x");
         Assert.Null(result);
     }
 
@@ -1060,8 +1060,8 @@ public sealed class EmbeddedKernelClientTests
     public async Task TemplateUpdateAsync_ShouldModify()
     {
         var sut = CreateSut();
-        var created = await sut.TemplateCreateAsync(new CreateTemplateRequest("t1", "desc", "old", "general")).ConfigureAwait(false);
-        var updated = await sut.TemplateUpdateAsync(created!.Id, new UpdateTemplateRequest(Name: "t1-new", Content: "new")).ConfigureAwait(false);
+        var created = await sut.TemplateCreateAsync(new CreateTemplateRequest("t1", "desc", "old", "general"));
+        var updated = await sut.TemplateUpdateAsync(created!.Id, new UpdateTemplateRequest(Name: "t1-new", Content: "new"));
         Assert.NotNull(updated);
         Assert.Equal("t1-new", updated.Name);
     }
@@ -1069,7 +1069,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task TemplateUpdateAsync_NotFound_ShouldReturnNull()
     {
-        var result = await CreateSut().TemplateUpdateAsync("x", new UpdateTemplateRequest(Name: "n")).ConfigureAwait(false);
+        var result = await CreateSut().TemplateUpdateAsync("x", new UpdateTemplateRequest(Name: "n"));
         Assert.Null(result);
     }
 
@@ -1077,16 +1077,16 @@ public sealed class EmbeddedKernelClientTests
     public async Task TemplateDeleteAsync_ShouldRemove()
     {
         var sut = CreateSut();
-        var created = await sut.TemplateCreateAsync(new CreateTemplateRequest("t1", "desc", "c", "general")).ConfigureAwait(false);
-        var deleted = await sut.TemplateDeleteAsync(created!.Id).ConfigureAwait(false);
+        var created = await sut.TemplateCreateAsync(new CreateTemplateRequest("t1", "desc", "c", "general"));
+        var deleted = await sut.TemplateDeleteAsync(created!.Id);
         Assert.True(deleted);
-        Assert.Null(await sut.TemplateGetAsync(created.Id).ConfigureAwait(false));
+        Assert.Null(await sut.TemplateGetAsync(created.Id));
     }
 
     [Fact]
     public async Task TemplateDeleteAsync_NotFound_ShouldReturnFalse()
     {
-        var result = await CreateSut().TemplateDeleteAsync("x").ConfigureAwait(false);
+        var result = await CreateSut().TemplateDeleteAsync("x");
         Assert.False(result);
     }
 
@@ -1094,8 +1094,8 @@ public sealed class EmbeddedKernelClientTests
     public async Task TemplateRenderAsync_ShouldSubstituteVariables()
     {
         var sut = CreateSut();
-        var created = await sut.TemplateCreateAsync(new CreateTemplateRequest("t1", "desc", "Hello {{name}}!", "general")).ConfigureAwait(false);
-        var result = await sut.TemplateRenderAsync(created!.Id, new RenderTemplateRequest(new() { ["name"] = "World" })).ConfigureAwait(false);
+        var created = await sut.TemplateCreateAsync(new CreateTemplateRequest("t1", "desc", "Hello {{name}}!", "general"));
+        var result = await sut.TemplateRenderAsync(created!.Id, new RenderTemplateRequest(new() { ["name"] = "World" }));
         Assert.NotNull(result);
         Assert.Equal("Hello World!", result.RenderedContent);
         Assert.Null(result.Error);
@@ -1104,7 +1104,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task TemplateRenderAsync_NotFound_ShouldReturnError()
     {
-        var result = await CreateSut().TemplateRenderAsync("x", new RenderTemplateRequest(new())).ConfigureAwait(false);
+        var result = await CreateSut().TemplateRenderAsync("x", new RenderTemplateRequest(new()));
         Assert.NotNull(result);
         Assert.Null(result.RenderedContent);
         Assert.NotNull(result.Error);
@@ -1114,7 +1114,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task ExperimentListAsync_InitiallyEmpty()
     {
-        var result = await CreateSut().ExperimentListAsync().ConfigureAwait(false);
+        var result = await CreateSut().ExperimentListAsync();
         Assert.Empty(result);
     }
 
@@ -1122,12 +1122,12 @@ public sealed class EmbeddedKernelClientTests
     public async Task ExperimentStartAsync_ShouldCreateAndReturn()
     {
         var sut = CreateSut();
-        var result = await sut.ExperimentStartAsync(new StartExperimentRequest("exp1", "desc")).ConfigureAwait(false);
+        var result = await sut.ExperimentStartAsync(new StartExperimentRequest("exp1", "desc"));
         Assert.NotNull(result);
         Assert.Equal("exp1", result.Name);
         Assert.Equal("running", result.Status);
 
-        var all = await sut.ExperimentListAsync().ConfigureAwait(false);
+        var all = await sut.ExperimentListAsync();
         Assert.Single(all);
     }
 
@@ -1135,11 +1135,11 @@ public sealed class EmbeddedKernelClientTests
     public async Task ExperimentCompleteAsync_ShouldComplete()
     {
         var sut = CreateSut();
-        var created = await sut.ExperimentStartAsync(new StartExperimentRequest("exp1")).ConfigureAwait(false);
-        var completed = await sut.ExperimentCompleteAsync(created!.Id).ConfigureAwait(false);
+        var created = await sut.ExperimentStartAsync(new StartExperimentRequest("exp1"));
+        var completed = await sut.ExperimentCompleteAsync(created!.Id);
         Assert.True(completed);
 
-        var all = await sut.ExperimentListAsync().ConfigureAwait(false);
+        var all = await sut.ExperimentListAsync();
         var exp = all.First();
         Assert.Equal("completed", exp.Status);
     }
@@ -1147,7 +1147,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task ExperimentCompleteAsync_NotFound_ShouldReturnFalse()
     {
-        var result = await CreateSut().ExperimentCompleteAsync("x").ConfigureAwait(false);
+        var result = await CreateSut().ExperimentCompleteAsync("x");
         Assert.False(result);
     }
 
@@ -1155,15 +1155,15 @@ public sealed class EmbeddedKernelClientTests
     public async Task ExperimentRecordMetricAsync_ShouldRecord()
     {
         var sut = CreateSut();
-        var created = await sut.ExperimentStartAsync(new StartExperimentRequest("exp1")).ConfigureAwait(false);
-        var result = await sut.ExperimentRecordMetricAsync(created!.Id, new RecordMetricRequest("accuracy", 0.95)).ConfigureAwait(false);
+        var created = await sut.ExperimentStartAsync(new StartExperimentRequest("exp1"));
+        var result = await sut.ExperimentRecordMetricAsync(created!.Id, new RecordMetricRequest("accuracy", 0.95));
         Assert.True(result);
     }
 
     [Fact]
     public async Task ExperimentRecordMetricAsync_NotFound_ShouldReturnFalse()
     {
-        var result = await CreateSut().ExperimentRecordMetricAsync("x", new RecordMetricRequest("m", 1)).ConfigureAwait(false);
+        var result = await CreateSut().ExperimentRecordMetricAsync("x", new RecordMetricRequest("m", 1));
         Assert.False(result);
     }
 
@@ -1171,11 +1171,11 @@ public sealed class EmbeddedKernelClientTests
     public async Task ExperimentGetAnalysisAsync_ShouldReturnAnalysis()
     {
         var sut = CreateSut();
-        var created = await sut.ExperimentStartAsync(new StartExperimentRequest("exp1")).ConfigureAwait(false);
-        await sut.ExperimentRecordMetricAsync(created!.Id, new RecordMetricRequest("accuracy", 0.95)).ConfigureAwait(false);
-        await sut.ExperimentRecordMetricAsync(created!.Id, new RecordMetricRequest("latency", 0.85)).ConfigureAwait(false);
+        var created = await sut.ExperimentStartAsync(new StartExperimentRequest("exp1"));
+        await sut.ExperimentRecordMetricAsync(created!.Id, new RecordMetricRequest("accuracy", 0.95));
+        await sut.ExperimentRecordMetricAsync(created!.Id, new RecordMetricRequest("latency", 0.85));
 
-        var analysis = await sut.ExperimentGetAnalysisAsync(created.Id).ConfigureAwait(false);
+        var analysis = await sut.ExperimentGetAnalysisAsync(created.Id);
         Assert.NotNull(analysis);
         Assert.Equal(2, analysis.TotalMetrics);
         Assert.Equal(0.90, analysis.AvgValue, 2);
@@ -1184,7 +1184,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task ExperimentGetAnalysisAsync_NotFound_ShouldReturnNull()
     {
-        var result = await CreateSut().ExperimentGetAnalysisAsync("x").ConfigureAwait(false);
+        var result = await CreateSut().ExperimentGetAnalysisAsync("x");
         Assert.Null(result);
     }
 
@@ -1194,7 +1194,7 @@ public sealed class EmbeddedKernelClientTests
     {
         var kernel = CreateKernelMock();
         var sut = new EmbeddedKernelClient(kernel.Object);
-        var result = await sut.GetRuntimeSummaryAsync().ConfigureAwait(false);
+        var result = await sut.GetRuntimeSummaryAsync();
         Assert.NotNull(result);
         Assert.Equal("test", result.Services["provider"]);
     }

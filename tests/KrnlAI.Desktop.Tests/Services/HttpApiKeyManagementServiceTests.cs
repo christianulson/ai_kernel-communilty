@@ -35,7 +35,7 @@ public sealed class HttpApiKeyManagementServiceTests
 
         var service = new HttpApiKeyManagementService(new HttpClient(handler) { BaseAddress = new Uri("http://localhost") });
 
-        var items = await service.ListAsync(CancellationToken.None).ConfigureAwait(false);
+        var items = await service.ListAsync(CancellationToken.None);
 
         Assert.Single(items);
         Assert.Equal("kid-1", items[0].KeyId);
@@ -73,7 +73,7 @@ public sealed class HttpApiKeyManagementServiceTests
 
         var service = new HttpApiKeyManagementService(new HttpClient(handler) { BaseAddress = new Uri("http://localhost") });
 
-        var created = await service.CreateAsync(new ApiKeyCreationRequest("ci-pipeline", TimeSpan.FromDays(30), ApiKeyScope.ReadWrite), CancellationToken.None).ConfigureAwait(false);
+        var created = await service.CreateAsync(new ApiKeyCreationRequest("ci-pipeline", TimeSpan.FromDays(30), ApiKeyScope.ReadWrite), CancellationToken.None);
 
         Assert.Equal("kid-2", created.KeyId);
         Assert.Equal("krnl_full_secret", created.FullKey);
@@ -122,7 +122,7 @@ public sealed class HttpApiKeyManagementServiceTests
 
         var service = new HttpApiKeyManagementService(new HttpClient(handler) { BaseAddress = new Uri("http://localhost") });
 
-        var stats = await service.GetStatsAsync(CancellationToken.None).ConfigureAwait(false);
+        var stats = await service.GetStatsAsync(CancellationToken.None);
 
         Assert.Equal(4, stats.Total);
         Assert.Equal(2, stats.Active);

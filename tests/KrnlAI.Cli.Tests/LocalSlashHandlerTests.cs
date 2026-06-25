@@ -14,21 +14,21 @@ public sealed class LocalSlashHandlerTests
     public async Task ExecuteAsync_Clear_ShouldReturnConstant()
     {
         var handler = Create();
-        Assert.Equal("CLEAR_CONVERSATION", await handler.ExecuteAsync("/clear").ConfigureAwait(false));
+        Assert.Equal("CLEAR_CONVERSATION", await handler.ExecuteAsync("/clear"));
     }
 
     [Fact]
     public async Task ExecuteAsync_Clear_WithArgs_ShouldStillClear()
     {
         var handler = Create();
-        Assert.Equal("CLEAR_CONVERSATION", await handler.ExecuteAsync("/clear all").ConfigureAwait(false));
+        Assert.Equal("CLEAR_CONVERSATION", await handler.ExecuteAsync("/clear all"));
     }
 
     [Fact]
     public async Task ExecuteAsync_Help_ShouldReturnHelpText()
     {
         var handler = Create();
-        var result = await handler.ExecuteAsync("/help").ConfigureAwait(false);
+        var result = await handler.ExecuteAsync("/help");
         Assert.Contains("/clear", result);
     }
 
@@ -36,7 +36,7 @@ public sealed class LocalSlashHandlerTests
     public async Task ExecuteAsync_Help_WithArgs_ShouldStillShowHelp()
     {
         var handler = Create();
-        var result = await handler.ExecuteAsync("/help commands").ConfigureAwait(false);
+        var result = await handler.ExecuteAsync("/help commands");
         Assert.Contains("/clear", result);
     }
 
@@ -44,7 +44,7 @@ public sealed class LocalSlashHandlerTests
     public async Task ExecuteAsync_UnknownSlash_ShouldRunInKernel()
     {
         var handler = Create();
-        var result = await handler.ExecuteAsync("/nonexistent_cmd_xyz").ConfigureAwait(false);
+        var result = await handler.ExecuteAsync("/nonexistent_cmd_xyz");
         Assert.NotNull(result);
     }
 
@@ -52,7 +52,7 @@ public sealed class LocalSlashHandlerTests
     public async Task ExecuteAsync_ValidPrompt_ShouldReturnNarration()
     {
         var handler = Create();
-        var result = await handler.ExecuteAsync("hello").ConfigureAwait(false);
+        var result = await handler.ExecuteAsync("hello");
         Assert.NotNull(result);
         Assert.NotEmpty(result);
     }
@@ -61,7 +61,7 @@ public sealed class LocalSlashHandlerTests
     public async Task ExecuteAsync_EmptyInput_ShouldNotThrow()
     {
         var handler = Create();
-        var result = await handler.ExecuteAsync("").ConfigureAwait(false);
+        var result = await handler.ExecuteAsync("");
         Assert.NotNull(result);
     }
 
@@ -69,7 +69,7 @@ public sealed class LocalSlashHandlerTests
     public async Task ExecuteAsync_Whitespace_ShouldNotThrow()
     {
         var handler = Create();
-        var result = await handler.ExecuteAsync("   ").ConfigureAwait(false);
+        var result = await handler.ExecuteAsync("   ");
         Assert.NotNull(result);
     }
 
@@ -78,7 +78,7 @@ public sealed class LocalSlashHandlerTests
     {
         var handler = Create();
         var longInput = new string('x', 1000);
-        var result = await handler.ExecuteAsync(longInput).ConfigureAwait(false);
+        var result = await handler.ExecuteAsync(longInput);
         Assert.NotNull(result);
         Assert.NotEmpty(result);
     }
@@ -89,7 +89,7 @@ public sealed class LocalSlashHandlerTests
         var handler = Create();
         for (var i = 0; i < 5; i++)
         {
-            var result = await handler.ExecuteAsync($"call number {i}").ConfigureAwait(false);
+            var result = await handler.ExecuteAsync($"call number {i}");
             Assert.NotNull(result);
         }
     }

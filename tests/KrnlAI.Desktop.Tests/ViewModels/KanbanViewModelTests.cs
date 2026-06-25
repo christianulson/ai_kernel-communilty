@@ -79,7 +79,7 @@ public sealed class KanbanViewModelTests
             {"columns":[{"column":"backlog","label":"Backlog","cards":[],"totalCount":0}],"metadata":{"totalGoals":0,"totalColumns":1,"filters":{"daysBack":10,"domain":null,"minPriority":null,"userId":null,"search":null}}}
             """;
         var vm = new KanbanViewModel(CreateService(new MockHttpHandler(200, json)));
-        await vm.LoadAsync().ConfigureAwait(false);
+        await vm.LoadAsync();
         Assert.Single(vm.Columns);
         Assert.Equal("backlog", vm.Columns[0].ColumnKey);
         Assert.Equal("Backlog", vm.Columns[0].Label);
@@ -91,7 +91,7 @@ public sealed class KanbanViewModelTests
     public async Task LoadAsync_WhenApiFails_ShouldSetError()
     {
         var vm = new KanbanViewModel(CreateService(new MockHttpHandler(500, "")));
-        await vm.LoadAsync().ConfigureAwait(false);
+        await vm.LoadAsync();
         Assert.Empty(vm.Columns);
         Assert.NotNull(vm.ErrorMessage);
         Assert.False(vm.IsLoading);

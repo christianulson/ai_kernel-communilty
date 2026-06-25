@@ -31,7 +31,7 @@ public sealed class MemoryViewModelDiTests
         var vm = CreateVm(kc);
         vm.MemoryQuery = "test";
         vm.SearchMemoryCommand.Execute(null);
-        await Task.Delay(100).ConfigureAwait(false);
+        await Task.Delay(100);
 
         Assert.NotEmpty(vm.MemoryResults);
     }
@@ -79,7 +79,7 @@ public sealed class EpisodesViewModelDiTests
 
         var vm = new EpisodesViewModel(kc.Object);
         vm.LoadEpisodesCommand.Execute(null);
-        await Task.Delay(100).ConfigureAwait(false);
+        await Task.Delay(100);
 
         kc.Verify(x => x.SearchEpisodesAsync(It.IsAny<EpisodeSearchRequest>(), It.IsAny<CancellationToken>()), Times.AtLeastOnce);
     }
@@ -115,7 +115,7 @@ public sealed class CausalGraphViewModelDiTests
         var vm = new CausalGraphViewModel(kc.Object);
         vm.Query = "test";
         vm.SearchCommand.Execute(null);
-        await Task.Delay(100).ConfigureAwait(false);
+        await Task.Delay(100);
 
         kc.Verify(x => x.GetCausalQueryAsync("test", It.IsAny<CancellationToken>()), Times.AtLeastOnce);
     }
@@ -130,7 +130,7 @@ public sealed class CausalGraphViewModelDiTests
         var vm = new CausalGraphViewModel(kc.Object);
         vm.PredictAction = "action";
         vm.PredictCommand.Execute(null);
-        await Task.Delay(100).ConfigureAwait(false);
+        await Task.Delay(100);
 
         kc.Verify(x => x.GetCausalPredictionAsync("action", It.IsAny<CancellationToken>()), Times.AtLeastOnce);
     }

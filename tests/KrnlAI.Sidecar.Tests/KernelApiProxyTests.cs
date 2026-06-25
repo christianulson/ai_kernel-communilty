@@ -35,7 +35,7 @@ public sealed class KernelApiProxyTests
     public async Task Proxy_NotConfigured_ShouldReturnNull()
     {
         var (proxy, _) = CreateProxy("");
-        var result = await proxy.ProxyGetAsync<object>("/test", CancellationToken.None).ConfigureAwait(false);
+        var result = await proxy.ProxyGetAsync<object>("/test", CancellationToken.None);
         result.Should().BeNull();
     }
 
@@ -48,7 +48,7 @@ public sealed class KernelApiProxyTests
             Content = new StringContent("""{"status":"ok"}""")
         });
 
-        var result = await proxy.ProxyGetAsync<HealthResponse>("/health", CancellationToken.None).ConfigureAwait(false);
+        var result = await proxy.ProxyGetAsync<HealthResponse>("/health", CancellationToken.None);
         result.Should().NotBeNull();
         result!.Status.Should().Be("ok");
     }
@@ -59,7 +59,7 @@ public sealed class KernelApiProxyTests
         var (proxy, handler) = CreateProxy();
         handler.SetupResponse("/test", new HttpResponseMessage(HttpStatusCode.ServiceUnavailable));
 
-        var result = await proxy.ProxyGetAsync<object>("/test", CancellationToken.None).ConfigureAwait(false);
+        var result = await proxy.ProxyGetAsync<object>("/test", CancellationToken.None);
         result.Should().BeNull();
     }
 
@@ -69,7 +69,7 @@ public sealed class KernelApiProxyTests
         var (proxy, handler) = CreateProxy();
         handler.SetupResponse("/health", new HttpResponseMessage(HttpStatusCode.OK));
 
-        var result = await proxy.PingAsync(CancellationToken.None).ConfigureAwait(false);
+        var result = await proxy.PingAsync(CancellationToken.None);
         result.Should().BeTrue();
     }
 
@@ -79,7 +79,7 @@ public sealed class KernelApiProxyTests
         var (proxy, handler) = CreateProxy();
         handler.SetupResponse("/health", new HttpResponseMessage(HttpStatusCode.ServiceUnavailable));
 
-        var result = await proxy.PingAsync(CancellationToken.None).ConfigureAwait(false);
+        var result = await proxy.PingAsync(CancellationToken.None);
         result.Should().BeFalse();
     }
 

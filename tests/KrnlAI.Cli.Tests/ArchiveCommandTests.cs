@@ -58,7 +58,7 @@ public sealed class ArchiveCommandTests
         var cmd = new ArchiveCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("archive list").InvokeAsync().ConfigureAwait(false);
+        var result = await root.Parse("archive list").InvokeAsync();
 
         result.Should().Be(0);
         console.Output.Should().Contain("No archived entries");
@@ -71,7 +71,7 @@ public sealed class ArchiveCommandTests
         var cmd = new ArchiveCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("archive count").InvokeAsync().ConfigureAwait(false);
+        var result = await root.Parse("archive count").InvokeAsync();
 
         result.Should().Be(0);
         console.Output.Should().Contain("0");
@@ -84,7 +84,7 @@ public sealed class ArchiveCommandTests
         var cmd = new ArchiveCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("archive purge").InvokeAsync().ConfigureAwait(false);
+        var result = await root.Parse("archive purge").InvokeAsync();
 
         result.Should().Be(0);
         console.Output.Should().Contain("Purged 0");

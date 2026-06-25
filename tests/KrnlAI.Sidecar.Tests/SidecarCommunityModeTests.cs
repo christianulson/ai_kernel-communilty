@@ -10,7 +10,7 @@ public sealed class SidecarCommunityModeTests(CommunitySidecarWebAppFactory fact
     [Fact]
     public async Task Health_CommunityMode_ShouldReportCommunity()
     {
-        var response = await _client.GetFromJsonAsync<Dictionary<string, object>>("/health", TestContext.Current.CancellationToken).ConfigureAwait(false);
+        var response = await _client.GetFromJsonAsync<Dictionary<string, object>>("/health", TestContext.Current.CancellationToken);
 
         response.Should().NotBeNull();
         response!["mode"].ToString().Should().Be("community");
@@ -19,10 +19,10 @@ public sealed class SidecarCommunityModeTests(CommunitySidecarWebAppFactory fact
     [Fact]
     public async Task AgentRun_CommunityMode_ShouldUseEmbeddedKernel()
     {
-        var response = await _client.PostAsJsonAsync("/agent/run", new { prompt = "hello local" }, TestContext.Current.CancellationToken).ConfigureAwait(false);
+        var response = await _client.PostAsJsonAsync("/agent/run", new { prompt = "hello local" }, TestContext.Current.CancellationToken);
         response.EnsureSuccessStatusCode();
 
-        var body = await response.Content.ReadFromJsonAsync<AgentRunTransportResponse>(TestContext.Current.CancellationToken).ConfigureAwait(false);
+        var body = await response.Content.ReadFromJsonAsync<AgentRunTransportResponse>(TestContext.Current.CancellationToken);
 
         body.Should().NotBeNull();
         body!.Narration.Should().Contain("hello local");
@@ -47,7 +47,7 @@ public sealed class SidecarCommunityModeTests(CommunitySidecarWebAppFactory fact
     [InlineData("/api/documents?limit=50")]
     public async Task ReadEndpoints_CommunityMode_ShouldReturnStandaloneFallback(string path)
     {
-        var response = await _client.GetAsync(path, TestContext.Current.CancellationToken).ConfigureAwait(false);
+        var response = await _client.GetAsync(path, TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
     }

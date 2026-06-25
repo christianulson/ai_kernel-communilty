@@ -25,7 +25,7 @@ public class EventsViewModelTests
         _kernelMock.Setup(k => k.EventsRecentAsync(50, default))
             .ReturnsAsync(events);
 
-        await _vm.LoadRecentEventsAsync().ConfigureAwait(false);
+        await _vm.LoadRecentEventsAsync();
 
         Assert.Equal(2, _vm.Events.Count);
     }
@@ -38,7 +38,7 @@ public class EventsViewModelTests
         _kernelMock.Setup(k => k.EventDetailAsync("e1", default))
             .ReturnsAsync(detail);
 
-        await _vm.LoadEventDetailAsync("e1").ConfigureAwait(false);
+        await _vm.LoadEventDetailAsync("e1");
 
         Assert.NotNull(_vm.SelectedEvent);
         Assert.Equal("Thought processed", _vm.SelectedEvent.Description);
@@ -54,7 +54,7 @@ public class EventsViewModelTests
         _kernelMock.Setup(k => k.EventsByMomentAsync("moment-1", default))
             .ReturnsAsync(events);
 
-        await _vm.LoadEventsByMomentAsync("moment-1").ConfigureAwait(false);
+        await _vm.LoadEventsByMomentAsync("moment-1");
 
         Assert.Single(_vm.Events);
     }
@@ -65,7 +65,7 @@ public class EventsViewModelTests
         _kernelMock.Setup(k => k.EventsRecentAsync(50, default))
             .ThrowsAsync(new HttpRequestException("events unavailable"));
 
-        await _vm.LoadRecentEventsAsync().ConfigureAwait(false);
+        await _vm.LoadRecentEventsAsync();
 
         Assert.True(_vm.HasError);
     }
@@ -82,7 +82,7 @@ public class EventsViewModelTests
         _kernelMock.Setup(k => k.EventsRecentAsync(50, default))
             .ReturnsAsync(events);
 
-        await _vm.LoadRecentEventsAsync().ConfigureAwait(false);
+        await _vm.LoadRecentEventsAsync();
         _vm.SetTypeFilter("cognitive");
 
         Assert.Equal(2, _vm.FilteredEvents.Count);

@@ -68,7 +68,7 @@ public sealed class IntentionsCommandTests
         var cmd = new IntentionsCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("intentions").InvokeAsync().ConfigureAwait(false);
+        var result = await root.Parse("intentions").InvokeAsync();
 
         result.Should().Be(0);
         var output = console.Output;
@@ -83,7 +83,7 @@ public sealed class IntentionsCommandTests
         var cmd = new IntentionsCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("intentions --domain nonexistent").InvokeAsync().ConfigureAwait(false);
+        var result = await root.Parse("intentions --domain nonexistent").InvokeAsync();
 
         result.Should().Be(0);
         console.Output.Should().Contain("No pending intentions");

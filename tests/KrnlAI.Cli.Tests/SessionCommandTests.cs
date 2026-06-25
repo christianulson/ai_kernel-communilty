@@ -35,12 +35,12 @@ public sealed class SessionCommandTests
         var cognitiveStore = new InMemoryCognitiveSessionStore();
 
         var session = MakeSession("session-fork-1", null, null, [], DateTimeOffset.UtcNow, null, CognitiveSessionStatus.Active, "fork test");
-        await cognitiveStore.SaveAsync(session, TestContext.Current.CancellationToken).ConfigureAwait(false);
+        await cognitiveStore.SaveAsync(session, TestContext.Current.CancellationToken);
 
         var cmd = new SessionCommand(console, sessionStore, cognitiveStore).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("session fork session-fork-1").InvokeAsync().ConfigureAwait(false);
+        var result = await root.Parse("session fork session-fork-1").InvokeAsync();
 
         result.Should().Be(0);
         console.Output.Should().Contain("Session forked");
@@ -60,7 +60,7 @@ public sealed class SessionCommandTests
         var cmd = new SessionCommand(console, sessionStore, cognitiveStore).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("session list").InvokeAsync().ConfigureAwait(false);
+        var result = await root.Parse("session list").InvokeAsync();
 
         result.Should().Be(0);
         console.Output.Should().Contain("test-session-1");
@@ -78,12 +78,12 @@ public sealed class SessionCommandTests
             new DateTimeOffset(2026, 6, 12, 10, 0, 0, TimeSpan.Zero),
             new DateTimeOffset(2026, 6, 12, 10, 5, 0, TimeSpan.Zero),
             CognitiveSessionStatus.Completed, "show test session");
-        await cognitiveStore.SaveAsync(session, TestContext.Current.CancellationToken).ConfigureAwait(false);
+        await cognitiveStore.SaveAsync(session, TestContext.Current.CancellationToken);
 
         var cmd = new SessionCommand(console, sessionStore, cognitiveStore).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("session show session-show-1").InvokeAsync().ConfigureAwait(false);
+        var result = await root.Parse("session show session-show-1").InvokeAsync();
 
         result.Should().Be(0);
         console.Output.Should().Contain("session-show-1");

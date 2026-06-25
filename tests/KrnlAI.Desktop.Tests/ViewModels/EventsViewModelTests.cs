@@ -33,7 +33,7 @@ public sealed class EventsViewModelTests
             .ReturnsAsync(events);
 
         var vm = new EventsViewModel(kernelClient.Object);
-        await vm.LoadRecentEventsAsync().ConfigureAwait(false);
+        await vm.LoadRecentEventsAsync();
 
         Assert.Equal(2, vm.Events.Count);
         Assert.Equal(2, vm.FilteredEvents.Count);
@@ -53,7 +53,7 @@ public sealed class EventsViewModelTests
         var task = vm.LoadRecentEventsAsync();
         Assert.True(vm.IsLoading);
         tcs.SetResult([]);
-        await task.ConfigureAwait(false);
+        await task;
         Assert.False(vm.IsLoading);
     }
 
@@ -65,7 +65,7 @@ public sealed class EventsViewModelTests
             .ThrowsAsync(new HttpRequestException("events error"));
 
         var vm = new EventsViewModel(kernelClient.Object);
-        await vm.LoadRecentEventsAsync().ConfigureAwait(false);
+        await vm.LoadRecentEventsAsync();
 
         Assert.True(vm.HasError);
         Assert.Contains("events error", vm.ErrorMessage);
@@ -81,7 +81,7 @@ public sealed class EventsViewModelTests
             .ReturnsAsync(detail);
 
         var vm = new EventsViewModel(kernelClient.Object);
-        await vm.LoadEventDetailAsync("e1").ConfigureAwait(false);
+        await vm.LoadEventDetailAsync("e1");
 
         Assert.NotNull(vm.SelectedEvent);
         Assert.Equal("e1", vm.SelectedEvent.EventId);
@@ -96,7 +96,7 @@ public sealed class EventsViewModelTests
             .ThrowsAsync(new HttpRequestException("detail error"));
 
         var vm = new EventsViewModel(kernelClient.Object);
-        await vm.LoadEventDetailAsync("e1").ConfigureAwait(false);
+        await vm.LoadEventDetailAsync("e1");
 
         Assert.True(vm.HasError);
         Assert.Contains("detail error", vm.ErrorMessage);
@@ -114,7 +114,7 @@ public sealed class EventsViewModelTests
             .ReturnsAsync(events);
 
         var vm = new EventsViewModel(kernelClient.Object);
-        await vm.LoadEventsByMomentAsync("moment1").ConfigureAwait(false);
+        await vm.LoadEventsByMomentAsync("moment1");
 
         Assert.Single(vm.Events);
         Assert.Single(vm.FilteredEvents);
@@ -129,7 +129,7 @@ public sealed class EventsViewModelTests
             .ThrowsAsync(new HttpRequestException("moment error"));
 
         var vm = new EventsViewModel(kernelClient.Object);
-        await vm.LoadEventsByMomentAsync("moment1").ConfigureAwait(false);
+        await vm.LoadEventsByMomentAsync("moment1");
 
         Assert.True(vm.HasError);
         Assert.Contains("moment error", vm.ErrorMessage);

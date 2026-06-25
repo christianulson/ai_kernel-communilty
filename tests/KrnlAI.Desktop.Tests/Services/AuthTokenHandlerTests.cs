@@ -15,7 +15,7 @@ public class AuthTokenHandlerTests
 
         var httpClient = new HttpClient(handler);
         var request = new HttpRequestMessage(HttpMethod.Get, "http://localhost/test");
-        await httpClient.SendAsync(request).ConfigureAwait(false);
+        await httpClient.SendAsync(request);
 
         Assert.NotNull(innerHandler.LastRequest);
         Assert.Equal("Bearer test-jwt-token", innerHandler.LastRequest!.Headers.Authorization?.ToString());
@@ -31,7 +31,7 @@ public class AuthTokenHandlerTests
 
         var httpClient = new HttpClient(handler);
         var request = new HttpRequestMessage(HttpMethod.Get, "http://localhost/test");
-        await httpClient.SendAsync(request).ConfigureAwait(false);
+        await httpClient.SendAsync(request);
 
         Assert.NotNull(innerHandler.LastRequest);
         Assert.Null(innerHandler.LastRequest!.Headers.Authorization);
@@ -61,7 +61,7 @@ public class AuthTokenHandlerTests
 
         var httpClient = new HttpClient(handler);
         var request = new HttpRequestMessage(HttpMethod.Get, "http://localhost/test");
-        var response = await httpClient.SendAsync(request).ConfigureAwait(false);
+        var response = await httpClient.SendAsync(request);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Equal(1, callCount);
@@ -89,7 +89,7 @@ public class AuthTokenHandlerTests
 
         var httpClient = new HttpClient(handler);
         var request = new HttpRequestMessage(HttpMethod.Get, "http://localhost/test");
-        var response = await httpClient.SendAsync(request).ConfigureAwait(false);
+        var response = await httpClient.SendAsync(request);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         Assert.False(refreshCalled);
@@ -116,7 +116,7 @@ public class AuthTokenHandlerTests
 
         var httpClient = new HttpClient(handler);
         var request = new HttpRequestMessage(HttpMethod.Post, "http://localhost/auth/refresh");
-        var response = await httpClient.SendAsync(request).ConfigureAwait(false);
+        var response = await httpClient.SendAsync(request);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         Assert.False(refreshCalled);
@@ -143,7 +143,7 @@ public class AuthTokenHandlerTests
 
         var httpClient = new HttpClient(handler);
         var request = new HttpRequestMessage(HttpMethod.Post, "http://localhost/auth/oauth2/callback");
-        var response = await httpClient.SendAsync(request).ConfigureAwait(false);
+        var response = await httpClient.SendAsync(request);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         Assert.False(refreshCalled);
@@ -165,7 +165,7 @@ public class AuthTokenHandlerTests
 
         var httpClient = new HttpClient(handler);
         var request = new HttpRequestMessage(HttpMethod.Get, "http://localhost/test");
-        var response = await httpClient.SendAsync(request).ConfigureAwait(false);
+        var response = await httpClient.SendAsync(request);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         Assert.Null(tokenProvider.Token);

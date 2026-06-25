@@ -54,7 +54,7 @@ public sealed class SidecarGrpcServer(IEmbeddedKrnlAI kernel, ILogger<SidecarGrp
             if (request.HttpMethod == "GET" && request.Url?.AbsolutePath == "/health")
             {
                 response.StatusCode = 200;
-                await using var sw = new StreamWriter(response.OutputStream).ConfigureAwait(false);
+                await using var sw = new StreamWriter(response.OutputStream);
                 await sw.WriteAsync(JsonSerializer.Serialize(new { status = "SERVING", service = "sidecar-grpc" })).ConfigureAwait(false);
                 return;
             }
@@ -123,7 +123,7 @@ public sealed class SidecarGrpcServer(IEmbeddedKrnlAI kernel, ILogger<SidecarGrp
     private static async Task WriteJson(System.Net.HttpListenerResponse response, object data)
     {
         response.ContentType = "application/json";
-        await using var sw = new StreamWriter(response.OutputStream).ConfigureAwait(false);
+        await using var sw = new StreamWriter(response.OutputStream);
         await sw.WriteAsync(JsonSerializer.Serialize(data,
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })).ConfigureAwait(false);
     }

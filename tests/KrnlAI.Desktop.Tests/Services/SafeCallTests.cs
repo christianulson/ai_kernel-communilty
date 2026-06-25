@@ -7,14 +7,14 @@ public sealed class SafeCallTests
     [Fact]
     public async Task ExecuteAsync_Success_ShouldReturnValue()
     {
-        var result = await SafeCall.ExecuteAsync(() => Task.FromResult(42), -1).ConfigureAwait(false);
+        var result = await SafeCall.ExecuteAsync(() => Task.FromResult(42), -1);
         Assert.Equal(42, result);
     }
 
     [Fact]
     public async Task ExecuteAsync_Exception_ShouldReturnDefault()
     {
-        var result = await SafeCall.ExecuteAsync(() => throw new InvalidOperationException(), -1).ConfigureAwait(false);
+        var result = await SafeCall.ExecuteAsync(() => throw new InvalidOperationException(), -1);
         Assert.Equal(-1, result);
     }
 
@@ -22,7 +22,7 @@ public sealed class SafeCallTests
     public async Task ExecuteAsync_Task_ShouldComplete()
     {
         var called = false;
-        await SafeCall.ExecuteAsync(() => { called = true; return Task.CompletedTask; }).ConfigureAwait(false);
+        await SafeCall.ExecuteAsync(() => { called = true; return Task.CompletedTask; });
         Assert.True(called);
     }
 
@@ -30,7 +30,7 @@ public sealed class SafeCallTests
     public async Task ExecuteAsync_Task_Exception_ShouldNotThrow()
     {
         var ex = await Record.ExceptionAsync(() =>
-            SafeCall.ExecuteAsync(() => throw new InvalidOperationException())).ConfigureAwait(false);
+            SafeCall.ExecuteAsync(() => throw new InvalidOperationException()));
         Assert.Null(ex);
     }
 }

@@ -102,7 +102,7 @@ public sealed class RunCommand
 
             if (string.Equals(mode, "embedded", StringComparison.OrdinalIgnoreCase))
             {
-                await using var kernel = new EmbeddedKrnlAI(new EmbeddedKernelOptions { LLmProvider = model }).ConfigureAwait(false);
+                await using var kernel = new EmbeddedKrnlAI(new EmbeddedKernelOptions { LLmProvider = model });
                 var result = await kernel.RunAsync(input.Trim(), ct).ConfigureAwait(false);
                 await WriteResultAsync(
                     result.Narration ?? result.Error ?? "Sem resposta",

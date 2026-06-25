@@ -33,7 +33,7 @@ public sealed class SecurityCommandTests
         var cmd = new SecurityCommand(runner, console).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("security benchmark invalid_category").InvokeAsync().ConfigureAwait(false);
+        var result = await root.Parse("security benchmark invalid_category").InvokeAsync();
 
         result.Should().Be(-1);
         console.Output.Should().Contain("Unknown category");
@@ -47,7 +47,7 @@ public sealed class SecurityCommandTests
         var cmd = new SecurityCommand(runner, console).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("security audit --config test-cfg").InvokeAsync().ConfigureAwait(false);
+        var result = await root.Parse("security audit --config test-cfg").InvokeAsync();
 
         console.Output.Should().Contain("Running full safety audit");
     }
@@ -60,7 +60,7 @@ public sealed class SecurityCommandTests
         var cmd = new SecurityCommand(runner, console).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("security report").InvokeAsync().ConfigureAwait(false);
+        var result = await root.Parse("security report").InvokeAsync();
 
         console.Output.Should().Contain("Generating safety report");
     }

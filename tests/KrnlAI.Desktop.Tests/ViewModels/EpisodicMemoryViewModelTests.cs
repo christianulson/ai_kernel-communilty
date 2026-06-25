@@ -24,7 +24,7 @@ public sealed class EpisodicMemoryViewModelTests
     {
         var kernelClient = new Mock<IKernelClient>();
         var vm = new EpisodicMemoryViewModel(kernelClient.Object);
-        await vm.SearchAsync().ConfigureAwait(false);
+        await vm.SearchAsync();
         kernelClient.Verify(k => k.SearchEpisodicMemoryAsync(It.IsAny<EpisodicMemorySearchRequest>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -34,7 +34,7 @@ public sealed class EpisodicMemoryViewModelTests
         var kernelClient = new Mock<IKernelClient>();
         var vm = new EpisodicMemoryViewModel(kernelClient.Object);
         vm.SearchQuery = "   ";
-        await vm.SearchAsync().ConfigureAwait(false);
+        await vm.SearchAsync();
         kernelClient.Verify(k => k.SearchEpisodicMemoryAsync(It.IsAny<EpisodicMemorySearchRequest>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -54,7 +54,7 @@ public sealed class EpisodicMemoryViewModelTests
         var vm = new EpisodicMemoryViewModel(kernelClient.Object);
         vm.SearchQuery = "test query";
 
-        await vm.SearchAsync().ConfigureAwait(false);
+        await vm.SearchAsync();
 
         Assert.Equal(2, vm.Results.Count);
         Assert.Equal("Summary 1", vm.Results[0].Summary);
@@ -71,7 +71,7 @@ public sealed class EpisodicMemoryViewModelTests
 
         var vm = new EpisodicMemoryViewModel(kernelClient.Object);
         vm.SearchQuery = "query";
-        await vm.SearchAsync().ConfigureAwait(false);
+        await vm.SearchAsync();
 
         Assert.Empty(vm.Results);
     }
@@ -86,7 +86,7 @@ public sealed class EpisodicMemoryViewModelTests
         var vm = new EpisodicMemoryViewModel(kernelClient.Object);
         vm.SearchQuery = "query";
 
-        await vm.SearchAsync().ConfigureAwait(false);
+        await vm.SearchAsync();
 
         Assert.True(vm.HasError);
         Assert.Contains("search error", vm.ErrorMessage);
@@ -107,7 +107,7 @@ public sealed class EpisodicMemoryViewModelTests
         var searchTask = vm.SearchAsync();
         Assert.True(vm.IsLoading);
         tcs.SetResult(new EpisodicMemorySearchResult([], 0, "query"));
-        await searchTask.ConfigureAwait(false);
+        await searchTask;
         Assert.False(vm.IsLoading);
     }
 

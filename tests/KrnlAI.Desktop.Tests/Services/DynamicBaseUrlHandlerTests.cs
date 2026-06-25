@@ -13,7 +13,7 @@ public sealed class DynamicBaseUrlHandlerTests
         handler.InnerHandler = testHandler;
 
         using var client = new HttpClient(handler) { BaseAddress = new Uri("http://placeholder") };
-        await client.GetAsync("/health").ConfigureAwait(false);
+        await client.GetAsync("/health");
 
         Assert.StartsWith("http://test-api:8080/health", testHandler.LastUri?.ToString());
     }
@@ -27,7 +27,7 @@ public sealed class DynamicBaseUrlHandlerTests
         handler.InnerHandler = testHandler;
 
         using var client = new HttpClient(handler) { BaseAddress = new Uri("http://placeholder") };
-        await client.GetAsync("/test").ConfigureAwait(false);
+        await client.GetAsync("/test");
 
         Assert.StartsWith("http://localhost:5235/test", testHandler.LastUri?.ToString());
     }
@@ -41,7 +41,7 @@ public sealed class DynamicBaseUrlHandlerTests
         handler.InnerHandler = testHandler;
 
         using var client = new HttpClient(handler) { BaseAddress = new Uri("http://placeholder") };
-        await client.GetAsync("/ping").ConfigureAwait(false);
+        await client.GetAsync("/ping");
 
         Assert.StartsWith("http://example.com/api/ping", testHandler.LastUri?.ToString());
         Assert.DoesNotContain("//ping", testHandler.LastUri?.ToString());

@@ -13,7 +13,7 @@ public sealed class CorsTests(CorsSidecarWebAppFactory factory) : IClassFixture<
         request.Headers.Add("Origin", "https://example.com");
         request.Headers.Add("Access-Control-Request-Method", "GET");
 
-        var res = await _http.SendAsync(request, TestContext.Current.CancellationToken).ConfigureAwait(false);
+        var res = await _http.SendAsync(request, TestContext.Current.CancellationToken);
 
         res.Headers.Should().Contain(h => h.Key == "Access-Control-Allow-Origin");
         res.Headers.GetValues("Access-Control-Allow-Origin").First().Should().Be("https://example.com");
@@ -26,7 +26,7 @@ public sealed class CorsTests(CorsSidecarWebAppFactory factory) : IClassFixture<
         request.Headers.Add("Origin", "https://evil.com");
         request.Headers.Add("Access-Control-Request-Method", "GET");
 
-        var res = await _http.SendAsync(request, TestContext.Current.CancellationToken).ConfigureAwait(false);
+        var res = await _http.SendAsync(request, TestContext.Current.CancellationToken);
 
         res.Headers.Should().NotContain(h => h.Key == "Access-Control-Allow-Origin");
     }

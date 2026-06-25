@@ -40,7 +40,7 @@ public sealed class ExperimentsViewModelTests
             .ReturnsAsync(experiments);
 
         var vm = new ExperimentsViewModel(kernelClient.Object);
-        await vm.LoadExperimentsAsync().ConfigureAwait(false);
+        await vm.LoadExperimentsAsync();
 
         Assert.Equal(2, vm.Experiments.Count);
         Assert.Equal("Exp 1", vm.Experiments[0].Name);
@@ -60,7 +60,7 @@ public sealed class ExperimentsViewModelTests
 
         Assert.True(vm.IsLoading);
         tcs.SetResult([]);
-        await loadTask.ConfigureAwait(false);
+        await loadTask;
         Assert.False(vm.IsLoading);
     }
 
@@ -72,7 +72,7 @@ public sealed class ExperimentsViewModelTests
             .ThrowsAsync(new HttpRequestException("API error"));
 
         var vm = new ExperimentsViewModel(kernelClient.Object);
-        await vm.LoadExperimentsAsync().ConfigureAwait(false);
+        await vm.LoadExperimentsAsync();
 
         Assert.True(vm.HasError);
         Assert.Contains("API error", vm.ErrorMessage);
@@ -93,7 +93,7 @@ public sealed class ExperimentsViewModelTests
         vm.NewExperimentName = "New Exp";
         vm.NewExperimentDescription = "Testing";
 
-        await vm.StartExperimentAsync().ConfigureAwait(false);
+        await vm.StartExperimentAsync();
 
         Assert.Single(vm.Experiments);
         Assert.Equal("New Exp", vm.Experiments[0].Name);
@@ -107,7 +107,7 @@ public sealed class ExperimentsViewModelTests
         var vm = new ExperimentsViewModel(kernelClient.Object);
         vm.NewExperimentName = "";
 
-        await vm.StartExperimentAsync().ConfigureAwait(false);
+        await vm.StartExperimentAsync();
 
         kernelClient.Verify(k => k.ExperimentStartAsync(It.IsAny<StartExperimentRequest>(), It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -122,7 +122,7 @@ public sealed class ExperimentsViewModelTests
         var vm = new ExperimentsViewModel(kernelClient.Object);
         vm.NewExperimentName = "Test";
 
-        await vm.StartExperimentAsync().ConfigureAwait(false);
+        await vm.StartExperimentAsync();
 
         Assert.True(vm.HasError);
         Assert.Contains("start error", vm.ErrorMessage);
@@ -142,7 +142,7 @@ public sealed class ExperimentsViewModelTests
         vm.NewExperimentName = "Test";
         vm.NewExperimentDescription = "desc";
 
-        await vm.StartExperimentAsync().ConfigureAwait(false);
+        await vm.StartExperimentAsync();
 
         Assert.Empty(vm.NewExperimentName);
         Assert.Empty(vm.NewExperimentDescription);
@@ -160,7 +160,7 @@ public sealed class ExperimentsViewModelTests
         var vm = new ExperimentsViewModel(kernelClient.Object);
         vm.Experiments.Add(new ExperimentInfo("e1", "Exp 1", "running", "", DateTime.UtcNow, null));
 
-        await vm.CompleteExperimentAsync("e1").ConfigureAwait(false);
+        await vm.CompleteExperimentAsync("e1");
 
         kernelClient.Verify(k => k.ExperimentCompleteAsync("e1", It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -174,7 +174,7 @@ public sealed class ExperimentsViewModelTests
 
         var vm = new ExperimentsViewModel(kernelClient.Object);
 
-        await vm.RecordMetricAsync("e1", "accuracy", 0.95).ConfigureAwait(false);
+        await vm.RecordMetricAsync("e1", "accuracy", 0.95);
 
         kernelClient.Verify(k => k.ExperimentRecordMetricAsync("e1",
             It.Is<RecordMetricRequest>(r => r.MetricName == "accuracy" && r.Value == 0.95),
@@ -193,7 +193,7 @@ public sealed class ExperimentsViewModelTests
 
         var vm = new ExperimentsViewModel(kernelClient.Object);
 
-        await vm.ViewAnalysisAsync("e1").ConfigureAwait(false);
+        await vm.ViewAnalysisAsync("e1");
 
         Assert.NotNull(vm.CurrentAnalysis);
         Assert.Equal(5, vm.CurrentAnalysis!.TotalMetrics);
@@ -209,7 +209,7 @@ public sealed class ExperimentsViewModelTests
 
         var vm = new ExperimentsViewModel(kernelClient.Object);
 
-        await vm.ViewAnalysisAsync("e1").ConfigureAwait(false);
+        await vm.ViewAnalysisAsync("e1");
 
         Assert.True(vm.HasError);
         Assert.Null(vm.CurrentAnalysis);

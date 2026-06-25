@@ -29,7 +29,7 @@ public sealed class SelfImprovementViewModelTests
 
         var vm = new SelfImprovementViewModel(kernelClient.Object);
 
-        await vm.LoadStatusAsync().ConfigureAwait(false);
+        await vm.LoadStatusAsync();
 
         Assert.NotNull(vm.Status);
         Assert.True(vm.Status.IsEnabled);
@@ -51,7 +51,7 @@ public sealed class SelfImprovementViewModelTests
         var task = vm.LoadStatusAsync();
         Assert.True(vm.IsLoading);
         tcs.SetResult(new SelfImprovementStatus(false, false, null, 0, 0, 0, [], []));
-        await task.ConfigureAwait(false);
+        await task;
         Assert.False(vm.IsLoading);
     }
 
@@ -64,7 +64,7 @@ public sealed class SelfImprovementViewModelTests
 
         var vm = new SelfImprovementViewModel(kernelClient.Object);
 
-        await vm.LoadStatusAsync().ConfigureAwait(false);
+        await vm.LoadStatusAsync();
 
         Assert.Null(vm.Status);
         Assert.False(vm.HasError);
@@ -79,7 +79,7 @@ public sealed class SelfImprovementViewModelTests
 
         var vm = new SelfImprovementViewModel(kernelClient.Object);
 
-        await vm.LoadStatusAsync().ConfigureAwait(false);
+        await vm.LoadStatusAsync();
 
         Assert.True(vm.HasError);
         Assert.Contains("status error", vm.ErrorMessage);

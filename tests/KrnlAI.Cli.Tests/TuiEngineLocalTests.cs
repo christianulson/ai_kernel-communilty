@@ -41,7 +41,7 @@ public sealed class TuiEngineLocalTests
             CacheMode = "Memory"
         });
 
-        var result = await kernel.RunAsync("hello from TUI", CancellationToken.None).ConfigureAwait(false);
+        var result = await kernel.RunAsync("hello from TUI", CancellationToken.None);
 
         result.Should().NotBeNull();
         result.Narration.Should().Contain("hello from TUI");
@@ -59,8 +59,8 @@ public sealed class TuiEngineLocalTests
             CacheMode = "Memory"
         });
 
-        var first = await kernel.RunAsync("first message", CancellationToken.None).ConfigureAwait(false);
-        var second = await kernel.RunAsync("second message", CancellationToken.None).ConfigureAwait(false);
+        var first = await kernel.RunAsync("first message", CancellationToken.None);
+        var second = await kernel.RunAsync("second message", CancellationToken.None);
 
         first.Narration.Should().NotBeNullOrEmpty();
         second.Narration.Should().NotBeNullOrEmpty();

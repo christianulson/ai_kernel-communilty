@@ -14,7 +14,7 @@ public sealed class SidecarRpcHandlerTests
         var kernel = CreateFakeKernel();
         var handler = new SidecarRpcHandler(kernel, NullLogger<SidecarRpcHandler>.Instance);
 
-        var result = await handler.RunAgentAsync("hello", CancellationToken.None).ConfigureAwait(false);
+        var result = await handler.RunAgentAsync("hello", CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Contains("hello", result.Narration ?? "", StringComparison.OrdinalIgnoreCase);
@@ -27,7 +27,7 @@ public sealed class SidecarRpcHandlerTests
         var kernel = CreateFakeKernel();
         var handler = new SidecarRpcHandler(kernel, NullLogger<SidecarRpcHandler>.Instance);
 
-        var result = await handler.RunAgentAsync(null!, CancellationToken.None).ConfigureAwait(false);
+        var result = await handler.RunAgentAsync(null!, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.NotNull(result.Narration);
@@ -39,7 +39,7 @@ public sealed class SidecarRpcHandlerTests
         var kernel = CreateFakeKernel();
         var handler = new SidecarRpcHandler(kernel, NullLogger<SidecarRpcHandler>.Instance);
 
-        var result = await handler.GetHealthAsync(CancellationToken.None).ConfigureAwait(false);
+        var result = await handler.GetHealthAsync(CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal("healthy", result.Status);
@@ -52,7 +52,7 @@ public sealed class SidecarRpcHandlerTests
         var kernel = CreateFakeKernel();
         var handler = new SidecarRpcHandler(kernel, NullLogger<SidecarRpcHandler>.Instance);
 
-        var result = await handler.SearchMemoryAsync("test", CancellationToken.None).ConfigureAwait(false);
+        var result = await handler.SearchMemoryAsync("test", CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.NotNull(result.Hits);

@@ -26,7 +26,7 @@ public class KnowledgeViewModelTests
             .ReturnsAsync(new KnowledgeQueryResult("test", hits, 2));
 
         _vm.Query = "test";
-        await _vm.SearchAsync().ConfigureAwait(false);
+        await _vm.SearchAsync();
 
         Assert.Equal(2, _vm.Results.Count);
         Assert.Equal("Result A", _vm.Results[0].Content);
@@ -36,7 +36,7 @@ public class KnowledgeViewModelTests
     public async Task SearchAsync_EmptyQuery_ShouldNotCallApi()
     {
         _vm.Query = "";
-        await _vm.SearchAsync().ConfigureAwait(false);
+        await _vm.SearchAsync();
 
         _kernelMock.Verify(k => k.KnowledgeAskAsync(It.IsAny<string>(), default), Times.Never);
     }
@@ -48,7 +48,7 @@ public class KnowledgeViewModelTests
             .ThrowsAsync(new HttpRequestException("network error"));
 
         _vm.Query = "fail";
-        await _vm.SearchAsync().ConfigureAwait(false);
+        await _vm.SearchAsync();
 
         Assert.True(_vm.HasError);
         Assert.Contains("network error", _vm.ErrorMessage);
@@ -61,7 +61,7 @@ public class KnowledgeViewModelTests
         _kernelMock.Setup(k => k.KnowledgeStatsAsync(default))
             .ReturnsAsync(stats);
 
-        await _vm.LoadStatsAsync().ConfigureAwait(false);
+        await _vm.LoadStatsAsync();
 
         Assert.NotNull(_vm.Stats);
         Assert.Equal(100, _vm.Stats.TotalEntries);
@@ -73,7 +73,7 @@ public class KnowledgeViewModelTests
         _kernelMock.Setup(k => k.KnowledgeStatsAsync(default))
             .ThrowsAsync(new InvalidOperationException("stats unavailable"));
 
-        await _vm.LoadStatsAsync().ConfigureAwait(false);
+        await _vm.LoadStatsAsync();
 
         Assert.True(_vm.HasError);
     }
@@ -84,7 +84,7 @@ public class KnowledgeViewModelTests
         _kernelMock.Setup(k => k.KnowledgeLearnAsync("content", "source", null, default))
             .ReturnsAsync(new KnowledgeLearnResponse(true, "entry-1", null));
 
-        var (success, _) = await _vm.LearnAsync("content", "source").ConfigureAwait(false);
+        var (success, _) = await _vm.LearnAsync("content", "source");
 
         Assert.True(success);
     }
@@ -95,7 +95,7 @@ public class KnowledgeViewModelTests
         _kernelMock.Setup(k => k.KnowledgeLearnAsync("content", "source", null, default))
             .ThrowsAsync(new HttpRequestException("fail"));
 
-        var (success, error) = await _vm.LearnAsync("content", "source").ConfigureAwait(false);
+        var (success, error) = await _vm.LearnAsync("content", "source");
 
         Assert.False(success);
         Assert.NotNull(error);
@@ -123,7 +123,7 @@ public class KnowledgeViewModelTests
         };
 
         _vm.Query = "test";
-        await _vm.SearchAsync().ConfigureAwait(false);
+        await _vm.SearchAsync();
 
         Assert.Equal(2, loadingStates.Count);
         Assert.True(loadingStates[0]);
