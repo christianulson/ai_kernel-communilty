@@ -21,7 +21,7 @@ public sealed class UpdateChecker
         try
         {
             _http.DefaultRequestHeaders.UserAgent.ParseAdd("KrnlAI-Desktop/2.1.0");
-            var response = await _http.GetStringAsync("https://api.github.com/repos/krnlai/krnl-ai/releases/latest");
+            var response = await _http.GetStringAsync("https://api.github.com/repos/krnlai/krnl-ai/releases/latest").ConfigureAwait(false);
             var doc = JsonDocument.Parse(response);
             var latest = doc.RootElement.GetProperty("tag_name").GetString() ?? "";
             var releaseUrl = doc.RootElement.TryGetProperty("html_url", out var url) ? url.GetString() : null;
@@ -66,7 +66,7 @@ public sealed class UpdateChecker
 
             ProgressChanged?.Invoke("Downloading update...", 10);
 
-            using var response = await _http.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead);
+            using var response = await _http.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
             {
                 Process.Start(new ProcessStartInfo("https://github.com/krnlai/krnl-ai/releases/latest") { UseShellExecute = true });
@@ -75,16 +75,16 @@ public sealed class UpdateChecker
             }
 
             var totalBytes = response.Content.Headers.ContentLength ?? -1;
-            await using var fs = new System.IO.FileStream(installerPath, System.IO.FileMode.Create, System.IO.FileAccess.Write, System.IO.FileShare.None);
-            await using var stream = await response.Content.ReadAsStreamAsync();
+            await using var fs = new System.IO.FileStream(installerPath, System.IO.FileMode.Create, System.IO.FileAccess.Write, System.IO.FileShare.None).ConfigureAwait(false);
+            await using var stream = (await response.Content.ReadAsStreamAsync().ConfigureAwait(false)).ConfigureAwait(false);
 
             var buffer = new byte[81920];
             long bytesRead = 0;
             int bytes;
 
-            while ((bytes = await stream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+            while ((bytes = await stream.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false)) > 0)
             {
-                await fs.WriteAsync(buffer, 0, bytes);
+                await fs.WriteAsync(buffer, 0, bytes).ConfigureAwait(false);
                 bytesRead += bytes;
 
                 if (totalBytes > 0)
@@ -98,7 +98,7 @@ public sealed class UpdateChecker
                 }
             }
 
-            await fs.FlushAsync();
+            await fs.FlushAsync().ConfigureAwait(false);
             fs.Close();
 
             ProgressChanged?.Invoke("Download complete. Launching installer...", 100);

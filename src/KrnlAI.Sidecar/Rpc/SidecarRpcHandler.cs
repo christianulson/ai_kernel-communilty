@@ -9,7 +9,7 @@ public sealed class SidecarRpcHandler(IEmbeddedKrnlAI kernel, ILogger<SidecarRpc
     {
         var safePrompt = prompt ?? "";
         logger.LogInformation("RPC RunAgent: prompt={PromptLen}chars", safePrompt.Length);
-        var result = await kernel.RunAsync(safePrompt, ct);
+        var result = await kernel.RunAsync(safePrompt, ct).ConfigureAwait(false);
         return new AgentRunTransportResponse(
             Narration: result.Narration,
             Command: null,
@@ -27,7 +27,7 @@ public sealed class SidecarRpcHandler(IEmbeddedKrnlAI kernel, ILogger<SidecarRpc
     public async Task<MemorySearchResult> SearchMemoryAsync(string query, CancellationToken ct = default)
     {
         logger.LogInformation("RPC SearchMemory: query={Query}", query);
-        var hits = await kernel.SearchMemoryAsync(query, ct);
+        var hits = await kernel.SearchMemoryAsync(query, ct).ConfigureAwait(false);
         return new MemorySearchResult([.. hits.Select(h => new MemoryHit(h.Id, h.Payload ?? "", h.Score))], hits.Count);
     }
 }

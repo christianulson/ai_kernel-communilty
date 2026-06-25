@@ -38,8 +38,8 @@ public class CausalGraphViewModel : ViewModelBase
     public CausalGraphViewModel(IKernelClient kernelClient)
     {
         _kernelClient = kernelClient;
-        SearchCommand = new AsyncRelayCommand(async () => { if (ServiceLocator.Instance.CurrentMode == RunMode.Local) { ErrorMessage = "Indisponível no modo Local"; return; } await SearchAsync(); });
-        PredictCommand = new AsyncRelayCommand(async () => { if (ServiceLocator.Instance.CurrentMode == RunMode.Local) { ErrorMessage = "Indisponível no modo Local"; return; } await PredictAsync(); });
+        SearchCommand = new AsyncRelayCommand(async () => { if (ServiceLocator.Instance.CurrentMode == RunMode.Local) { ErrorMessage = "Indisponível no modo Local"; return; } await SearchAsync().ConfigureAwait(false); });
+        PredictCommand = new AsyncRelayCommand(async () => { if (ServiceLocator.Instance.CurrentMode == RunMode.Local) { ErrorMessage = "Indisponível no modo Local"; return; } await PredictAsync().ConfigureAwait(false); });
         SetQueryTabCommand = new RelayCommand(() => Tab = "query");
         SetPredictTabCommand = new RelayCommand(() => Tab = "predict");
     }
@@ -53,7 +53,7 @@ public class CausalGraphViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            ResultData = await _kernelClient.GetCausalQueryAsync(Query);
+            ResultData = await _kernelClient.GetCausalQueryAsync(Query).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -72,7 +72,7 @@ public class CausalGraphViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            PredictionResult = await _kernelClient.GetCausalPredictionAsync(PredictAction);
+            PredictionResult = await _kernelClient.GetCausalPredictionAsync(PredictAction).ConfigureAwait(false);
         }
         catch (Exception ex)
         {

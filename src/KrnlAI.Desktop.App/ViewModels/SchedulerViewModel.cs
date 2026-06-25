@@ -33,7 +33,7 @@ public class SchedulerViewModel : ViewModelBase
         try
         {
             if (ServiceLocator.Instance.CurrentMode == RunMode.Local) { ErrorMessage = "Indisponível no modo Local"; return; }
-            var r = await _client.GetScheduledTasksAsync();
+            var r = await _client.GetScheduledTasksAsync().ConfigureAwait(false);
             Tasks.Clear();
             if (r != null) foreach (var t in r) Tasks.Add(t);
             OnPropertyChanged(nameof(HasNoData));

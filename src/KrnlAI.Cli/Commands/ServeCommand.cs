@@ -57,16 +57,16 @@ public sealed class ServeCommand
                     if (!ctx.Request.Headers.TryGetValue("X-API-Key", out var key) || key != apiKey)
                     {
                         ctx.Response.StatusCode = 401;
-                        await ctx.Response.WriteAsync("Unauthorized", ct);
+                        await ctx.Response.WriteAsync("Unauthorized", ct).ConfigureAwait(false);
                         return;
                     }
                 }
-                await next(ctx);
+                await next(ctx).ConfigureAwait(false);
             });
 
             app.MapPost("/agent/run", async (AgentRunRequest req, CancellationToken requestCt) =>
             {
-                var result = await kernel.RunAsync(req.Prompt ?? req.Input ?? string.Empty, requestCt);
+                var result = await kernel.RunAsync(req.Prompt ?? req.Input ?? string.Empty, requestCt).ConfigureAwait(false);
                 return Results.Ok(new { result.Narration, result.Error, result.Steps, result.Mode });
             });
 
@@ -75,13 +75,13 @@ public sealed class ServeCommand
                 ctx.Response.ContentType = "text/event-stream";
                 ctx.Response.Headers.CacheControl = "no-cache";
                 ctx.Response.Headers.Connection = "keep-alive";
-                var result = await kernel.RunAsync(req.Prompt ?? req.Input ?? string.Empty, requestCt);
-                await ctx.Response.WriteAsync($"data: {System.Text.Json.JsonSerializer.Serialize(new { result.Narration, result.Error, result.Steps, result.Mode })}\n\n", requestCt);
+                var result = await kernel.RunAsync(req.Prompt ?? req.Input ?? string.Empty, requestCt).ConfigureAwait(false);
+                await ctx.Response.WriteAsync($"data: {System.Text.Json.JsonSerializer.Serialize(new { result.Narration, result.Error, result.Steps, result.Mode })}\n\n", requestCt).ConfigureAwait(false);
             });
 
             app.MapPost("/memory/search", async (MemorySearchRequest req, CancellationToken requestCt) =>
             {
-                var hits = await kernel.SearchMemoryAsync(req.Query, requestCt);
+                var hits = await kernel.SearchMemoryAsync(req.Query, requestCt).ConfigureAwait(false);
                 return Results.Ok(new { hits, totalCount = hits.Count, mode = "community" });
             });
 
@@ -106,7 +106,7 @@ public sealed class ServeCommand
 
             app.MapPost("/agent/session/create", async (CreateSessionRequest req, CancellationToken requestCt) =>
             {
-                var result = await kernel.RunAsync(req.InitialPrompt ?? string.Empty, requestCt);
+                var result = await kernel.RunAsync(req.InitialPrompt ?? string.Empty, requestCt).ConfigureAwait(false);
                 return Results.Ok(new { sessionId = Guid.NewGuid().ToString("N"), result.Narration, result.Mode });
             });
 
@@ -127,10 +127,10 @@ public sealed class ServeCommand
                 cts.Cancel();
             };
 
-            await app.StartAsync(cts.Token);
+            await app.StartAsync(cts.Token).ConfigureAwait(false);
             var host = (IHost)app;
-            await host.WaitForShutdownAsync(cts.Token);
-            await kernel.DisposeAsync();
+            await host.WaitForShutdownAsync(cts.Token).ConfigureAwait(false);
+            await kernel.DisposeAsync().ConfigureAwait(false);
             return 0;
         });
         return cmd;

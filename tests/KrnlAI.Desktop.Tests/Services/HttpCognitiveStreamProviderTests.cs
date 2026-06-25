@@ -12,7 +12,7 @@ public sealed class HttpCognitiveStreamProviderTests
         var provider = new HttpCognitiveStreamProvider("http://localhost");
         provider.OnStateChanged += s => stateChanges.Add(s);
 
-        await provider.ConnectAsync("cycle-1", CancellationToken.None);
+        await provider.ConnectAsync("cycle-1", CancellationToken.None).ConfigureAwait(false);
 
         Assert.Contains(CognitiveStreamState.Connecting, stateChanges);
         Assert.Contains(CognitiveStreamState.Connected, stateChanges);
@@ -25,7 +25,7 @@ public sealed class HttpCognitiveStreamProviderTests
         var provider = new HttpCognitiveStreamProvider("http://localhost");
         provider.OnStateChanged += s => stateChanges.Add(s);
 
-        await provider.ConnectAsync(ct: CancellationToken.None);
+        await provider.ConnectAsync(ct: CancellationToken.None).ConfigureAwait(false);
 
         Assert.Contains(CognitiveStreamState.Connected, stateChanges);
     }
@@ -36,7 +36,7 @@ public sealed class HttpCognitiveStreamProviderTests
         var provider = new HttpCognitiveStreamProvider("http://localhost");
         Assert.Empty(provider.Events);
 
-        await provider.ConnectAsync("cycle-1", CancellationToken.None);
+        await provider.ConnectAsync("cycle-1", CancellationToken.None).ConfigureAwait(false);
 
         Assert.Empty(provider.Events); // No events polled yet
     }
@@ -75,7 +75,7 @@ public sealed class HttpCognitiveStreamProviderTests
         var provider = new HttpCognitiveStreamProvider("http://localhost");
         provider.OnStateChanged += s => stateChanges.Add(s);
 
-        await provider.ConnectAsync("cycle-1", CancellationToken.None);
+        await provider.ConnectAsync("cycle-1", CancellationToken.None).ConfigureAwait(false);
         provider.Disconnect();
 
         Assert.Equal(CognitiveStreamState.Connecting, stateChanges[0]);
@@ -87,7 +87,7 @@ public sealed class HttpCognitiveStreamProviderTests
     public async Task ConnectAsync_Disconnect_ShouldClearEvents()
     {
         var provider = new HttpCognitiveStreamProvider("http://localhost");
-        await provider.ConnectAsync("cycle-1", CancellationToken.None);
+        await provider.ConnectAsync("cycle-1", CancellationToken.None).ConfigureAwait(false);
         provider.Disconnect();
 
         Assert.Equal(CognitiveStreamState.Disconnected, provider.State);
@@ -97,9 +97,9 @@ public sealed class HttpCognitiveStreamProviderTests
     public async Task ConnectAsync_AfterDisconnect_ShouldReconnect()
     {
         var provider = new HttpCognitiveStreamProvider("http://localhost");
-        await provider.ConnectAsync("cycle-1", CancellationToken.None);
+        await provider.ConnectAsync("cycle-1", CancellationToken.None).ConfigureAwait(false);
         provider.Disconnect();
-        await provider.ConnectAsync("cycle-2", CancellationToken.None);
+        await provider.ConnectAsync("cycle-2", CancellationToken.None).ConfigureAwait(false);
 
         Assert.Equal(CognitiveStreamState.Connected, provider.State);
     }

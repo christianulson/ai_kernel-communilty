@@ -91,7 +91,7 @@ public sealed class MomentsCommandTests
         var cmd = new MomentsCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("moments recent --take 5").InvokeAsync();
+        var result = await root.Parse("moments recent --take 5").InvokeAsync().ConfigureAwait(false);
 
         result.Should().Be(0);
         var output = console.Output;
@@ -106,7 +106,7 @@ public sealed class MomentsCommandTests
         var cmd = new MomentsCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("moments get mom-001").InvokeAsync();
+        var result = await root.Parse("moments get mom-001").InvokeAsync().ConfigureAwait(false);
 
         result.Should().Be(0);
         var output = console.Output;

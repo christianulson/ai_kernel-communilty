@@ -12,7 +12,7 @@ public sealed class PluginDiscoveryServiceTests
         var httpClient = new HttpClient(handler) { BaseAddress = new Uri("http://localhost:1/") };
         var service = new PluginDiscoveryService(httpClient);
 
-        var results = await service.SearchAsync("filesystem");
+        var results = await service.SearchAsync("filesystem").ConfigureAwait(false);
 
         results.Should().BeEmpty();
     }
@@ -53,7 +53,7 @@ public sealed class PluginDiscoveryServiceTests
         var httpClient = new HttpClient(handler) { BaseAddress = new Uri("http://localhost:2/") };
         var service = new PluginDiscoveryService(httpClient);
 
-        var results = await service.SearchAsync("filesystem");
+        var results = await service.SearchAsync("filesystem").ConfigureAwait(false);
 
         results.Should().HaveCount(1);
         results[0].Id.Should().Be("mcp-filesystem");
@@ -84,7 +84,7 @@ public sealed class PluginDiscoveryServiceTests
         var httpClient = new HttpClient(handler) { BaseAddress = new Uri("http://localhost:3/") };
         var service = new PluginDiscoveryService(httpClient);
 
-        var plugin = await service.GetByIdAsync("github-tools");
+        var plugin = await service.GetByIdAsync("github-tools").ConfigureAwait(false);
 
         plugin.Should().NotBeNull();
         plugin!.Name.Should().Be("GitHub Tools");
@@ -103,7 +103,7 @@ public sealed class PluginDiscoveryServiceTests
         var httpClient = new HttpClient(handler) { BaseAddress = new Uri("http://localhost:4/") };
         var service = new PluginDiscoveryService(httpClient);
 
-        var plugin = await service.GetByIdAsync("nonexistent");
+        var plugin = await service.GetByIdAsync("nonexistent").ConfigureAwait(false);
 
         plugin.Should().BeNull();
     }

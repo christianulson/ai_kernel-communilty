@@ -30,7 +30,7 @@ public sealed class LifecycleCommand(LifecycleOrchestrator orchestrator, Console
                 ProjectPath: "krnlai.slnx",
                 Configuration: "Debug",
                 Environment: new Dictionary<string, string>());
-            var result = await orchestrator.ExecuteAsync(eventType, context, ct);
+            var result = await orchestrator.ExecuteAsync(eventType, context, ct).ConfigureAwait(false);
             if (result.Success)
             {
                 renderer.RenderSuccess("Lifecycle hooks executed successfully");

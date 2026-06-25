@@ -12,7 +12,7 @@ public partial class MultimodalControl : UserControl
         InitializeComponent();
     }
 
-    private async void OnLoaded(object sender, RoutedEventArgs e) { await Task.CompletedTask; }
+    private async void OnLoaded(object sender, RoutedEventArgs e) { await Task.CompletedTask.ConfigureAwait(false); }
 
     private async void OnIngest(object sender, RoutedEventArgs e)
     {
@@ -22,7 +22,7 @@ public partial class MultimodalControl : UserControl
         try
         {
             var client = ServiceLocator.Instance.KernelClient;
-            await client.IngestMemoryAsync(new Core.Models.MemoryIngestRequest(text, "multimodal"));
+            await client.IngestMemoryAsync(new Core.Models.MemoryIngestRequest(text, "multimodal")).ConfigureAwait(false);
             MessageBox.Show("Dados ingeridos com sucesso.", "Sucesso", MessageBoxButton.OK, MessageBoxImage.Information);
             IngestInput.Clear();
         }
@@ -42,7 +42,7 @@ public partial class MultimodalControl : UserControl
         {
             StatusText.Text = "Buscando...";
             var client = ServiceLocator.Instance.KernelClient;
-            var result = await client.SearchMultimodalAsync(query, 20);
+            var result = await client.SearchMultimodalAsync(query, 20).ConfigureAwait(false);
 
             var items = result?.Hits?.Select(h => new
             {

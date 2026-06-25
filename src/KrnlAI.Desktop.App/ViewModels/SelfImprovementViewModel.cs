@@ -23,7 +23,7 @@ public class SelfImprovementViewModel : ViewModelBase
     public SelfImprovementViewModel(IKernelClient kernelClient)
     {
         _kernelClient = kernelClient;
-        LoadStatusCommand = new AsyncRelayCommand(async _ => await LoadStatusAsync());
+        LoadStatusCommand = new AsyncRelayCommand(async _ => await LoadStatusAsync().ConfigureAwait(false));
         ClearErrorCommand = new RelayCommand(_ => ErrorMessage = "");
     }
 
@@ -35,7 +35,7 @@ public class SelfImprovementViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            Status = await _kernelClient.GetSelfImprovementStatusAsync();
+            Status = await _kernelClient.GetSelfImprovementStatusAsync().ConfigureAwait(false);
         }
         catch (Exception ex)
         {

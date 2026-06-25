@@ -38,7 +38,7 @@ public sealed class ReviewPrCommand
             var output = r.GetValue(outputOpt);
             var repo = r.GetValue(repoOpt);
 
-            repo ??= await DetectRepoAsync();
+            repo ??= await DetectRepoAsync().ConfigureAwait(false);
 
             if (string.IsNullOrWhiteSpace(repo))
             {
@@ -57,16 +57,16 @@ public sealed class ReviewPrCommand
             try
             {
                 var response = await http.PostAsJsonAsync("/agent/review-pr",
-                    new { prNumber, repo, mode = "gateway" }, ct);
+                    new { prNumber, repo, mode = "gateway" }, ct).ConfigureAwait(false);
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var result = await response.Content.ReadFromJsonAsync<ReviewPrResult>(ct);
+                    var result = await response.Content.ReadFromJsonAsync<ReviewPrResult>(ct).ConfigureAwait(false);
                     var text = result?.Review ?? result?.Error ?? "Sem resposta";
 
                     if (!string.IsNullOrWhiteSpace(output))
                     {
-                        await File.WriteAllTextAsync(output, text, ct);
+                        await File.WriteAllTextAsync(output, text, ct).ConfigureAwait(false);
                         AnsiConsole.MarkupLine($"[green]Review written to: {output}[/]");
                     }
                     else
@@ -77,7 +77,7 @@ public sealed class ReviewPrCommand
                     return 0;
                 }
 
-                var error = await response.Content.ReadAsStringAsync(ct);
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 Console.Error.WriteLine($"Error {response.StatusCode}: {error}");
                 return 1;
             }
@@ -114,8 +114,8 @@ public sealed class ReviewPrCommand
                 }
             };
             process.Start();
-            var url = (await process.StandardOutput.ReadToEndAsync()).Trim();
-            await process.WaitForExitAsync();
+            var url = (await process.StandardOutput.ReadToEndAsync().ConfigureAwait(false)).Trim();
+            await process.WaitForExitAsync().ConfigureAwait(false);
 
             if (process.ExitCode != 0 || string.IsNullOrWhiteSpace(url))
                 return null;

@@ -34,10 +34,10 @@ public sealed class IntegrationCommand(IAnsiConsole console)
             try
             {
                 using var client = new HttpClient { BaseAddress = new Uri(endpoint.TrimEnd('/')) };
-                var response = await client.GetAsync("/api/integrations/providers", ct);
+                var response = await client.GetAsync("/api/integrations/providers", ct).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
 
-                var body = await response.Content.ReadFromJsonAsync<JsonDocument>(ct);
+                var body = await response.Content.ReadFromJsonAsync<JsonDocument>(ct).ConfigureAwait(false);
                 if (body is null)
                 {
                     console.MarkupLine("[yellow]No response from endpoint[/]");
@@ -102,10 +102,10 @@ public sealed class IntegrationCommand(IAnsiConsole console)
             try
             {
                 using var client = new HttpClient { BaseAddress = new Uri(endpoint.TrimEnd('/')) };
-                var response = await client.GetAsync($"/api/integrations/health/{name}", ct);
+                var response = await client.GetAsync($"/api/integrations/health/{name}", ct).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
 
-                var result = await response.Content.ReadFromJsonAsync<JsonDocument>(ct);
+                var result = await response.Content.ReadFromJsonAsync<JsonDocument>(ct).ConfigureAwait(false);
                 if (result is null)
                 {
                     console.MarkupLine("[red]No response[/]");

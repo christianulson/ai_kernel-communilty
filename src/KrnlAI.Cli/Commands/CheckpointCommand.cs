@@ -17,7 +17,7 @@ public sealed class CheckpointCommand(CliContext ctx, ConsoleRenderer renderer)
         listCmd.SetAction(async (ParseResult r, CancellationToken ct) =>
         {
             var mgr = ctx.GetService<ICheckpointManager>();
-            var list = await mgr.ListCheckpointsAsync(SessionId, ct);
+            var list = await mgr.ListCheckpointsAsync(SessionId, ct).ConfigureAwait(false);
             renderer.RenderCheckpointList(list);
         });
         cmd.Add(listCmd);
@@ -29,7 +29,7 @@ public sealed class CheckpointCommand(CliContext ctx, ConsoleRenderer renderer)
         {
             var label = r.GetValue(labelArg) ?? "manual";
             var mgr = ctx.GetService<ICheckpointManager>();
-            var id = await mgr.CreateCheckpointAsync(SessionId, label, ct);
+            var id = await mgr.CreateCheckpointAsync(SessionId, label, ct).ConfigureAwait(false);
             renderer.RenderSuccess($"Checkpoint created: {id[..8]}... ({label})");
         });
         cmd.Add(createCmd);
@@ -41,7 +41,7 @@ public sealed class CheckpointCommand(CliContext ctx, ConsoleRenderer renderer)
         {
             var id = r.GetValue(idArg)!;
             var mgr = ctx.GetService<ICheckpointManager>();
-            var ok = await mgr.RestoreFilesAsync(id, ct);
+            var ok = await mgr.RestoreFilesAsync(id, ct).ConfigureAwait(false);
             renderer.RenderSuccess(ok ? "Files restored from checkpoint" : "Checkpoint not found");
         });
         cmd.Add(restoreCmd);
@@ -52,7 +52,7 @@ public sealed class CheckpointCommand(CliContext ctx, ConsoleRenderer renderer)
         {
             var id = r.GetValue(idArg)!;
             var mgr = ctx.GetService<ICheckpointManager>();
-            var diff = await mgr.GetDiffAsync(id, ct);
+            var diff = await mgr.GetDiffAsync(id, ct).ConfigureAwait(false);
             renderer.RenderDiff(diff ?? "Checkpoint not found");
         });
         cmd.Add(diffCmd);

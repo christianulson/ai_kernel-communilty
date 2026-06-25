@@ -36,7 +36,7 @@ public sealed class InteractiveCommand
                 : new TuiEngine(r.GetValue(endpoint) ?? "http://localhost:5235");
             try
             {
-                await engine.RunAsync(ct);
+                await engine.RunAsync(ct).ConfigureAwait(false);
             }
             finally
             {

@@ -16,7 +16,7 @@ public sealed class LocalSlashHandler(EmbeddedKrnlAI kernel) : ILocalSlashExecut
         if (cmd == "/clear") return "CLEAR_CONVERSATION";
         if (cmd == "/help") return "Available commands: /clear, /help";
 
-        var result = await kernel.RunAsync(input, ct);
+        var result = await kernel.RunAsync(input, ct).ConfigureAwait(false);
         return result.Narration ?? result.Error ?? "Executed";
     }
 

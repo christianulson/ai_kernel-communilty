@@ -43,7 +43,7 @@ public sealed class SafetyCommand(CliContext ctx, ConsoleRenderer renderer, ISer
         audit.SetAction(async (ParseResult r, CancellationToken ct) =>
         {
             var take = r.GetValue(takeOpt) != 0 ? r.GetValue(takeOpt) : 20;
-            var records = await ctx.SafetyCaseStore.ListRecentAsync(take, ct);
+            var records = await ctx.SafetyCaseStore.ListRecentAsync(take, ct).ConfigureAwait(false);
             if (records.Count == 0)
             {
                 renderer.Console.MarkupLine("[yellow]No safety audit records[/]");
@@ -81,15 +81,15 @@ public sealed class SafetyCommand(CliContext ctx, ConsoleRenderer renderer, ISer
             renderer.Console.MarkupLine("[cyan]Running safety audit...[/]");
             var runner = new SafetyBenchRunner(ctx.RulesEngine, null, NullLogger<SafetyBenchRunner>.Instance);
 
-            var report = await runner.RunBenchmarkAsync(AttackVectors.All, "cli-schedule", ct);
+            var report = await runner.RunBenchmarkAsync(AttackVectors.All, "cli-schedule", ct).ConfigureAwait(false);
 
             if (auditStore is not null)
-                await auditStore.SaveReportAsync(report, ct);
+                await auditStore.SaveReportAsync(report, ct).ConfigureAwait(false);
 
             if (output is not null)
             {
                 var json = JsonSerializer.Serialize(report, new JsonSerializerOptions { WriteIndented = true });
-                await File.WriteAllTextAsync(output, json, ct);
+                await File.WriteAllTextAsync(output, json, ct).ConfigureAwait(false);
                 renderer.Console.MarkupLine($"[green]Report saved to {output}[/]");
             }
 
@@ -110,7 +110,7 @@ public sealed class SafetyCommand(CliContext ctx, ConsoleRenderer renderer, ISer
                         "{}",
                         "safety",
                         new ActionRecurrence(RecurrenceType.Hours, interval));
-                    await scheduler.ScheduleAsync(action, ct);
+                    await scheduler.ScheduleAsync(action, ct).ConfigureAwait(false);
                     renderer.Console.MarkupLine($"[cyan]Next audit scheduled in {interval}h at {nextRun:yyyy-MM-dd HH:mm} UTC[/]");
                 }
             }
@@ -133,7 +133,7 @@ public sealed class SafetyCommand(CliContext ctx, ConsoleRenderer renderer, ISer
             var scenarioStore = serviceProvider.GetService<ISafetyScenarioStore>();
             var auditStore = serviceProvider.GetService<ISafetyAuditStore>();
 
-            var coverage = await analyzer.AnalyzeCoverageAsync(ctx.RulesEngine, scenarioStore!, auditStore!);
+            var coverage = await analyzer.AnalyzeCoverageAsync(ctx.RulesEngine, scenarioStore!, auditStore!).ConfigureAwait(false);
 
             var filtered = ApplyRulesFilter(coverage.Rules, rulesFilter);
 

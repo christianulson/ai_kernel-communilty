@@ -18,7 +18,7 @@ public partial class TrajectoryControl : UserControl
             if (SessionList.SelectedItem is TrajectorySessionSummary summary)
             {
                 if (DataContext is MainViewModel mainVm)
-                    await mainVm.TrajectoryVM.LoadSessionAsync(summary.Id);
+                    await mainVm.TrajectoryVM.LoadSessionAsync(summary.Id).ConfigureAwait(false);
             }
         }
         catch (Exception ex) { KrnlLogger.Write($"TrajectoryControl.OnSessionDoubleClick: {ex.Message}"); }

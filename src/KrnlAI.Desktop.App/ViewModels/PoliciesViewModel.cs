@@ -32,11 +32,11 @@ public class PoliciesViewModel : ViewModelBase
     {
         _kernelClient = kernelClient;
         LoadPoliciesCommand = new AsyncRelayCommand(LoadAsync);
-        LoadVersionsCommand = new AsyncRelayCommand(async () => { if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return; PolicyVersions = await _kernelClient.GetPolicyVersionsAsync(SelectedPolicyDomain ?? ""); });
-        LoadRollbacksCommand = new AsyncRelayCommand(async () => { if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return; var l = await _kernelClient.GetPolicyRollbacksAsync(SelectedPolicyDomain ?? ""); PolicyRollbacks.Clear(); foreach (var r in l) PolicyRollbacks.Add(r); });
+        LoadVersionsCommand = new AsyncRelayCommand(async () => { if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return; PolicyVersions = await _kernelClient.GetPolicyVersionsAsync(SelectedPolicyDomain ?? "").ConfigureAwait(false); });
+        LoadRollbacksCommand = new AsyncRelayCommand(async () => { if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return; var l = await _kernelClient.GetPolicyRollbacksAsync(SelectedPolicyDomain ?? "").ConfigureAwait(false); PolicyRollbacks.Clear(); foreach (var r in l) PolicyRollbacks.Add(r); });
         ClearVersionsCommand = new RelayCommand(() => PolicyVersions = null);
         CreatePolicyCommand = new AsyncRelayCommand(CreatePolicyAsync);
-        DeletePolicyCommand = new AsyncRelayCommand(async p => { if (p is string id) await DeletePolicyAsync(id); });
+        DeletePolicyCommand = new AsyncRelayCommand(async p => { if (p is string id) await DeletePolicyAsync(id).ConfigureAwait(false); });
     }
 
     public PoliciesViewModel() : this(ServiceLocator.Instance.KernelClient) { }
@@ -52,7 +52,7 @@ public class PoliciesViewModel : ViewModelBase
                 ErrorMessage = "Indisponível no modo Local";
                 return;
             }
-            var r = await _kernelClient.GetPoliciesAsync(null, 1, 100);
+            var r = await _kernelClient.GetPoliciesAsync(null, 1, 100).ConfigureAwait(false);
             PolicyList.Clear();
             if (r?.Policies != null) foreach (var p in r.Policies) PolicyList.Add(p);
         }
@@ -72,8 +72,8 @@ public class PoliciesViewModel : ViewModelBase
         if (string.IsNullOrWhiteSpace(SelectedPolicyDomain)) { ErrorMessage = "Selecione um domínio primeiro."; return; }
         try
         {
-            var result = await _kernelClient.CreatePolicyAsync(new CreatePolicyRequest($"policy-{SelectedPolicyDomain}-{DateTime.Now:yyyyMMdd}", SelectedPolicyDomain, "allow"));
-            if (result != null) { ErrorMessage = ""; await LoadAsync(); }
+            var result = await _kernelClient.CreatePolicyAsync(new CreatePolicyRequest($"policy-{SelectedPolicyDomain}-{DateTime.Now:yyyyMMdd}", SelectedPolicyDomain, "allow")).ConfigureAwait(false);
+            if (result != null) { ErrorMessage = ""; await LoadAsync().ConfigureAwait(false); }
             else ErrorMessage = "Falha ao criar política.";
         }
         catch (Exception ex) { ErrorMessage = $"Erro: {ex.Message}"; }
@@ -84,8 +84,8 @@ public class PoliciesViewModel : ViewModelBase
         if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return;
         try
         {
-            var success = await _kernelClient.DeletePolicyAsync(policyId);
-            if (success) await LoadAsync();
+            var success = await _kernelClient.DeletePolicyAsync(policyId).ConfigureAwait(false);
+            if (success) await LoadAsync().ConfigureAwait(false);
         }
         catch (Exception ex) { ErrorMessage = $"Erro: {ex.Message}"; }
     }

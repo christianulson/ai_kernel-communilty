@@ -63,14 +63,14 @@ public sealed class SecurityCommand(SafetyBenchRunner benchRunner, IAnsiConsole 
             console.MarkupLine($"[grey]  Data leakage: {AttackVectors.DataLeakage.Count}[/]");
             console.MarkupLine("");
 
-            var report = await benchRunner.RunBenchmarkAsync(AttackVectors.All, config, ct);
+            var report = await benchRunner.RunBenchmarkAsync(AttackVectors.All, config, ct).ConfigureAwait(false);
 
             if (format == "json")
             {
                 var json = JsonSerializer.Serialize(report, JsonOptions);
                 if (output is not null)
                 {
-                    await File.WriteAllTextAsync(output.FullName, json, ct);
+                    await File.WriteAllTextAsync(output.FullName, json, ct).ConfigureAwait(false);
                     console.MarkupLine($"[green]Report saved to {output.FullName}[/]");
                 }
                 else
@@ -122,7 +122,7 @@ public sealed class SecurityCommand(SafetyBenchRunner benchRunner, IAnsiConsole 
             }
 
             console.MarkupLine($"[yellow]Running benchmark: {category} ({scenarios.Count} scenarios)...[/]");
-            var report = await benchRunner.RunBenchmarkAsync(scenarios, $"bench-{category}", ct);
+            var report = await benchRunner.RunBenchmarkAsync(scenarios, $"bench-{category}", ct).ConfigureAwait(false);
 
             RenderCategoryReport(report, category);
             return report.OverallScore >= 80 ? 0 : 1;
@@ -154,14 +154,14 @@ public sealed class SecurityCommand(SafetyBenchRunner benchRunner, IAnsiConsole 
             var output = r.GetValue(outputOpt);
 
             console.MarkupLine("[yellow]Generating safety report...[/]");
-            var report = await benchRunner.RunBenchmarkAsync(AttackVectors.All, "report", ct);
+            var report = await benchRunner.RunBenchmarkAsync(AttackVectors.All, "report", ct).ConfigureAwait(false);
 
             if (format == "json")
             {
                 var json = JsonSerializer.Serialize(report, JsonOptions);
                 if (output is not null)
                 {
-                    await File.WriteAllTextAsync(output.FullName, json, ct);
+                    await File.WriteAllTextAsync(output.FullName, json, ct).ConfigureAwait(false);
                     console.MarkupLine($"[green]Report saved to {output.FullName}[/]");
                 }
                 else

@@ -19,7 +19,7 @@ public sealed class ArchiveCommand(CliContext ctx, ConsoleRenderer renderer)
         list.SetAction(async (ParseResult r, CancellationToken ct) =>
         {
             var take = r.GetValue(takeOpt);
-            var entries = await ctx.ArchiveStore.ListRecentAsync(take, reason: null, ct);
+            var entries = await ctx.ArchiveStore.ListRecentAsync(take, reason: null, ct).ConfigureAwait(false);
             if (entries.Count == 0)
             {
                 renderer.Console.MarkupLine("[yellow]No archived entries[/]");
@@ -42,7 +42,7 @@ public sealed class ArchiveCommand(CliContext ctx, ConsoleRenderer renderer)
         var count = new Command("count", "Count archived entries");
         count.SetAction(async (ParseResult _, CancellationToken ct) =>
         {
-            var total = await ctx.ArchiveStore.CountArchivedAsync(ct);
+            var total = await ctx.ArchiveStore.CountArchivedAsync(ct).ConfigureAwait(false);
             renderer.Console.MarkupLine($"[bold]Archived entries:[/] {total}");
             return 0;
         });
@@ -51,7 +51,7 @@ public sealed class ArchiveCommand(CliContext ctx, ConsoleRenderer renderer)
         var purge = new Command("purge", "Purge expired entries");
         purge.SetAction(async (ParseResult _, CancellationToken ct) =>
         {
-            var purged = await ctx.ArchiveStore.PurgeExpiredAsync(ct);
+            var purged = await ctx.ArchiveStore.PurgeExpiredAsync(ct).ConfigureAwait(false);
             renderer.Console.MarkupLine($"[green]Purged {purged} expired entr{(purged == 1 ? "y" : "ies")}[/]");
             return 0;
         });

@@ -42,8 +42,8 @@ public class VersionsViewModel : ViewModelBase
                 ErrorMessage = "Indisponível no modo Local";
                 return;
             }
-            Versions = await _kernelClient.GetVersionsAsync();
-            var contractsResp = await _kernelClient.GetContractsAsync();
+            Versions = await _kernelClient.GetVersionsAsync().ConfigureAwait(false);
+            var contractsResp = await _kernelClient.GetContractsAsync().ConfigureAwait(false);
             Contracts.Clear();
             if (contractsResp?.Contracts != null)
                 foreach (var c in contractsResp.Contracts) Contracts.Add(c);

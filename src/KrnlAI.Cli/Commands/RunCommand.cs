@@ -81,7 +81,7 @@ public sealed class RunCommand
             else if (pipe || Console.IsInputRedirected)
             {
                 using var reader = new StreamReader(Console.OpenStandardInput());
-                input = await reader.ReadToEndAsync(ct);
+                input = await reader.ReadToEndAsync(ct).ConfigureAwait(false);
                 if (!json)
                     AnsiConsole.MarkupLine($"[grey]Read {input.Length} chars from stdin[/]");
             }
@@ -102,8 +102,8 @@ public sealed class RunCommand
 
             if (string.Equals(mode, "embedded", StringComparison.OrdinalIgnoreCase))
             {
-                await using var kernel = new EmbeddedKrnlAI(new EmbeddedKernelOptions { LLmProvider = model });
-                var result = await kernel.RunAsync(input.Trim(), ct);
+                await using var kernel = new EmbeddedKrnlAI(new EmbeddedKernelOptions { LLmProvider = model }).ConfigureAwait(false);
+                var result = await kernel.RunAsync(input.Trim(), ct).ConfigureAwait(false);
                 await WriteResultAsync(
                     result.Narration ?? result.Error ?? "Sem resposta",
                     result.Narration,
@@ -111,7 +111,7 @@ public sealed class RunCommand
                     input.Trim(),
                     output,
                     json,
-                    ct);
+                    ct).ConfigureAwait(false);
                 return result.Error is null ? 0 : 1;
             }
 
@@ -127,19 +127,19 @@ public sealed class RunCommand
                     AnsiConsole.MarkupLine("[grey]Sending to backend...[/]");
 
                 var response = await http.PostAsJsonAsync("/agent/run",
-                    new { prompt = input.Trim(), mode = "gateway" }, ct);
+                    new { prompt = input.Trim(), mode = "gateway" }, ct).ConfigureAwait(false);
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var result = await response.Content.ReadFromJsonAsync<RunResult>(ct);
+                    var result = await response.Content.ReadFromJsonAsync<RunResult>(ct).ConfigureAwait(false);
                     var text = result?.Narration ?? result?.Error ?? "Sem resposta";
 
-                    await WriteResultAsync(text, result?.Narration, result?.Error, input.Trim(), output, json, ct);
+                    await WriteResultAsync(text, result?.Narration, result?.Error, input.Trim(), output, json, ct).ConfigureAwait(false);
 
                     return 0;
                 }
 
-                var errorBody = await response.Content.ReadAsStringAsync(ct);
+                var errorBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
 
                 if (json)
                 {
@@ -221,7 +221,7 @@ public sealed class RunCommand
 
         if (!string.IsNullOrWhiteSpace(output))
         {
-            await File.WriteAllTextAsync(output, text, ct);
+            await File.WriteAllTextAsync(output, text, ct).ConfigureAwait(false);
             AnsiConsole.MarkupLine($"[green]Result written to: {output}[/]");
             return;
         }

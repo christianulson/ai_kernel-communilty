@@ -20,7 +20,7 @@ public sealed class PlanCommand(CliContext ctx, ConsoleRenderer renderer)
             var goal = r.GetValue(goalArg);
             if (goal is null) { renderer.RenderError("Goal is required"); return; }
             var orchestrator = ctx.GetService<PlanActOrchestrator>();
-            var artifact = await orchestrator.StartPlanAsync(goal, ct: ct);
+            var artifact = await orchestrator.StartPlanAsync(goal, ct: ct).ConfigureAwait(false);
             renderer.RenderPlanArtifact(artifact);
         });
         cmd.Add(startCmd);
@@ -30,7 +30,7 @@ public sealed class PlanCommand(CliContext ctx, ConsoleRenderer renderer)
         listCmd.SetAction(async (ParseResult r, CancellationToken ct) =>
         {
             var store = ctx.GetService<IPlanArtifactStore>();
-            var plans = await store.ListAsync(ct);
+            var plans = await store.ListAsync(ct).ConfigureAwait(false);
             renderer.RenderPlanList(plans);
         });
         cmd.Add(listCmd);
@@ -43,14 +43,14 @@ public sealed class PlanCommand(CliContext ctx, ConsoleRenderer renderer)
             var id = r.GetValue(idArg);
             if (id is null) { renderer.RenderError("Plan ID is required"); return; }
             var store = ctx.GetService<IPlanArtifactStore>();
-            var plan = await store.GetAsync(id, ct);
+            var plan = await store.GetAsync(id, ct).ConfigureAwait(false);
             if (plan is null)
             {
                 renderer.RenderError($"Plan not found: {id}");
                 return;
             }
             var orchestrator = ctx.GetService<PlanActOrchestrator>();
-            var result = await orchestrator.ExecutePlanAsync(plan, ct: ct);
+            var result = await orchestrator.ExecutePlanAsync(plan, ct: ct).ConfigureAwait(false);
             renderer.RenderSuccess($"Plan executed:\n{result}");
         });
         cmd.Add(applyCmd);

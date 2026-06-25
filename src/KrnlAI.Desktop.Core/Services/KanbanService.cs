@@ -22,7 +22,7 @@ public sealed class KanbanService(
         if (search is not null) url += $"&search={Uri.EscapeDataString(search)}";
 
         logger?.LogDebug("Fetching Kanban data: {Url}", url);
-        var resp = await http.GetFromJsonAsync<KanbanResponseDto>(url, ct);
+        var resp = await http.GetFromJsonAsync<KanbanResponseDto>(url, ct).ConfigureAwait(false);
         if (resp is null)
         {
             logger?.LogWarning("Kanban API returned null for: {Url}", url);
@@ -52,7 +52,7 @@ public sealed class KanbanService(
             System.Text.Json.JsonSerializer.Serialize(new { status = newStatus }),
             System.Text.Encoding.UTF8,
             "application/json");
-        var resp = await http.PatchAsync($"/api/goals/{cardId}/status", content, ct);
+        var resp = await http.PatchAsync($"/api/goals/{cardId}/status", content, ct).ConfigureAwait(false);
         if (!resp.IsSuccessStatusCode)
             logger?.LogWarning("Move card {CardId} failed: {Status}", cardId, resp.StatusCode);
         return resp.IsSuccessStatusCode;

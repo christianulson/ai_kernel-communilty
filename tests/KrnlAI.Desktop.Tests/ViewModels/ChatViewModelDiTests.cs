@@ -35,7 +35,7 @@ public sealed class ChatViewModelDiTests
 
         var vm = CreateVm(kernelClient);
         vm.InputText = "test message";
-        await vm.SendMessageAsync();
+        await vm.SendMessageAsync().ConfigureAwait(false);
 
         kernelClient.Verify(k => k.RunAgentAsync(It.Is<Cts.AgentRunTransportRequest>(r => r.Prompt == "test message"), It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -51,7 +51,7 @@ public sealed class ChatViewModelDiTests
 
         var vm = CreateVm(kernelClient);
         vm.InputText = "hello";
-        await vm.SendMessageAsync();
+        await vm.SendMessageAsync().ConfigureAwait(false);
 
         Assert.Equal(2, vm.Messages.Count);
         Assert.Equal(MessageRole.User, vm.Messages[0].Role);
@@ -68,7 +68,7 @@ public sealed class ChatViewModelDiTests
 
         var vm = CreateVm(kernelClient);
         vm.InputText = "test";
-        await vm.SendMessageAsync();
+        await vm.SendMessageAsync().ConfigureAwait(false);
 
         Assert.Equal(2, vm.Messages.Count);
         Assert.Equal(MessageRole.System, vm.Messages[1].Role);
@@ -80,7 +80,7 @@ public sealed class ChatViewModelDiTests
     {
         var kernelClient = new Mock<IKernelClient>();
         var vm = CreateVm(kernelClient);
-        await vm.SendMessageAsync();
+        await vm.SendMessageAsync().ConfigureAwait(false);
         kernelClient.Verify(k => k.RunAgentAsync(It.IsAny<Cts.AgentRunTransportRequest>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -95,7 +95,7 @@ public sealed class ChatViewModelDiTests
 
         var vm = CreateVm(kernelClient);
         vm.InputText = "test message";
-        await vm.SendMessageAsync();
+        await vm.SendMessageAsync().ConfigureAwait(false);
 
         Assert.Empty(vm.InputText);
         Assert.Equal(2, vm.Messages.Count);

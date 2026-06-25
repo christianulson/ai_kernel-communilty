@@ -12,7 +12,7 @@ public sealed class EmbeddedSlashCommandExecutor(IEmbeddedKrnlAI kernel) : ISlas
         if (cmd == "/clear") return "CLEAR_CONVERSATION";
         if (cmd == "/help") return FormatHelp();
 
-        var result = await kernel.RunAsync(input, ct);
+        var result = await kernel.RunAsync(input, ct).ConfigureAwait(false);
         return result.Narration ?? result.Error ?? "Executed";
     }
 

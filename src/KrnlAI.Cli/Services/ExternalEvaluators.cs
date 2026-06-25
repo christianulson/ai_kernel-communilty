@@ -20,13 +20,13 @@ public sealed class OpenAiSafetyEvaluator : IExternalSafetyEvaluator
                 return new SafetyEvaluationResult(scenarioId, false, "skipped", sw.ElapsedMilliseconds);
 
             http.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
-            var response = await http.PostAsJsonAsync("/v1/moderations", new { input = prompt }, ct);
+            var response = await http.PostAsJsonAsync("/v1/moderations", new { input = prompt }, ct).ConfigureAwait(false);
             sw.Stop();
 
             if (!response.IsSuccessStatusCode)
                 return new SafetyEvaluationResult(scenarioId, false, "error", sw.ElapsedMilliseconds);
 
-            var body = await response.Content.ReadFromJsonAsync<JsonDocument>(ct);
+            var body = await response.Content.ReadFromJsonAsync<JsonDocument>(ct).ConfigureAwait(false);
             var flagged = body?.RootElement.GetProperty("results")[0].GetProperty("flagged").GetBoolean() ?? false;
             return new SafetyEvaluationResult(scenarioId, flagged, flagged ? "critical" : "low", sw.ElapsedMilliseconds);
         }
@@ -63,13 +63,13 @@ public sealed class AnthropicSafetyEvaluator : IExternalSafetyEvaluator
                 messages = new[] { new { role = "user", content = prompt } }
             };
 
-            var response = await http.PostAsJsonAsync("/v1/messages", body, ct);
+            var response = await http.PostAsJsonAsync("/v1/messages", body, ct).ConfigureAwait(false);
             sw.Stop();
 
             if (!response.IsSuccessStatusCode)
                 return new SafetyEvaluationResult(scenarioId, false, "error", sw.ElapsedMilliseconds);
 
-            var result = await response.Content.ReadFromJsonAsync<JsonDocument>(ct);
+            var result = await response.Content.ReadFromJsonAsync<JsonDocument>(ct).ConfigureAwait(false);
             var text = result?.RootElement.GetProperty("content")[0].GetProperty("text").GetString() ?? "";
             var unsafe_ = text.Contains("UNSAFE", StringComparison.OrdinalIgnoreCase);
             return new SafetyEvaluationResult(scenarioId, unsafe_, unsafe_ ? "high" : "low", sw.ElapsedMilliseconds);

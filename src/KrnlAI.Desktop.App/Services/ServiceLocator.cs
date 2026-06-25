@@ -201,10 +201,10 @@ public class ServiceLocator : IDisposable, IAsyncDisposable
                         refreshRequest.Headers.Authorization =
                             new AuthenticationHeaderValue("Bearer", tokenProvider.Token);
 
-                    var refreshResponse = await refreshHttpClient.SendAsync(refreshRequest, ct);
+                    var refreshResponse = await refreshHttpClient.SendAsync(refreshRequest, ct).ConfigureAwait(false);
                     if (!refreshResponse.IsSuccessStatusCode) return null;
 
-                    var body = await refreshResponse.Content.ReadAsStringAsync(ct);
+                    var body = await refreshResponse.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                     var result = System.Text.Json.JsonSerializer
                         .Deserialize<RefreshTokenResponseDto>(body);
                     if (!string.IsNullOrEmpty(result?.RefreshToken))

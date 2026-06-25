@@ -44,7 +44,7 @@ public class SnapshotsViewModel : ViewModelBase
                 ErrorMessage = "Indisponível no modo Local";
                 return;
             }
-            var r = await _client.GetSnapshotsAsync();
+            var r = await _client.GetSnapshotsAsync().ConfigureAwait(false);
             Snapshots.Clear();
             if (r != null) { foreach (var s in r) Snapshots.Add(s); }
             OnPropertyChanged(nameof(HasNoData));
@@ -66,9 +66,9 @@ public class SnapshotsViewModel : ViewModelBase
         try
         {
             if (ServiceLocator.Instance.CurrentMode == RunMode.Local) { StatusMessage = "Snapshot não disponível no modo Local"; return; }
-            var result = await _client.SubmitFeedbackAsync(new FeedbackRequest("manual-snapshot", 5, "Snapshot via Desktop App", "snapshot"));
+            var result = await _client.SubmitFeedbackAsync(new FeedbackRequest("manual-snapshot", 5, "Snapshot via Desktop App", "snapshot")).ConfigureAwait(false);
             StatusMessage = result != null ? "Snapshot criado com sucesso." : "Falha ao criar snapshot.";
-            await LoadAsync();
+            await LoadAsync().ConfigureAwait(false);
         }
         catch (Exception ex)
         {

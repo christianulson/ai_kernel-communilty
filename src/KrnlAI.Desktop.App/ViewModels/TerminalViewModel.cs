@@ -84,7 +84,7 @@ public sealed class TerminalViewModel : ViewModelBase
                 IsExecuting = true;
                 try
                 {
-                    await _connection.InvokeAsync("ExecuteCommand", cmd);
+                    await _connection.InvokeAsync("ExecuteCommand", cmd).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -177,7 +177,7 @@ public sealed class TerminalViewModel : ViewModelBase
 
         try
         {
-            await _connection.StartAsync();
+            await _connection.StartAsync().ConfigureAwait(false);
             ConnectionStatus = "Connected";
         }
         catch (Exception ex)
@@ -193,7 +193,7 @@ public sealed class TerminalViewModel : ViewModelBase
         if (_connection == null) return;
         try
         {
-            await _connection.StopAsync();
+            await _connection.StopAsync().ConfigureAwait(false);
         }
         catch (Exception ex)
         {

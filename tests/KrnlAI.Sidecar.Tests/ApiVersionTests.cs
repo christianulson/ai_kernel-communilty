@@ -7,7 +7,7 @@ public sealed class ApiVersionTests_Legacy(SidecarWebAppFactory factory) : IClas
     [Fact]
     public async Task ApiVersion_LegacyMode_ShouldReturnHeader()
     {
-        var res = await _http.GetAsync("/health", TestContext.Current.CancellationToken);
+        var res = await _http.GetAsync("/health", TestContext.Current.CancellationToken).ConfigureAwait(false);
 
         res.Headers.Should().Contain(h => h.Key == "X-API-Version");
         res.Headers.GetValues("X-API-Version").First().Should().Be("1.0");
@@ -21,7 +21,7 @@ public sealed class ApiVersionTests_Community(CommunitySidecarWebAppFactory fact
     [Fact]
     public async Task ApiVersion_CommunityMode_ShouldReturnHeader()
     {
-        var res = await _http.GetAsync("/health", TestContext.Current.CancellationToken);
+        var res = await _http.GetAsync("/health", TestContext.Current.CancellationToken).ConfigureAwait(false);
 
         res.Headers.Should().Contain(h => h.Key == "X-API-Version");
         res.Headers.GetValues("X-API-Version").First().Should().Be("1.0");

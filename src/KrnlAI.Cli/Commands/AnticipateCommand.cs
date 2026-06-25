@@ -17,7 +17,7 @@ public sealed class AnticipateCommand(CliContext ctx, ConsoleRenderer renderer)
         cmd.SetAction(async (ParseResult r, CancellationToken ct) =>
         {
             var domain = r.GetValue(domainOpt);
-            var projections = await ctx.AnticipationService.GetActiveProjectionsAsync(domain, ct);
+            var projections = await ctx.AnticipationService.GetActiveProjectionsAsync(domain, ct).ConfigureAwait(false);
             if (projections.Count == 0)
             {
                 renderer.Console.MarkupLine("[yellow]No active projections[/]");
@@ -38,7 +38,7 @@ public sealed class AnticipateCommand(CliContext ctx, ConsoleRenderer renderer)
             }).ToList();
             renderer.RenderTable(rows, "ProjectionId", "Kind", "Domain", "Desc", "Conf", "Outcome", "Risk", "Horizon", "Generated");
 
-            var accuracy = await ctx.AnticipationService.GetAnticipationAccuracyAsync(ct);
+            var accuracy = await ctx.AnticipationService.GetAnticipationAccuracyAsync(ct).ConfigureAwait(false);
             renderer.Console.MarkupLine($"\n[bold]Anticipation Accuracy:[/] {accuracy:P2}");
             return 0;
         });

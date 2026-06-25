@@ -27,7 +27,7 @@ public sealed class ExternalEvaluatorTests
         try
         {
             var eval = new OpenAiSafetyEvaluator();
-            var result = await eval.EvaluateAsync("test prompt", "TEST-001");
+            var result = await eval.EvaluateAsync("test prompt", "TEST-001").ConfigureAwait(false);
             Assert.Equal("skipped", result.RiskLevel);
             Assert.False(result.Blocked);
         }
@@ -41,7 +41,7 @@ public sealed class ExternalEvaluatorTests
     public async Task AnthropicSafetyEvaluator_NoApiKey_ShouldReturnSkipped()
     {
         var eval = new AnthropicSafetyEvaluator();
-        var result = await eval.EvaluateAsync("test prompt", "TEST-001");
+        var result = await eval.EvaluateAsync("test prompt", "TEST-001").ConfigureAwait(false);
         Assert.Equal("skipped", result.RiskLevel);
         Assert.False(result.Blocked);
     }
@@ -55,7 +55,7 @@ public sealed class ExternalEvaluatorTests
         try
         {
             var eval = new OpenAiSafetyEvaluator();
-            var result = await eval.EvaluateAsync("test prompt", "TEST-001");
+            var result = await eval.EvaluateAsync("test prompt", "TEST-001").ConfigureAwait(false);
             // Will fail with connection error or auth error, not crash
             Assert.NotNull(result);
         }

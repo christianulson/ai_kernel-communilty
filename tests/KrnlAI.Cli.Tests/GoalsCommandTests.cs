@@ -67,7 +67,7 @@ public sealed class GoalsCommandTests
         var cmd = new GoalsCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("goals list").InvokeAsync();
+        var result = await root.Parse("goals list").InvokeAsync().ConfigureAwait(false);
 
         result.Should().Be(0);
         var output = console.Output;
@@ -82,7 +82,7 @@ public sealed class GoalsCommandTests
         var cmd = new GoalsCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("goals get goal-001").InvokeAsync();
+        var result = await root.Parse("goals get goal-001").InvokeAsync().ConfigureAwait(false);
 
         result.Should().Be(0);
         var output = console.Output;
@@ -99,7 +99,7 @@ public sealed class GoalsCommandTests
         var cmd = new GoalsCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("goals get unknown-id").InvokeAsync();
+        var result = await root.Parse("goals get unknown-id").InvokeAsync().ConfigureAwait(false);
 
         result.Should().Be(1);
         console.Output.Should().Contain("not found");

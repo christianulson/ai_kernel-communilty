@@ -24,7 +24,7 @@ var host = Host.CreateDefaultBuilder(args)
 
 // Seed demo data
 var seeder = host.Services.GetRequiredService<CliSeeder>();
-await seeder.SeedAsync();
+await seeder.SeedAsync().ConfigureAwait(false);
 
 var cliCtx = host.Services.GetRequiredService<CliContext>();
 var renderer = host.Services.GetRequiredService<ConsoleRenderer>();
@@ -130,4 +130,4 @@ root.Add(new LifecycleCommand(lifecycleOrchestrator, renderer).Build());
 // Checkpoint management
 root.Add(new CheckpointCommand(cliCtx, renderer).Build());
 
-return await root.Parse(args).InvokeAsync();
+return await root.Parse(args).InvokeAsync().ConfigureAwait(false);

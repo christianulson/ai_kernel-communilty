@@ -66,7 +66,7 @@ public class EmotionalViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            CurrentState = await _kernelClient.GetEmotionalStateAsync(_userId);
+            CurrentState = await _kernelClient.GetEmotionalStateAsync(_userId).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -83,7 +83,7 @@ public class EmotionalViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            var entries = await _kernelClient.EmotionalHistoryAsync();
+            var entries = await _kernelClient.EmotionalHistoryAsync().ConfigureAwait(false);
             History.Clear();
             foreach (var e in entries) History.Add(e);
         }
@@ -97,7 +97,7 @@ public class EmotionalViewModel : ViewModelBase
     {
         try
         {
-            return await _kernelClient.EmotionalEventAsync(eventName, trigger, valenceDelta, arousalDelta);
+            return await _kernelClient.EmotionalEventAsync(eventName, trigger, valenceDelta, arousalDelta).ConfigureAwait(false);
         }
         catch
         {

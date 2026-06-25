@@ -34,7 +34,7 @@ public sealed class PeerRankingViewModelTests
 
         var vm = new PeerRankingViewModel(service.Object, NullLogger<PeerRankingViewModel>.Instance);
 
-        await vm.LoadAsync(CancellationToken.None);
+        await vm.LoadAsync(CancellationToken.None).ConfigureAwait(false);
 
         Assert.Equal(2, vm.FilteredPeers.Count);
         Assert.Equal(0.42, vm.SuccessRateWeight, 2);
@@ -54,7 +54,7 @@ public sealed class PeerRankingViewModelTests
 
         var vm = new PeerRankingViewModel(service.Object, NullLogger<PeerRankingViewModel>.Instance);
 
-        await vm.LoadHistoryAsync("peer-1", CancellationToken.None);
+        await vm.LoadHistoryAsync("peer-1", CancellationToken.None).ConfigureAwait(false);
 
         Assert.Single(vm.History);
         Assert.Equal("peer-1", vm.History[0].NodeId);
@@ -81,7 +81,7 @@ public sealed class PeerRankingViewModelTests
             CatalogWeight = 0.10
         };
 
-        await vm.SaveWeightsAsync(CancellationToken.None);
+        await vm.SaveWeightsAsync(CancellationToken.None).ConfigureAwait(false);
 
         Assert.NotNull(capturedWeights);
         Assert.Equal(0.10, capturedWeights!.SuccessRateWeight, 2);
@@ -106,7 +106,7 @@ public sealed class PeerRankingViewModelTests
             .ReturnsAsync((IReadOnlyList<PeerRankingHistoryEntry>)[]);
 
         var vm = new PeerRankingViewModel(service.Object, NullLogger<PeerRankingViewModel>.Instance);
-        await vm.LoadAsync(CancellationToken.None);
+        await vm.LoadAsync(CancellationToken.None).ConfigureAwait(false);
 
         vm.FilterText = "peer-2";
 

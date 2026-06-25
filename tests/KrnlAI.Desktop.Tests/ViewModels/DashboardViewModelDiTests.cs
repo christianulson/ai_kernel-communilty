@@ -42,7 +42,7 @@ public sealed class DashboardViewModelDiTests
             .ReturnsAsync(new AffectiveState(0.5, 0.3, 0.1, 0.8, DateTime.UtcNow));
 
         var vm = CreateVm(kc);
-        await vm.LoadDashboardDataAsync();
+        await vm.LoadDashboardDataAsync().ConfigureAwait(false);
 
         Assert.NotNull(vm.ScorecardData);
         Assert.NotNull(vm.RuntimeData);
@@ -62,7 +62,7 @@ public sealed class DashboardViewModelDiTests
             .ThrowsAsync(new HttpRequestException("API error"));
 
         var vm = CreateVm(kc);
-        await vm.LoadDashboardDataAsync();
+        await vm.LoadDashboardDataAsync().ConfigureAwait(false);
 
         Assert.Equal("Erro", vm.Status);
         Assert.True(vm.HasError);
@@ -101,7 +101,7 @@ public sealed class DashboardViewModelDiTests
         var vm = CreateVm(kc);
         vm.SelectedGoal = new GoalInfo("g1", "test", "active", 3, DateTime.UtcNow, null, null, null, 0, 0);
         vm.PauseGoalCommand.Execute(null);
-        await Task.Delay(100);
+        await Task.Delay(100).ConfigureAwait(false);
 
         kc.Verify(x => x.UpdateGoalStatusAsync("g1", "pause", It.IsAny<CancellationToken>()), Times.AtLeastOnce);
     }

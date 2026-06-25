@@ -23,11 +23,11 @@ public sealed class SlashCommandHandler
         {
             return cmd switch
             {
-                "/undo" => await ExecuteUndoAsync(),
-                "/diff" => await ExecuteDiffAsync(),
-                "/commit" => await ExecuteCommitAsync(args),
-                "/run" => await ExecuteRunAsync(args),
-                "/test" => await ExecuteTestAsync(args),
+                "/undo" => await ExecuteUndoAsync().ConfigureAwait(false),
+                "/diff" => await ExecuteDiffAsync().ConfigureAwait(false),
+                "/commit" => await ExecuteCommitAsync(args).ConfigureAwait(false),
+                "/run" => await ExecuteRunAsync(args).ConfigureAwait(false),
+                "/test" => await ExecuteTestAsync(args).ConfigureAwait(false),
                 "/clear" => "CLEAR_CONVERSATION",
                 "/help" => FormatHelp(),
                 "/explain" or "/fix" or "/refactor" or "/review" or "/sessions" => $"{cmd}: This command is only available in the VS Code or VS extension with editor context.",
@@ -42,17 +42,17 @@ public sealed class SlashCommandHandler
 
     private async Task<string> ExecuteUndoAsync()
     {
-        var response = await _http.PostAsync("/api/undo", null);
+        var response = await _http.PostAsync("/api/undo", null).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
-        var result = await response.Content.ReadFromJsonAsync<UndoResponse>();
+        var result = await response.Content.ReadFromJsonAsync<UndoResponse>().ConfigureAwait(false);
         return result?.Message ?? "Undo executed";
     }
 
     private async Task<string> ExecuteDiffAsync()
     {
-        var response = await _http.GetAsync("/api/undo/diff");
+        var response = await _http.GetAsync("/api/undo/diff").ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
-        var result = await response.Content.ReadFromJsonAsync<DiffResponse>();
+        var result = await response.Content.ReadFromJsonAsync<DiffResponse>().ConfigureAwait(false);
         var diff = result?.Diff ?? "No changes";
         return $"```diff\n{diff}\n```";
     }
@@ -60,9 +60,9 @@ public sealed class SlashCommandHandler
     private async Task<string> ExecuteCommitAsync(string message)
     {
         var response = await _http.PostAsJsonAsync("/api/undo/commit",
-            new { message = string.IsNullOrWhiteSpace(message) ? null : message });
+            new { message = string.IsNullOrWhiteSpace(message) ? null : message }).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
-        var result = await response.Content.ReadFromJsonAsync<CommitResponse>();
+        var result = await response.Content.ReadFromJsonAsync<CommitResponse>().ConfigureAwait(false);
         return result?.Message ?? "Commit created";
     }
 
@@ -71,9 +71,9 @@ public sealed class SlashCommandHandler
         if (string.IsNullOrWhiteSpace(command))
             return "Usage: /run <command>";
         var response = await _http.PostAsJsonAsync("/api/commands/run",
-            new { command });
+            new { command }).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
-        var result = await response.Content.ReadFromJsonAsync<CommandOutputResponse>();
+        var result = await response.Content.ReadFromJsonAsync<CommandOutputResponse>().ConfigureAwait(false);
         return $"```\n{result?.Output ?? "No output"}\n```";
     }
 
@@ -83,9 +83,9 @@ public sealed class SlashCommandHandler
         var project = parts.Length > 0 ? parts[0] : null;
         var filter = parts.Length > 1 ? string.Join(" ", parts[1..]) : null;
         var response = await _http.PostAsJsonAsync("/api/commands/test",
-            new { project, filter });
+            new { project, filter }).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
-        var result = await response.Content.ReadFromJsonAsync<CommandOutputResponse>();
+        var result = await response.Content.ReadFromJsonAsync<CommandOutputResponse>().ConfigureAwait(false);
         return $"```\n{result?.Output ?? "Tests completed"}\n```";
     }
 

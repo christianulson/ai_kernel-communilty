@@ -39,7 +39,7 @@ public class FeedbackViewModel : ViewModelBase
     {
         _kernelClient = kernelClient;
         LoadHistoryCommand = new AsyncRelayCommand(LoadHistoryAsync);
-        SubmitCommand = new AsyncRelayCommand(async _ => await SubmitAsync());
+        SubmitCommand = new AsyncRelayCommand(async _ => await SubmitAsync().ConfigureAwait(false));
         ClearErrorCommand = new RelayCommand(() => ErrorMessage = "");
         SetRating1Command = new RelayCommand(() => Rating = 1);
         SetRating2Command = new RelayCommand(() => Rating = 2);
@@ -56,13 +56,13 @@ public class FeedbackViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            var history = await _kernelClient.GetFeedbackHistoryAsync();
+            var history = await _kernelClient.GetFeedbackHistoryAsync().ConfigureAwait(false);
             History.Clear();
             if (history != null)
                 foreach (var entry in history)
                     History.Add(entry);
 
-            Average = await _kernelClient.GetFeedbackAverageAsync();
+            Average = await _kernelClient.GetFeedbackAverageAsync().ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -80,13 +80,13 @@ public class FeedbackViewModel : ViewModelBase
         try
         {
             var request = new FeedbackRequest("", Rating, string.IsNullOrWhiteSpace(Comment) ? null : Comment, string.IsNullOrWhiteSpace(Category) ? null : Category);
-            var response = await _kernelClient.SubmitFeedbackAsync(request);
+            var response = await _kernelClient.SubmitFeedbackAsync(request).ConfigureAwait(false);
             if (response.Success)
             {
                 Rating = 5;
                 Comment = "";
                 Category = "";
-                await LoadHistoryAsync();
+                await LoadHistoryAsync().ConfigureAwait(false);
                 return true;
             }
             ErrorMessage = response.Message ?? "Falha ao enviar feedback";

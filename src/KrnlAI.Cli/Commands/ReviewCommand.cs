@@ -37,7 +37,7 @@ public sealed class ReviewCommand
 
             AnsiConsole.MarkupLine($"[grey]Getting git diff in {repoPath}...[/]");
 
-            var diff = await GetGitDiffAsync(repoPath);
+            var diff = await GetGitDiffAsync(repoPath).ConfigureAwait(false);
 
             if (string.IsNullOrWhiteSpace(diff))
             {
@@ -58,16 +58,16 @@ public sealed class ReviewCommand
                 AnsiConsole.MarkupLine("[grey]Sending diff for review...[/]");
 
                 var response = await http.PostAsJsonAsync("/agent/review-diff",
-                    new { diff, path = repoPath, mode = "gateway" }, ct);
+                    new { diff, path = repoPath, mode = "gateway" }, ct).ConfigureAwait(false);
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var result = await response.Content.ReadFromJsonAsync<ReviewResult>(ct);
+                    var result = await response.Content.ReadFromJsonAsync<ReviewResult>(ct).ConfigureAwait(false);
                     var text = result?.Review ?? result?.Error ?? "Sem resposta";
 
                     if (!string.IsNullOrWhiteSpace(output))
                     {
-                        await File.WriteAllTextAsync(output, text, ct);
+                        await File.WriteAllTextAsync(output, text, ct).ConfigureAwait(false);
                         AnsiConsole.MarkupLine($"[green]Review written to: {output}[/]");
                     }
                     else
@@ -78,7 +78,7 @@ public sealed class ReviewCommand
                     return 0;
                 }
 
-                var error = await response.Content.ReadAsStringAsync(ct);
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 Console.Error.WriteLine($"Error {response.StatusCode}: {error}");
                 return 1;
             }
@@ -116,8 +116,8 @@ public sealed class ReviewCommand
                 }
             };
             process.Start();
-            var output = await process.StandardOutput.ReadToEndAsync();
-            await process.WaitForExitAsync();
+            var output = await process.StandardOutput.ReadToEndAsync().ConfigureAwait(false);
+            await process.WaitForExitAsync().ConfigureAwait(false);
 
             if (process.ExitCode != 0)
                 return string.Empty;
@@ -138,8 +138,8 @@ public sealed class ReviewCommand
                     }
                 };
                 staged.Start();
-                output = await staged.StandardOutput.ReadToEndAsync();
-                await staged.WaitForExitAsync();
+                output = await staged.StandardOutput.ReadToEndAsync().ConfigureAwait(false);
+                await staged.WaitForExitAsync().ConfigureAwait(false);
             }
 
             return output ?? string.Empty;

@@ -40,7 +40,7 @@ public class SessionsViewModel : ViewModelBase
                 ErrorMessage = "Indisponível no modo Local";
                 return;
             }
-            var resp = await _kernelClient.GetSharesAsync();
+            var resp = await _kernelClient.GetSharesAsync().ConfigureAwait(false);
             Shares.Clear();
             if (resp?.Shares != null)
                 foreach (var s in resp.Shares) Shares.Add(s);

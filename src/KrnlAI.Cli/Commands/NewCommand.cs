@@ -81,7 +81,7 @@ public sealed class NewCommand(ITemplateEngine templateEngine, IAnsiConsole cons
             };
 
             console.MarkupLine($"[green]Scaffolding agent '{name}' with template '{template}'...[/]");
-            await templateEngine.ScaffoldAsync(TemplateType.Agent, name, targetDir, vars);
+            await templateEngine.ScaffoldAsync(TemplateType.Agent, name, targetDir, vars).ConfigureAwait(false);
 
             console.MarkupLine($"[bold green]✅ Created {name}/[/]");
             console.MarkupLine($"[green]   Template: {template}[/]");
@@ -123,7 +123,7 @@ public sealed class NewCommand(ITemplateEngine templateEngine, IAnsiConsole cons
             var output = r.GetValue(outputOpt)!.FullName;
 
             console.MarkupLine($"[green]Scaffolding tool '{name}'...[/]");
-            await templateEngine.ScaffoldAsync(TemplateType.Tool, name, output);
+            await templateEngine.ScaffoldAsync(TemplateType.Tool, name, output).ConfigureAwait(false);
             console.MarkupLine($"[bold green]✅ Created {name}.cs in {output}[/]");
             return 0;
         });
@@ -151,7 +151,7 @@ public sealed class NewCommand(ITemplateEngine templateEngine, IAnsiConsole cons
             var output = r.GetValue(outputOpt)!.FullName;
 
             console.MarkupLine($"[green]Scaffolding policy '{name}'...[/]");
-            await templateEngine.ScaffoldAsync(TemplateType.Policy, name, output);
+            await templateEngine.ScaffoldAsync(TemplateType.Policy, name, output).ConfigureAwait(false);
             console.MarkupLine($"[bold green]✅ Created {name}.cs in {output}[/]");
             return 0;
         });
@@ -179,7 +179,7 @@ public sealed class NewCommand(ITemplateEngine templateEngine, IAnsiConsole cons
             var output = r.GetValue(outputOpt)!.FullName;
 
             console.MarkupLine($"[green]Scaffolding cognitive cycle '{name}'...[/]");
-            await templateEngine.ScaffoldAsync(TemplateType.CognitiveCycle, name, output);
+            await templateEngine.ScaffoldAsync(TemplateType.CognitiveCycle, name, output).ConfigureAwait(false);
             console.MarkupLine($"[bold green]✅ Created CognitiveCycle.cs in {output}[/]");
             return 0;
         });

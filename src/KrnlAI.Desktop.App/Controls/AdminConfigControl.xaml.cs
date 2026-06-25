@@ -16,7 +16,7 @@ public sealed partial class AdminConfigControl : UserControl
         try
         {
             if (DataContext is ViewModels.MainViewModel vm)
-                await vm.AdminConfigVM.LoadAsync();
+                await vm.AdminConfigVM.LoadAsync().ConfigureAwait(false);
         }
         catch (Exception ex) { KrnlLogger.Write($"AdminConfigControl.OnLoaded: {ex.Message}"); }
     }
@@ -28,7 +28,7 @@ public sealed partial class AdminConfigControl : UserControl
             if (DataContext is ViewModels.MainViewModel vm)
             {
                 vm.AdminConfigVM.StatusMessage = "Toggle via API não implementado. Use o servidor admin.";
-                await vm.AdminConfigVM.LoadAsync();
+                await vm.AdminConfigVM.LoadAsync().ConfigureAwait(false);
             }
         }
         catch (Exception ex) { KrnlLogger.Write($"AdminConfigControl.OnFlagToggled: {ex.Message}"); }

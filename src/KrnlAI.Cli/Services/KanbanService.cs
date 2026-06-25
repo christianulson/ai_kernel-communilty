@@ -26,9 +26,9 @@ public sealed class KanbanService(
         if (search is not null) url += $"&search={Uri.EscapeDataString(search)}";
 
         logger?.LogDebug("Calling Kanban API: {Url}", url);
-        var resp = await http.GetAsync(url, ct);
+        var resp = await http.GetAsync(url, ct).ConfigureAwait(false);
         resp.EnsureSuccessStatusCode();
-        return await resp.Content.ReadFromJsonAsync<KanbanResponse>(cancellationToken: ct)
+        return await resp.Content.ReadFromJsonAsync<KanbanResponse>(cancellationToken: ct).ConfigureAwait(false)
             ?? throw new InvalidOperationException("Failed to deserialize KanbanResponse");
     }
 }

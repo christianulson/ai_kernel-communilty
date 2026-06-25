@@ -17,7 +17,7 @@ public sealed class TuiInputHandler
     public async Task<string> ReadInputAsync(string prompt = "> ", CancellationToken ct = default)
     {
         AnsiConsole.Markup($"[bold cyan]{prompt}[/]");
-        var input = await _readline.ReadLineAsync(ct);
+        var input = await _readline.ReadLineAsync(ct).ConfigureAwait(false);
         return (input ?? "").Trim();
     }
 

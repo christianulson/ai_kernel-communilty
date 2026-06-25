@@ -46,7 +46,7 @@ public sealed class UserServicesViewModel : ViewModelBase
         {
             if (param is not string serviceType || string.IsNullOrWhiteSpace(serviceType)) return;
             ToggleService(serviceType);
-            await Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
         });
     }
 
@@ -56,7 +56,7 @@ public sealed class UserServicesViewModel : ViewModelBase
         try
         {
             var result = _kernelClient != null
-                ? await _kernelClient.GetUserServicesAsync()
+                ? await _kernelClient.GetUserServicesAsync().ConfigureAwait(false)
                 : null;
 
             Services.Clear();

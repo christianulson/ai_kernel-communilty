@@ -33,7 +33,7 @@ public sealed class ReadlineService
 
         while (!ct.IsCancellationRequested)
         {
-            var key = await ReadKeyAsync(ct);
+            var key = await ReadKeyAsync(ct).ConfigureAwait(false);
 
             switch (key.Key)
             {
@@ -96,7 +96,7 @@ public sealed class ReadlineService
 
                 case ConsoleKey.Tab:
                     if (!multiLine)
-                        await HandleTabCompleteAsync(ct);
+                        await HandleTabCompleteAsync(ct).ConfigureAwait(false);
                     else
                     {
                         _buffer.Insert(_cursorPos, '\t');
@@ -200,7 +200,7 @@ public sealed class ReadlineService
             {
                 return Console.ReadKey(intercept: true);
             }
-            await Task.Delay(10, ct);
+            await Task.Delay(10, ct).ConfigureAwait(false);
         }
         ct.ThrowIfCancellationRequested();
         return default;

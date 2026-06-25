@@ -8,7 +8,7 @@ public sealed class GracefulShutdownTests
         using var factory = new SidecarWebAppFactory();
         var client = factory.CreateClient();
 
-        var health = await client.GetAsync("/health", TestContext.Current.CancellationToken);
+        var health = await client.GetAsync("/health", TestContext.Current.CancellationToken).ConfigureAwait(false);
         health.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
     }
 }

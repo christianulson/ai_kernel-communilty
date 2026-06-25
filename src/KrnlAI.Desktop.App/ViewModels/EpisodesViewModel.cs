@@ -36,7 +36,7 @@ public class EpisodesViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            var r = await _kernelClient.SearchEpisodesAsync(new EpisodeSearchRequest(Page: 1, PageSize: 50));
+            var r = await _kernelClient.SearchEpisodesAsync(new EpisodeSearchRequest(Page: 1, PageSize: 50)).ConfigureAwait(false);
             EpisodeList.Clear();
             if (r?.Episodes != null) foreach (var e in r.Episodes) EpisodeList.Add(e);
             OnPropertyChanged(nameof(HasNoData));
@@ -55,7 +55,7 @@ public class EpisodesViewModel : ViewModelBase
     {
         try
         {
-            var detail = await _kernelClient.GetEpisodeAsync(id);
+            var detail = await _kernelClient.GetEpisodeAsync(id).ConfigureAwait(false);
             if (detail != null) EpisodeDetail = detail;
         }
         catch (Exception ex)

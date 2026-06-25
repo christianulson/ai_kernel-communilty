@@ -11,7 +11,7 @@ public class WebRtcServiceTests
     public async Task InitializeAsync_ShouldSucceed()
     {
         using var service = CreateService();
-        var result = await service.InitializeAsync("ws://localhost:5000/signaling/webrtc", "stun.l.google.com:19302");
+        var result = await service.InitializeAsync("ws://localhost:5000/signaling/webrtc", "stun.l.google.com:19302").ConfigureAwait(false);
         Assert.True(result);
         Assert.NotEmpty(service.LocalPeerId);
     }
@@ -20,7 +20,7 @@ public class WebRtcServiceTests
     public async Task InitializeAsync_WithEmptyUrl_ShouldSucceed()
     {
         using var service = CreateService();
-        var result = await service.InitializeAsync("ws://localhost:5000/signaling/webrtc", "stun.l.google.com:19302");
+        var result = await service.InitializeAsync("ws://localhost:5000/signaling/webrtc", "stun.l.google.com:19302").ConfigureAwait(false);
         Assert.True(result);
     }
 
@@ -28,8 +28,8 @@ public class WebRtcServiceTests
     public async Task DisconnectAsync_ShouldClose_WhenNotConnected()
     {
         using var service = CreateService();
-        await service.InitializeAsync("ws://localhost:5000/signaling/webrtc", "stun.l.google.com:19302");
-        await service.DisconnectAsync();
+        await service.InitializeAsync("ws://localhost:5000/signaling/webrtc", "stun.l.google.com:19302").ConfigureAwait(false);
+        await service.DisconnectAsync().ConfigureAwait(false);
         Assert.False(service.IsConnected);
     }
 
@@ -37,8 +37,8 @@ public class WebRtcServiceTests
     public async Task CreateAndSendOfferAsync_ShouldFail_WhenNoWebSocket()
     {
         using var service = CreateService();
-        await service.InitializeAsync("ws://localhost:5000/signaling/webrtc", "stun.l.google.com:19302");
-        var result = await service.CreateAndSendOfferAsync("peer-test");
+        await service.InitializeAsync("ws://localhost:5000/signaling/webrtc", "stun.l.google.com:19302").ConfigureAwait(false);
+        var result = await service.CreateAndSendOfferAsync("peer-test").ConfigureAwait(false);
         Assert.False(result);
     }
 
@@ -46,8 +46,8 @@ public class WebRtcServiceTests
     public async Task ConnectToPeerAsync_ShouldFail_WhenNoServer()
     {
         using var service = CreateService();
-        await service.InitializeAsync("ws://localhost:5000/signaling/webrtc", "stun.l.google.com:19302");
-        var result = await service.ConnectToPeerAsync("peer-test");
+        await service.InitializeAsync("ws://localhost:5000/signaling/webrtc", "stun.l.google.com:19302").ConfigureAwait(false);
+        var result = await service.ConnectToPeerAsync("peer-test").ConfigureAwait(false);
         Assert.False(result);
     }
 
@@ -63,7 +63,7 @@ public class WebRtcServiceTests
     public async Task Dispose_AfterInitialize_ShouldNotThrow()
     {
         var service = CreateService();
-        await service.InitializeAsync("ws://localhost:5000/signaling/webrtc", "stun.l.google.com:19302");
+        await service.InitializeAsync("ws://localhost:5000/signaling/webrtc", "stun.l.google.com:19302").ConfigureAwait(false);
         var ex = Record.Exception(() => service.Dispose());
         Assert.Null(ex);
     }

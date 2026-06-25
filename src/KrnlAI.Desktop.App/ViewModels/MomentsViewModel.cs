@@ -33,7 +33,7 @@ public class MomentsViewModel : ViewModelBase
         try
         {
             if (ServiceLocator.Instance.CurrentMode == RunMode.Local) { ErrorMessage = "Indisponível no modo Local"; return; }
-            var r = await _client.GetMemoryMomentsAsync(50);
+            var r = await _client.GetMemoryMomentsAsync(50).ConfigureAwait(false);
             Moments.Clear();
             if (r != null) foreach (var m in r) Moments.Add(m);
             OnPropertyChanged(nameof(HasNoData));

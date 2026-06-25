@@ -67,7 +67,7 @@ public sealed partial class TemplateEngine(ILogger<TemplateEngine>? logger = nul
         var vars = BuildVariables(type, name, variables);
         EnsureDirectoryExists(outputDir);
 
-        await CopyTemplateRecursiveAsync(templateDir, outputDir, vars);
+        await CopyTemplateRecursiveAsync(templateDir, outputDir, vars).ConfigureAwait(false);
 
         _logger.LogInformation("Scaffolded {Type} '{Name}' at {Output}", type, name, outputDir);
     }
@@ -126,9 +126,9 @@ public sealed partial class TemplateEngine(ILogger<TemplateEngine>? logger = nul
             if (createdDirs.Add(parentDir))
                 EnsureDirectoryExists(parentDir);
 
-            var content = await File.ReadAllTextAsync(file);
+            var content = await File.ReadAllTextAsync(file).ConfigureAwait(false);
             content = ReplacePlaceholders(content, vars);
-            await File.WriteAllTextAsync(destPath, content);
+            await File.WriteAllTextAsync(destPath, content).ConfigureAwait(false);
         }
 
         foreach (var subDir in Directory.GetDirectories(sourceDir, "*", SearchOption.AllDirectories))

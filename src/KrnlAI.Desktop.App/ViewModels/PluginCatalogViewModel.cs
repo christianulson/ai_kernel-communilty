@@ -30,7 +30,7 @@ public class PluginCatalogViewModel : ViewModelBase
         try
         {
             if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return;
-            var r = await _client.GetPluginsAsync();
+            var r = await _client.GetPluginsAsync().ConfigureAwait(false);
             Plugins.Clear();
             if (r != null) foreach (var p in r) Plugins.Add(p);
         }

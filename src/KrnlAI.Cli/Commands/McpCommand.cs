@@ -104,7 +104,7 @@ public sealed class McpCommand(
                 Args: string.IsNullOrWhiteSpace(args) ? null : args.Split(' ', StringSplitOptions.RemoveEmptyEntries),
                 Url: string.IsNullOrWhiteSpace(url) ? null : url);
 
-            await ctx.McpRegistry.RegisterFromConfigAsync([config], ct);
+            await ctx.McpRegistry.RegisterFromConfigAsync([config], ct).ConfigureAwait(false);
             renderer.Console.MarkupLine($"[green]MCP server '{name}' registered[/]");
             return 0;
         });
@@ -128,7 +128,7 @@ public sealed class McpCommand(
                 return 1;
             }
 
-            await ctx.McpRegistry.RemoveServerAsync(name, ct);
+            await ctx.McpRegistry.RemoveServerAsync(name, ct).ConfigureAwait(false);
             renderer.Console.MarkupLine($"[green]MCP server '{name}' removed[/]");
             return 0;
         });
@@ -155,7 +155,7 @@ public sealed class McpCommand(
 
             var port = r.GetValue(portOpt);
 
-            await mcpServerHost.StartAsync(ct);
+            await mcpServerHost.StartAsync(ct).ConfigureAwait(false);
             renderer.Console.MarkupLine($"[green]MCP Server started on port {port}[/]");
             renderer.Console.MarkupLine("  Endpoints:");
             renderer.Console.MarkupLine($"    SSE:    http://localhost:{port}/mcp");
@@ -166,11 +166,11 @@ public sealed class McpCommand(
 
             try
             {
-                await Task.Delay(Timeout.Infinite, ct);
+                await Task.Delay(Timeout.Infinite, ct).ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {
-                await mcpServerHost.StopAsync(ct);
+                await mcpServerHost.StopAsync(ct).ConfigureAwait(false);
                 renderer.Console.MarkupLine("[green]MCP Server stopped[/]");
             }
 

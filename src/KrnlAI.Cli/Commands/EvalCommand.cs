@@ -45,7 +45,7 @@ public sealed class EvalCommand
                 return 1;
             }
 
-            var content = await File.ReadAllTextAsync(file.FullName, ct);
+            var content = await File.ReadAllTextAsync(file.FullName, ct).ConfigureAwait(false);
 
             if (string.IsNullOrWhiteSpace(content))
             {
@@ -67,16 +67,16 @@ public sealed class EvalCommand
                 AnsiConsole.MarkupLine("[grey]Sending to backend for evaluation...[/]");
 
                 var response = await http.PostAsJsonAsync("/agent/eval",
-                    new { file = file.FullName, content, mode = "gateway" }, ct);
+                    new { file = file.FullName, content, mode = "gateway" }, ct).ConfigureAwait(false);
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var result = await response.Content.ReadFromJsonAsync<EvalResult>(ct);
+                    var result = await response.Content.ReadFromJsonAsync<EvalResult>(ct).ConfigureAwait(false);
                     var text = result?.Evaluation ?? result?.Error ?? "Sem resposta";
 
                     if (!string.IsNullOrWhiteSpace(output))
                     {
-                        await File.WriteAllTextAsync(output, text, ct);
+                        await File.WriteAllTextAsync(output, text, ct).ConfigureAwait(false);
                         AnsiConsole.MarkupLine($"[green]Result written to: {output}[/]");
                     }
                     else
@@ -87,7 +87,7 @@ public sealed class EvalCommand
                     return 0;
                 }
 
-                var error = await response.Content.ReadAsStringAsync(ct);
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 Console.Error.WriteLine($"Error {response.StatusCode}: {error}");
                 return 1;
             }

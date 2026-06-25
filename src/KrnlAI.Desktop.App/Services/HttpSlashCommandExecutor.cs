@@ -21,11 +21,11 @@ public sealed class HttpSlashCommandExecutor : ISlashCommandExecutor
         {
             return cmd switch
             {
-                "/undo" => await ExecuteUndoAsync(ct),
-                "/diff" => await ExecuteDiffAsync(ct),
-                "/commit" => await ExecuteCommitAsync(args, ct),
-                "/run" => await ExecuteRunAsync(args, ct),
-                "/test" => await ExecuteTestAsync(args, ct),
+                "/undo" => await ExecuteUndoAsync(ct).ConfigureAwait(false),
+                "/diff" => await ExecuteDiffAsync(ct).ConfigureAwait(false),
+                "/commit" => await ExecuteCommitAsync(args, ct).ConfigureAwait(false),
+                "/run" => await ExecuteRunAsync(args, ct).ConfigureAwait(false),
+                "/test" => await ExecuteTestAsync(args, ct).ConfigureAwait(false),
                 "/clear" => "CLEAR_CONVERSATION",
                 "/help" => FormatHelp(),
                 "/explain" or "/fix" or "/refactor" or "/review" or "/sessions" =>
@@ -41,17 +41,17 @@ public sealed class HttpSlashCommandExecutor : ISlashCommandExecutor
 
     private async Task<string> ExecuteUndoAsync(CancellationToken ct)
     {
-        var response = await _http.PostAsync("/api/undo", null, ct);
+        var response = await _http.PostAsync("/api/undo", null, ct).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
-        var result = await response.Content.ReadFromJsonAsync<UndoResponse>(cancellationToken: ct);
+        var result = await response.Content.ReadFromJsonAsync<UndoResponse>(cancellationToken: ct).ConfigureAwait(false);
         return result?.Message ?? "Undo executed";
     }
 
     private async Task<string> ExecuteDiffAsync(CancellationToken ct)
     {
-        var response = await _http.GetAsync("/api/undo/diff", ct);
+        var response = await _http.GetAsync("/api/undo/diff", ct).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
-        var result = await response.Content.ReadFromJsonAsync<DiffResponse>(cancellationToken: ct);
+        var result = await response.Content.ReadFromJsonAsync<DiffResponse>(cancellationToken: ct).ConfigureAwait(false);
         var diff = result?.Diff ?? "No changes";
         return $"```diff\n{diff}\n```";
     }
@@ -59,9 +59,9 @@ public sealed class HttpSlashCommandExecutor : ISlashCommandExecutor
     private async Task<string> ExecuteCommitAsync(string message, CancellationToken ct)
     {
         var response = await _http.PostAsJsonAsync("/api/undo/commit",
-            new { message = string.IsNullOrWhiteSpace(message) ? null : message }, ct);
+            new { message = string.IsNullOrWhiteSpace(message) ? null : message }, ct).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
-        var result = await response.Content.ReadFromJsonAsync<CommitResponse>(cancellationToken: ct);
+        var result = await response.Content.ReadFromJsonAsync<CommitResponse>(cancellationToken: ct).ConfigureAwait(false);
         return result?.Message ?? "Commit created";
     }
 
@@ -70,9 +70,9 @@ public sealed class HttpSlashCommandExecutor : ISlashCommandExecutor
         if (string.IsNullOrWhiteSpace(command))
             return "Usage: /run <command>";
         var response = await _http.PostAsJsonAsync("/api/commands/run",
-            new { command }, ct);
+            new { command }, ct).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
-        var result = await response.Content.ReadFromJsonAsync<CommandOutputResponse>(cancellationToken: ct);
+        var result = await response.Content.ReadFromJsonAsync<CommandOutputResponse>(cancellationToken: ct).ConfigureAwait(false);
         return $"```\n{result?.Output ?? "No output"}\n```";
     }
 
@@ -82,9 +82,9 @@ public sealed class HttpSlashCommandExecutor : ISlashCommandExecutor
         var project = parts.Length > 0 ? parts[0] : null;
         var filter = parts.Length > 1 ? string.Join(" ", parts[1..]) : null;
         var response = await _http.PostAsJsonAsync("/api/commands/test",
-            new { project, filter }, ct);
+            new { project, filter }, ct).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
-        var result = await response.Content.ReadFromJsonAsync<CommandOutputResponse>(cancellationToken: ct);
+        var result = await response.Content.ReadFromJsonAsync<CommandOutputResponse>(cancellationToken: ct).ConfigureAwait(false);
         return $"```\n{result?.Output ?? "Tests completed"}\n```";
     }
 

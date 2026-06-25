@@ -85,7 +85,7 @@ public sealed class BenchmarkCommand(
             console.MarkupLine("[yellow]Running Krnl-AI safety benchmark...[/]");
             console.MarkupLine($"[grey]Scenarios: {scenarioList.Count} | Seed: {seed}[/]");
 
-            var result = await benchRunner.RunBenchmarkAsync(scenarioList, $"benchmark-{seed}", ct);
+            var result = await benchRunner.RunBenchmarkAsync(scenarioList, $"benchmark-{seed}", ct).ConfigureAwait(false);
 
             var competitorsList = (competitors ?? "")
                 .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
@@ -114,7 +114,7 @@ public sealed class BenchmarkCommand(
 
                 foreach (var scenario in scenarioList)
                 {
-                    var eval = await evaluator.EvaluateAsync(scenario.Prompt, scenario.Id, ct);
+                    var eval = await evaluator.EvaluateAsync(scenario.Prompt, scenario.Id, ct).ConfigureAwait(false);
                     compResults.Add(new
                     {
                         scenarioId = eval.ScenarioId,
@@ -161,7 +161,7 @@ public sealed class BenchmarkCommand(
             if (!string.IsNullOrEmpty(output))
             {
                 var html = reportGenerator.Generate(result, ReportFormat.Html);
-                await File.WriteAllTextAsync(output, html, ct);
+                await File.WriteAllTextAsync(output, html, ct).ConfigureAwait(false);
                 console.MarkupLine($"[green]HTML report saved to: {output}[/]");
             }
 

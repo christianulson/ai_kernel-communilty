@@ -139,7 +139,7 @@ public class LoginViewModel : ViewModelBase
         try
         {
             var kernelClient = ServiceLocator.Instance.KernelClient;
-            var response = await kernelClient.LoginAsync(new LoginRequest(Email: Username, Password));
+            var response = await kernelClient.LoginAsync(new LoginRequest(Email: Username, Password)).ConfigureAwait(false);
 
             if (response.Success && !string.IsNullOrEmpty(response.Token))
             {
@@ -186,7 +186,7 @@ public class LoginViewModel : ViewModelBase
             if (api == null) { ErrorMessage = "API Gateway não disponível"; return; }
             var loginResponse = await api.OAuth2LoginAsync(
                 new OAuth2LoginRequest(
-                    provider, redirectUri, _oauthState));
+                    provider, redirectUri, _oauthState)).ConfigureAwait(false);
 
             if (loginResponse?.AuthUrl == null)
             {
@@ -195,7 +195,7 @@ public class LoginViewModel : ViewModelBase
             }
 
             var browserUri = GetOAuthBrowserUri(loginResponse, redirectUri);
-            var code = await StartOAuthCallbackListenerAsync(redirectUri, callbackPath, browserUri);
+            var code = await StartOAuthCallbackListenerAsync(redirectUri, callbackPath, browserUri).ConfigureAwait(false);
             if (code == null)
             {
                 ErrorMessage = "Callback OAuth2 não recebido";
@@ -204,7 +204,7 @@ public class LoginViewModel : ViewModelBase
 
             var callbackResult = await api.OAuth2CallbackAsync(
                 new OAuth2CallbackRequest(
-                    code, _oauthState, provider));
+                    code, _oauthState, provider)).ConfigureAwait(false);
 
             if (callbackResult?.Token is not null)
             {
@@ -252,14 +252,14 @@ public class LoginViewModel : ViewModelBase
                 Verb = "open"
             });
 
-            var context = await _oauthListener.GetContextAsync();
+            var context = await _oauthListener.GetContextAsync().ConfigureAwait(false);
             var code = context.Request.QueryString["code"];
             var state = context.Request.QueryString["state"];
 
             var responseBytes = System.Text.Encoding.UTF8.GetBytes(
                 "<html><body><p>Autenticação concluída! Feche esta janela.</p></body></html>");
             context.Response.ContentType = "text/html; charset=utf-8";
-            await context.Response.OutputStream.WriteAsync(responseBytes, 0, responseBytes.Length);
+            await context.Response.OutputStream.WriteAsync(responseBytes, 0, responseBytes.Length).ConfigureAwait(false);
             context.Response.Close();
 
             if (state != _oauthState)
@@ -315,7 +315,7 @@ public class LoginViewModel : ViewModelBase
                             return result?.Status?.ToString() == "Verified";
                         }
                         return false;
-                    });
+                    }).ConfigureAwait(false);
 
                     if (!verificationResult)
                     {

@@ -24,7 +24,7 @@ public class DebugViewModel : ViewModelBase
             try
             {
                 var client = ServiceLocator.Instance.KernelClient;
-                var healthy = client != null && await client.CheckHealthAsync();
+                var healthy = client != null && await client.CheckHealthAsync().ConfigureAwait(false);
                 Diagnostics.Add($"❤️ Health: {(healthy ? "OK" : "N/A")}");
             }
             catch (Exception ex) { Diagnostics.Add($"❤️ Health: FAIL ({ex.Message})"); }

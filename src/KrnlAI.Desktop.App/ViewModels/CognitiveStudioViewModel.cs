@@ -112,7 +112,7 @@ public class CognitiveStudioViewModel : ViewModelBase
                 if (node != null)
                 {
                     DebugOutput += $"▶ {node.Label} ({node.StepType})...\n";
-                    await Task.Delay(300);
+                    await Task.Delay(300).ConfigureAwait(false);
                     DebugOutput += $"  ✓ Complete\n";
                 }
             }
@@ -139,7 +139,7 @@ public class CognitiveStudioViewModel : ViewModelBase
                 }
                 FlowName = template switch { "customer-support" => "Customer Support Agent", "research-assistant" => "Research Assistant", "code-reviewer" => "Code Reviewer", _ => template };
             }
-            await Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
             Validate();
         });
     }

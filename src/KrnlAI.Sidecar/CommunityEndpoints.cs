@@ -16,7 +16,7 @@ public static class CommunityEndpoints
             var prompt = request.Prompt ?? request.Goal ?? string.Empty;
             logger.LogInformation("Community agent/run: prompt={PromptLen}chars, ip={RemoteIp}", prompt.Length, ctx.Connection.RemoteIpAddress);
             var sw = System.Diagnostics.Stopwatch.StartNew();
-            var result = await kernel.RunAsync(prompt, ct);
+            var result = await kernel.RunAsync(prompt, ct).ConfigureAwait(false);
             sw.Stop();
             logger.LogInformation("Community agent/run completed: duration={Duration}ms, error={Error}", sw.ElapsedMilliseconds, result.Error);
             return Results.Ok(new AgentRunTransportResponse(
@@ -43,7 +43,7 @@ public static class CommunityEndpoints
 
             logger.LogInformation("Community memory/search: query={Query}, ip={RemoteIp}", queryStr, ctx.Connection.RemoteIpAddress);
             var sw = System.Diagnostics.Stopwatch.StartNew();
-            var hits = await kernel.SearchMemoryAsync(queryStr, ct);
+            var hits = await kernel.SearchMemoryAsync(queryStr, ct).ConfigureAwait(false);
             sw.Stop();
             logger.LogInformation("Community memory/search completed: hits={HitCount}, duration={Duration}ms", hits.Count, sw.ElapsedMilliseconds);
             var mappedHits = hits.Select(h => new

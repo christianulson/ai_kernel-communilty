@@ -30,7 +30,7 @@ public class CliViewModel : ViewModelBase
             if (string.IsNullOrWhiteSpace(_command)) return;
             StatusMessage = "Executando...";
             History.Insert(0, $"> {_command}");
-            Output = await _cli.ExecuteAsync(_command);
+            Output = await _cli.ExecuteAsync(_command).ConfigureAwait(false);
             StatusMessage = "Concluído.";
         });
         ClearOutputCommand = new RelayCommand(() => { Output = ""; History.Clear(); });

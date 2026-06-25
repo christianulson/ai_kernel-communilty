@@ -21,7 +21,7 @@ public sealed class ScheduleCommand(CliContext ctx, IAnsiConsole console)
             var scheduledAt = r.GetValue(atOpt) ?? DateTimeOffset.UtcNow;
             var action = new ScheduledAction(Guid.NewGuid().ToString("N"), description, scheduledAt, "{}", "cli");
 
-            await ctx.Scheduler.ScheduleAsync(action, ct);
+            await ctx.Scheduler.ScheduleAsync(action, ct).ConfigureAwait(false);
             console.MarkupLine($"[green]Scheduled[/] {action.ActionId} at {scheduledAt:O}");
             return 0;
         });

@@ -38,12 +38,12 @@ public sealed class MemoryCommand(CliContext ctx, ConsoleRenderer renderer)
             var category = r.GetValue(categoryOpt);
             var domain = r.GetValue(domainOpt);
 
-            var moments = await ctx.MomentStore.ListRecentAsync(take * 2, ct);
+            var moments = await ctx.MomentStore.ListRecentAsync(take * 2, ct).ConfigureAwait(false);
 
             if (!string.IsNullOrEmpty(category))
             {
                 var ids = moments.Select(m => m.MomentId).ToList();
-                var classifications = await ctx.MomentClassifierStore.GetBatchAsync(ids, ct);
+                var classifications = await ctx.MomentClassifierStore.GetBatchAsync(ids, ct).ConfigureAwait(false);
                 var filteredIds = classifications
                     .Where(c => c.Category.ToString().Equals(category, StringComparison.OrdinalIgnoreCase))
                     .Select(c => c.MomentId)
@@ -68,7 +68,7 @@ public sealed class MemoryCommand(CliContext ctx, ConsoleRenderer renderer)
             if (moments.Count > 0)
             {
                 var classifications = await ctx.MomentClassifierStore.GetBatchAsync(
-                    [.. moments.Select(m => m.MomentId)], ct);
+                    [.. moments.Select(m => m.MomentId)], ct).ConfigureAwait(false);
                 foreach (var c in classifications)
                     classificationLookup[c.MomentId] = c;
             }

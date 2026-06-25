@@ -43,7 +43,7 @@ public sealed class UserServicesViewModelTests
 
         var vm = new UserServicesViewModel(kernelClient.Object);
 
-        await vm.LoadAsync();
+        await vm.LoadAsync().ConfigureAwait(false);
 
         Assert.Equal(2, vm.Services.Count);
         Assert.Equal("github", vm.Services[0].ServiceType);
@@ -61,7 +61,7 @@ public sealed class UserServicesViewModelTests
 
         var vm = new UserServicesViewModel(kernelClient.Object);
 
-        await vm.LoadAsync();
+        await vm.LoadAsync().ConfigureAwait(false);
 
         Assert.NotEmpty(vm.Services);
         Assert.Contains(vm.Services, s => s.ServiceType == "demo");
@@ -81,7 +81,7 @@ public sealed class UserServicesViewModelTests
         var loadTask = vm.LoadAsync();
         Assert.True(vm.IsLoading);
         tcs.SetResult(new List<UserServiceInfo>());
-        await loadTask;
+        await loadTask.ConfigureAwait(false);
         Assert.False(vm.IsLoading);
     }
 

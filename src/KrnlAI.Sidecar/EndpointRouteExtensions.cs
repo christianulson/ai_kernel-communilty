@@ -35,7 +35,7 @@ public static class EndpointRouteExtensions
         // Proxy-only endpoints (no v1 needed — they are thin wrappers)
         app.MapGet("/policy/list", async (HttpContext ctx, KernelApiProxy kernel, ILogger<Program> logger) =>
         {
-            var proxyResult = await kernel.ProxyGetAsync<object>("/policy/list", ctx.RequestAborted);
+            var proxyResult = await kernel.ProxyGetAsync<object>("/policy/list", ctx.RequestAborted).ConfigureAwait(false);
             if (proxyResult != null) return Results.Ok(proxyResult);
             logger.LogInformation("Policy list returned locally (no KrnlAI API)");
             return Results.Ok(new { policies = Array.Empty<object>(), totalCount = 0 });
@@ -43,7 +43,7 @@ public static class EndpointRouteExtensions
 
         app.MapGet("/agent/metrics/scorecard", async (HttpContext ctx, KernelApiProxy kernel, ILogger<Program> logger) =>
         {
-            var proxyResult = await kernel.ProxyGetAsync<object>("/agent/metrics/scorecard", ctx.RequestAborted);
+            var proxyResult = await kernel.ProxyGetAsync<object>("/agent/metrics/scorecard", ctx.RequestAborted).ConfigureAwait(false);
             if (proxyResult != null) return Results.Ok(proxyResult);
             logger.LogInformation("Scorecard returned locally (no KrnlAI API)");
             return Results.Ok(new { reliability = 0.0, efficiency = 0.0, safety = 0.0, antiLoop = 0.0, governance = 0.0, overall = 0.0, source = "local_fallback" });
@@ -52,14 +52,14 @@ public static class EndpointRouteExtensions
         app.MapPost("/memory/search", async (HttpContext ctx, KernelApiProxy kernel, ILogger<Program> logger) =>
         {
             Dictionary<string, object>? body;
-            try { body = await ctx.Request.ReadFromJsonAsync<Dictionary<string, object>>(cancellationToken: ctx.RequestAborted); }
+            try { body = await ctx.Request.ReadFromJsonAsync<Dictionary<string, object>>(cancellationToken: ctx.RequestAborted).ConfigureAwait(false); }
             catch { body = null; }
             var reqId = ctx.Items["RequestId"]?.ToString();
             if (body == null) return Results.BadRequest(new ErrorResponse("invalid_request", null, reqId));
             if (body.Keys.Except(["query", "limit", "topK", "offset", "domain"]).Any())
                 return Results.BadRequest(new ErrorResponse("unexpected_fields", "Allowed: query, limit, topK, offset, domain", reqId));
 
-            var proxyResult = await kernel.ProxyPostAsync<Dictionary<string, object>, object>("/memory/search", body, ctx.RequestAborted);
+            var proxyResult = await kernel.ProxyPostAsync<Dictionary<string, object>, object>("/memory/search", body, ctx.RequestAborted).ConfigureAwait(false);
             if (proxyResult != null) return Results.Ok(proxyResult);
 
             logger.LogInformation("Memory search returned locally (no KrnlAI API)");
@@ -68,7 +68,7 @@ public static class EndpointRouteExtensions
 
         app.MapGet("/memory/metrics", async (HttpContext ctx, KernelApiProxy kernel, ILogger<Program> logger) =>
         {
-            var proxyResult = await kernel.ProxyGetAsync<object>("/memory/metrics", ctx.RequestAborted);
+            var proxyResult = await kernel.ProxyGetAsync<object>("/memory/metrics", ctx.RequestAborted).ConfigureAwait(false);
             if (proxyResult != null) return Results.Ok(proxyResult);
 
             logger.LogInformation("Memory metrics returned locally (no KrnlAI API)");
@@ -77,7 +77,7 @@ public static class EndpointRouteExtensions
 
         app.MapGet("/episodes/search", async (HttpContext ctx, KernelApiProxy kernel, ILogger<Program> logger) =>
         {
-            var proxyResult = await kernel.ProxyGetAsync<object>("/episodes/search", ctx.RequestAborted);
+            var proxyResult = await kernel.ProxyGetAsync<object>("/episodes/search", ctx.RequestAborted).ConfigureAwait(false);
             if (proxyResult != null) return Results.Ok(proxyResult);
 
             logger.LogInformation("Episodes search returned locally (no KrnlAI API)");
@@ -86,7 +86,7 @@ public static class EndpointRouteExtensions
 
         app.MapGet("/episodes/{id}", async (string id, HttpContext ctx, KernelApiProxy kernel, ILogger<Program> logger) =>
         {
-            var proxyResult = await kernel.ProxyGetAsync<object>($"/episodes/{id}", ctx.RequestAborted);
+            var proxyResult = await kernel.ProxyGetAsync<object>($"/episodes/{id}", ctx.RequestAborted).ConfigureAwait(false);
             if (proxyResult != null) return Results.Ok(proxyResult);
 
             logger.LogInformation("Episode {Id} returned locally (no KrnlAI API)", id);
@@ -96,37 +96,37 @@ public static class EndpointRouteExtensions
         // Proxy-only endpoints (501 when no KrnlAI API)
         app.MapGet("/agent/status", async (HttpContext ctx, KernelApiProxy kernel) =>
         {
-            var result = await kernel.ProxyGetAsync<object>("/agent/metrics/scorecard", ctx.RequestAborted);
+            var result = await kernel.ProxyGetAsync<object>("/agent/metrics/scorecard", ctx.RequestAborted).ConfigureAwait(false);
             return result is not null ? Results.Ok(result) : Results.Json(new ErrorResponse("not_implemented", "Available when KrnlAI API is configured", null), statusCode: 501);
         });
 
         app.MapGet("/goals/list", async (HttpContext ctx, KernelApiProxy kernel) =>
         {
-            var result = await kernel.ProxyGetAsync<object>("/goals/active", ctx.RequestAborted);
+            var result = await kernel.ProxyGetAsync<object>("/goals/active", ctx.RequestAborted).ConfigureAwait(false);
             return result is not null ? Results.Ok(result) : Results.Json(new ErrorResponse("not_implemented", "Available when KrnlAI API is configured", null), statusCode: 501);
         });
 
         app.MapGet("/goals/{id}", async (string id, HttpContext ctx, KernelApiProxy kernel) =>
         {
-            var result = await kernel.ProxyGetAsync<object>($"/goals/{id}", ctx.RequestAborted);
+            var result = await kernel.ProxyGetAsync<object>($"/goals/{id}", ctx.RequestAborted).ConfigureAwait(false);
             return result is not null ? Results.Ok(result) : Results.Json(new ErrorResponse("not_implemented", "Available when KrnlAI API is configured", null), statusCode: 501);
         });
 
         app.MapGet("/emotions/current", async (HttpContext ctx, KernelApiProxy kernel) =>
         {
-            var result = await kernel.ProxyGetAsync<object>("/profile/emotional", ctx.RequestAborted);
+            var result = await kernel.ProxyGetAsync<object>("/profile/emotional", ctx.RequestAborted).ConfigureAwait(false);
             return result is not null ? Results.Ok(result) : Results.Json(new ErrorResponse("not_implemented", "Available when KrnlAI API is configured", null), statusCode: 501);
         });
 
         app.MapGet("/emotions/history", async (HttpContext ctx, KernelApiProxy kernel) =>
         {
-            var result = await kernel.ProxyGetAsync<object>("/cognitive/affective-state", ctx.RequestAborted);
+            var result = await kernel.ProxyGetAsync<object>("/cognitive/affective-state", ctx.RequestAborted).ConfigureAwait(false);
             return result is not null ? Results.Ok(result) : Results.Json(new ErrorResponse("not_implemented", "Available when KrnlAI API is configured", null), statusCode: 501);
         });
 
         app.MapGet("/metacognition/status", async (HttpContext ctx, KernelApiProxy kernel) =>
         {
-            var result = await kernel.ProxyGetAsync<object>("/cognitive/dashboard", ctx.RequestAborted);
+            var result = await kernel.ProxyGetAsync<object>("/cognitive/dashboard", ctx.RequestAborted).ConfigureAwait(false);
             return result is not null ? Results.Ok(result) : Results.Json(new ErrorResponse("not_implemented", "Available when KrnlAI API is configured", null), statusCode: 501);
         });
 
@@ -177,7 +177,7 @@ public static class EndpointRouteExtensions
                     version = "KrnlAI.Sidecar/1.0.0",
                     checks = report.Entries.Select(e => new { name = e.Key, status = e.Value.Status.ToString() })
                 });
-                await ctx.Response.WriteAsync(json, cancellationToken: ctx.RequestAborted);
+                await ctx.Response.WriteAsync(json, cancellationToken: ctx.RequestAborted).ConfigureAwait(false);
             }
         }).RequireRateLimiting("health");
 
@@ -208,7 +208,7 @@ public static class EndpointRouteExtensions
 
             var sw = Stopwatch.StartNew();
             AgentRunRequest? body;
-            try { body = await ctx.Request.ReadFromJsonAsync<AgentRunRequest>(cancellationToken: ct); }
+            try { body = await ctx.Request.ReadFromJsonAsync<AgentRunRequest>(cancellationToken: ct).ConfigureAwait(false); }
             catch { body = null; }
             var reqId = ctx.Items["RequestId"]?.ToString();
             if (body == null) return Results.BadRequest(new ErrorResponse("invalid_request", null, reqId));
@@ -217,7 +217,7 @@ public static class EndpointRouteExtensions
             var transportSteps = new List<TransportStepDto>();
 
             // Layer 1: Adversarial input guard
-            var safetyResult = await guard.ValidateAsync(prompt, ct);
+            var safetyResult = await guard.ValidateAsync(prompt, ct).ConfigureAwait(false);
             if (!safetyResult.IsAllowed)
             {
                 SafetyBlockedTotal.Add(1, new KeyValuePair<string, object?>("layer", "adversarial"));
@@ -233,7 +233,7 @@ public static class EndpointRouteExtensions
             transportSteps.Add(new TransportStepDto("AdversarialGuard", "OK", true, null));
 
             // Layer 2: Fundamental Rules (R01-R21)
-            var ruleResult = await rules.EvaluateAsync(prompt, "sidecar", ct);
+            var ruleResult = await rules.EvaluateAsync(prompt, "sidecar", ct).ConfigureAwait(false);
             if (!ruleResult.IsAllowed)
             {
                 SafetyBlockedTotal.Add(1, new KeyValuePair<string, object?>("layer", "fundamental_rules"));
@@ -252,7 +252,7 @@ public static class EndpointRouteExtensions
                 transportSteps.Add(new TransportStepDto("FundamentalRules", "OK", true, null));
 
             // Layer 3: Hybrid safety (contextual + semantic)
-            var hybridResult = await hybrid.EvaluateAsync(prompt, "sidecar", ct);
+            var hybridResult = await hybrid.EvaluateAsync(prompt, "sidecar", ct).ConfigureAwait(false);
             if (!hybridResult.IsAllowed)
             {
                 SafetyBlockedTotal.Add(1, new KeyValuePair<string, object?>("layer", "hybrid"));
@@ -304,7 +304,7 @@ public static class EndpointRouteExtensions
             SafetyPassedTotal.Add(1);
 
             // Try proxy to KrnlAI API first
-            var proxyResult = await kernel.ProxyPostAsync<AgentRunRequest, AgentRunTransportResponse>("/v1/agent/run", body, ct);
+            var proxyResult = await kernel.ProxyPostAsync<AgentRunRequest, AgentRunTransportResponse>("/v1/agent/run", body, ct).ConfigureAwait(false);
             if (proxyResult != null)
             {
                 sw.Stop();
@@ -322,7 +322,7 @@ public static class EndpointRouteExtensions
             if (embeddedKernel != null)
             {
                 logger.LogInformation("Agent run using EmbeddedKrnlAI fallback. Prompt={PromptLen}chars", prompt.Length);
-                var embeddedResult = await embeddedKernel.RunAsync(prompt, ct);
+                var embeddedResult = await embeddedKernel.RunAsync(prompt, ct).ConfigureAwait(false);
                 sw.Stop();
                 HttpDuration.Record(sw.Elapsed.TotalSeconds, new KeyValuePair<string, object?>("endpoint", "agent_run"), new KeyValuePair<string, object?>("status", "embedded"));
                 return Results.Ok(new AgentRunTransportResponse(

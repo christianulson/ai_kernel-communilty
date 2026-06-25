@@ -112,10 +112,10 @@ public class DashboardViewModel : ViewModelBase, IDisposable
         PauseGoalCommand = new AsyncRelayCommand(() => UpdateGoalAsync("pause"));
         ResumeGoalCommand = new AsyncRelayCommand(() => UpdateGoalAsync("resume"));
         CompleteGoalCommand = new AsyncRelayCommand(() => UpdateGoalAsync("complete"));
-        LoadCognitiveCommand = new AsyncRelayCommand(async () => { if (_kernelClient == null) return; CognitiveData = await _kernelClient.GetCognitiveDashboardAsync(); });
-        LoadBenchmarkCommand = new AsyncRelayCommand(async () => { if (_kernelClient == null) return; BenchmarkData = await _kernelClient.GetBenchmarkSummaryAsync(); });
-        LoadCrossSummaryCommand = new AsyncRelayCommand(async () => { if (_kernelClient == null) return; CrossSummaryData = await _kernelClient.GetCrossSummaryAsync(); });
-        LoadMetricsByGoalCommand = new AsyncRelayCommand(async () => { if (_kernelClient == null) return; MetricsByGoalData = await _kernelClient.GetMetricsByGoalAsync(); });
+        LoadCognitiveCommand = new AsyncRelayCommand(async () => { if (_kernelClient == null) return; CognitiveData = await _kernelClient.GetCognitiveDashboardAsync().ConfigureAwait(false); });
+        LoadBenchmarkCommand = new AsyncRelayCommand(async () => { if (_kernelClient == null) return; BenchmarkData = await _kernelClient.GetBenchmarkSummaryAsync().ConfigureAwait(false); });
+        LoadCrossSummaryCommand = new AsyncRelayCommand(async () => { if (_kernelClient == null) return; CrossSummaryData = await _kernelClient.GetCrossSummaryAsync().ConfigureAwait(false); });
+        LoadMetricsByGoalCommand = new AsyncRelayCommand(async () => { if (_kernelClient == null) return; MetricsByGoalData = await _kernelClient.GetMetricsByGoalAsync().ConfigureAwait(false); });
         ShowCreateGoalCommand = new RelayCommand(() => IsGoalCreateVisible = true);
         HideCreateGoalCommand = new RelayCommand(() => { IsGoalCreateVisible = false; NewGoalDescription = ""; });
         _ = PollEmotionalStateAsync();
@@ -138,7 +138,7 @@ public class DashboardViewModel : ViewModelBase, IDisposable
         {
             try
             {
-                var state = await _kernelClient.GetEmotionalStateAsync("admin-001", t);
+                var state = await _kernelClient.GetEmotionalStateAsync("admin-001", t).ConfigureAwait(false);
                 if (state != null)
                 {
                     consecutiveFailures = 0;
@@ -148,7 +148,7 @@ public class DashboardViewModel : ViewModelBase, IDisposable
                 {
                     break;
                 }
-                var affective = await _kernelClient.GetAffectiveStateAsync(t);
+                var affective = await _kernelClient.GetAffectiveStateAsync(t).ConfigureAwait(false);
                 if (affective != null)
                 {
                     UiThreadInvoker.Invoke(() => AffectiveState = affective);
@@ -156,7 +156,7 @@ public class DashboardViewModel : ViewModelBase, IDisposable
             }
             catch (OperationCanceledException) { break; }
             catch (Exception ex) { Core.Services.KrnlLogger.Write($"Dash emotional poll: {ex.Message}"); }
-            try { await Task.Delay(15000, t); } catch (OperationCanceledException) { break; }
+            try { await Task.Delay(15000, t).ConfigureAwait(false); } catch (OperationCanceledException) { break; }
         }
     }
 
@@ -187,16 +187,16 @@ public class DashboardViewModel : ViewModelBase, IDisposable
             var metricsByGoalTask = _kernelClient.GetMetricsByGoalAsync();
             var emotionalTask = _kernelClient.GetEmotionalStateAsync("admin-001");
             var affectiveTask = _kernelClient.GetAffectiveStateAsync();
-            await Task.WhenAll(scorecardTask, runtimeTask, metricsTask, goalsTask, cognitiveTask, crossTask, metricsByGoalTask, emotionalTask, affectiveTask);
-            var scorecard = await scorecardTask;
-            var runtime = await runtimeTask;
-            var metrics = await metricsTask;
-            var goals = await goalsTask;
-            var cognitive = await cognitiveTask;
-            var cross = await crossTask;
-            var metricsByGoal = await metricsByGoalTask;
-            var emotional = await emotionalTask;
-            var affective = await affectiveTask;
+            await Task.WhenAll(scorecardTask, runtimeTask, metricsTask, goalsTask, cognitiveTask, crossTask, metricsByGoalTask, emotionalTask, affectiveTask).ConfigureAwait(false);
+            var scorecard = await scorecardTask.ConfigureAwait(false);
+            var runtime = await runtimeTask.ConfigureAwait(false);
+            var metrics = await metricsTask.ConfigureAwait(false);
+            var goals = await goalsTask.ConfigureAwait(false);
+            var cognitive = await cognitiveTask.ConfigureAwait(false);
+            var cross = await crossTask.ConfigureAwait(false);
+            var metricsByGoal = await metricsByGoalTask.ConfigureAwait(false);
+            var emotional = await emotionalTask.ConfigureAwait(false);
+            var affective = await affectiveTask.ConfigureAwait(false);
 
             UiThreadInvoker.Invoke(() =>
             {
@@ -230,7 +230,7 @@ public class DashboardViewModel : ViewModelBase, IDisposable
         if (_kernelClient == null) return;
         try
         {
-            var r = await _kernelClient.GetActiveGoalsAsync();
+            var r = await _kernelClient.GetActiveGoalsAsync().ConfigureAwait(false);
             if (r?.Goals == null) return;
             UiThreadInvoker.Invoke(() =>
             {
@@ -244,20 +244,20 @@ public class DashboardViewModel : ViewModelBase, IDisposable
     private async Task CreateNewGoalAsync()
     {
         if (_kernelClient == null || string.IsNullOrWhiteSpace(NewGoalDescription)) return;
-        await _kernelClient.CreateGoalAsync(new CreateGoalRequest(NewGoalDescription, NewGoalPriority));
+        await _kernelClient.CreateGoalAsync(new CreateGoalRequest(NewGoalDescription, NewGoalPriority)).ConfigureAwait(false);
         UiThreadInvoker.Invoke(() =>
         {
             NewGoalDescription = "";
             IsGoalCreateVisible = false;
         });
-        await LoadGoalsDataAsync();
+        await LoadGoalsDataAsync().ConfigureAwait(false);
     }
 
     private async Task UpdateGoalAsync(string a)
     {
         if (_kernelClient == null || SelectedGoal == null) return;
-        await _kernelClient.UpdateGoalStatusAsync(SelectedGoal.GoalId, a);
-        await LoadGoalsDataAsync();
+        await _kernelClient.UpdateGoalStatusAsync(SelectedGoal.GoalId, a).ConfigureAwait(false);
+        await LoadGoalsDataAsync().ConfigureAwait(false);
     }
 
     private async Task LoadGoalDetailSafeAsync(string id)
@@ -265,8 +265,8 @@ public class DashboardViewModel : ViewModelBase, IDisposable
         if (_kernelClient == null) return;
         try
         {
-            var detail = await _kernelClient.GetGoalAsync(id);
-            var cycles = await _kernelClient.GetGoalCyclesAsync(id);
+            var detail = await _kernelClient.GetGoalAsync(id).ConfigureAwait(false);
+            var cycles = await _kernelClient.GetGoalCyclesAsync(id).ConfigureAwait(false);
             UiThreadInvoker.Invoke(() =>
             {
                 GoalDetail = detail;
@@ -282,8 +282,8 @@ public class DashboardViewModel : ViewModelBase, IDisposable
     private async Task LoadGoalDetailAsync(string id)
     {
         if (_kernelClient == null) return;
-        var detail = await _kernelClient.GetGoalAsync(id);
-        var cycles = await _kernelClient.GetGoalCyclesAsync(id);
+        var detail = await _kernelClient.GetGoalAsync(id).ConfigureAwait(false);
+        var cycles = await _kernelClient.GetGoalCyclesAsync(id).ConfigureAwait(false);
         UiThreadInvoker.Invoke(() =>
         {
             GoalDetail = detail;

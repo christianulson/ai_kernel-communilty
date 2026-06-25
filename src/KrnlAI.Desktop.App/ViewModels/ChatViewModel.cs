@@ -325,7 +325,7 @@ public class ChatViewModel : ViewModelBase
         ExportConversationCommand = new AsyncRelayCommand(ExportConversationAsync);
         ExportPdfCommand = new AsyncRelayCommand(ExportPdfAsync);
         ShareConversationCommand = new RelayCommand(ShareConversation);
-        EditMessageCommand = new AsyncRelayCommand(async p => { if (p is string id) await EditMessageAsync(id); });
+        EditMessageCommand = new AsyncRelayCommand(async p => { if (p is string id) await EditMessageAsync(id).ConfigureAwait(false); });
         DeleteMessageCommand = new RelayCommand(p => { if (p is string id) DeleteMessage(id); });
     }
 
@@ -392,7 +392,7 @@ public class ChatViewModel : ViewModelBase
         // Check for slash command
         if (text.StartsWith("/"))
         {
-            var cmdResult = await _slashHandler.ExecuteAsync(text);
+            var cmdResult = await _slashHandler.ExecuteAsync(text).ConfigureAwait(false);
             InputText = "";
             if (cmdResult == "CLEAR_CONVERSATION")
             {
@@ -440,7 +440,7 @@ public class ChatViewModel : ViewModelBase
 
             if (GetOrCreateKernel() is { } kernel)
             {
-                var result = await kernel.RunAsync(text ?? "");
+                var result = await kernel.RunAsync(text ?? "").ConfigureAwait(false);
 
                 Messages.Add(new ChatMessage(
                     Guid.NewGuid().ToString(),
@@ -454,7 +454,7 @@ public class ChatViewModel : ViewModelBase
                 var response = await _kernelClient.RunAgentAsync(new Cts.AgentRunTransportRequest(
                     Prompt: text ?? "",
                     ImageBytes: imageBytes,
-                    ImageFormat: imageBytes != null ? "jpeg" : null));
+                    ImageFormat: imageBytes != null ? "jpeg" : null)).ConfigureAwait(false);
 
                 var narration = response?.Narration;
                 var error = response?.Error;
@@ -475,8 +475,8 @@ public class ChatViewModel : ViewModelBase
 
                 if (!string.IsNullOrEmpty(narration))
                 {
-                    var audio = await _kernelClient.GenerateSpeechAsync(narration);
-                    if (_isTtsEnabled && audio.Length > 0) await _audioPlayback.PlayAsync(audio);
+                    var audio = await _kernelClient.GenerateSpeechAsync(narration).ConfigureAwait(false);
+                    if (_isTtsEnabled && audio.Length > 0) await _audioPlayback.PlayAsync(audio).ConfigureAwait(false);
                 }
             }
         }
@@ -544,12 +544,12 @@ public class ChatViewModel : ViewModelBase
     {
         if (IsCapturingAudio)
         {
-            var audioData = await _audioCapture.StopCaptureAndGetAudioAsync();
+            var audioData = await _audioCapture.StopCaptureAndGetAudioAsync().ConfigureAwait(false);
             IsCapturingAudio = false;
 
             if (audioData.Length > 0 && _kernelClient != null)
             {
-                var transcription = await _kernelClient.TranscribeAudioAsync(audioData);
+                var transcription = await _kernelClient.TranscribeAudioAsync(audioData).ConfigureAwait(false);
                 if (!string.IsNullOrEmpty(transcription))
                 {
                     InputText = (InputText + " " + transcription).Trim();
@@ -558,7 +558,7 @@ public class ChatViewModel : ViewModelBase
         }
         else
         {
-            await _audioCapture.StartCaptureAsync();
+            await _audioCapture.StartCaptureAsync().ConfigureAwait(false);
             IsCapturingAudio = true;
         }
     }
@@ -576,7 +576,7 @@ public class ChatViewModel : ViewModelBase
             if (devices.Count > 0)
             {
                 _videoCapture.FrameCaptured += OnFrameCaptured;
-                await _videoCapture.StartCaptureAsync(devices[0].Id);
+                await _videoCapture.StartCaptureAsync(devices[0].Id).ConfigureAwait(false);
                 IsCameraOn = true;
             }
         }
@@ -603,7 +603,7 @@ public class ChatViewModel : ViewModelBase
     {
         if (_lastFrameJpeg == null) return;
         StopCamera();
-        await SendMessageAsync();
+        await SendMessageAsync().ConfigureAwait(false);
     }
 
     private void DismissCameraPreview()
@@ -654,7 +654,7 @@ public class ChatViewModel : ViewModelBase
             Messages[idx] = msg with { Content = newContent };
             PersistMessages();
         }
-        await Task.CompletedTask;
+        await Task.CompletedTask.ConfigureAwait(false);
     }
 
     private void DeleteMessage(string messageId)
@@ -685,7 +685,7 @@ public class ChatViewModel : ViewModelBase
             foreach (var m in Messages)
                 html.AppendLine($"<div class='msg {m.Role.ToString().ToLower()}'><strong>{m.Role}:</strong> {System.Net.WebUtility.HtmlEncode(m.Content ?? "")}</div>");
             html.AppendLine("</body></html>");
-            await File.WriteAllTextAsync(dialog.FileName, html.ToString());
+            await File.WriteAllTextAsync(dialog.FileName, html.ToString()).ConfigureAwait(false);
         }
         catch (Exception ex) { KrnlLogger.Write($"ExportPdf: {ex.Message}"); }
     }
@@ -709,12 +709,12 @@ public class ChatViewModel : ViewModelBase
                 csv.AppendLine("Timestamp,Role,Content,ImageBase64");
                 foreach (var m in Messages)
                     csv.AppendLine($"\"{m.Timestamp:O}\",\"{m.Role}\",\"{m.Content?.Replace("\"", "\"\"")}\",\"{m.ImageBase64 ?? ""}\"");
-                await File.WriteAllTextAsync(dialog.FileName, csv.ToString());
+                await File.WriteAllTextAsync(dialog.FileName, csv.ToString()).ConfigureAwait(false);
             }
             else
             {
                 var json = JsonSerializer.Serialize(Messages.ToList(), new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
-                await File.WriteAllTextAsync(dialog.FileName, json);
+                await File.WriteAllTextAsync(dialog.FileName, json).ConfigureAwait(false);
             }
         }
         catch (Exception ex) { KrnlLogger.Write($"Export: {ex.Message}"); }

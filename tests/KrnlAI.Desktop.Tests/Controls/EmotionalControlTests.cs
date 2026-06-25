@@ -20,7 +20,7 @@ public class EmotionalViewModelTests
         _kernelMock.Setup(k => k.GetEmotionalStateAsync("default", default))
             .ReturnsAsync(new EmotionalState(0.5, 0.3, 0.8, DateTimeOffset.UtcNow));
 
-        await _vm.LoadCurrentStateAsync();
+        await _vm.LoadCurrentStateAsync().ConfigureAwait(false);
 
         Assert.NotNull(_vm.CurrentState);
         Assert.Equal(0.5, _vm.CurrentState.Valence);
@@ -38,7 +38,7 @@ public class EmotionalViewModelTests
         _kernelMock.Setup(k => k.EmotionalHistoryAsync(default))
             .ReturnsAsync(history);
 
-        await _vm.LoadHistoryAsync();
+        await _vm.LoadHistoryAsync().ConfigureAwait(false);
 
         Assert.Equal(2, _vm.History.Count);
     }
@@ -49,7 +49,7 @@ public class EmotionalViewModelTests
         _kernelMock.Setup(k => k.EmotionalEventAsync("praise", null, null, null, default))
             .ReturnsAsync(true);
 
-        var success = await _vm.LogEventAsync("praise");
+        var success = await _vm.LogEventAsync("praise").ConfigureAwait(false);
 
         Assert.True(success);
     }
@@ -60,7 +60,7 @@ public class EmotionalViewModelTests
         _kernelMock.Setup(k => k.GetEmotionalStateAsync("default", default))
             .ThrowsAsync(new HttpRequestException("emotional API down"));
 
-        await _vm.LoadCurrentStateAsync();
+        await _vm.LoadCurrentStateAsync().ConfigureAwait(false);
 
         Assert.True(_vm.HasError);
     }
@@ -71,7 +71,7 @@ public class EmotionalViewModelTests
         _kernelMock.Setup(k => k.EmotionalEventAsync("fail", null, null, null, default))
             .ThrowsAsync(new HttpRequestException("fail"));
 
-        var success = await _vm.LogEventAsync("fail");
+        var success = await _vm.LogEventAsync("fail").ConfigureAwait(false);
 
         Assert.False(success);
     }
@@ -82,7 +82,7 @@ public class EmotionalViewModelTests
         _kernelMock.Setup(k => k.EmotionalHistoryAsync(default))
             .ReturnsAsync([]);
 
-        await _vm.LoadHistoryAsync();
+        await _vm.LoadHistoryAsync().ConfigureAwait(false);
 
         Assert.Empty(_vm.History);
     }

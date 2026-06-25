@@ -27,11 +27,11 @@ public class McpConfigViewModel : ViewModelBase
     public McpConfigViewModel(IKernelClient kernelClient)
     {
         _kernelClient = kernelClient;
-        LoadServersCommand = new AsyncRelayCommand(async _ => await LoadServersAsync());
+        LoadServersCommand = new AsyncRelayCommand(async _ => await LoadServersAsync().ConfigureAwait(false));
         ToggleServerCommand = new AsyncRelayCommand(async param =>
         {
             if (param is object[] args && args.Length == 2 && args[0] is string serverId && args[1] is bool enabled)
-                await ToggleServerAsync(serverId, enabled);
+                await ToggleServerAsync(serverId, enabled).ConfigureAwait(false);
         });
         ClearErrorCommand = new RelayCommand(_ => ErrorMessage = "");
     }
@@ -44,7 +44,7 @@ public class McpConfigViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            var servers = await _kernelClient.GetMcpServersAsync();
+            var servers = await _kernelClient.GetMcpServersAsync().ConfigureAwait(false);
             Servers.Clear();
             foreach (var s in servers) Servers.Add(s);
         }
@@ -63,7 +63,7 @@ public class McpConfigViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            return await _kernelClient.ToggleMcpServerAsync(serverId, enabled);
+            return await _kernelClient.ToggleMcpServerAsync(serverId, enabled).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -77,7 +77,7 @@ public class McpConfigViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            return await _kernelClient.UpdateMcpServerAsync(serverId, config);
+            return await _kernelClient.UpdateMcpServerAsync(serverId, config).ConfigureAwait(false);
         }
         catch (Exception ex)
         {

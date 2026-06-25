@@ -57,7 +57,7 @@ public class AsyncRelayCommandTests
         var executed = false;
         var cmd = new AsyncRelayCommand(async () => { try { await Task.Yield(); executed = true; } finally { tcs.SetResult(); } });
         cmd.Execute(null);
-        await tcs.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        await tcs.Task.WaitAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
         Assert.True(executed);
     }
 
@@ -68,7 +68,7 @@ public class AsyncRelayCommandTests
         object? captured = null;
         var cmd = new AsyncRelayCommand(async p => { try { await Task.Yield(); captured = p; } finally { tcs.SetResult(); } });
         cmd.Execute("param");
-        await tcs.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        await tcs.Task.WaitAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
         Assert.Equal("param", captured);
     }
 
@@ -89,7 +89,7 @@ public class AsyncRelayCommandTests
     {
         var started = false;
         var reset = new TaskCompletionSource();
-        var cmd = new AsyncRelayCommand(async () => { started = true; await reset.Task; });
+        var cmd = new AsyncRelayCommand(async () => { started = true; await reset.Task.ConfigureAwait(false); });
 
         cmd.Execute(null);
         SpinWait.SpinUntil(() => started, 1000);

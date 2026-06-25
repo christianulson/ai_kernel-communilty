@@ -58,7 +58,7 @@ public sealed class DebugCommandTests
         var cmd = new DebugCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("debug").InvokeAsync();
+        var result = await root.Parse("debug").InvokeAsync().ConfigureAwait(false);
 
         result.Should().Be(0);
         var output = console.Output;

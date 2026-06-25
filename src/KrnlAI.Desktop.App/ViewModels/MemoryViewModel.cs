@@ -38,14 +38,14 @@ public class MemoryViewModel : ViewModelBase
         SearchMemoryCommand = new AsyncRelayCommand(SearchAsync);
         LoadMetricsCommand = new AsyncRelayCommand(async () =>
         {
-            try { MemoryMetricsData = await _kernelClient.GetMemoryMetricsAsync(); }
+            try { MemoryMetricsData = await _kernelClient.GetMemoryMetricsAsync().ConfigureAwait(false); }
             catch (Exception ex) { ErrorMessage = $"Erro ao carregar métricas: {ex.Message}"; }
         });
         LoadWorkingCommand = new AsyncRelayCommand(async () =>
         {
             try
             {
-                var s = await _kernelClient.GetWorkingMemoryAsync();
+                var s = await _kernelClient.GetWorkingMemoryAsync().ConfigureAwait(false);
                 WorkingSlots.Clear();
                 if (s?.Slots != null) foreach (var x in s.Slots) WorkingSlots.Add(x);
             }
@@ -66,7 +66,7 @@ public class MemoryViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            var r = await _kernelClient.SearchMemoryAsync(MemoryQuery, 20);
+            var r = await _kernelClient.SearchMemoryAsync(MemoryQuery, 20).ConfigureAwait(false);
             MemoryResults.Clear();
             if (r?.Hits != null) foreach (var h in r.Hits) MemoryResults.Add(h);
         }

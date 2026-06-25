@@ -22,9 +22,9 @@ public sealed class MomentsCommand(CliContext ctx, ConsoleRenderer renderer)
         recent.SetAction(async (ParseResult r, CancellationToken ct) =>
         {
             var takeVal = r.GetValue(take);
-            var moments = await ctx.MomentStore.ListRecentAsync(takeVal, ct);
+            var moments = await ctx.MomentStore.ListRecentAsync(takeVal, ct).ConfigureAwait(false);
             var classifications = await ctx.MomentClassifierStore.GetBatchAsync(
-                [.. moments.Select(m => m.MomentId)], ct);
+                [.. moments.Select(m => m.MomentId)], ct).ConfigureAwait(false);
             var classLookup = classifications.ToDictionary(c => c.MomentId, c => c);
             var rows = moments.Select(m =>
             {
@@ -54,13 +54,13 @@ public sealed class MomentsCommand(CliContext ctx, ConsoleRenderer renderer)
         detail.SetAction(async (ParseResult r, CancellationToken ct) =>
         {
             var id = r.GetValue(idArg)!;
-            var moment = await ctx.MomentStore.GetAsync(id, ct);
+            var moment = await ctx.MomentStore.GetAsync(id, ct).ConfigureAwait(false);
             if (moment is null)
             {
                 renderer.Console.MarkupLine($"[red]Moment '{id}' not found[/]");
                 return 1;
             }
-            var classification = await ctx.MomentClassifierStore.GetAsync(id, ct);
+            var classification = await ctx.MomentClassifierStore.GetAsync(id, ct).ConfigureAwait(false);
 
             renderer.Console.MarkupLine($"[bold]MomentId:[/] {moment.MomentId}");
             renderer.Console.MarkupLine($"[bold]Sequence:[/] {moment.Sequence}");

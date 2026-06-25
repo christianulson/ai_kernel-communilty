@@ -37,11 +37,11 @@ public sealed class AdminConfigViewModel : ViewModelBase
             var api = ServiceLocator.Instance.AdminApi;
             if (api == null) { StatusMessage = "Admin API indisponível"; return; }
 
-            var flags = await api.GetFeatureFlagsAsync();
+            var flags = await api.GetFeatureFlagsAsync().ConfigureAwait(false);
             FeatureFlags.Clear();
             foreach (var f in flags) FeatureFlags.Add(f);
 
-            var config = await api.GetConfigAsync();
+            var config = await api.GetConfigAsync().ConfigureAwait(false);
             ConfigEntries.Clear();
             foreach (var c in config) ConfigEntries.Add(c);
 

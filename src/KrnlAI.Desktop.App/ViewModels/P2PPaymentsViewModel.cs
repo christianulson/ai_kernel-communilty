@@ -76,7 +76,7 @@ public sealed class P2PPaymentsViewModel : ViewModelBase
             var receiptsTask = _http.GetFromJsonAsync<List<P2PReceipt>>("/api/p2p/receipts");
             var batchesTask = _http.GetFromJsonAsync<List<P2PBatchDto>>("/api/p2p/batches");
             var summaryTask = _http.GetFromJsonAsync<P2PSummaryDto>("/api/p2p/summary");
-            await Task.WhenAll(receiptsTask, batchesTask, summaryTask);
+            await Task.WhenAll(receiptsTask, batchesTask, summaryTask).ConfigureAwait(false);
 
             Receipts.Clear();
             if (receiptsTask.Result != null)
@@ -119,7 +119,7 @@ public sealed class P2PPaymentsViewModel : ViewModelBase
         try
         {
             if (ServiceLocator.Instance.CurrentMode == RunMode.Api)
-                await _http.PostAsJsonAsync("/api/p2p/mode", new { mode = _selectedMode });
+                await _http.PostAsJsonAsync("/api/p2p/mode", new { mode = _selectedMode }).ConfigureAwait(false);
         }
         catch (Exception ex)
         {

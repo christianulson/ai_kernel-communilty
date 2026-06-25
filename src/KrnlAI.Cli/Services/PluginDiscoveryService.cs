@@ -22,13 +22,13 @@ public sealed class PluginDiscoveryService(HttpClient httpClient)
 {
     public async Task<RegistryIndex?> FetchIndexAsync(CancellationToken ct = default)
     {
-        var index = await httpClient.GetFromJsonAsync<RegistryIndex>("registry.json", ct);
+        var index = await httpClient.GetFromJsonAsync<RegistryIndex>("registry.json", ct).ConfigureAwait(false);
         return index;
     }
 
     public async Task<IReadOnlyList<RegistryPlugin>> SearchAsync(string term, CancellationToken ct = default)
     {
-        var index = await FetchIndexAsync(ct);
+        var index = await FetchIndexAsync(ct).ConfigureAwait(false);
         if (index is null) return [];
 
         var termLower = term.ToLowerInvariant();
@@ -40,7 +40,7 @@ public sealed class PluginDiscoveryService(HttpClient httpClient)
 
     public async Task<RegistryPlugin?> GetByIdAsync(string id, CancellationToken ct = default)
     {
-        var index = await FetchIndexAsync(ct);
+        var index = await FetchIndexAsync(ct).ConfigureAwait(false);
         return index?.Plugins.FirstOrDefault(p =>
             p.Id.Equals(id, StringComparison.OrdinalIgnoreCase));
     }

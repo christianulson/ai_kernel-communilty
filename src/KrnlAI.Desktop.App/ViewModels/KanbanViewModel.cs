@@ -46,7 +46,7 @@ public class KanbanViewModel : ViewModelBase
         MoveCardCommand = new AsyncRelayCommand(async p =>
         {
             if (p is Tuple<string, string> args)
-                await MoveCardInnerAsync(args.Item1, args.Item2);
+                await MoveCardInnerAsync(args.Item1, args.Item2).ConfigureAwait(false);
         });
         SearchCommand = new AsyncRelayCommand(LoadAsync);
     }
@@ -63,14 +63,14 @@ public class KanbanViewModel : ViewModelBase
                 data = await _embeddedKanban.GetKanbanAsync(
                     DaysBack, SelectedDomain,
                     MinPriority > 0 ? MinPriority : null,
-                    string.IsNullOrWhiteSpace(SearchText) ? null : SearchText);
+                    string.IsNullOrWhiteSpace(SearchText) ? null : SearchText).ConfigureAwait(false);
             }
             else if (_httpKanban != null)
             {
                 data = await _httpKanban.GetKanbanAsync(
                     DaysBack, SelectedDomain,
                     MinPriority > 0 ? MinPriority : null,
-                    string.IsNullOrWhiteSpace(SearchText) ? null : SearchText);
+                    string.IsNullOrWhiteSpace(SearchText) ? null : SearchText).ConfigureAwait(false);
             }
             else
             {
@@ -97,13 +97,13 @@ public class KanbanViewModel : ViewModelBase
         {
             bool ok;
             if (_embeddedKanban != null)
-                ok = await _embeddedKanban.MoveCardAsync(cardId, toColumn);
+                ok = await _embeddedKanban.MoveCardAsync(cardId, toColumn).ConfigureAwait(false);
             else if (_httpKanban != null)
-                ok = await _httpKanban.MoveCardAsync(cardId, toColumn);
+                ok = await _httpKanban.MoveCardAsync(cardId, toColumn).ConfigureAwait(false);
             else
                 return;
 
-            if (ok) await LoadAsync();
+            if (ok) await LoadAsync().ConfigureAwait(false);
         }
         catch (Exception ex)
         {

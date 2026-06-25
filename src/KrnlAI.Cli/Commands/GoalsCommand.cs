@@ -13,7 +13,7 @@ public sealed class GoalsCommand(CliContext ctx, ConsoleRenderer renderer)
         var list = new Command("list", "List active goals");
         list.SetAction(async (ParseResult _, CancellationToken ct) =>
         {
-            var goals = await ctx.GoalStore.ListActiveAsync(null, ct);
+            var goals = await ctx.GoalStore.ListActiveAsync(null, ct).ConfigureAwait(false);
             if (goals.Count == 0)
             {
                 renderer.Console.MarkupLine("[yellow]No active goals[/]");
@@ -39,7 +39,7 @@ public sealed class GoalsCommand(CliContext ctx, ConsoleRenderer renderer)
         get.SetAction(async (ParseResult r, CancellationToken ct) =>
         {
             var id = r.GetValue(idArg)!;
-            var goal = await ctx.GoalStore.GetAsync(id, ct);
+            var goal = await ctx.GoalStore.GetAsync(id, ct).ConfigureAwait(false);
             if (goal is null)
             {
                 renderer.Console.MarkupLine($"[red]Goal '{id}' not found[/]");

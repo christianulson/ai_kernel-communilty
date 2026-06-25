@@ -17,7 +17,7 @@ public sealed class IntentionsCommand(CliContext ctx, ConsoleRenderer renderer)
         cmd.SetAction(async (ParseResult r, CancellationToken ct) =>
         {
             var domain = r.GetValue(domainOpt);
-            var intentions = await ctx.ProspectiveMemory.GetPendingIntentionsAsync(ct);
+            var intentions = await ctx.ProspectiveMemory.GetPendingIntentionsAsync(ct).ConfigureAwait(false);
 
             if (!string.IsNullOrEmpty(domain))
                 intentions = [.. intentions.Where(i =>

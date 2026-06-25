@@ -35,7 +35,7 @@ public sealed class FeedbackViewModelTests
             .ReturnsAsync(avg);
 
         var vm = new FeedbackViewModel(kernelClient.Object);
-        await vm.LoadHistoryAsync();
+        await vm.LoadHistoryAsync().ConfigureAwait(false);
 
         Assert.Equal(2, vm.History.Count);
         Assert.Equal("Great!", vm.History[0].Comment);
@@ -51,7 +51,7 @@ public sealed class FeedbackViewModelTests
             .ThrowsAsync(new HttpRequestException("history error"));
 
         var vm = new FeedbackViewModel(kernelClient.Object);
-        await vm.LoadHistoryAsync();
+        await vm.LoadHistoryAsync().ConfigureAwait(false);
 
         Assert.True(vm.HasError);
         Assert.Contains("history error", vm.ErrorMessage);
@@ -71,7 +71,7 @@ public sealed class FeedbackViewModelTests
         var loadTask = vm.LoadHistoryAsync();
         Assert.True(vm.IsLoading);
         tcs.SetResult([]);
-        await loadTask;
+        await loadTask.ConfigureAwait(false);
         Assert.False(vm.IsLoading);
     }
 
@@ -87,7 +87,7 @@ public sealed class FeedbackViewModelTests
         vm.Comment = "Nice work";
         vm.Category = "general";
 
-        var result = await vm.SubmitAsync();
+        var result = await vm.SubmitAsync().ConfigureAwait(false);
 
         Assert.True(result);
         Assert.Equal(5, vm.Rating);
@@ -108,7 +108,7 @@ public sealed class FeedbackViewModelTests
         var vm = new FeedbackViewModel(kernelClient.Object);
         vm.Rating = 3;
 
-        var result = await vm.SubmitAsync();
+        var result = await vm.SubmitAsync().ConfigureAwait(false);
 
         Assert.False(result);
         Assert.True(vm.HasError);

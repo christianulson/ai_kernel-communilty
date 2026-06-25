@@ -25,12 +25,12 @@ public sealed class DesktopServiceLifecycleTests
 
         Assert.False(sut.IsListening);
 
-        await sut.StartListeningAsync(CancellationToken.None);
+        await sut.StartListeningAsync(CancellationToken.None).ConfigureAwait(false);
 
         Assert.Equal(1, capture.StartCalls);
         Assert.True(sut.IsListening);
 
-        await sut.StopListeningAsync();
+        await sut.StopListeningAsync().ConfigureAwait(false);
 
         Assert.Equal(1, capture.StopCalls);
         Assert.False(sut.IsListening);
@@ -45,7 +45,7 @@ public sealed class DesktopServiceLifecycleTests
         var playback = Mock.Of<IAudioPlayback>();
         var sut = new ListeningService(capture, kernelAgent, kernelSpeech, playback, NullLogger<ListeningService>.Instance);
 
-        await sut.StartListeningAsync(CancellationToken.None);
+        await sut.StartListeningAsync(CancellationToken.None).ConfigureAwait(false);
         SeedSpeechBuffer(sut, 1600);
         SetPrivateField(sut, "_wasSpeaking", true);
         SetPrivateField(sut, "_lastSpeechTime", DateTime.UtcNow.AddSeconds(-5));
@@ -57,14 +57,14 @@ public sealed class DesktopServiceLifecycleTests
             {
                 capture.RaiseVoiceLevelChanged(0f);
                 return ValueTask.CompletedTask;
-            });
+            }).ConfigureAwait(false);
 
-        await Task.Delay(300, CancellationToken.None);
+        await Task.Delay(300, CancellationToken.None).ConfigureAwait(false);
 
         Assert.Equal(1, kernelAgent.TranscribeCalls);
         Assert.Equal(1, kernelAgent.RunAgentCalls);
 
-        await sut.StopListeningAsync();
+        await sut.StopListeningAsync().ConfigureAwait(false);
     }
 
     [Fact]
@@ -92,11 +92,11 @@ public sealed class DesktopServiceLifecycleTests
 
         var stopTask = sut.StopCaptureAsync();
 
-        await Task.Delay(100, CancellationToken.None);
+        await Task.Delay(100, CancellationToken.None).ConfigureAwait(false);
         Assert.False(stopTask.IsCompleted);
 
         captureTask.SetResult();
-        await stopTask;
+        await stopTask.ConfigureAwait(false);
 
         Assert.False(sut.IsCapturing);
     }
@@ -105,13 +105,13 @@ public sealed class DesktopServiceLifecycleTests
     public async Task WebRtcService_Dispose_ShouldCancelPendingConnectionTransition()
     {
         var sut = new WebRtcService(NullLogger<WebRtcService>.Instance);
-        await sut.InitializeAsync("ws://localhost/signaling", "stun.local");
+        await sut.InitializeAsync("ws://localhost/signaling", "stun.local").ConfigureAwait(false);
         var connectTask = sut.ConnectToPeerAsync("peer-1");
 
         sut.Dispose();
 
-        await connectTask;
-        await Task.Delay(600, CancellationToken.None);
+        await connectTask.ConfigureAwait(false);
+        await Task.Delay(600, CancellationToken.None).ConfigureAwait(false);
 
         Assert.False(sut.IsConnected);
     }

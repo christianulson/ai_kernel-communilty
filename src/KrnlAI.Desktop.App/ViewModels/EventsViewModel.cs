@@ -34,7 +34,7 @@ public class EventsViewModel : ViewModelBase
         LoadByMomentCommand = new AsyncRelayCommand(async () =>
         {
             if (!string.IsNullOrWhiteSpace(MomentId))
-                await LoadEventsByMomentAsync(MomentId);
+                await LoadEventsByMomentAsync(MomentId).ConfigureAwait(false);
         });
         ClearErrorCommand = new RelayCommand(() => ErrorMessage = "");
     }
@@ -47,7 +47,7 @@ public class EventsViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            var events = await _kernelClient.EventsRecentAsync(50);
+            var events = await _kernelClient.EventsRecentAsync(50).ConfigureAwait(false);
             Events.Clear();
             foreach (var e in events) Events.Add(e);
             ApplyFilter();
@@ -67,7 +67,7 @@ public class EventsViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            SelectedEvent = await _kernelClient.EventDetailAsync(eventId);
+            SelectedEvent = await _kernelClient.EventDetailAsync(eventId).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -81,7 +81,7 @@ public class EventsViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            var events = await _kernelClient.EventsByMomentAsync(momentId);
+            var events = await _kernelClient.EventsByMomentAsync(momentId).ConfigureAwait(false);
             Events.Clear();
             foreach (var e in events) Events.Add(e);
             ApplyFilter();

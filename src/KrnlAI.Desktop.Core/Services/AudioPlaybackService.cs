@@ -51,7 +51,7 @@ public class AudioPlaybackService(ILogger<AudioPlaybackService> logger) : IAudio
                 {
                     Thread.Sleep(100);
                 }
-            }, cancellationToken);
+            }, cancellationToken).ConfigureAwait(false);
         }
         catch (OperationCanceledException)
         {

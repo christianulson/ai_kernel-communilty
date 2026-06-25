@@ -39,7 +39,7 @@ public class PlanViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            var result = await _kernelClient.GetCurrentPlanAsync();
+            var result = await _kernelClient.GetCurrentPlanAsync().ConfigureAwait(false);
             if (result != null)
             {
                 CurrentPlan = result.CurrentPlan;

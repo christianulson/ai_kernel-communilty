@@ -58,8 +58,8 @@ public sealed class PluginCommand(
             var local = r.GetValue(localOpt);
 
             if (local || localLoader is null)
-                return await InstallLocalAsync(path, r.GetValue(typeOpt)!, ct);
-            return await InstallRemoteAsync(path, r.GetValue(endpointOpt)!, ct);
+                return await InstallLocalAsync(path, r.GetValue(typeOpt)!, ct).ConfigureAwait(false);
+            return await InstallRemoteAsync(path, r.GetValue(endpointOpt)!, ct).ConfigureAwait(false);
         });
 
         return cmd;
@@ -108,7 +108,7 @@ public sealed class PluginCommand(
                 console.MarkupLine($"[green]Plugin '{id}' removed locally[/]");
                 return 0;
             }
-            return await RemoveRemoteAsync(id, r.GetValue(endpointOpt)!, console, ct);
+            return await RemoveRemoteAsync(id, r.GetValue(endpointOpt)!, console, ct).ConfigureAwait(false);
         });
 
         return cmd;
@@ -128,7 +128,7 @@ public sealed class PluginCommand(
             }
 
             var query = r.GetValue(queryArg)!;
-            var result = await catalog.SearchAsync(query, ct);
+            var result = await catalog.SearchAsync(query, ct).ConfigureAwait(false);
 
             if (result.Results.Count == 0)
             {
@@ -162,7 +162,7 @@ public sealed class PluginCommand(
             }
 
             var id = r.GetValue(idArg)!;
-            var entry = await catalog.GetByIdAsync(id, ct);
+            var entry = await catalog.GetByIdAsync(id, ct).ConfigureAwait(false);
 
             if (entry is null)
             {
@@ -205,7 +205,7 @@ public sealed class PluginCommand(
                 return 1;
             }
 
-            var registries = await registry.ListRegistriesAsync(ct);
+            var registries = await registry.ListRegistriesAsync(ct).ConfigureAwait(false);
             if (registries.Count == 0)
             {
                 console.MarkupLine("[yellow]No registries configured[/]");
@@ -233,7 +233,7 @@ public sealed class PluginCommand(
 
             var id = r.GetValue(idArg)!;
             var url = r.GetValue(urlArg)!;
-            await registry.AddRegistryAsync(new PluginRegistryConfig(id, url), ct);
+            await registry.AddRegistryAsync(new PluginRegistryConfig(id, url), ct).ConfigureAwait(false);
             console.MarkupLine($"[green]Registry '{id}' added[/]");
             return 0;
         });
@@ -248,7 +248,7 @@ public sealed class PluginCommand(
             }
 
             var id = r.GetValue(idArg)!;
-            await registry.RemoveRegistryAsync(id, ct);
+            await registry.RemoveRegistryAsync(id, ct).ConfigureAwait(false);
             console.MarkupLine($"[green]Registry '{id}' removed[/]");
             return 0;
         });
@@ -276,17 +276,17 @@ public sealed class PluginCommand(
         try
         {
             var manifest = new { kind = "plugin", name = path, version = "1.0", type = MapType(path) };
-            var response = await client.PostAsJsonAsync("/admin/plugins", manifest, ct);
+            var response = await client.PostAsJsonAsync("/admin/plugins", manifest, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
-                var result = await response.Content.ReadFromJsonAsync<JsonElement>(ct);
+                var result = await response.Content.ReadFromJsonAsync<JsonElement>(ct).ConfigureAwait(false);
                 var id = result.TryGetProperty("id", out var idProp) ? idProp.GetString() : path;
                 AnsiConsole.MarkupLine($"[green]Plugin '{id}' installed successfully![/]");
             }
             else
             {
-                var error = await response.Content.ReadAsStringAsync(ct);
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 AnsiConsole.MarkupLine($"[red]Failed to install plugin:[/] {error}");
                 return 1;
             }
@@ -308,7 +308,7 @@ public sealed class PluginCommand(
 
         try
         {
-            var response = await client.PostAsync($"/admin/plugins/{pluginId}/unload", null, ct);
+            var response = await client.PostAsync($"/admin/plugins/{pluginId}/unload", null, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -316,7 +316,7 @@ public sealed class PluginCommand(
             }
             else
             {
-                var error = await response.Content.ReadAsStringAsync(ct);
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 console.MarkupLine($"[red]Failed to remove plugin:[/] {error}");
                 return 1;
             }

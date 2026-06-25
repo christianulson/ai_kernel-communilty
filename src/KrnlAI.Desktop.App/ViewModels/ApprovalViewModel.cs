@@ -29,8 +29,8 @@ public class ApprovalViewModel : ViewModelBase
         _kernelClient = kernelClient;
         _logger = logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<ApprovalViewModel>.Instance;
         LoadCommand = new AsyncRelayCommand(LoadAsync);
-        ApproveCommand = new AsyncRelayCommand(async p => { if (p is string id) await ApproveAsync(id); });
-        RejectCommand = new AsyncRelayCommand(async p => { if (p is string id) await RejectAsync(id); });
+        ApproveCommand = new AsyncRelayCommand(async p => { if (p is string id) await ApproveAsync(id).ConfigureAwait(false); });
+        RejectCommand = new AsyncRelayCommand(async p => { if (p is string id) await RejectAsync(id).ConfigureAwait(false); });
     }
 
     public ApprovalViewModel() : this(ServiceLocator.Instance.KernelClient) { }
@@ -46,7 +46,7 @@ public class ApprovalViewModel : ViewModelBase
                 ErrorMessage = "Indisponivel no modo Local";
                 return;
             }
-            Approvals = await _kernelClient.GetPendingApprovalsAsync();
+            Approvals = await _kernelClient.GetPendingApprovalsAsync().ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -66,8 +66,8 @@ public class ApprovalViewModel : ViewModelBase
             return;
         try
         {
-            await _kernelClient.ApproveRequestAsync(requestId);
-            await LoadAsync();
+            await _kernelClient.ApproveRequestAsync(requestId).ConfigureAwait(false);
+            await LoadAsync().ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -86,8 +86,8 @@ public class ApprovalViewModel : ViewModelBase
             return;
         try
         {
-            await _kernelClient.RejectRequestAsync(requestId);
-            await LoadAsync();
+            await _kernelClient.RejectRequestAsync(requestId).ConfigureAwait(false);
+            await LoadAsync().ConfigureAwait(false);
         }
         catch (Exception ex)
         {

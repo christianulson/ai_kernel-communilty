@@ -31,42 +31,42 @@ public sealed class DebugCommand(CliContext ctx, ConsoleRenderer renderer)
 
             try
             {
-                var moments = await ctx.MomentStore.ListRecentAsync(1, ct);
+                var moments = await ctx.MomentStore.ListRecentAsync(1, ct).ConfigureAwait(false);
                 checks.Add(("MomentStore", true, $"{moments.Count} recent"));
             }
             catch (Exception ex) { checks.Add(("MomentStore", false, ex.Message)); }
 
             try
             {
-                var archives = await ctx.ArchiveStore.CountArchivedAsync(ct);
+                var archives = await ctx.ArchiveStore.CountArchivedAsync(ct).ConfigureAwait(false);
                 checks.Add(("ArchiveStore", true, $"{archives} entries"));
             }
             catch (Exception ex) { checks.Add(("ArchiveStore", false, ex.Message)); }
 
             try
             {
-                var snapshots = await ctx.SnapshotService.ListSnapshotsAsync(null, ct);
+                var snapshots = await ctx.SnapshotService.ListSnapshotsAsync(null, ct).ConfigureAwait(false);
                 checks.Add(("SnapshotService", true, $"{snapshots.Count} snapshots"));
             }
             catch (Exception ex) { checks.Add(("SnapshotService", false, ex.Message)); }
 
             try
             {
-                var projections = await ctx.AnticipationService.GetActiveProjectionsAsync(null, ct);
+                var projections = await ctx.AnticipationService.GetActiveProjectionsAsync(null, ct).ConfigureAwait(false);
                 checks.Add(("AnticipationService", true, $"{projections.Count} projections"));
             }
             catch (Exception ex) { checks.Add(("AnticipationService", false, ex.Message)); }
 
             try
             {
-                var intentions = await ctx.ProspectiveMemory.GetPendingIntentionsAsync(ct);
+                var intentions = await ctx.ProspectiveMemory.GetPendingIntentionsAsync(ct).ConfigureAwait(false);
                 checks.Add(("ProspectiveMemory", true, $"{intentions.Count} intentions"));
             }
             catch (Exception ex) { checks.Add(("ProspectiveMemory", false, ex.Message)); }
 
             try
             {
-                var goals = await ctx.GoalStore.ListActiveAsync(null, ct);
+                var goals = await ctx.GoalStore.ListActiveAsync(null, ct).ConfigureAwait(false);
                 checks.Add(("GoalStore", true, $"{goals.Count} active goals"));
             }
             catch (Exception ex) { checks.Add(("GoalStore", false, ex.Message)); }
@@ -80,7 +80,7 @@ public sealed class DebugCommand(CliContext ctx, ConsoleRenderer renderer)
 
             try
             {
-                var records = await ctx.SafetyCaseStore.ListRecentAsync(1, ct);
+                var records = await ctx.SafetyCaseStore.ListRecentAsync(1, ct).ConfigureAwait(false);
                 checks.Add(("SafetyCaseStore", true, $"{records.Count} records"));
             }
             catch (Exception ex) { checks.Add(("SafetyCaseStore", false, ex.Message)); }

@@ -17,7 +17,7 @@ public partial class PeerRankingControl : UserControl
         try
         {
             if (DataContext is MainViewModel vm)
-                await vm.PeerRankingVM.LoadAsync();
+                await vm.PeerRankingVM.LoadAsync().ConfigureAwait(false);
         }
         catch (Exception ex) { KrnlLogger.Write($"PeerRankingControl.OnLoaded: {ex.Message}"); }
     }
@@ -28,7 +28,7 @@ public partial class PeerRankingControl : UserControl
         {
             if (DataContext is not MainViewModel vm || vm.PeerRankingVM.SelectedPeer is null)
                 return;
-            await vm.PeerRankingVM.LoadHistoryAsync(vm.PeerRankingVM.SelectedPeer.NodeId);
+            await vm.PeerRankingVM.LoadHistoryAsync(vm.PeerRankingVM.SelectedPeer.NodeId).ConfigureAwait(false);
         }
         catch (Exception ex) { KrnlLogger.Write($"PeerRankingControl.SelectionChanged: {ex.Message}"); }
     }

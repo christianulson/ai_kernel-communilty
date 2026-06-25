@@ -96,7 +96,7 @@ public class AgiDashboardViewModel : ViewModelBase, IDisposable
         });
         try
         {
-            var cognitive = await _kernelClient.GetCognitiveDashboardAsync();
+            var cognitive = await _kernelClient.GetCognitiveDashboardAsync().ConfigureAwait(false);
             if (cognitive != null)
             {
                 UiThreadInvoker.Invoke(() =>
@@ -139,8 +139,8 @@ public class AgiDashboardViewModel : ViewModelBase, IDisposable
         var t = _pollCts.Token;
         while (!t.IsCancellationRequested)
         {
-            try { await Task.Delay(30000, t); } catch (OperationCanceledException) { break; }
-            try { await LoadAgiDataAsync(); }
+            try { await Task.Delay(30000, t).ConfigureAwait(false); } catch (OperationCanceledException) { break; }
+            try { await LoadAgiDataAsync().ConfigureAwait(false); }
             catch (Exception ex) { KrnlLogger.Write($"AGI poll: {ex.Message}"); }
         }
     }

@@ -59,7 +59,7 @@ public sealed class SafetyCommandTests
         var cmd = new SafetyCommand(ctx, renderer, sp).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("safety rules").InvokeAsync();
+        var result = await root.Parse("safety rules").InvokeAsync().ConfigureAwait(false);
 
         result.Should().Be(0);
         var output = console.Output;
@@ -77,7 +77,7 @@ public sealed class SafetyCommandTests
         var cmd = new SafetyCommand(ctx, renderer, sp).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("safety audit").InvokeAsync();
+        var result = await root.Parse("safety audit").InvokeAsync().ConfigureAwait(false);
 
         result.Should().Be(0);
         console.Output.Should().Contain("No safety audit records");

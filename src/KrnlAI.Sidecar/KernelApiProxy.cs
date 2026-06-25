@@ -27,14 +27,14 @@ public sealed class KernelApiProxy(
     public async Task<T?> ProxyGetAsync<T>(string path, CancellationToken ct) where T : class
     {
         if (!IsConfigured) return null;
-        return await ExecuteWithResilienceAsync<T>(HttpMethod.Get, path, null, ct);
+        return await ExecuteWithResilienceAsync<T>(HttpMethod.Get, path, null, ct).ConfigureAwait(false);
     }
 
     public async Task<TResponse?> ProxyPostAsync<TRequest, TResponse>(string path, TRequest body, CancellationToken ct)
         where TResponse : class
     {
         if (!IsConfigured) return null;
-        return await ExecuteWithResilienceAsync<TResponse>(HttpMethod.Post, path, body, ct);
+        return await ExecuteWithResilienceAsync<TResponse>(HttpMethod.Post, path, body, ct).ConfigureAwait(false);
     }
 
     public async Task<bool> PingAsync(CancellationToken ct)
@@ -43,7 +43,7 @@ public sealed class KernelApiProxy(
         try
         {
             var client = httpClientFactory.CreateClient("kernel");
-            var res = await client.GetAsync($"/health", ct);
+            var res = await client.GetAsync($"/health", ct).ConfigureAwait(false);
             return res.IsSuccessStatusCode;
         }
         catch
@@ -62,7 +62,7 @@ public sealed class KernelApiProxy(
         if (IsCircuitOpen())
         {
             logger.LogWarning("Circuit breaker open for {Method} {Path}, serving from cache/stub", method, path);
-            var cached = await GetFromCacheAsync<T>(cacheKey);
+            var cached = await GetFromCacheAsync<T>(cacheKey).ConfigureAwait(false);
             if (cached is not null)
             {
                 sw.Stop();
@@ -86,11 +86,11 @@ public sealed class KernelApiProxy(
 
                 if (method == HttpMethod.Get)
                 {
-                    res = await client.GetAsync($"{baseUrl}{path}", ct);
+                    res = await client.GetAsync($"{baseUrl}{path}", ct).ConfigureAwait(false);
                 }
                 else
                 {
-                    res = await client.PostAsJsonAsync($"{baseUrl}{path}", body, ct);
+                    res = await client.PostAsJsonAsync($"{baseUrl}{path}", body, ct).ConfigureAwait(false);
                 }
 
                 if (!res.IsSuccessStatusCode)
@@ -100,12 +100,12 @@ public sealed class KernelApiProxy(
 
                     if (attempt < opts.RetryCount)
                     {
-                        await BackoffDelay(attempt, ct);
+                        await BackoffDelay(attempt, ct).ConfigureAwait(false);
                         continue;
                     }
 
                     RecordFailure();
-                    var cached = await GetFromCacheAsync<T>(cacheKey);
+                    var cached = await GetFromCacheAsync<T>(cacheKey).ConfigureAwait(false);
                     if (cached is not null)
                     {
                         sw.Stop();
@@ -117,7 +117,7 @@ public sealed class KernelApiProxy(
                     return null;
                 }
 
-                var result = await res.Content.ReadFromJsonAsync<T>(cancellationToken: ct);
+                var result = await res.Content.ReadFromJsonAsync<T>(cancellationToken: ct).ConfigureAwait(false);
                 if (result is not null && method == HttpMethod.Get)
                 {
                     cache.Set(cacheKey, result, TimeSpan.FromSeconds(opts.CacheTtlSeconds));
@@ -132,14 +132,14 @@ public sealed class KernelApiProxy(
             {
                 logger.LogWarning(ex, "Proxy {Method} {Path} failed (attempt {Attempt}/{Max}): {Msg}",
                     method, path, attempt, opts.RetryCount, ex.Message);
-                await BackoffDelay(attempt, ct);
+                await BackoffDelay(attempt, ct).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
                 logger.LogError(ex, "Proxy {Method} {Path} failed after {Attempt} attempts: {Msg}",
                     method, path, opts.RetryCount, ex.Message);
                 RecordFailure();
-                var cached = await GetFromCacheAsync<T>(cacheKey);
+                var cached = await GetFromCacheAsync<T>(cacheKey).ConfigureAwait(false);
                 if (cached is not null)
                 {
                     sw.Stop();

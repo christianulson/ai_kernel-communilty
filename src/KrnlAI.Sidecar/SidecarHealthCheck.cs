@@ -29,7 +29,7 @@ public sealed class SidecarHealthCheck(IAdversarialGuard guard, KernelApiProxy p
         // Self-check: safety guard
         try
         {
-            var result = await guard.ValidateAsync("ping", cancellationToken);
+            var result = await guard.ValidateAsync("ping", cancellationToken).ConfigureAwait(false);
             data["safety_guard"] = result.IsAllowed ? "healthy" : "degraded";
         }
         catch (Exception ex)
@@ -42,7 +42,7 @@ public sealed class SidecarHealthCheck(IAdversarialGuard guard, KernelApiProxy p
         {
             if (context.Registration.Tags.Contains("ready"))
             {
-                var proxyHealthy = await proxy.PingAsync(cancellationToken);
+                var proxyHealthy = await proxy.PingAsync(cancellationToken).ConfigureAwait(false);
                 data["proxy_target"] = proxyHealthy ? "healthy" : "unhealthy";
                 if (!proxyHealthy)
                 {

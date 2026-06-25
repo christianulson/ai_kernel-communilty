@@ -50,13 +50,13 @@ public sealed class HttpCognitiveStreamProvider : ICognitiveStreamProvider
         {
             try
             {
-                await Task.Delay(1000, ct);
+                await Task.Delay(1000, ct).ConfigureAwait(false);
                 if (_cycleId == null) continue;
 
-                var response = await _http.GetAsync($"/api/cognitive/stream/{_cycleId}/events?since={lastEventCount}", ct);
+                var response = await _http.GetAsync($"/api/cognitive/stream/{_cycleId}/events?since={lastEventCount}", ct).ConfigureAwait(false);
                 if (!response.IsSuccessStatusCode) continue;
 
-                var events = await response.Content.ReadFromJsonAsync<List<CognitiveCycleEvent>>(ct);
+                var events = await response.Content.ReadFromJsonAsync<List<CognitiveCycleEvent>>(ct).ConfigureAwait(false);
                 if (events == null || events.Count == 0) continue;
 
                 foreach (var evt in events)

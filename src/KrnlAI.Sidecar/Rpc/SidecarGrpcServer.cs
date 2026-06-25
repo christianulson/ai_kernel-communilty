@@ -33,7 +33,7 @@ public sealed class SidecarGrpcServer(IEmbeddedKrnlAI kernel, ILogger<SidecarGrp
         {
             try
             {
-                var context = await listener.GetContextAsync().WaitAsync(ct);
+                var context = await listener.GetContextAsync().WaitAsync(ct).ConfigureAwait(false);
                 _ = HandleRequestAsync(context, ct);
             }
             catch (OperationCanceledException) { break; }
@@ -54,25 +54,25 @@ public sealed class SidecarGrpcServer(IEmbeddedKrnlAI kernel, ILogger<SidecarGrp
             if (request.HttpMethod == "GET" && request.Url?.AbsolutePath == "/health")
             {
                 response.StatusCode = 200;
-                await using var sw = new System.IO.StreamWriter(response.OutputStream);
-                await sw.WriteAsync(JsonSerializer.Serialize(new { status = "SERVING", service = "sidecar-grpc" }));
+                await using var sw = new StreamWriter(response.OutputStream).ConfigureAwait(false);
+                await sw.WriteAsync(JsonSerializer.Serialize(new { status = "SERVING", service = "sidecar-grpc" })).ConfigureAwait(false);
                 return;
             }
 
             if (request.HttpMethod == "POST" && request.Url?.AbsolutePath == "/v1/agent/run")
             {
                 using var reader = new System.IO.StreamReader(request.InputStream);
-                var body = await reader.ReadToEndAsync();
+                var body = await reader.ReadToEndAsync().ConfigureAwait(false);
                 var agentRequest = JsonSerializer.Deserialize<GrpcAgentRunRequest>(body);
 
                 if (agentRequest == null)
                 {
                     response.StatusCode = 400;
-                    await WriteJson(response, new { error = "Invalid request" });
+                    await WriteJson(response, new { error = "Invalid request" }).ConfigureAwait(false);
                     return;
                 }
 
-                var result = await kernel.RunAsync(agentRequest.Input, ct);
+                var result = await kernel.RunAsync(agentRequest.Input, ct).ConfigureAwait(false);
                 response.StatusCode = 200;
                 await WriteJson(response, new
                 {
@@ -82,31 +82,31 @@ public sealed class SidecarGrpcServer(IEmbeddedKrnlAI kernel, ILogger<SidecarGrp
                     success = result.Error == null,
                     error = result.Error,
                     mode = result.Mode
-                });
+                }).ConfigureAwait(false);
                 return;
             }
 
             if (request.HttpMethod == "POST" && request.Url?.AbsolutePath == "/v1/memory/search")
             {
                 using var reader = new System.IO.StreamReader(request.InputStream);
-                var body = await reader.ReadToEndAsync();
+                var body = await reader.ReadToEndAsync().ConfigureAwait(false);
                 var searchRequest = JsonSerializer.Deserialize<GrpcMemorySearchRequest>(body);
 
                 if (searchRequest == null)
                 {
                     response.StatusCode = 400;
-                    await WriteJson(response, new { error = "Invalid request" });
+                    await WriteJson(response, new { error = "Invalid request" }).ConfigureAwait(false);
                     return;
                 }
 
-                var hits = await kernel.SearchMemoryAsync(searchRequest.Query, ct);
+                var hits = await kernel.SearchMemoryAsync(searchRequest.Query, ct).ConfigureAwait(false);
                 response.StatusCode = 200;
-                await WriteJson(response, new { hits = hits.Select(h => new { id = h.Id, score = h.Score, content = h.Payload }) });
+                await WriteJson(response, new { hits = hits.Select(h => new { id = h.Id, score = h.Score, content = h.Payload }) }).ConfigureAwait(false);
                 return;
             }
 
             response.StatusCode = 404;
-            await WriteJson(response, new { error = "Not found" });
+            await WriteJson(response, new { error = "Not found" }).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -114,7 +114,7 @@ public sealed class SidecarGrpcServer(IEmbeddedKrnlAI kernel, ILogger<SidecarGrp
             try
             {
                 context.Response.StatusCode = 500;
-                await WriteJson(context.Response, new { error = ex.Message });
+                await WriteJson(context.Response, new { error = ex.Message }).ConfigureAwait(false);
             }
             catch { }
         }
@@ -123,9 +123,9 @@ public sealed class SidecarGrpcServer(IEmbeddedKrnlAI kernel, ILogger<SidecarGrp
     private static async Task WriteJson(System.Net.HttpListenerResponse response, object data)
     {
         response.ContentType = "application/json";
-        await using var sw = new System.IO.StreamWriter(response.OutputStream);
+        await using var sw = new StreamWriter(response.OutputStream).ConfigureAwait(false);
         await sw.WriteAsync(JsonSerializer.Serialize(data,
-            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })).ConfigureAwait(false);
     }
 
     private sealed record GrpcAgentRunRequest(string AgentId, string Input);

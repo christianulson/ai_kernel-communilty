@@ -85,7 +85,7 @@ public class VideoCaptureService(ILogger<VideoCaptureService> logger) : IVideoCa
                     ));
                 }
 
-                await Task.Delay(33, token);
+                await Task.Delay(33, token).ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {
@@ -109,7 +109,7 @@ public class VideoCaptureService(ILogger<VideoCaptureService> logger) : IVideoCa
         {
             try
             {
-                await captureTask;
+                await captureTask.ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {

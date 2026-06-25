@@ -12,7 +12,7 @@ public sealed class TemplatesCommand(ITemplateEngine templateEngine)
 
         cmd.SetAction(async (ParseResult _, CancellationToken ct) =>
         {
-            var templates = await templateEngine.ListTemplatesAsync();
+            var templates = await templateEngine.ListTemplatesAsync().ConfigureAwait(false);
 
             if (templates.Count == 0)
             {

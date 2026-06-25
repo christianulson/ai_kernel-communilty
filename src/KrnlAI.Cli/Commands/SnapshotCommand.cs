@@ -14,7 +14,7 @@ public sealed class SnapshotCommand(CliContext ctx, ConsoleRenderer renderer)
         var list = new Command("list", "List snapshots");
         list.SetAction(async (ParseResult _, CancellationToken ct) =>
         {
-            var snapshots = await ctx.SnapshotService.ListSnapshotsAsync(null, ct);
+            var snapshots = await ctx.SnapshotService.ListSnapshotsAsync(null, ct).ConfigureAwait(false);
             if (snapshots.Count == 0)
             {
                 renderer.Console.MarkupLine("[yellow]No snapshots[/]");
@@ -63,7 +63,7 @@ public sealed class SnapshotCommand(CliContext ctx, ConsoleRenderer renderer)
                 return 1;
             }
 
-            var snapshot = await ctx.SnapshotService.CreateSnapshotAsync(label, scope, reason, ct);
+            var snapshot = await ctx.SnapshotService.CreateSnapshotAsync(label, scope, reason, ct).ConfigureAwait(false);
             renderer.Console.MarkupLine($"[green]Snapshot created:[/] {snapshot.Id.Value}");
             renderer.Console.MarkupLine($"  Label: {snapshot.Label}");
             renderer.Console.MarkupLine($"  Scope: {snapshot.Scope}");
@@ -77,7 +77,7 @@ public sealed class SnapshotCommand(CliContext ctx, ConsoleRenderer renderer)
         restore.SetAction(async (ParseResult r, CancellationToken ct) =>
         {
             var id = new SnapshotId(r.GetValue(idArg)!);
-            var result = await ctx.SnapshotService.RestoreSnapshotAsync(id, null, ct);
+            var result = await ctx.SnapshotService.RestoreSnapshotAsync(id, null, ct).ConfigureAwait(false);
             if (result.Success)
             {
                 renderer.Console.MarkupLine($"[green]Snapshot restored:[/] {result.Id.Value} ({result.Duration.TotalMilliseconds:F0}ms)");
@@ -93,7 +93,7 @@ public sealed class SnapshotCommand(CliContext ctx, ConsoleRenderer renderer)
         delete.SetAction(async (ParseResult r, CancellationToken ct) =>
         {
             var id = new SnapshotId(r.GetValue(idArg)!);
-            await ctx.SnapshotService.DeleteSnapshotAsync(id, ct);
+            await ctx.SnapshotService.DeleteSnapshotAsync(id, ct).ConfigureAwait(false);
             renderer.Console.MarkupLine($"[green]Snapshot deleted:[/] {id.Value}");
             return 0;
         });

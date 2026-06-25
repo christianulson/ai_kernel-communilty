@@ -75,7 +75,7 @@ internal sealed class SessionCommand(
             var id = r.GetValue(idArg)!;
             try
             {
-                var fork = await cognitiveStore.ForkAsync(id, ct: ct);
+                var fork = await cognitiveStore.ForkAsync(id, ct: ct).ConfigureAwait(false);
                 console.MarkupLine($"[green]Session forked:[/] {fork.SessionId}");
                 console.MarkupLine($"  Forked from: {fork.ForkedFrom}");
                 console.MarkupLine($"  Fork depth: {fork.ForkDepth}");
@@ -98,7 +98,7 @@ internal sealed class SessionCommand(
         cmd.SetAction(async (ParseResult r, CancellationToken ct) =>
         {
             var id = r.GetValue(idArg)!;
-            var ctx = await cognitiveStore.ResumeAsync(id, ct);
+            var ctx = await cognitiveStore.ResumeAsync(id, ct).ConfigureAwait(false);
             if (ctx is null)
             {
                 console.MarkupLine($"[yellow]Session '{id}' has no saved context to resume[/]");
@@ -120,7 +120,7 @@ internal sealed class SessionCommand(
         cmd.SetAction(async (ParseResult r, CancellationToken ct) =>
         {
             var id = r.GetValue(idArg)!;
-            var session = await cognitiveStore.GetAsync(id, ct);
+            var session = await cognitiveStore.GetAsync(id, ct).ConfigureAwait(false);
             if (session is null)
             {
                 console.MarkupLine($"[red]Session '{id}' not found[/]");
@@ -150,7 +150,7 @@ internal sealed class SessionCommand(
         cmd.SetAction(async (ParseResult r, CancellationToken ct) =>
         {
             var id = r.GetValue(idArg)!;
-            var session = await cognitiveStore.GetAsync(id, ct);
+            var session = await cognitiveStore.GetAsync(id, ct).ConfigureAwait(false);
             if (session is null)
             {
                 console.MarkupLine($"[red]Session '{id}' not found[/]");

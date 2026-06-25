@@ -71,16 +71,16 @@ public sealed class CognitiveStreamPollingService
             using var response = await _http.GetAsync(
                 $"/api/cognitive/stream/{Uri.EscapeDataString(cycleId)}",
                 HttpCompletionOption.ResponseHeadersRead,
-                ct);
+                ct).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode) return;
 
-            await using var stream = await response.Content.ReadAsStreamAsync(ct);
+            await using var stream = (await response.Content.ReadAsStreamAsync(ct).ConfigureAwait(false)).ConfigureAwait(false);
             using var reader = new StreamReader(stream);
             var eventLines = new List<string>();
 
             while (!ct.IsCancellationRequested)
             {
-                var line = await reader.ReadLineAsync(ct);
+                var line = await reader.ReadLineAsync(ct).ConfigureAwait(false);
                 if (line is null) break;
                 if (line.Length == 0)
                 {

@@ -35,16 +35,16 @@ public class CodingViewModel : ViewModelBase
     public CodingViewModel(IKernelClient kernelClient)
     {
         _kernelClient = kernelClient;
-        ExplainCommand = new AsyncRelayCommand(async _ => await ExplainAsync());
-        FixCommand = new AsyncRelayCommand(async _ => await FixAsync());
-        GenerateTestsCommand = new AsyncRelayCommand(async _ => await GenerateTestsAsync());
-        ReviewCommand = new AsyncRelayCommand(async _ => await ReviewAsync());
-        ApplyDiffCommand = new AsyncRelayCommand(async _ => await ApplyDiffAsync());
-        CompleteCommand = new AsyncRelayCommand(async _ => await CompleteAsync());
+        ExplainCommand = new AsyncRelayCommand(async _ => await ExplainAsync().ConfigureAwait(false));
+        FixCommand = new AsyncRelayCommand(async _ => await FixAsync().ConfigureAwait(false));
+        GenerateTestsCommand = new AsyncRelayCommand(async _ => await GenerateTestsAsync().ConfigureAwait(false));
+        ReviewCommand = new AsyncRelayCommand(async _ => await ReviewAsync().ConfigureAwait(false));
+        ApplyDiffCommand = new AsyncRelayCommand(async _ => await ApplyDiffAsync().ConfigureAwait(false));
+        CompleteCommand = new AsyncRelayCommand(async _ => await CompleteAsync().ConfigureAwait(false));
         LoadStatusCommand = new AsyncRelayCommand(async param =>
         {
             if (param is string cycleId && !string.IsNullOrWhiteSpace(cycleId))
-                await LoadStatusAsync(cycleId);
+                await LoadStatusAsync(cycleId).ConfigureAwait(false);
         });
         ClearErrorCommand = new RelayCommand(_ => ErrorMessage = "");
     }
@@ -54,37 +54,37 @@ public class CodingViewModel : ViewModelBase
     public async Task ExplainAsync()
     {
         if (string.IsNullOrWhiteSpace(Code)) return;
-        await ExecuteCodingAsync(() => _kernelClient.CodingExplainAsync(BuildRequest()));
+        await ExecuteCodingAsync(() => _kernelClient.CodingExplainAsync(BuildRequest())).ConfigureAwait(false);
     }
 
     public async Task FixAsync()
     {
         if (string.IsNullOrWhiteSpace(Code)) return;
-        await ExecuteCodingAsync(() => _kernelClient.CodingFixAsync(BuildRequest()));
+        await ExecuteCodingAsync(() => _kernelClient.CodingFixAsync(BuildRequest())).ConfigureAwait(false);
     }
 
     public async Task GenerateTestsAsync()
     {
         if (string.IsNullOrWhiteSpace(Code)) return;
-        await ExecuteCodingAsync(() => _kernelClient.CodingGenerateTestsAsync(BuildRequest()));
+        await ExecuteCodingAsync(() => _kernelClient.CodingGenerateTestsAsync(BuildRequest())).ConfigureAwait(false);
     }
 
     public async Task ReviewAsync()
     {
         if (string.IsNullOrWhiteSpace(Code)) return;
-        await ExecuteCodingAsync(() => _kernelClient.CodingReviewAsync(BuildRequest()));
+        await ExecuteCodingAsync(() => _kernelClient.CodingReviewAsync(BuildRequest())).ConfigureAwait(false);
     }
 
     public async Task ApplyDiffAsync()
     {
         if (string.IsNullOrWhiteSpace(Code)) return;
-        await ExecuteCodingAsync(() => _kernelClient.CodingApplyDiffAsync(BuildRequest()));
+        await ExecuteCodingAsync(() => _kernelClient.CodingApplyDiffAsync(BuildRequest())).ConfigureAwait(false);
     }
 
     public async Task CompleteAsync()
     {
         if (string.IsNullOrWhiteSpace(Code)) return;
-        await ExecuteCodingAsync(() => _kernelClient.CodingCompleteAsync(BuildRequest()));
+        await ExecuteCodingAsync(() => _kernelClient.CodingCompleteAsync(BuildRequest())).ConfigureAwait(false);
     }
 
     public async Task LoadStatusAsync(string cycleId)
@@ -92,7 +92,7 @@ public class CodingViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            Status = await _kernelClient.GetCodingStatusAsync(cycleId);
+            Status = await _kernelClient.GetCodingStatusAsync(cycleId).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -108,7 +108,7 @@ public class CodingViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            Result = await operation();
+            Result = await operation().ConfigureAwait(false);
         }
         catch (Exception ex)
         {

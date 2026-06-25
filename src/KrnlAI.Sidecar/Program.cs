@@ -22,7 +22,7 @@ if (stdioMode)
     var logger = sp.GetRequiredService<ILogger<Program>>();
     logger.LogInformation("KrnlAI.Sidecar started in stdio/RPC mode");
 
-    await jsonRpc.Completion;
+    await jsonRpc.Completion.ConfigureAwait(false);
     logger.LogInformation("KrnlAI.Sidecar stdio mode shutting down...");
     return;
 #pragma warning restore ASP0000
@@ -102,6 +102,6 @@ app.Lifetime.ApplicationStarted.Register(() =>
 });
 app.Lifetime.ApplicationStopping.Register(() => Console.WriteLine("KrnlAI.Sidecar shutting down..."));
 
-await app.RunAsync();
+await app.RunAsync().ConfigureAwait(false);
 
 public partial class Program { }

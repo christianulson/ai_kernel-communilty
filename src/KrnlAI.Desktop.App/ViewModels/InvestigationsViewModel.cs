@@ -39,7 +39,7 @@ public class InvestigationsViewModel : ViewModelBase
                 ErrorMessage = "Indisponível no modo Local";
                 return;
             }
-            var r = await _client.GetInvestigationsAsync();
+            var r = await _client.GetInvestigationsAsync().ConfigureAwait(false);
             Investigations.Clear();
             if (r != null) { foreach (var i in r) Investigations.Add(i); }
             OnPropertyChanged(nameof(HasNoData));

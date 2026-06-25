@@ -33,8 +33,8 @@ public class CreativityViewModel : ViewModelBase
     public CreativityViewModel(IKernelClient kernelClient)
     {
         _kernelClient = kernelClient;
-        GenerateCommand = new AsyncRelayCommand(async _ => await GenerateAsync());
-        ChainCommand = new AsyncRelayCommand(async _ => await ChainAsync());
+        GenerateCommand = new AsyncRelayCommand(async _ => await GenerateAsync().ConfigureAwait(false));
+        ChainCommand = new AsyncRelayCommand(async _ => await ChainAsync().ConfigureAwait(false));
         ClearErrorCommand = new RelayCommand(() => ErrorMessage = "");
         ClearResultCommand = new RelayCommand(() => { Result = ""; ChainSteps.Clear(); });
     }
@@ -48,7 +48,7 @@ public class CreativityViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            var result = await _kernelClient.PieInferAsync(Prompt);
+            var result = await _kernelClient.PieInferAsync(Prompt).ConfigureAwait(false);
             if (result != null)
             {
                 Result = result.Conclusion;
@@ -77,7 +77,7 @@ public class CreativityViewModel : ViewModelBase
         ChainSteps.Clear();
         try
         {
-            var result = await _kernelClient.PieChainAsync(Prompt, 5);
+            var result = await _kernelClient.PieChainAsync(Prompt, 5).ConfigureAwait(false);
             if (result != null)
             {
                 foreach (var step in result.Steps)

@@ -28,7 +28,7 @@ public static class WebApplicationExtensions
                 var reqId = ctx.Items["RequestId"]?.ToString() ?? "";
                 ctx.Response.StatusCode = 500;
                 ctx.Response.ContentType = "application/json";
-                await ctx.Response.WriteAsJsonAsync(new ErrorResponse("internal_error", "An unexpected error occurred.", reqId));
+                await ctx.Response.WriteAsJsonAsync(new ErrorResponse("internal_error", "An unexpected error occurred.", reqId)).ConfigureAwait(false);
             });
         });
         return app;
@@ -47,7 +47,7 @@ public static class WebApplicationExtensions
             var logger = ctx.RequestServices.GetRequiredService<ILogger<Program>>();
             using (logger.BeginScope(new Dictionary<string, object> { ["RequestId"] = requestId }))
             {
-                await next();
+                await next().ConfigureAwait(false);
             }
         });
         return app;
@@ -58,7 +58,7 @@ public static class WebApplicationExtensions
         app.Use(async (ctx, next) =>
         {
             ctx.Response.Headers["X-API-Version"] = "1.0";
-            await next();
+            await next().ConfigureAwait(false);
         });
         return app;
     }
@@ -72,7 +72,7 @@ public static class WebApplicationExtensions
             ctx.Response.Headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'";
             ctx.Response.Headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()";
             ctx.Response.Headers["Referrer-Policy"] = "no-referrer";
-            await next();
+            await next().ConfigureAwait(false);
         });
         return app;
     }
@@ -96,12 +96,12 @@ public static class WebApplicationExtensions
                         var logger = ctx.RequestServices.GetRequiredService<ILogger<Program>>();
                         logger.LogWarning("Unauthorized access attempt to {Path} from {RemoteIp}", ctx.Request.Path, ctx.Connection.RemoteIpAddress);
                         ctx.Response.StatusCode = 401;
-                        await ctx.Response.WriteAsJsonAsync(new ErrorResponse("unauthorized", null, ctx.Items["RequestId"]?.ToString()));
+                        await ctx.Response.WriteAsJsonAsync(new ErrorResponse("unauthorized", null, ctx.Items["RequestId"]?.ToString())).ConfigureAwait(false);
                         return;
                     }
                 }
             }
-            await next();
+            await next().ConfigureAwait(false);
         });
         return app;
     }
@@ -110,7 +110,7 @@ public static class WebApplicationExtensions
     {
         app.Use(async (ctx, next) =>
         {
-            await next();
+            await next().ConfigureAwait(false);
             if (ctx.Response.StatusCode == 429 && !ctx.Response.Headers.ContainsKey("Retry-After"))
                 ctx.Response.Headers["Retry-After"] = "60";
         });

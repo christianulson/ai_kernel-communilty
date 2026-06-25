@@ -48,7 +48,7 @@ public sealed class TuiSessionStore
         };
 
         var json = JsonSerializer.Serialize(session, SessionJson.Options);
-        await File.WriteAllTextAsync(filePath, json);
+        await File.WriteAllTextAsync(filePath, json).ConfigureAwait(false);
 
         TrimOldSessions();
     }
@@ -63,7 +63,7 @@ public sealed class TuiSessionStore
         {
             try
             {
-                var json = await File.ReadAllTextAsync(file);
+                var json = await File.ReadAllTextAsync(file).ConfigureAwait(false);
                 var session = JsonSerializer.Deserialize<TuiSession>(json, SessionJson.Options);
                 if (session != null)
                     sessions.Add(session);
@@ -78,7 +78,7 @@ public sealed class TuiSessionStore
 
     public async Task<TuiSession?> LoadAsync(string sessionId)
     {
-        var sessions = await ListAsync();
+        var sessions = await ListAsync().ConfigureAwait(false);
         return sessions.FirstOrDefault(s => s.Id == sessionId);
     }
 
@@ -91,7 +91,7 @@ public sealed class TuiSessionStore
         {
             try
             {
-                var json = await File.ReadAllTextAsync(file);
+                var json = await File.ReadAllTextAsync(file).ConfigureAwait(false);
                 var session = JsonSerializer.Deserialize<TuiSession>(json, SessionJson.Options);
                 if (session?.Id == sessionId)
                 {
@@ -109,7 +109,7 @@ public sealed class TuiSessionStore
 
     public async Task<string> ExportAsync(string sessionId)
     {
-        var session = await LoadAsync(sessionId);
+        var session = await LoadAsync(sessionId).ConfigureAwait(false);
         if (session == null) return "";
         return JsonSerializer.Serialize(session, SessionJson.Options);
     }
@@ -127,7 +127,7 @@ public sealed class TuiSessionStore
 
             var fileName = $"{DateTimeOffset.UtcNow:yyyy-MM-dd_HHmmss}_{SanitizeFileName(session.Label)}.json";
             var filePath = Path.Combine(_sessionsDir, fileName);
-            await File.WriteAllTextAsync(filePath, json);
+            await File.WriteAllTextAsync(filePath, json).ConfigureAwait(false);
 
             TrimOldSessions();
             return session;

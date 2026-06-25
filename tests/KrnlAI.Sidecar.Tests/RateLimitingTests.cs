@@ -12,15 +12,15 @@ public sealed class RateLimitingTests(RateLimitSidecarWebAppFactory factory) : I
         var payload = new { prompt = "hello" };
 
         // First request consumes 1 of 2 permits
-        var res1 = await _http.PostAsJsonAsync("/agent/run", payload, TestContext.Current.CancellationToken);
+        var res1 = await _http.PostAsJsonAsync("/agent/run", payload, TestContext.Current.CancellationToken).ConfigureAwait(false);
         res1.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
 
         // Second request consumes 2nd permit
-        var res2 = await _http.PostAsJsonAsync("/agent/run", payload, TestContext.Current.CancellationToken);
+        var res2 = await _http.PostAsJsonAsync("/agent/run", payload, TestContext.Current.CancellationToken).ConfigureAwait(false);
         res2.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
 
         // Third request exceeds limit
-        var res3 = await _http.PostAsJsonAsync("/agent/run", payload, TestContext.Current.CancellationToken);
+        var res3 = await _http.PostAsJsonAsync("/agent/run", payload, TestContext.Current.CancellationToken).ConfigureAwait(false);
         res3.StatusCode.Should().Be(System.Net.HttpStatusCode.TooManyRequests);
     }
 
@@ -29,7 +29,7 @@ public sealed class RateLimitingTests(RateLimitSidecarWebAppFactory factory) : I
     {
         for (var i = 0; i < 20; i++)
         {
-            var res = await _http.GetAsync("/health", TestContext.Current.CancellationToken);
+            var res = await _http.GetAsync("/health", TestContext.Current.CancellationToken).ConfigureAwait(false);
             res.IsSuccessStatusCode.Should().BeTrue($"health request {i + 1} should succeed");
         }
     }

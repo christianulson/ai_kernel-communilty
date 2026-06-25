@@ -43,7 +43,7 @@ public sealed class KanbanCommand(CliContext ctx, KanbanRenderer renderer)
             try
             {
                 var svc = ctx.GetService<IKanbanService>();
-                var data = await svc.GetKanbanAsync(days, domain, priority, search: search, ct: ct);
+                var data = await svc.GetKanbanAsync(days, domain, priority, search: search, ct: ct).ConfigureAwait(false);
                 renderer.Render(data);
                 return 0;
             }

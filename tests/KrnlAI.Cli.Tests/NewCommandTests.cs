@@ -17,7 +17,7 @@ public sealed class NewCommandTests
         var cmd = new NewCommand(engine, console).Build();
 
         var cmdLine = $"agent {args[0]} --output {tempDir.Path}";
-        var result = await cmd.Parse(cmdLine).InvokeAsync();
+        var result = await cmd.Parse(cmdLine).InvokeAsync().ConfigureAwait(false);
 
         result.Should().Be(0);
         engine.LastScaffoldType.Should().Be(TemplateType.Agent);
@@ -32,7 +32,7 @@ public sealed class NewCommandTests
         var console = new TestConsole();
         var cmd = new NewCommand(engine, console).Build();
 
-        var result = await cmd.Parse($"agent SecureBot --safety strict --llm openai --memory false --output {tempDir.Path}").InvokeAsync();
+        var result = await cmd.Parse($"agent SecureBot --safety strict --llm openai --memory false --output {tempDir.Path}").InvokeAsync().ConfigureAwait(false);
 
         result.Should().Be(0);
         engine.LastVariables.Should().Contain("SafetyLevel", "strict");
@@ -58,7 +58,7 @@ public sealed class NewCommandTests
             TemplateType.CognitiveCycle => "cognitive-cycle",
             _ => throw new ArgumentOutOfRangeException()
         };
-        var result = await cmd.Parse($"{subCmd} {name} --output {tempDir.Path}").InvokeAsync();
+        var result = await cmd.Parse($"{subCmd} {name} --output {tempDir.Path}").InvokeAsync().ConfigureAwait(false);
 
         result.Should().Be(0);
         engine.LastScaffoldType.Should().Be(expected);
@@ -76,7 +76,7 @@ public sealed class NewCommandTests
         var console = new TestConsole();
         var cmd = new NewCommand(engine, console).Build();
 
-        var result = await cmd.Parse($"agent ExistingAgent --output {tempDir.Path}").InvokeAsync();
+        var result = await cmd.Parse($"agent ExistingAgent --output {tempDir.Path}").InvokeAsync().ConfigureAwait(false);
 
         result.Should().Be(-1);
     }
@@ -89,7 +89,7 @@ public sealed class NewCommandTests
         var console = new TestConsole();
         var cmd = new NewCommand(engine, console).Build();
 
-        var result = await cmd.Parse($"agent --output {tempDir.Path}").InvokeAsync();
+        var result = await cmd.Parse($"agent --output {tempDir.Path}").InvokeAsync().ConfigureAwait(false);
 
         result.Should().NotBe(0);
     }
@@ -107,7 +107,7 @@ public sealed class NewCommandTests
         await engine.ScaffoldAsync(TemplateType.Agent, name, "out", new Dictionary<string, string>
         {
             ["SafetyLevel"] = "moderate"
-        });
+        }).ConfigureAwait(false);
 
         engine.LastScaffoldName.Should().Be(name);
         engine.LastVariables.Should().Contain("SafetyLevel", "moderate");
@@ -117,7 +117,7 @@ public sealed class NewCommandTests
     public async Task ListTemplates_ShouldReturnAvailable()
     {
         var engine = new FakeTemplateEngine();
-        var templates = await engine.ListTemplatesAsync();
+        var templates = await engine.ListTemplatesAsync().ConfigureAwait(false);
 
         templates.Should().NotBeEmpty();
         templates.Should().Contain(t => t.Type == TemplateType.Agent);

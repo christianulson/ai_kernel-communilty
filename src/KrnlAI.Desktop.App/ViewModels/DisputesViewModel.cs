@@ -51,7 +51,7 @@ public sealed class DisputesViewModel : ViewModelBase
         {
             if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return;
 
-            var items = await _http.GetFromJsonAsync<List<DisputeItem>>("/api/disputes");
+            var items = await _http.GetFromJsonAsync<List<DisputeItem>>("/api/disputes").ConfigureAwait(false);
             Disputes.Clear();
             if (items != null)
                 foreach (var d in items) Disputes.Add(d);
@@ -73,10 +73,10 @@ public sealed class DisputesViewModel : ViewModelBase
         {
             if (ServiceLocator.Instance.CurrentMode == RunMode.Api)
             {
-                await _http.PostAsJsonAsync($"/api/disputes/{_selectedDispute.DisputeId}/resolve", new { favor });
+                await _http.PostAsJsonAsync($"/api/disputes/{_selectedDispute.DisputeId}/resolve", new { favor }).ConfigureAwait(false);
             }
             SelectedDispute = null;
-            await RefreshAsync();
+            await RefreshAsync().ConfigureAwait(false);
         }
         catch (Exception ex)
         {

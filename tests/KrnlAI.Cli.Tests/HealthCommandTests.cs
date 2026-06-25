@@ -60,7 +60,7 @@ public sealed class HealthCommandTests
         var cmd = new HealthCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("health").InvokeAsync();
+        var result = await root.Parse("health").InvokeAsync().ConfigureAwait(false);
 
         result.Should().Be(0);
         var output = console.Output;
@@ -75,7 +75,7 @@ public sealed class HealthCommandTests
         var root = new RootCommand { cmd };
 
         // Still expect 0 because all in-memory services should work
-        var result = await root.Parse("health").InvokeAsync();
+        var result = await root.Parse("health").InvokeAsync().ConfigureAwait(false);
 
         result.Should().Be(0);
     }

@@ -14,7 +14,7 @@ public static class SafeCall
     {
         try
         {
-            return await action();
+            return await action().ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -29,7 +29,7 @@ public static class SafeCall
     {
         try
         {
-            await action();
+            await action().ConfigureAwait(false);
         }
         catch (Exception ex)
         {

@@ -29,7 +29,7 @@ public sealed class SensoryIngestClient(string hubUrl = "http://localhost:5000/h
             return Task.CompletedTask;
         };
 
-        await _connection.StartAsync(ct);
+        await _connection.StartAsync(ct).ConfigureAwait(false);
         logger?.LogInformation("SensoryIngestClient connected to {Hub}", hubUrl);
     }
 
@@ -39,7 +39,7 @@ public sealed class SensoryIngestClient(string hubUrl = "http://localhost:5000/h
         try
         {
             await _connection.InvokeAsync("IngestAudioChunk",
-                wavData, "wav", intensity, transcription);
+                wavData, "wav", intensity, transcription).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -53,7 +53,7 @@ public sealed class SensoryIngestClient(string hubUrl = "http://localhost:5000/h
         try
         {
             await _connection.InvokeAsync("IngestVideoFrame",
-                jpegData, intensity, description);
+                jpegData, intensity, description).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -73,7 +73,7 @@ public sealed class SensoryIngestClient(string hubUrl = "http://localhost:5000/h
             {
                 Frames = frameData,
                 AudioClips = clips
-            });
+            }).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -84,6 +84,6 @@ public sealed class SensoryIngestClient(string hubUrl = "http://localhost:5000/h
     public async ValueTask DisposeAsync()
     {
         if (_connection is not null)
-            await _connection.DisposeAsync();
+            await _connection.DisposeAsync().ConfigureAwait(false);
     }
 }

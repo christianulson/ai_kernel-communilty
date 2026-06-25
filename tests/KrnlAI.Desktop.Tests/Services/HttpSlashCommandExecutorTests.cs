@@ -8,14 +8,14 @@ public sealed class HttpSlashCommandExecutorTests
     public async Task ExecuteAsync_Clear_ShouldReturnConstant()
     {
         var executor = new HttpSlashCommandExecutor("http://localhost");
-        Assert.Equal("CLEAR_CONVERSATION", await executor.ExecuteAsync("/clear"));
+        Assert.Equal("CLEAR_CONVERSATION", await executor.ExecuteAsync("/clear").ConfigureAwait(false));
     }
 
     [Fact]
     public async Task ExecuteAsync_Help_ShouldReturnHelpText()
     {
         var executor = new HttpSlashCommandExecutor("http://localhost");
-        var result = await executor.ExecuteAsync("/help");
+        var result = await executor.ExecuteAsync("/help").ConfigureAwait(false);
         Assert.Contains("/undo", result);
         Assert.Contains("/diff", result);
         Assert.Contains("/run", result);
@@ -27,7 +27,7 @@ public sealed class HttpSlashCommandExecutorTests
     public async Task ExecuteAsync_Help_WithArgs_ShouldStillShowHelp()
     {
         var executor = new HttpSlashCommandExecutor("http://localhost");
-        var result = await executor.ExecuteAsync("/help commands");
+        var result = await executor.ExecuteAsync("/help commands").ConfigureAwait(false);
         Assert.Contains("/undo", result);
     }
 
@@ -35,7 +35,7 @@ public sealed class HttpSlashCommandExecutorTests
     public async Task ExecuteAsync_UnknownCommand_ShouldReturnError()
     {
         var executor = new HttpSlashCommandExecutor("http://localhost");
-        var result = await executor.ExecuteAsync("/nonexistent123");
+        var result = await executor.ExecuteAsync("/nonexistent123").ConfigureAwait(false);
         Assert.Contains("Error", result);
     }
 
@@ -43,7 +43,7 @@ public sealed class HttpSlashCommandExecutorTests
     public async Task ExecuteAsync_EmptySlash_ShouldReturnError()
     {
         var executor = new HttpSlashCommandExecutor("http://localhost");
-        var result = await executor.ExecuteAsync("/");
+        var result = await executor.ExecuteAsync("/").ConfigureAwait(false);
         Assert.Contains("Error", result);
     }
 
@@ -51,7 +51,7 @@ public sealed class HttpSlashCommandExecutorTests
     public async Task ExecuteAsync_Undo_ApiFailure_ShouldReturnError()
     {
         var executor = new HttpSlashCommandExecutor("http://localhost");
-        var result = await executor.ExecuteAsync("/undo");
+        var result = await executor.ExecuteAsync("/undo").ConfigureAwait(false);
         Assert.Contains("Error", result);
     }
 
@@ -59,7 +59,7 @@ public sealed class HttpSlashCommandExecutorTests
     public async Task ExecuteAsync_Run_WithoutArgs_ShouldShowUsage()
     {
         var executor = new HttpSlashCommandExecutor("http://localhost");
-        var result = await executor.ExecuteAsync("/run");
+        var result = await executor.ExecuteAsync("/run").ConfigureAwait(false);
         Assert.Contains("Usage", result);
     }
 
@@ -67,7 +67,7 @@ public sealed class HttpSlashCommandExecutorTests
     public async Task ExecuteAsync_ExplainerCommands_ShouldReturnVsOnlyMessage()
     {
         var executor = new HttpSlashCommandExecutor("http://localhost");
-        var result = await executor.ExecuteAsync("/explain");
+        var result = await executor.ExecuteAsync("/explain").ConfigureAwait(false);
         Assert.Contains("VS Code", result);
     }
 
@@ -75,7 +75,7 @@ public sealed class HttpSlashCommandExecutorTests
     public async Task ExecuteAsync_Diff_ApiFailure_ShouldReturnError()
     {
         var executor = new HttpSlashCommandExecutor("http://localhost");
-        var result = await executor.ExecuteAsync("/diff");
+        var result = await executor.ExecuteAsync("/diff").ConfigureAwait(false);
         Assert.Contains("Error", result);
     }
 
@@ -83,7 +83,7 @@ public sealed class HttpSlashCommandExecutorTests
     public async Task ExecuteAsync_Commit_WithArgs_ShouldReturnError()
     {
         var executor = new HttpSlashCommandExecutor("http://localhost");
-        var result = await executor.ExecuteAsync("/commit fix bug");
+        var result = await executor.ExecuteAsync("/commit fix bug").ConfigureAwait(false);
         Assert.Contains("Error", result);
     }
 

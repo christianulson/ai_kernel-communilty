@@ -33,7 +33,7 @@ public class DocumentViewModel : ViewModelBase
     public async Task CheckStatusAsync(string documentId)
     {
         if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return;
-        try { var status = await _kernelClient.GetDocumentStatusAsync(documentId); if (status != null) ErrorMessage = $"Status: {status.Status}"; }
+        try { var status = await _kernelClient.GetDocumentStatusAsync(documentId).ConfigureAwait(false); if (status != null) ErrorMessage = $"Status: {status.Status}"; }
         catch (Exception ex) { ErrorMessage = $"Erro: {ex.Message}"; }
     }
 
@@ -48,7 +48,7 @@ public class DocumentViewModel : ViewModelBase
                 ErrorMessage = "Indisponível no modo Local";
                 return;
             }
-            var docs = await _kernelClient.GetDocumentsAsync(50);
+            var docs = await _kernelClient.GetDocumentsAsync(50).ConfigureAwait(false);
             DocumentList.Clear();
             if (docs != null)
                 foreach (var d in docs) DocumentList.Add(d);

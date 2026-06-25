@@ -59,14 +59,14 @@ public sealed class TuiEngine
         _running = true;
         _chat.AddMessage("system", "Krnl-AI TUI iniciado. Digite /help para comandos.");
 
-        await CheckHealthAsync(ct);
-        await LoadLastSessionAsync();
+        await CheckHealthAsync(ct).ConfigureAwait(false);
+        await LoadLastSessionAsync().ConfigureAwait(false);
 
         while (_running && !ct.IsCancellationRequested)
         {
             RenderLayout();
 
-            var input = await _inputHandler.ReadInputAsync(ct: ct);
+            var input = await _inputHandler.ReadInputAsync(ct: ct).ConfigureAwait(false);
 
             if (ct.IsCancellationRequested) break;
             if (string.IsNullOrWhiteSpace(input)) continue;
@@ -74,12 +74,12 @@ public sealed class TuiEngine
             var (cmd, args) = _inputHandler.Parse(input);
 
             if (!string.IsNullOrEmpty(cmd))
-                await HandleSlashCommandAsync(cmd, args, ct);
+                await HandleSlashCommandAsync(cmd, args, ct).ConfigureAwait(false);
             else
-                await SendMessageAsync(input, ct);
+                await SendMessageAsync(input, ct).ConfigureAwait(false);
 
-            await AutoSaveSessionAsync();
-            await CheckHealthAsync(ct);
+            await AutoSaveSessionAsync().ConfigureAwait(false);
+            await CheckHealthAsync(ct).ConfigureAwait(false);
         }
 
         _chat.AddMessage("system", "TUI encerrado.");
@@ -108,7 +108,7 @@ public sealed class TuiEngine
 
             case "/status":
                 _status.LastAction = "status check";
-                await CheckHealthAsync(ct);
+                await CheckHealthAsync(ct).ConfigureAwait(false);
                 _chat.AddMessage("system", $"Status: {_status.Status} | Risco: {_status.RiskLevel} | Modo: {_status.Mode}");
                 break;
 
@@ -118,7 +118,7 @@ public sealed class TuiEngine
                 break;
 
             case "/sessions":
-                await ListSessionsAsync();
+                await ListSessionsAsync().ConfigureAwait(false);
                 break;
 
             case "/session":
@@ -128,7 +128,7 @@ public sealed class TuiEngine
                 }
                 else
                 {
-                    await LoadSessionAsync(args);
+                    await LoadSessionAsync(args).ConfigureAwait(false);
                 }
                 break;
 
@@ -136,7 +136,7 @@ public sealed class TuiEngine
                 if (_isLocal)
                 {
                     _chat.AddMessage("system", "Modo local ativo; /connect não altera o EmbeddedKrnlAI.");
-                    await CheckHealthAsync(ct);
+                    await CheckHealthAsync(ct).ConfigureAwait(false);
                     break;
                 }
                 if (!string.IsNullOrWhiteSpace(args))
@@ -144,12 +144,12 @@ public sealed class TuiEngine
                     _http!.BaseAddress = new Uri(args);
                     _chat.AddMessage("system", $"Tentando conectar em: {args}");
                 }
-                await CheckHealthAsync(ct);
+                await CheckHealthAsync(ct).ConfigureAwait(false);
                 break;
 
             case "/exit":
             case "/quit":
-                await AutoSaveSessionAsync();
+                await AutoSaveSessionAsync().ConfigureAwait(false);
                 _running = false;
                 break;
 
@@ -162,7 +162,7 @@ public sealed class TuiEngine
                 }
                 _status.Status = "Processando...";
                 RenderLayout();
-                await SendToBackendAsync(command, args, ct);
+                await SendToBackendAsync(command, args, ct).ConfigureAwait(false);
                 break;
 
             default:
@@ -181,18 +181,18 @@ public sealed class TuiEngine
         {
             if (_isLocal)
             {
-                var result = await _kernel!.RunAsync(message, ct);
+                var result = await _kernel!.RunAsync(message, ct).ConfigureAwait(false);
                 _chat.AddMessage(result.Error is null ? "assistant" : "error", result.Error ?? result.Narration);
                 _status.Status = "Local";
                 return;
             }
 
             var response = await _http!.PostAsJsonAsync("/agent/run",
-                new { prompt = message, mode = "gateway" }, ct);
+                new { prompt = message, mode = "gateway" }, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
-                var result = await response.Content.ReadFromJsonAsync<AgentRunResponse>(cancellationToken: ct);
+                var result = await response.Content.ReadFromJsonAsync<AgentRunResponse>(cancellationToken: ct).ConfigureAwait(false);
                 var text = result?.Narration ?? result?.Error ?? "Sem resposta";
                 var isError = result?.Error != null;
                 _chat.AddMessage(isError ? "error" : "assistant", text);
@@ -223,17 +223,17 @@ public sealed class TuiEngine
 
             if (_isLocal)
             {
-                var result = await _kernel!.RunAsync($"{command}\n{code}", ct);
+                var result = await _kernel!.RunAsync($"{command}\n{code}", ct).ConfigureAwait(false);
                 _chat.AddMessage(result.Error is null ? "assistant" : "error", result.Error ?? result.Narration);
                 return;
             }
 
             var response = await _http!.PostAsJsonAsync(endpoint,
-                new { code, language = "unknown" }, ct);
+                new { code, language = "unknown" }, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
-                var result = await response.Content.ReadFromJsonAsync<AgentRunResponse>(cancellationToken: ct);
+                var result = await response.Content.ReadFromJsonAsync<AgentRunResponse>(cancellationToken: ct).ConfigureAwait(false);
                 var text = result?.Narration ?? result?.Error ?? "Sem resposta";
                 _chat.AddMessage("assistant", text);
             }
@@ -260,7 +260,7 @@ public sealed class TuiEngine
                 return;
             }
 
-            var response = await _http!.GetAsync("/health", ct);
+            var response = await _http!.GetAsync("/health", ct).ConfigureAwait(false);
             if (response.IsSuccessStatusCode)
             {
                 _status.Status = "Conectado";
@@ -283,12 +283,12 @@ public sealed class TuiEngine
         var messages = _chat.Messages.ToList();
         if (messages.Count == 0) return;
         var label = $"Chat {DateTimeOffset.Now:yyyy-MM-dd HH:mm}";
-        await _sessionStore.SaveAsync(label, messages);
+        await _sessionStore.SaveAsync(label, messages).ConfigureAwait(false);
     }
 
     private async Task LoadLastSessionAsync()
     {
-        var sessions = await _sessionStore.ListAsync();
+        var sessions = await _sessionStore.ListAsync().ConfigureAwait(false);
         if (sessions.Count == 0) return;
         var last = sessions[0];
         foreach (var msg in last.Messages)
@@ -298,7 +298,7 @@ public sealed class TuiEngine
 
     private async Task ListSessionsAsync()
     {
-        var sessions = await _sessionStore.ListAsync();
+        var sessions = await _sessionStore.ListAsync().ConfigureAwait(false);
         if (sessions.Count == 0)
         {
             _chat.AddMessage("system", "Nenhuma sessão salva.");
@@ -311,7 +311,7 @@ public sealed class TuiEngine
 
     private async Task LoadSessionAsync(string sessionId)
     {
-        var session = await _sessionStore.LoadAsync(sessionId);
+        var session = await _sessionStore.LoadAsync(sessionId).ConfigureAwait(false);
         if (session == null)
         {
             _chat.AddMessage("error", $"Sessão não encontrada: {sessionId}");

@@ -10,7 +10,7 @@ public sealed class BodySizeLimitTests(SmallBodyWebAppFactory factory) : IClassF
     public async Task BodySize_UnderLimit_ShouldSucceed()
     {
         var payload = new { prompt = new string('x', 500) };
-        var res = await _http.PostAsJsonAsync("/agent/run", payload, TestContext.Current.CancellationToken);
+        var res = await _http.PostAsJsonAsync("/agent/run", payload, TestContext.Current.CancellationToken).ConfigureAwait(false);
 
         res.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
     }

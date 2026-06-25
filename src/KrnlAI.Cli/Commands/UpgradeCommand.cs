@@ -32,7 +32,7 @@ public sealed class UpgradeCommand
 
             AnsiConsole.MarkupLine("[bold]Checking for updates...[/]");
             var currentVersion = GetCurrentVersion();
-            var latestVersion = await GetLatestVersionAsync(ct);
+            var latestVersion = await GetLatestVersionAsync(ct).ConfigureAwait(false);
 
             if (latestVersion == null)
             {
@@ -56,14 +56,14 @@ public sealed class UpgradeCommand
             await AnsiConsole.Status().StartAsync($"Installing version {targetVersion}...", async ctx =>
             {
                 ctx.Status = "Downloading package...";
-                var downloadResult = await DownloadPackageAsync(targetVersion, ct);
+                var downloadResult = await DownloadPackageAsync(targetVersion, ct).ConfigureAwait(false);
                 if (downloadResult == null) { AnsiConsole.MarkupLine("\n[red]Failed to download package.[/]"); return; }
 
                 ctx.Status = "Verifying checksum...";
                 if (!VerifyChecksum(downloadResult, targetVersion)) { AnsiConsole.MarkupLine("\n[red]Checksum verification failed! Aborting.[/]"); return; }
 
                 ctx.Status = "Installing...";
-                var installResult = await InstallVersionAsync(targetVersion, previousVersion, ct);
+                var installResult = await InstallVersionAsync(targetVersion, previousVersion, ct).ConfigureAwait(false);
                 if (installResult)
                 {
                     ctx.Status = "Done!";
@@ -74,12 +74,12 @@ public sealed class UpgradeCommand
                 else
                 {
                     AnsiConsole.MarkupLine("\n[red]Upgrade failed. Rolling back...[/]");
-                    var rollbackResult = await RollbackAsync(previousVersion, ct);
+                    var rollbackResult = await RollbackAsync(previousVersion, ct).ConfigureAwait(false);
                     if (rollbackResult) AnsiConsole.MarkupLine("[yellow]Rolled back to version {0}.[/]", previousVersion);
                     else AnsiConsole.MarkupLine("[red]Rollback also failed. Please run: dotnet tool install -g KrnlAI.Cli --version {0}[/]", previousVersion);
                     LogVersion(targetVersion, "failed");
                 }
-            });
+            }).ConfigureAwait(false);
             return 0;
         });
         return cmd;
@@ -97,7 +97,7 @@ public sealed class UpgradeCommand
         {
             using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
             var url = string.Format(NuGetQueryUrl, NuGetPackageId.ToLowerInvariant());
-            var response = await http.GetStringAsync(url, ct);
+            var response = await http.GetStringAsync(url, ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(response);
             var latest = doc.RootElement.GetProperty("versions").EnumerateArray()
                 .Select(v => v.GetString()).Where(v => v != null)
@@ -116,11 +116,11 @@ public sealed class UpgradeCommand
             using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(60) };
             var url = $"https://www.nuget.org/api/v2/package/{NuGetPackageId}/{version}";
             var tempFile = Path.GetTempFileName();
-            var response = await http.GetAsync(url, ct);
+            var response = await http.GetAsync(url, ct).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode) return null;
-            using var stream = await response.Content.ReadAsStreamAsync(ct);
+            using var stream = await response.Content.ReadAsStreamAsync(ct).ConfigureAwait(false);
             using var fileStream = File.Create(tempFile);
-            await stream.CopyToAsync(fileStream, ct);
+            await stream.CopyToAsync(fileStream, ct).ConfigureAwait(false);
             return tempFile;
         }
         catch { return null; }
@@ -155,7 +155,7 @@ public sealed class UpgradeCommand
                 }
             };
             process.Start();
-            await process.WaitForExitAsync(ct);
+            await process.WaitForExitAsync(ct).ConfigureAwait(false);
             return process.ExitCode == 0;
         }
         catch { return false; }
@@ -176,7 +176,7 @@ public sealed class UpgradeCommand
                 }
             };
             process.Start();
-            await process.WaitForExitAsync(ct);
+            await process.WaitForExitAsync(ct).ConfigureAwait(false);
             return process.ExitCode == 0;
         }
         catch { return false; }

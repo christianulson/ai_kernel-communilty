@@ -75,8 +75,8 @@ public sealed class WebRtcService(ILogger<WebRtcService> logger) : IWebRtcServic
         try
         {
             _remotePeerId = targetPeerId;
-            await ConnectWebSocketAsync();
-            await SendJsonAsync(new { type = "offer", source = _localPeerId, target = targetPeerId });
+            await ConnectWebSocketAsync().ConfigureAwait(false);
+            await SendJsonAsync(new { type = "offer", source = _localPeerId, target = targetPeerId }).ConfigureAwait(false);
             OnStateChanged(WebRtcState.Connecting, "Offer enviado");
             return true;
         }
@@ -93,8 +93,8 @@ public sealed class WebRtcService(ILogger<WebRtcService> logger) : IWebRtcServic
         try
         {
             _remotePeerId = peerId;
-            await ConnectWebSocketAsync();
-            await SendJsonAsync(new { type = "join", peerId = _localPeerId, target = peerId });
+            await ConnectWebSocketAsync().ConfigureAwait(false);
+            await SendJsonAsync(new { type = "join", peerId = _localPeerId, target = peerId }).ConfigureAwait(false);
             OnStateChanged(WebRtcState.Connecting, $"Conectando a {peerId}...");
             return true;
         }
@@ -111,28 +111,28 @@ public sealed class WebRtcService(ILogger<WebRtcService> logger) : IWebRtcServic
         _cts?.Cancel();
         try
         {
-            await SendJsonAsync(new { type = "leave", peerId = _localPeerId });
+            await SendJsonAsync(new { type = "leave", peerId = _localPeerId }).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
             logger.LogDebug(ex, "Failed to notify signaling server about peer disconnect");
         }
         if (_ws?.State == WebSocketState.Open)
-            await _ws.CloseAsync(WebSocketCloseStatus.NormalClosure, "", CancellationToken.None);
+            await _ws.CloseAsync(WebSocketCloseStatus.NormalClosure, "", CancellationToken.None).ConfigureAwait(false);
         OnStateChanged(WebRtcState.Closed, "Desconectado");
     }
 
     public async Task SendAudioFrameAsync(byte[] pcmData)
     {
         if (!IsConnected) return;
-        try { await SendJsonAsync(new { type = "audio", data = Convert.ToBase64String(pcmData) }); }
+        try { await SendJsonAsync(new { type = "audio", data = Convert.ToBase64String(pcmData) }).ConfigureAwait(false); }
         catch (Exception ex) { logger.LogDebug(ex, "Failed to send audio"); }
     }
 
     public async Task SendVideoFrameAsync(byte[] frameData)
     {
         if (!IsConnected) return;
-        try { await SendJsonAsync(new { type = "video", data = Convert.ToBase64String(frameData) }); }
+        try { await SendJsonAsync(new { type = "video", data = Convert.ToBase64String(frameData) }).ConfigureAwait(false); }
         catch (Exception ex) { logger.LogDebug(ex, "Failed to send video"); }
     }
 
@@ -141,7 +141,7 @@ public sealed class WebRtcService(ILogger<WebRtcService> logger) : IWebRtcServic
         if (_ws?.State == WebSocketState.Open) return;
         _ws?.Dispose();
         _ws = new ClientWebSocket();
-        await _ws.ConnectAsync(new Uri(_signalingUrl), _cts?.Token ?? CancellationToken.None);
+        await _ws.ConnectAsync(new Uri(_signalingUrl), _cts?.Token ?? CancellationToken.None).ConfigureAwait(false);
         _receiveTask = ReceiveLoopAsync();
     }
 
@@ -152,7 +152,7 @@ public sealed class WebRtcService(ILogger<WebRtcService> logger) : IWebRtcServic
         {
             while (_ws?.State == WebSocketState.Open && !_cts?.IsCancellationRequested == true)
             {
-                var result = await _ws.ReceiveAsync(new ArraySegment<byte>(buffer), _cts?.Token ?? CancellationToken.None);
+                var result = await _ws.ReceiveAsync(new ArraySegment<byte>(buffer), _cts?.Token ?? CancellationToken.None).ConfigureAwait(false);
                 if (result.MessageType == WebSocketMessageType.Close) break;
                 var json = Encoding.UTF8.GetString(buffer, 0, result.Count);
                 ProcessMessage(json);

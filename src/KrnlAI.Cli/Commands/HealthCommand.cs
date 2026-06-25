@@ -13,12 +13,12 @@ public sealed class HealthCommand(CliContext ctx, ConsoleRenderer renderer)
         cmd.SetAction(async (ParseResult parseResult, CancellationToken ct) =>
         {
             var modules = await Task.WhenAll(
-                CheckAsync("MomentStore", async () => { await ctx.MomentStore.ListRecentAsync(1, ct); }),
-                CheckAsync("SnapshotService", async () => { await ctx.SnapshotService.ListSnapshotsAsync(null, ct); }),
-                CheckAsync("Anticipation", async () => { await ctx.AnticipationService.GetActiveProjectionsAsync(null, ct); }),
-                CheckAsync("ProspectiveMemory", async () => { await ctx.ProspectiveMemory.GetPendingIntentionsAsync(ct); }),
-                CheckAsync("ExecutiveController", async () => { var s = ctx.ExecutiveController.CurrentState; await Task.CompletedTask; })
-            );
+                CheckAsync("MomentStore", async () => { await ctx.MomentStore.ListRecentAsync(1, ct).ConfigureAwait(false); }),
+                CheckAsync("SnapshotService", async () => { await ctx.SnapshotService.ListSnapshotsAsync(null, ct).ConfigureAwait(false); }),
+                CheckAsync("Anticipation", async () => { await ctx.AnticipationService.GetActiveProjectionsAsync(null, ct).ConfigureAwait(false); }),
+                CheckAsync("ProspectiveMemory", async () => { await ctx.ProspectiveMemory.GetPendingIntentionsAsync(ct).ConfigureAwait(false); }),
+                CheckAsync("ExecutiveController", async () => { var s = ctx.ExecutiveController.CurrentState; await Task.CompletedTask.ConfigureAwait(false); })
+            ).ConfigureAwait(false);
             var failures = modules.Count(m => m.Status != "ok");
             var overall = failures == 0 ? "OK" : $"DEGRADED ({failures} failure(s))";
             renderer.RenderHealth([.. modules], overall);
@@ -32,7 +32,7 @@ public sealed class HealthCommand(CliContext ctx, ConsoleRenderer renderer)
         var sw = System.Diagnostics.Stopwatch.StartNew();
         try
         {
-            await check();
+            await check().ConfigureAwait(false);
             sw.Stop();
             return new ModuleHealth(name, "ok", $"{sw.ElapsedMilliseconds}ms");
         }

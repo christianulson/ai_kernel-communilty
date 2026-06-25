@@ -27,7 +27,7 @@ public sealed class CodingViewModelTests
     {
         var kernelClient = new Mock<IKernelClient>();
         var vm = new CodingViewModel(kernelClient.Object);
-        await vm.ExplainAsync();
+        await vm.ExplainAsync().ConfigureAwait(false);
         kernelClient.Verify(k => k.CodingExplainAsync(It.IsAny<CodingRequest>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -37,7 +37,7 @@ public sealed class CodingViewModelTests
         var kernelClient = new Mock<IKernelClient>();
         var vm = new CodingViewModel(kernelClient.Object);
         vm.Code = "   ";
-        await vm.ExplainAsync();
+        await vm.ExplainAsync().ConfigureAwait(false);
         kernelClient.Verify(k => k.CodingExplainAsync(It.IsAny<CodingRequest>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -53,7 +53,7 @@ public sealed class CodingViewModelTests
         vm.Language = "csharp";
         vm.Description = "explain this";
 
-        await vm.ExplainAsync();
+        await vm.ExplainAsync().ConfigureAwait(false);
 
         Assert.NotNull(vm.Result);
         Assert.Equal("result", vm.Result.Result);
@@ -74,7 +74,7 @@ public sealed class CodingViewModelTests
         var task = vm.ExplainAsync();
         Assert.True(vm.IsLoading);
         tcs.SetResult(new CodingResponse(null, null, false, null));
-        await task;
+        await task.ConfigureAwait(false);
         Assert.False(vm.IsLoading);
     }
 
@@ -88,7 +88,7 @@ public sealed class CodingViewModelTests
         var vm = new CodingViewModel(kernelClient.Object);
         vm.Code = "code";
 
-        await vm.ExplainAsync();
+        await vm.ExplainAsync().ConfigureAwait(false);
 
         Assert.True(vm.HasError);
         Assert.Contains("explain failed", vm.ErrorMessage);
@@ -105,7 +105,7 @@ public sealed class CodingViewModelTests
         var vm = new CodingViewModel(kernelClient.Object);
         vm.Code = "buggy";
 
-        await vm.FixAsync();
+        await vm.FixAsync().ConfigureAwait(false);
 
         Assert.NotNull(vm.Result);
         Assert.Equal("fixed code", vm.Result.Result);
@@ -116,7 +116,7 @@ public sealed class CodingViewModelTests
     {
         var kernelClient = new Mock<IKernelClient>();
         var vm = new CodingViewModel(kernelClient.Object);
-        await vm.FixAsync();
+        await vm.FixAsync().ConfigureAwait(false);
         kernelClient.Verify(k => k.CodingFixAsync(It.IsAny<CodingRequest>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -130,7 +130,7 @@ public sealed class CodingViewModelTests
         var vm = new CodingViewModel(kernelClient.Object);
         vm.Code = "code";
 
-        await vm.FixAsync();
+        await vm.FixAsync().ConfigureAwait(false);
 
         Assert.True(vm.HasError);
         Assert.Contains("fix failed", vm.ErrorMessage);
@@ -147,7 +147,7 @@ public sealed class CodingViewModelTests
         vm.Code = "class Foo";
         vm.TestFramework = "xunit";
 
-        await vm.GenerateTestsAsync();
+        await vm.GenerateTestsAsync().ConfigureAwait(false);
 
         Assert.NotNull(vm.Result);
         Assert.Equal("[Fact]...", vm.Result.Result);
@@ -158,7 +158,7 @@ public sealed class CodingViewModelTests
     {
         var kernelClient = new Mock<IKernelClient>();
         var vm = new CodingViewModel(kernelClient.Object);
-        await vm.GenerateTestsAsync();
+        await vm.GenerateTestsAsync().ConfigureAwait(false);
         kernelClient.Verify(k => k.CodingGenerateTestsAsync(It.IsAny<CodingRequest>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -172,7 +172,7 @@ public sealed class CodingViewModelTests
         var vm = new CodingViewModel(kernelClient.Object);
         vm.Code = "code";
 
-        await vm.GenerateTestsAsync();
+        await vm.GenerateTestsAsync().ConfigureAwait(false);
 
         Assert.True(vm.HasError);
         Assert.Contains("gen failed", vm.ErrorMessage);
@@ -188,7 +188,7 @@ public sealed class CodingViewModelTests
         var vm = new CodingViewModel(kernelClient.Object);
         vm.Code = "code";
 
-        await vm.ReviewAsync();
+        await vm.ReviewAsync().ConfigureAwait(false);
 
         Assert.NotNull(vm.Result);
         Assert.Equal("review comments", vm.Result.Result);
@@ -199,7 +199,7 @@ public sealed class CodingViewModelTests
     {
         var kernelClient = new Mock<IKernelClient>();
         var vm = new CodingViewModel(kernelClient.Object);
-        await vm.ReviewAsync();
+        await vm.ReviewAsync().ConfigureAwait(false);
         kernelClient.Verify(k => k.CodingReviewAsync(It.IsAny<CodingRequest>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -213,7 +213,7 @@ public sealed class CodingViewModelTests
         var vm = new CodingViewModel(kernelClient.Object);
         vm.Code = "code";
 
-        await vm.ReviewAsync();
+        await vm.ReviewAsync().ConfigureAwait(false);
 
         Assert.True(vm.HasError);
         Assert.Contains("review error", vm.ErrorMessage);
@@ -229,7 +229,7 @@ public sealed class CodingViewModelTests
         var vm = new CodingViewModel(kernelClient.Object);
         vm.Code = "diff";
 
-        await vm.ApplyDiffAsync();
+        await vm.ApplyDiffAsync().ConfigureAwait(false);
 
         Assert.NotNull(vm.Result);
         Assert.Equal("applied", vm.Result.Result);
@@ -240,7 +240,7 @@ public sealed class CodingViewModelTests
     {
         var kernelClient = new Mock<IKernelClient>();
         var vm = new CodingViewModel(kernelClient.Object);
-        await vm.ApplyDiffAsync();
+        await vm.ApplyDiffAsync().ConfigureAwait(false);
         kernelClient.Verify(k => k.CodingApplyDiffAsync(It.IsAny<CodingRequest>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -254,7 +254,7 @@ public sealed class CodingViewModelTests
         var vm = new CodingViewModel(kernelClient.Object);
         vm.Code = "code";
 
-        await vm.ApplyDiffAsync();
+        await vm.ApplyDiffAsync().ConfigureAwait(false);
 
         Assert.True(vm.HasError);
         Assert.Contains("diff error", vm.ErrorMessage);
@@ -270,7 +270,7 @@ public sealed class CodingViewModelTests
         var vm = new CodingViewModel(kernelClient.Object);
         vm.Code = "code";
 
-        await vm.CompleteAsync();
+        await vm.CompleteAsync().ConfigureAwait(false);
 
         Assert.NotNull(vm.Result);
         Assert.Equal("completed", vm.Result.Result);
@@ -281,7 +281,7 @@ public sealed class CodingViewModelTests
     {
         var kernelClient = new Mock<IKernelClient>();
         var vm = new CodingViewModel(kernelClient.Object);
-        await vm.CompleteAsync();
+        await vm.CompleteAsync().ConfigureAwait(false);
         kernelClient.Verify(k => k.CodingCompleteAsync(It.IsAny<CodingRequest>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -295,7 +295,7 @@ public sealed class CodingViewModelTests
         var vm = new CodingViewModel(kernelClient.Object);
         vm.Code = "code";
 
-        await vm.CompleteAsync();
+        await vm.CompleteAsync().ConfigureAwait(false);
 
         Assert.True(vm.HasError);
         Assert.Contains("complete error", vm.ErrorMessage);
@@ -310,7 +310,7 @@ public sealed class CodingViewModelTests
 
         var vm = new CodingViewModel(kernelClient.Object);
 
-        await vm.LoadStatusAsync("cycle-1");
+        await vm.LoadStatusAsync("cycle-1").ConfigureAwait(false);
 
         Assert.NotNull(vm.Status);
         Assert.Equal("running", vm.Status.Status);
@@ -326,7 +326,7 @@ public sealed class CodingViewModelTests
 
         var vm = new CodingViewModel(kernelClient.Object);
 
-        await vm.LoadStatusAsync("cycle-1");
+        await vm.LoadStatusAsync("cycle-1").ConfigureAwait(false);
 
         Assert.True(vm.HasError);
         Assert.Contains("status error", vm.ErrorMessage);

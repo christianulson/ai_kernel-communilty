@@ -30,7 +30,7 @@ public sealed class AssistantViewModelTests
 
         var vm = new AssistantViewModel(kernelClient.Object);
 
-        await vm.CreateThreadAsync("test");
+        await vm.CreateThreadAsync("test").ConfigureAwait(false);
 
         Assert.Single(vm.Threads);
         Assert.Equal("t1", vm.Threads[0].ThreadId);
@@ -45,7 +45,7 @@ public sealed class AssistantViewModelTests
 
         var vm = new AssistantViewModel(kernelClient.Object);
 
-        await vm.CreateThreadAsync("test");
+        await vm.CreateThreadAsync("test").ConfigureAwait(false);
 
         Assert.Empty(vm.Threads);
     }
@@ -59,7 +59,7 @@ public sealed class AssistantViewModelTests
 
         var vm = new AssistantViewModel(kernelClient.Object);
 
-        await vm.CreateThreadAsync("test");
+        await vm.CreateThreadAsync("test").ConfigureAwait(false);
 
         Assert.True(vm.HasError);
         Assert.Contains("create error", vm.ErrorMessage);
@@ -82,7 +82,7 @@ public sealed class AssistantViewModelTests
         var vm = new AssistantViewModel(kernelClient.Object);
         vm.Threads.Add(new ThreadInfo("t1", "test", DateTime.UtcNow, "active"));
 
-        await vm.SelectThreadAsync("t1");
+        await vm.SelectThreadAsync("t1").ConfigureAwait(false);
 
         Assert.NotNull(vm.ActiveThread);
         Assert.Equal("t1", vm.ActiveThread.ThreadId);
@@ -94,7 +94,7 @@ public sealed class AssistantViewModelTests
     {
         var kernelClient = new Mock<IKernelClient>();
         var vm = new AssistantViewModel(kernelClient.Object);
-        await vm.SendMessageAsync("t1", "");
+        await vm.SendMessageAsync("t1", "").ConfigureAwait(false);
         kernelClient.Verify(k => k.SendMessageAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -108,7 +108,7 @@ public sealed class AssistantViewModelTests
         var vm = new AssistantViewModel(kernelClient.Object);
         vm.ActiveThread = new ThreadInfo("t1", "test", DateTime.UtcNow, "active");
 
-        await vm.SendMessageAsync("t1", "hello");
+        await vm.SendMessageAsync("t1", "hello").ConfigureAwait(false);
 
         Assert.Single(vm.Messages);
         Assert.Equal("hello", vm.Messages[0].Content);
@@ -124,7 +124,7 @@ public sealed class AssistantViewModelTests
         var vm = new AssistantViewModel(kernelClient.Object);
         vm.ActiveThread = new ThreadInfo("t1", "test", DateTime.UtcNow, "active");
 
-        await vm.SendMessageAsync("t1", "hello");
+        await vm.SendMessageAsync("t1", "hello").ConfigureAwait(false);
 
         Assert.True(vm.HasError);
         Assert.Contains("send error", vm.ErrorMessage);
@@ -139,7 +139,7 @@ public sealed class AssistantViewModelTests
 
         var vm = new AssistantViewModel(kernelClient.Object);
 
-        await vm.CreateRunAsync("t1");
+        await vm.CreateRunAsync("t1").ConfigureAwait(false);
 
         Assert.NotNull(vm.ActiveRun);
         Assert.Equal("r1", vm.ActiveRun.RunId);
@@ -155,7 +155,7 @@ public sealed class AssistantViewModelTests
 
         var vm = new AssistantViewModel(kernelClient.Object);
 
-        await vm.CreateRunAsync("t1");
+        await vm.CreateRunAsync("t1").ConfigureAwait(false);
 
         Assert.True(vm.HasError);
         Assert.Contains("run error", vm.ErrorMessage);
@@ -170,7 +170,7 @@ public sealed class AssistantViewModelTests
 
         var vm = new AssistantViewModel(kernelClient.Object);
 
-        await vm.GetRunAsync("t1", "r1");
+        await vm.GetRunAsync("t1", "r1").ConfigureAwait(false);
 
         Assert.NotNull(vm.ActiveRun);
         Assert.Equal("completed", vm.ActiveRun.Status);
@@ -183,7 +183,7 @@ public sealed class AssistantViewModelTests
 
         var vm = new AssistantViewModel(kernelClient.Object);
 
-        await vm.LoadThreadsAsync();
+        await vm.LoadThreadsAsync().ConfigureAwait(false);
 
         Assert.Empty(vm.Threads);
     }

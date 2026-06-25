@@ -47,7 +47,7 @@ public class EpisodicMemoryViewModel : ViewModelBase
         try
         {
             var request = new EpisodicMemorySearchRequest(SearchQuery.Trim(), TopK: 20);
-            var result = await _kernelClient.SearchEpisodicMemoryAsync(request);
+            var result = await _kernelClient.SearchEpisodicMemoryAsync(request).ConfigureAwait(false);
             Results.Clear();
             if (result?.Hits != null)
                 foreach (var hit in result.Hits)

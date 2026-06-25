@@ -29,13 +29,13 @@ public sealed class TuiEngine(IQLearningService? ql = null, MultiAgentOrchestrat
                     var agentsPanel = BuildAgentsPanel();
                     grid.AddRow(statusPanel, agentsPanel);
 
-                    var qTablePanel = await BuildQTablePanel(ct);
+                    var qTablePanel = await BuildQTablePanel(ct).ConfigureAwait(false);
                     var eventsPanel = BuildEventsPanel();
                     grid.AddRow(qTablePanel, eventsPanel);
 
                     ctx.UpdateTarget(new Panel(grid).Header($"Krnl-AI TUI — {DateTimeOffset.UtcNow:HH:mm:ss}"));
                     ctx.Refresh();
-                    await Task.Delay(3000, ct);
+                    await Task.Delay(3000, ct).ConfigureAwait(false);
                 }
             });
     }
@@ -98,7 +98,7 @@ public sealed class TuiEngine(IQLearningService? ql = null, MultiAgentOrchestrat
 
         try
         {
-            var summary = await ql.GetPolicySummaryAsync(ct);
+            var summary = await ql.GetPolicySummaryAsync(ct).ConfigureAwait(false);
             var lines = summary.Split('\n');
             var display = string.Join("\n", lines.Take(8).Select(l => $"[grey]{l.Replace("[", "[[").Replace("]", "]]")}[/]"));
             return new Panel(new Markup(display)).Header("Q-Table");

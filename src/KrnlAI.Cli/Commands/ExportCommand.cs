@@ -27,18 +27,18 @@ public sealed class ExportCommand
 
             if (id == "last")
             {
-                var sessions = await store.ListAsync();
+                var sessions = await store.ListAsync().ConfigureAwait(false);
                 if (sessions.Count == 0)
                 {
                     AnsiConsole.MarkupLine("[red]No sessions found.[/]");
                     return 1;
                 }
-                json = await store.ExportAsync(sessions[0].Id);
+                json = await store.ExportAsync(sessions[0].Id).ConfigureAwait(false);
                 AnsiConsole.MarkupLine($"[green]Exporting most recent session:[/] {sessions[0].Label}");
             }
             else
             {
-                json = await store.ExportAsync(id);
+                json = await store.ExportAsync(id).ConfigureAwait(false);
                 if (string.IsNullOrEmpty(json))
                 {
                     AnsiConsole.MarkupLine($"[red]Session not found: {id}[/]");
@@ -48,7 +48,7 @@ public sealed class ExportCommand
 
             if (!string.IsNullOrWhiteSpace(output))
             {
-                await File.WriteAllTextAsync(output, json, ct);
+                await File.WriteAllTextAsync(output, json, ct).ConfigureAwait(false);
                 AnsiConsole.MarkupLine($"[green]Session exported to:[/] {output}");
             }
             else

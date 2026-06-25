@@ -210,15 +210,15 @@ public class SettingsViewModel : ViewModelBase, IDisposable
         if (ServiceLocator.Instance.CurrentMode == RunMode.Local)
         {
             DeviceTestStatus = "Indisponível no modo Local";
-            await Task.Delay(1500);
+            await Task.Delay(1500).ConfigureAwait(false);
             DeviceTestStatus = "";
             return;
         }
         DeviceTestStatus = "Testando...";
-        var a = _kernelClient != null ? await _kernelClient.GenerateSpeechAsync("Teste") : [];
-        if (a.Length > 0) await _audioPlayback.PlayAsync(a);
+        var a = _kernelClient != null ? await _kernelClient.GenerateSpeechAsync("Teste").ConfigureAwait(false) : [];
+        if (a.Length > 0) await _audioPlayback.PlayAsync(a).ConfigureAwait(false);
         DeviceTestStatus = "OK";
-        await Task.Delay(1500);
+        await Task.Delay(1500).ConfigureAwait(false);
         DeviceTestStatus = "";
     }
     private async Task TestMicAsync()
@@ -226,24 +226,24 @@ public class SettingsViewModel : ViewModelBase, IDisposable
         if (ServiceLocator.Instance.CurrentMode == RunMode.Local)
         {
             DeviceTestStatus = "Teste local (sem transcrição)";
-            await ServiceLocator.Instance.AudioCapture.StartCaptureAsync(SelectedMicrophone?.Id);
-            await Task.Delay(2000);
-            await ServiceLocator.Instance.AudioCapture.StopCaptureAsync();
+            await ServiceLocator.Instance.AudioCapture.StartCaptureAsync(SelectedMicrophone?.Id).ConfigureAwait(false);
+            await Task.Delay(2000).ConfigureAwait(false);
+            await ServiceLocator.Instance.AudioCapture.StopCaptureAsync().ConfigureAwait(false);
             DeviceTestStatus = "OK";
-            await Task.Delay(1500);
+            await Task.Delay(1500).ConfigureAwait(false);
             DeviceTestStatus = "";
             return;
         }
         DeviceTestStatus = "Gravando...";
-        await ServiceLocator.Instance.AudioCapture.StartCaptureAsync(SelectedMicrophone?.Id);
-        await Task.Delay(2000);
-        await ServiceLocator.Instance.AudioCapture.StopCaptureAsync();
+        await ServiceLocator.Instance.AudioCapture.StartCaptureAsync(SelectedMicrophone?.Id).ConfigureAwait(false);
+        await Task.Delay(2000).ConfigureAwait(false);
+        await ServiceLocator.Instance.AudioCapture.StopCaptureAsync().ConfigureAwait(false);
         DeviceTestStatus = "OK";
-        await Task.Delay(1500);
+        await Task.Delay(1500).ConfigureAwait(false);
         DeviceTestStatus = "";
     }
-    private async Task TestCamAsync() { DeviceTestStatus = "Testando..."; try { var c = ServiceLocator.Instance.VideoCapture.GetAvailableDevices(); DeviceTestStatus = c.Any() ? $"Câmera: {c[0].Name}" : "Nenhuma"; } catch { DeviceTestStatus = "Erro"; } await Task.Delay(1500); DeviceTestStatus = ""; }
-    private async Task TestRtcAsync() { DeviceTestStatus = "Não implementado (WebRTC)"; await Task.Delay(1500); DeviceTestStatus = ""; }
+    private async Task TestCamAsync() { DeviceTestStatus = "Testando..."; try { var c = ServiceLocator.Instance.VideoCapture.GetAvailableDevices(); DeviceTestStatus = c.Any() ? $"Câmera: {c[0].Name}" : "Nenhuma"; } catch { DeviceTestStatus = "Erro"; } await Task.Delay(1500).ConfigureAwait(false); DeviceTestStatus = ""; }
+    private async Task TestRtcAsync() { DeviceTestStatus = "Não implementado (WebRTC)"; await Task.Delay(1500).ConfigureAwait(false); DeviceTestStatus = ""; }
 
     // --- MCP Servers ---
     public ObservableCollection<McpServerInfo> McpServers { get; } = [];
@@ -254,7 +254,7 @@ public class SettingsViewModel : ViewModelBase, IDisposable
         if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return;
         try
         {
-            var servers = await _kernelClient.GetMcpServersAsync();
+            var servers = await _kernelClient.GetMcpServersAsync().ConfigureAwait(false);
             UiThreadInvoker.Invoke(() =>
             {
                 McpServers.Clear();
@@ -268,7 +268,7 @@ public class SettingsViewModel : ViewModelBase, IDisposable
     {
         if (_kernelClient == null) return;
         if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return;
-        var ok = await _kernelClient.ToggleMcpServerAsync(serverId, enabled);
-        if (ok) await LoadMcpServersAsync();
+        var ok = await _kernelClient.ToggleMcpServerAsync(serverId, enabled).ConfigureAwait(false);
+        if (ok) await LoadMcpServersAsync().ConfigureAwait(false);
     }
 }

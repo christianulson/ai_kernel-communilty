@@ -31,8 +31,8 @@ public class InitWizardViewModel : ViewModelBase
             try
             {
                 Directory.CreateDirectory(targetDir);
-                await File.WriteAllTextAsync(Path.Combine(targetDir, "README.md"), $"# {_projectName}\n\nKrnlAI {_template} project created at {DateTime.Now:g}.\n");
-                await File.WriteAllTextAsync(Path.Combine(targetDir, "config.yaml"), $"mode: {_template}\nname: {_projectName}\n");
+                await File.WriteAllTextAsync(Path.Combine(targetDir, "README.md"), $"# {_projectName}\n\nKrnlAI {_template} project created at {DateTime.Now:g}.\n").ConfigureAwait(false);
+                await File.WriteAllTextAsync(Path.Combine(targetDir, "config.yaml"), $"mode: {_template}\nname: {_projectName}\n").ConfigureAwait(false);
                 Status = $"Projeto criado em: {targetDir}";
             }
             catch (Exception ex) { Status = $"Erro: {ex.Message}"; }

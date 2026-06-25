@@ -58,7 +58,7 @@ public sealed class SnapshotCommandTests
         var cmd = new SnapshotCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("snapshot list").InvokeAsync();
+        var result = await root.Parse("snapshot list").InvokeAsync().ConfigureAwait(false);
 
         result.Should().Be(0);
         console.Output.Should().Contain("No snapshots");
@@ -71,7 +71,7 @@ public sealed class SnapshotCommandTests
         var cmd = new SnapshotCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("snapshot create --label test-snap --reason unit-test").InvokeAsync();
+        var result = await root.Parse("snapshot create --label test-snap --reason unit-test").InvokeAsync().ConfigureAwait(false);
 
         result.Should().Be(0);
         var output = console.Output;
@@ -86,8 +86,8 @@ public sealed class SnapshotCommandTests
         var cmd = new SnapshotCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        await root.Parse("snapshot create --label list-test").InvokeAsync();
-            var result = await root.Parse("snapshot list").InvokeAsync();
+        await root.Parse("snapshot create --label list-test").InvokeAsync().ConfigureAwait(false);
+            var result = await root.Parse("snapshot list").InvokeAsync().ConfigureAwait(false);
 
         result.Should().Be(0);
         console.Output.Should().Contain("list-test");
@@ -100,11 +100,11 @@ public sealed class SnapshotCommandTests
         var cmd = new SnapshotCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        await root.Parse("snapshot create --label del-test").InvokeAsync();
-            var snapshots = await ctx.SnapshotService.ListSnapshotsAsync(null, CancellationToken.None);
+        await root.Parse("snapshot create --label del-test").InvokeAsync().ConfigureAwait(false);
+            var snapshots = await ctx.SnapshotService.ListSnapshotsAsync(null, CancellationToken.None).ConfigureAwait(false);
             var id = snapshots[0].Id.Value;
 
-            var result = await root.Parse($"snapshot delete {id}").InvokeAsync();
+            var result = await root.Parse($"snapshot delete {id}").InvokeAsync().ConfigureAwait(false);
 
         result.Should().Be(0);
         console.Output.Should().Contain("Snapshot deleted");
@@ -117,11 +117,11 @@ public sealed class SnapshotCommandTests
         var cmd = new SnapshotCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        await root.Parse("snapshot create --label restore-test").InvokeAsync();
-            var snapshots = await ctx.SnapshotService.ListSnapshotsAsync(null, CancellationToken.None);
+        await root.Parse("snapshot create --label restore-test").InvokeAsync().ConfigureAwait(false);
+            var snapshots = await ctx.SnapshotService.ListSnapshotsAsync(null, CancellationToken.None).ConfigureAwait(false);
             var id = snapshots[0].Id.Value;
 
-            var result = await root.Parse($"snapshot restore {id}").InvokeAsync();
+            var result = await root.Parse($"snapshot restore {id}").InvokeAsync().ConfigureAwait(false);
 
         result.Should().Be(0);
         console.Output.Should().Contain("Snapshot restored");
@@ -134,7 +134,7 @@ public sealed class SnapshotCommandTests
         var cmd = new SnapshotCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("snapshot create --scope InvalidScope").InvokeAsync();
+        var result = await root.Parse("snapshot create --scope InvalidScope").InvokeAsync().ConfigureAwait(false);
 
         result.Should().Be(1);
         console.Output.Should().Contain("Invalid scope");

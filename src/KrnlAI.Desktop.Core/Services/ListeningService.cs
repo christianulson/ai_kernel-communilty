@@ -64,7 +64,7 @@ public class ListeningService : IListeningService
 
         try
         {
-            await _audioCapture.StartCaptureAsync();
+            await _audioCapture.StartCaptureAsync().ConfigureAwait(false);
             _isListening = _audioCapture.IsCapturing;
         }
         catch (Exception ex)
@@ -87,7 +87,7 @@ public class ListeningService : IListeningService
         {
             try
             {
-                await _processingTask;
+                await _processingTask.ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {
@@ -95,7 +95,7 @@ public class ListeningService : IListeningService
             }
         }
 
-        await _audioCapture.StopCaptureAsync();
+        await _audioCapture.StopCaptureAsync().ConfigureAwait(false);
 
         _isListening = false;
         lock (_lock)
@@ -135,7 +135,7 @@ public class ListeningService : IListeningService
         try
         {
             _processingTask = ProcessSpeechAsync();
-            await _processingTask;
+            await _processingTask.ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -173,7 +173,7 @@ public class ListeningService : IListeningService
         {
             string? transcribedText = null;
 
-            var transcription = await _kernelSpeechClient.TranscribeAudioAsync(audioData, _cts?.Token ?? CancellationToken.None);
+            var transcription = await _kernelSpeechClient.TranscribeAudioAsync(audioData, _cts?.Token ?? CancellationToken.None).ConfigureAwait(false);
             if (!string.IsNullOrEmpty(transcription))
             {
                 transcribedText = transcription;
@@ -187,7 +187,7 @@ public class ListeningService : IListeningService
             var response = await _kernelAgentClient.RunAgentAsync(new AgentRunTransportRequest(
                 promptText,
                 Mode: "gateway"
-            ), _cts?.Token ?? CancellationToken.None);
+            ), _cts?.Token ?? CancellationToken.None).ConfigureAwait(false);
 
             if (!string.IsNullOrEmpty(response.Narration))
             {
@@ -195,10 +195,10 @@ public class ListeningService : IListeningService
 
                 ResponseReceived?.Invoke(this, response.Narration);
 
-                var ttsAudio = await _kernelSpeechClient.GenerateSpeechAsync(response.Narration, "pt-BR");
+                var ttsAudio = await _kernelSpeechClient.GenerateSpeechAsync(response.Narration, "pt-BR").ConfigureAwait(false);
                 if (ttsAudio.Length > 0)
                 {
-                    await _audioPlayback.PlayAsync(ttsAudio, _cts?.Token ?? CancellationToken.None);
+                    await _audioPlayback.PlayAsync(ttsAudio, _cts?.Token ?? CancellationToken.None).ConfigureAwait(false);
                 }
             }
             else if (!string.IsNullOrEmpty(response.Error))

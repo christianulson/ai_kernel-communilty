@@ -60,7 +60,7 @@ public sealed class StatusCommandTests
         var cmd = new StatusCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("status").InvokeAsync();
+        var result = await root.Parse("status").InvokeAsync().ConfigureAwait(false);
 
         result.Should().Be(0);
         var output = console.Output;
@@ -75,7 +75,7 @@ public sealed class StatusCommandTests
         var cmd = new StatusCommand(ctx, renderer).Build();
         var root = new RootCommand { cmd };
 
-        var result = await root.Parse("status --verbose").InvokeAsync();
+        var result = await root.Parse("status --verbose").InvokeAsync().ConfigureAwait(false);
 
         result.Should().Be(0);
         var output = console.Output;

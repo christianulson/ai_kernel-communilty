@@ -21,7 +21,7 @@ public sealed class PrivacyDashboardViewModelTests
 
         var vm = new PrivacyDashboardViewModel(service.Object);
 
-        await vm.LoadAsync(CancellationToken.None);
+        await vm.LoadAsync(CancellationToken.None).ConfigureAwait(false);
 
         Assert.Equal(TelemetryConsentLevel.Anonymous, vm.SelectedConsentLevel);
         Assert.Contains("anônima", vm.ConsentDescription, StringComparison.OrdinalIgnoreCase);
@@ -40,7 +40,7 @@ public sealed class PrivacyDashboardViewModelTests
 
         var vm = new PrivacyDashboardViewModel(service.Object);
 
-        await vm.RequestExportAsync(CancellationToken.None);
+        await vm.RequestExportAsync(CancellationToken.None).ConfigureAwait(false);
 
         Assert.Equal("export accepted", vm.StatusMessage);
     }

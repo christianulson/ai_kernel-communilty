@@ -16,13 +16,13 @@ public sealed class ProfileCommand
             try
             {
                 using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
-                var response = await http.GetAsync($"{baseUrl}/profile/{userId}", ct);
+                var response = await http.GetAsync($"{baseUrl}/profile/{userId}", ct).ConfigureAwait(false);
                 if (!response.IsSuccessStatusCode)
                 {
                     AnsiConsole.MarkupLine("[red]Failed to fetch profile[/]");
                     return;
                 }
-                var json = await response.Content.ReadAsStringAsync(ct);
+                var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
                 using var doc = JsonDocument.Parse(json);
                 var root = doc.RootElement;
                 var table = new Table().Border(TableBorder.Rounded);

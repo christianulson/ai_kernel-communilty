@@ -35,7 +35,7 @@ public sealed class ConfigCommand(IAnsiConsole console, ManagedSettingsChain? ma
                 return 0;
             }
 
-            var settings = managedChain.Current ?? await managedChain.BuildAsync(ct);
+            var settings = managedChain.Current ?? await managedChain.BuildAsync(ct).ConfigureAwait(false);
             var all = settings.All();
             if (all.Count == 0)
             {
@@ -60,7 +60,7 @@ public sealed class ConfigCommand(IAnsiConsole console, ManagedSettingsChain? ma
                 return 0;
             }
 
-            var settings = managedChain.Current ?? await managedChain.BuildAsync(ct);
+            var settings = managedChain.Current ?? await managedChain.BuildAsync(ct).ConfigureAwait(false);
             var validator = new ManagedSettingsValidator();
             var result = validator.Validate(settings);
 
@@ -88,7 +88,7 @@ public sealed class ConfigCommand(IAnsiConsole console, ManagedSettingsChain? ma
             }
 
             var settingKey = r.GetValue(checkArg)!;
-            var settings = managedChain.Current ?? await managedChain.BuildAsync(ct);
+            var settings = managedChain.Current ?? await managedChain.BuildAsync(ct).ConfigureAwait(false);
             var setting = settings.Get(settingKey);
 
             if (setting is null)
@@ -119,7 +119,7 @@ public sealed class ConfigCommand(IAnsiConsole console, ManagedSettingsChain? ma
         cmd.SetAction(async (ParseResult r, CancellationToken ct) =>
         {
             var file = r.GetValue(fileArg)!;
-            return await ValidateAsync(file, ct);
+            return await ValidateAsync(file, ct).ConfigureAwait(false);
         });
         return cmd;
     }
@@ -129,7 +129,7 @@ public sealed class ConfigCommand(IAnsiConsole console, ManagedSettingsChain? ma
         var cmd = new Command("show", "Show current effective configuration");
         cmd.SetAction(async (ParseResult _, CancellationToken ct) =>
         {
-            return await ShowAsync(ct);
+            return await ShowAsync(ct).ConfigureAwait(false);
         });
         return cmd;
     }
@@ -146,7 +146,7 @@ public sealed class ConfigCommand(IAnsiConsole console, ManagedSettingsChain? ma
         cmd.SetAction(async (ParseResult r, CancellationToken ct) =>
         {
             var name = r.GetValue(nameArg)!;
-            return await ExportAsync(name, ct);
+            return await ExportAsync(name, ct).ConfigureAwait(false);
         });
         return cmd;
     }
@@ -161,7 +161,7 @@ public sealed class ConfigCommand(IAnsiConsole console, ManagedSettingsChain? ma
 
         try
         {
-            var config = await Loader.LoadAsync(file);
+            var config = await Loader.LoadAsync(file).ConfigureAwait(false);
             _console.MarkupLine("[green]Valid configuration:[/]");
             _console.MarkupLine("  Name: {0}", config.Name);
             _console.MarkupLine("  Version: {0}", config.Version);
@@ -215,7 +215,7 @@ public sealed class ConfigCommand(IAnsiConsole console, ManagedSettingsChain? ma
             """;
 
         var fileName = $"{name}.yaml";
-        await File.WriteAllTextAsync(fileName, yaml, ct);
+        await File.WriteAllTextAsync(fileName, yaml, ct).ConfigureAwait(false);
         _console.MarkupLine("[green]Exported configuration to:[/] {0}", fileName);
         return 0;
     }

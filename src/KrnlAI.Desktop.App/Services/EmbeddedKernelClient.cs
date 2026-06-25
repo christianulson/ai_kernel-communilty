@@ -122,7 +122,7 @@ public sealed class EmbeddedKernelClient : IKernelClient
     public async Task<Cts.AgentRunTransportResponse> RunAgentAsync(Cts.AgentRunTransportRequest request, CancellationToken cancellationToken = default)
     {
         AddEvent("agent", $"Agent run: {request.Prompt[..Math.Min(request.Prompt.Length, 50)]}", "system");
-        var result = await _kernel.RunAsync(request.Prompt, cancellationToken);
+        var result = await _kernel.RunAsync(request.Prompt, cancellationToken).ConfigureAwait(false);
         return new Cts.AgentRunTransportResponse(
             result.Narration,
             null,
@@ -137,7 +137,7 @@ public sealed class EmbeddedKernelClient : IKernelClient
     public async Task<MemorySearchResult> SearchMemoryAsync(string query, int topK = 10, CancellationToken cancellationToken = default)
     {
         AddEvent("memory", $"Memory search: {query[..Math.Min(query.Length, 50)]}", "kernel");
-        var hits = await _kernel.SearchMemoryAsync(query, cancellationToken);
+        var hits = await _kernel.SearchMemoryAsync(query, cancellationToken).ConfigureAwait(false);
         return new MemorySearchResult(
             [.. hits.Take(Math.Max(1, topK)).Select(hit => new MemoryHit(hit.Id, hit.Payload ?? "", "embedded", hit.Score, DateTime.UtcNow, null))],
             hits.Count,
@@ -238,13 +238,13 @@ public sealed class EmbeddedKernelClient : IKernelClient
 
     public async Task<GoalListResponse> GetActiveGoalsAsync(CancellationToken cancellationToken = default)
     {
-        var goals = await _kernel.GetKanbanGoalsAsync(cancellationToken);
+        var goals = await _kernel.GetKanbanGoalsAsync(cancellationToken).ConfigureAwait(false);
         return new GoalListResponse([.. goals.Select(MapGoal)], goals.Count);
     }
 
     public async Task<GoalDetails?> GetGoalAsync(string goalId, CancellationToken cancellationToken = default)
     {
-        var goals = await _kernel.GetKanbanGoalsAsync(cancellationToken);
+        var goals = await _kernel.GetKanbanGoalsAsync(cancellationToken).ConfigureAwait(false);
         var goal = goals.FirstOrDefault(g => g.Id == goalId);
         return goal is null
             ? null
@@ -260,7 +260,7 @@ public sealed class EmbeddedKernelClient : IKernelClient
             request.Priority,
             DateTimeOffset.UtcNow,
             request.Deadline);
-        var saved = await _kernel.UpsertKanbanGoalAsync(goal, cancellationToken);
+        var saved = await _kernel.UpsertKanbanGoalAsync(goal, cancellationToken).ConfigureAwait(false);
         if (saved)
         {
             AddEvent("goal", $"Goal created: {request.Description}", "user");

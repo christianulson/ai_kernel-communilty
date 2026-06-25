@@ -18,7 +18,7 @@ public sealed class CliStatsCommand
             var verbose = r.GetValue(verboseOpt);
 
             var store = new TuiSessionStore();
-            var sessions = await store.ListAsync();
+            var sessions = await store.ListAsync().ConfigureAwait(false);
 
             var totalMessages = sessions.Sum(s => s.MessageCount);
             var totalSessions = sessions.Count;

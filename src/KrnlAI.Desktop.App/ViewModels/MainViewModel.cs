@@ -515,13 +515,13 @@ public class MainViewModel : ViewModelBase
         {
             var dialog = new Microsoft.Win32.SaveFileDialog { Filter = "Backup files (*.zip)|*.zip", FileName = $"krnlai-backup-{DateTime.Now:yyyyMMdd}.zip" };
             if (dialog.ShowDialog() == true)
-                await new Services.BackupService().BackupAsync(dialog.FileName);
+                await new BackupService().BackupAsync(dialog.FileName).ConfigureAwait(false);
         });
         RestoreCommand = new AsyncRelayCommand(async () =>
         {
             var dialog = new Microsoft.Win32.OpenFileDialog { Filter = "Backup files (*.zip)|*.zip" };
             if (dialog.ShowDialog() == true)
-                await new Services.BackupService().RestoreAsync(dialog.FileName);
+                await new BackupService().RestoreAsync(dialog.FileName).ConfigureAwait(false);
         });
         FeedbackCommand = new RelayCommand(() =>
         {
@@ -537,11 +537,11 @@ public class MainViewModel : ViewModelBase
         ToggleCommandPaletteCommand = new RelayCommand(() => ShowCommandPalette = !ShowCommandPalette);
         ToggleLogsCommand = new RelayCommand(() => ShowLogs = !ShowLogs);
         ToggleKioskCommand = new RelayCommand(() => KioskMode = !KioskMode);
-        CheckUpdateCommand = new AsyncRelayCommand(async () => UpdateVersion = await new Services.UpdateChecker().CheckForUpdatesAsync());
+        CheckUpdateCommand = new AsyncRelayCommand(async () => UpdateVersion = await new UpdateChecker().CheckForUpdatesAsync().ConfigureAwait(false));
         DownloadUpdateCommand = new AsyncRelayCommand(async () =>
         {
             if (UpdateVersion != null)
-                await new Services.UpdateChecker().DownloadAndInstallAsync(UpdateVersion);
+                await new UpdateChecker().DownloadAndInstallAsync(UpdateVersion).ConfigureAwait(false);
         });
         StartSidecarCommand = new AsyncRelayCommand(async () =>
         {
@@ -599,8 +599,8 @@ public class MainViewModel : ViewModelBase
     private async Task ToggleListeningAsync()
     {
         if (_listeningService == null) return;
-        if (IsListening) { await _listeningService.StopListeningAsync(); IsListening = false; StatusMessage = "Escuta parada"; }
-        else { await _listeningService.StartListeningAsync(); IsListening = true; StatusMessage = "Escutando..."; }
+        if (IsListening) { await _listeningService.StopListeningAsync().ConfigureAwait(false); IsListening = false; StatusMessage = "Escuta parada"; }
+        else { await _listeningService.StartListeningAsync().ConfigureAwait(false); IsListening = true; StatusMessage = "Escutando..."; }
     }
 
     private async Task CheckBackendHealthAsync()
@@ -624,7 +624,7 @@ public class MainViewModel : ViewModelBase
         {
             try
             {
-                var isAvailable = await _kernelClient.CheckHealthAsync(t);
+                var isAvailable = await _kernelClient.CheckHealthAsync(t).ConfigureAwait(false);
                 UiThreadInvoker.Invoke(() =>
                 {
                     if (isAvailable != _previousBackendAvailable)
@@ -646,7 +646,7 @@ public class MainViewModel : ViewModelBase
             }
             catch (OperationCanceledException) { break; }
             catch (Exception ex) { KrnlLogger.Write($"HealthCheck: {ex.Message}"); }
-            try { await Task.Delay(30000, t); } catch (OperationCanceledException) { break; }
+            try { await Task.Delay(30000, t).ConfigureAwait(false); } catch (OperationCanceledException) { break; }
         }
     }
 
@@ -681,7 +681,7 @@ public class MainViewModel : ViewModelBase
             Sessions[i] = new ConversationSession(ActiveSession.Id, inputBox.Text, ActiveSession.CreatedAt);
             ActiveSession = Sessions[i];
         }
-        await Task.CompletedTask;
+        await Task.CompletedTask.ConfigureAwait(false);
     }
 
     private async Task AutoRefreshDashboardAsync()
@@ -693,10 +693,10 @@ public class MainViewModel : ViewModelBase
         var t = _dashboardRefreshCts.Token;
         while (!t.IsCancellationRequested)
         {
-            try { await Task.Delay(30000, t); } catch (OperationCanceledException) { break; }
+            try { await Task.Delay(30000, t).ConfigureAwait(false); } catch (OperationCanceledException) { break; }
             if (IsBackendAvailable && !t.IsCancellationRequested)
             {
-                try { await DashVM.LoadDashboardDataAsync(); }
+                try { await DashVM.LoadDashboardDataAsync().ConfigureAwait(false); }
                 catch (Exception ex) { KrnlLogger.Write($"Dashboard refresh: {ex.Message}"); }
             }
         }
@@ -714,7 +714,7 @@ public class MainViewModel : ViewModelBase
             {
                 if (IsBackendAvailable)
                 {
-                    var state = await _kernelClient.GetEmotionalStateAsync(UserId, t);
+                    var state = await _kernelClient.GetEmotionalStateAsync(UserId, t).ConfigureAwait(false);
                     if (state != null)
                     {
                         UiThreadInvoker.Invoke(() => EmotionalState = state);
@@ -723,7 +723,7 @@ public class MainViewModel : ViewModelBase
             }
             catch (OperationCanceledException) { break; }
             catch (Exception ex) { KrnlLogger.Write($"Emotional poll: {ex.Message}"); }
-            try { await Task.Delay(15000, t); } catch (OperationCanceledException) { break; }
+            try { await Task.Delay(15000, t).ConfigureAwait(false); } catch (OperationCanceledException) { break; }
         }
     }
 

@@ -7,7 +7,7 @@ public sealed class CliSeeder(IMomentStore momentStore, IMomentClassifierStore c
 {
     public async Task SeedAsync()
     {
-        var existing = await momentStore.ListRecentAsync(1, CancellationToken.None);
+        var existing = await momentStore.ListRecentAsync(1, CancellationToken.None).ConfigureAwait(false);
         if (existing.Count > 0)
             return;
 
@@ -35,7 +35,7 @@ public sealed class CliSeeder(IMomentStore momentStore, IMomentClassifierStore c
         };
 
         foreach (var m in moments)
-            await momentStore.UpsertAsync(m, CancellationToken.None);
+            await momentStore.UpsertAsync(m, CancellationToken.None).ConfigureAwait(false);
 
         var classifications = new[]
         {
@@ -48,6 +48,6 @@ public sealed class CliSeeder(IMomentStore momentStore, IMomentClassifierStore c
         };
 
         foreach (var c in classifications)
-            await classifierStore.StoreAsync(c, CancellationToken.None);
+            await classifierStore.StoreAsync(c, CancellationToken.None).ConfigureAwait(false);
     }
 }

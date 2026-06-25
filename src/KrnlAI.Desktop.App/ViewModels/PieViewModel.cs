@@ -56,7 +56,7 @@ public class PieViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            var r = await _kernelClient.PieInferAsync(Premise, Context);
+            var r = await _kernelClient.PieInferAsync(Premise, Context).ConfigureAwait(false);
             if (r != null)
             {
                 Conclusion = r.Conclusion;
@@ -80,7 +80,7 @@ public class PieViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            var r = await _kernelClient.PieChainAsync(ChainPremise, ChainSteps, ChainContext);
+            var r = await _kernelClient.PieChainAsync(ChainPremise, ChainSteps, ChainContext).ConfigureAwait(false);
             ChainResults.Clear();
             if (r?.Steps != null)
                 foreach (var s in r.Steps)
@@ -101,7 +101,7 @@ public class PieViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            var terms = await _kernelClient.PieTermsAsync();
+            var terms = await _kernelClient.PieTermsAsync().ConfigureAwait(false);
             Terms.Clear();
             foreach (var t in terms) Terms.Add(t);
         }
@@ -116,7 +116,7 @@ public class PieViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            Coherence = await _kernelClient.PieCoherenceAsync();
+            Coherence = await _kernelClient.PieCoherenceAsync().ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -128,7 +128,7 @@ public class PieViewModel : ViewModelBase
     {
         try
         {
-            var r = await _kernelClient.PieKnowledgeAsync(domain, fact, certainty);
+            var r = await _kernelClient.PieKnowledgeAsync(domain, fact, certainty).ConfigureAwait(false);
             return r?.Success ?? false;
         }
         catch

@@ -30,9 +30,9 @@ public sealed class DocumentCommand(CliContext ctx, ConsoleRenderer renderer)
         {
             var client = ctx.HttpClient;
             var limit = r.GetValue(limitOpt);
-            var resp = await client.GetAsync($"{DocsBase}?limit={limit}", ct);
+            var resp = await client.GetAsync($"{DocsBase}?limit={limit}", ct).ConfigureAwait(false);
             if (!resp.IsSuccessStatusCode) { renderer.Console.MarkupLine("[red]Failed to list documents[/]"); return 1; }
-            var docs = await resp.Content.ReadFromJsonAsync<JsonElement>(cancellationToken: ct);
+            var docs = await resp.Content.ReadFromJsonAsync<JsonElement>(cancellationToken: ct).ConfigureAwait(false);
             if (docs.ValueKind != JsonValueKind.Array || docs.GetArrayLength() == 0)
             {
                 renderer.Console.MarkupLine("[yellow]No documents found[/]");
@@ -57,9 +57,9 @@ public sealed class DocumentCommand(CliContext ctx, ConsoleRenderer renderer)
         {
             var client = ctx.HttpClient;
             var id = r.GetValue(idArg)!;
-            var resp = await client.GetAsync($"{DocsBase}/{Uri.EscapeDataString(id)}/status", ct);
+            var resp = await client.GetAsync($"{DocsBase}/{Uri.EscapeDataString(id)}/status", ct).ConfigureAwait(false);
             if (!resp.IsSuccessStatusCode) { renderer.Console.MarkupLine($"[red]Document '{id}' not found[/]"); return 1; }
-            var doc = await resp.Content.ReadFromJsonAsync<JsonElement>(cancellationToken: ct);
+            var doc = await resp.Content.ReadFromJsonAsync<JsonElement>(cancellationToken: ct).ConfigureAwait(false);
             renderer.Console.MarkupLine($"[bold]Document ID:[/] {doc.GetProperty("documentId").GetString()}");
             renderer.Console.MarkupLine($"[bold]File:[/] {doc.GetProperty("fileName").GetString()}");
             renderer.Console.MarkupLine($"[bold]Size:[/] {doc.GetProperty("fileSize").GetInt64():N0} bytes");
@@ -87,9 +87,9 @@ public sealed class DocumentCommand(CliContext ctx, ConsoleRenderer renderer)
             var query = r.GetValue(queryArg)!;
             var topK = r.GetValue(topKOpt);
             var body = new { query, topK };
-            var resp = await client.PostAsJsonAsync($"{DocsBase}/search", body, ct);
+            var resp = await client.PostAsJsonAsync($"{DocsBase}/search", body, ct).ConfigureAwait(false);
             if (!resp.IsSuccessStatusCode) { renderer.Console.MarkupLine("[red]Search failed[/]"); return 1; }
-            var result = await resp.Content.ReadFromJsonAsync<JsonElement>(cancellationToken: ct);
+            var result = await resp.Content.ReadFromJsonAsync<JsonElement>(cancellationToken: ct).ConfigureAwait(false);
             if (!result.TryGetProperty("hits", out var hits) || hits.GetArrayLength() == 0) { renderer.Console.MarkupLine("[yellow]No results[/]"); return 0; }
             var rows = new List<object>();
             foreach (var h in hits.EnumerateArray())
@@ -112,9 +112,9 @@ public sealed class DocumentCommand(CliContext ctx, ConsoleRenderer renderer)
             using var stream = file.OpenRead();
             using var content = new MultipartFormDataContent { { new StreamContent(stream), "file", file.Name } };
             renderer.Console.MarkupLine($"[yellow]Uploading {file.Name}...[/]");
-            var resp = await client.PostAsync("/api/documents/upload", content, ct);
+            var resp = await client.PostAsync("/api/documents/upload", content, ct).ConfigureAwait(false);
             if (!resp.IsSuccessStatusCode) { renderer.Console.MarkupLine($"[red]Upload failed (HTTP {(int)resp.StatusCode})[/]"); return 1; }
-            var result = await resp.Content.ReadFromJsonAsync<JsonElement>(cancellationToken: ct);
+            var result = await resp.Content.ReadFromJsonAsync<JsonElement>(cancellationToken: ct).ConfigureAwait(false);
             renderer.Console.MarkupLine($"[green]Uploaded![/] ID: {result.GetProperty("documentId").GetString()} Status: {result.GetProperty("status").GetString()}");
             return 0;
         });

@@ -17,7 +17,7 @@ public sealed partial class AdminUsersControl : UserControl
         try
         {
             if (DataContext is MainViewModel vm)
-                await vm.AdminUsersVM.LoadAsync();
+                await vm.AdminUsersVM.LoadAsync().ConfigureAwait(false);
         }
         catch (Exception ex) { KrnlLogger.Write($"AdminUsersControl.OnLoaded: {ex.Message}"); }
     }

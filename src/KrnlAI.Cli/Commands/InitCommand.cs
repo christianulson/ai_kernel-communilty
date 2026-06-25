@@ -42,7 +42,7 @@ public sealed class InitCommand(ITemplateEngine templateEngine, IAnsiConsole con
             };
 
             console.MarkupLine($"[green]Scaffolding agent '{name}'...[/]");
-            await templateEngine.ScaffoldAsync(TemplateType.Agent, name, output, vars);
+            await templateEngine.ScaffoldAsync(TemplateType.Agent, name, output, vars).ConfigureAwait(false);
 
             console.MarkupLine($"[bold green]✅ Created {name}/[/]");
             console.MarkupLine($"[green]   Safety level: {safety}[/]");

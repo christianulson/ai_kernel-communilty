@@ -24,7 +24,7 @@ public class KernelClientTests
         apiMock.Setup(a => a.GetHealthAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new HealthResponse { Ok = true, Ts = DateTimeOffset.UtcNow });
 
-        var result = await client.CheckHealthAsync();
+        var result = await client.CheckHealthAsync().ConfigureAwait(false);
         Assert.True(result);
     }
 
@@ -35,7 +35,7 @@ public class KernelClientTests
         apiMock.Setup(a => a.GetHealthAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new HealthResponse { Ok = false, Ts = DateTimeOffset.UtcNow });
 
-        var result = await client.CheckHealthAsync();
+        var result = await client.CheckHealthAsync().ConfigureAwait(false);
         Assert.False(result);
     }
 
@@ -46,7 +46,7 @@ public class KernelClientTests
         apiMock.Setup(a => a.GetHealthAsync(It.IsAny<CancellationToken>()))
             .ThrowsAsync(new HttpRequestException("Connection failed"));
 
-        var result = await client.CheckHealthAsync();
+        var result = await client.CheckHealthAsync().ConfigureAwait(false);
         Assert.False(result);
     }
 
@@ -58,7 +58,7 @@ public class KernelClientTests
         apiMock.Setup(a => a.RunAgentAsync(It.IsAny<Cts.AgentRunTransportRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(dto);
 
-        var result = await client.RunAgentAsync(new Cts.AgentRunTransportRequest("Hi"));
+        var result = await client.RunAgentAsync(new Cts.AgentRunTransportRequest("Hi")).ConfigureAwait(false);
         Assert.Equal("Hello!", result.Narration);
         Assert.Null(result.Error);
     }
@@ -70,7 +70,7 @@ public class KernelClientTests
         apiMock.Setup(a => a.RunAgentAsync(It.IsAny<Cts.AgentRunTransportRequest>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("API down"));
 
-        var result = await client.RunAgentAsync(new Cts.AgentRunTransportRequest("Hi"));
+        var result = await client.RunAgentAsync(new Cts.AgentRunTransportRequest("Hi")).ConfigureAwait(false);
         Assert.Null(result.Narration);
         Assert.Null(result.Error); // Error is not preserved; SafeCall logs it instead
     }
@@ -83,7 +83,7 @@ public class KernelClientTests
         apiMock.Setup(a => a.LoginAsync(It.IsAny<LoginRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new LoginResponseDto("jwt-token", "refresh-abc", userInfo));
 
-        var result = await client.LoginAsync(new LoginRequest("admin@ai-kernel.local", "pass"));
+        var result = await client.LoginAsync(new LoginRequest("admin@ai-kernel.local", "pass")).ConfigureAwait(false);
         Assert.True(result.Success);
         Assert.Equal("jwt-token", result.Token);
         Assert.Equal("admin@ai-kernel.local", result.Username);
@@ -97,7 +97,7 @@ public class KernelClientTests
         apiMock.Setup(a => a.LoginAsync(It.IsAny<LoginRequest>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new HttpRequestException("401"));
 
-        var result = await client.LoginAsync(new LoginRequest("bad@email.com", "wrong"));
+        var result = await client.LoginAsync(new LoginRequest("bad@email.com", "wrong")).ConfigureAwait(false);
         Assert.False(result.Success);
         Assert.Null(result.Token);
     }
@@ -110,7 +110,7 @@ public class KernelClientTests
             .ReturnsAsync(new PolicyListResponseDto(
                 [new PolicyInfoDto("p1", "Policy 1", "http", "1.0", DateTime.UtcNow, null, true)], 1, 1, 20));
 
-        var result = await client.GetPoliciesAsync();
+        var result = await client.GetPoliciesAsync().ConfigureAwait(false);
         Assert.Single(result.Policies);
         Assert.Equal("Policy 1", result.Policies[0].Name);
     }
@@ -122,7 +122,7 @@ public class KernelClientTests
         apiMock.Setup(a => a.GetPoliciesAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new HttpRequestException());
 
-        var result = await client.GetPoliciesAsync();
+        var result = await client.GetPoliciesAsync().ConfigureAwait(false);
         Assert.Empty(result.Policies);
     }
 
@@ -134,7 +134,7 @@ public class KernelClientTests
             .ReturnsAsync(new GoalListDto(
                 [new GoalInfoDto("g1", "Test Goal", "active", 3, DateTime.UtcNow, null, null, null, 0, 0)], 1));
 
-        var result = await client.GetActiveGoalsAsync();
+        var result = await client.GetActiveGoalsAsync().ConfigureAwait(false);
         Assert.Single(result.Goals);
         Assert.Equal("Test Goal", result.Goals[0].Description);
     }
@@ -146,7 +146,7 @@ public class KernelClientTests
         apiMock.Setup(a => a.GetActiveGoalsAsync(It.IsAny<CancellationToken>()))
             .ThrowsAsync(new HttpRequestException());
 
-        var result = await client.GetActiveGoalsAsync();
+        var result = await client.GetActiveGoalsAsync().ConfigureAwait(false);
         Assert.Empty(result.Goals);
     }
 
@@ -157,7 +157,7 @@ public class KernelClientTests
         apiMock.Setup(a => a.CreateGoalAsync(It.IsAny<CreateGoalRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new GoalInfoDto("g1", "New Goal", "active", 2, DateTime.UtcNow, null, null, null, 0, 0));
 
-        var result = await client.CreateGoalAsync(new CreateGoalRequest("New Goal", 2));
+        var result = await client.CreateGoalAsync(new CreateGoalRequest("New Goal", 2)).ConfigureAwait(false);
         Assert.NotNull(result);
         Assert.Equal("New Goal", result!.Description);
     }
@@ -169,7 +169,7 @@ public class KernelClientTests
         apiMock.Setup(a => a.UpdateGoalStatusAsync("g1", "pause", It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        var result = await client.UpdateGoalStatusAsync("g1", "pause");
+        var result = await client.UpdateGoalStatusAsync("g1", "pause").ConfigureAwait(false);
         Assert.True(result);
     }
 
@@ -182,7 +182,7 @@ public class KernelClientTests
         apiMock.Setup(a => a.SearchMemoryAsync(It.Is<MemorySearchRequestDto>(r => r.Query == "test" && r.Limit == 10), It.IsAny<CancellationToken>()))
             .ReturnsAsync(dto);
 
-        var result = await client.SearchMemoryAsync("test");
+        var result = await client.SearchMemoryAsync("test").ConfigureAwait(false);
         Assert.Single(result.Hits);
         Assert.Equal(0.9, result.Hits[0].Score);
     }
@@ -194,7 +194,7 @@ public class KernelClientTests
         apiMock.Setup(a => a.GetScorecardAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ScorecardDto(0.95, 0.88, 0.99, 0.92, 0.85, 0.92));
 
-        var result = await client.GetScorecardAsync();
+        var result = await client.GetScorecardAsync().ConfigureAwait(false);
         Assert.NotNull(result);
         Assert.Equal(0.95, result!.Reliability);
         Assert.Equal(0.92, result.Overall);
@@ -207,7 +207,7 @@ public class KernelClientTests
         apiMock.Setup(a => a.SubmitFeedbackAsync(It.IsAny<FeedbackRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new FeedbackResultDto(true, "fb1", "ok"));
 
-        var result = await client.SubmitFeedbackAsync(new FeedbackRequest("ep1", 5, "Good", null));
+        var result = await client.SubmitFeedbackAsync(new FeedbackRequest("ep1", 5, "Good", null)).ConfigureAwait(false);
         Assert.True(result.Success);
         Assert.Equal("fb1", result.FeedbackId);
     }

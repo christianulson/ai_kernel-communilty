@@ -10,21 +10,21 @@ public sealed class AuthTokenHandler(AuthTokenProvider tokenProvider, Func<Cance
         if (!string.IsNullOrEmpty(tokenProvider.Token))
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", tokenProvider.Token);
 
-        var response = await base.SendAsync(request, ct);
+        var response = await base.SendAsync(request, ct).ConfigureAwait(false);
 
         if (response.StatusCode == HttpStatusCode.Unauthorized
             && tokenProvider.RefreshToken != null
             && refreshHandler != null
             && !IsRefreshRequest(request))
         {
-            var newToken = await refreshHandler(ct);
+            var newToken = await refreshHandler(ct).ConfigureAwait(false);
             if (newToken != null)
             {
                 tokenProvider.Token = newToken;
-                var retry = await CloneRequestAsync(request, ct);
+                var retry = await CloneRequestAsync(request, ct).ConfigureAwait(false);
                 retry.Headers.Authorization = new AuthenticationHeaderValue("Bearer", newToken);
                 response.Dispose();
-                return await base.SendAsync(retry, ct);
+                return await base.SendAsync(retry, ct).ConfigureAwait(false);
             }
             tokenProvider.Clear();
         }
@@ -41,7 +41,7 @@ public sealed class AuthTokenHandler(AuthTokenProvider tokenProvider, Func<Cance
         var clone = new HttpRequestMessage(request.Method, request.RequestUri);
         if (request.Content != null)
         {
-            var body = await request.Content.ReadAsByteArrayAsync(ct);
+            var body = await request.Content.ReadAsByteArrayAsync(ct).ConfigureAwait(false);
             clone.Content = new ByteArrayContent(body);
             if (request.Content.Headers.ContentType != null)
                 clone.Content.Headers.ContentType = request.Content.Headers.ContentType;
