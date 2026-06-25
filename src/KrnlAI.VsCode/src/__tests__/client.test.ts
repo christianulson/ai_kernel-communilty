@@ -324,4 +324,80 @@ describe('KernelClient', () => {
             expect(result).toBe(false);
         });
     });
+
+    describe('plugin catalog', () => {
+        it('listPlugins should fetch catalog items', async () => {
+            mockGetConfiguration();
+            const plugins = [{ id: 'p1', name: 'Plugin 1', version: '1.0', description: 'Test plugin' }];
+            mockFetch({ items: plugins });
+            const result = await new KernelClient().listPlugins();
+            expect(result).toHaveLength(1);
+            expect(result[0].name).toBe('Plugin 1');
+        });
+
+        it('listPlugins should return empty array on error', async () => {
+            mockGetConfiguration();
+            mockFetchError();
+            const result = await new KernelClient().listPlugins();
+            expect(result).toEqual([]);
+        });
+
+        it('installPlugin should POST to install endpoint', async () => {
+            mockGetConfiguration();
+            (global as any).fetch = jest.fn().mockResolvedValue({ ok: true });
+            const result = await new KernelClient().installPlugin('test-plugin');
+            expect(result).toBe(true);
+            expect(global.fetch).toHaveBeenCalledWith(
+                expect.stringContaining('/admin/plugins/catalog/test-plugin/install'),
+                expect.objectContaining({ method: 'POST' })
+            );
+        });
+
+        it('installPlugin should return false on error', async () => {
+            mockGetConfiguration();
+            (global as any).fetch = jest.fn().mockRejectedValue(new Error('fail'));
+            const result = await new KernelClient().installPlugin('test-plugin');
+            expect(result).toBe(false);
+        });
+    });
+
+    describe('diagnostics', () => {
+        it('runDiagnostics should fetch with POST', async () => {
+            mockGetConfiguration();
+            const checks = [{ name: 'API', status: 'pass', message: 'OK' }];
+            mockFetch({ checks, systemInfo: { os: 'test' } });
+            const result = await new KernelClient().runDiagnostics();
+            expect(result.checks).toHaveLength(1);
+            expect(result.systemInfo).toEqual({ os: 'test' });
+            expect(global.fetch).toHaveBeenCalledWith(
+                expect.stringContaining('/api/diagnostics/run'),
+                expect.objectContaining({ method: 'POST' })
+            );
+        });
+
+        it('runDiagnostics should return fallback on error', async () => {
+            mockGetConfiguration();
+            mockFetchError();
+            const result = await new KernelClient().runDiagnostics();
+            expect(result.checks).toEqual([]);
+            expect(result.systemInfo).toBeNull();
+        });
+    });
+
+    describe('suggestFix', () => {
+        it('suggestFix should POST and return suggestion', async () => {
+            mockGetConfiguration();
+            mockFetch({ title: 'Fix issue', fix: 'const x = 2;' });
+            const result = await new KernelClient().suggestFix('const x = 1;', 'typescript');
+            expect(result?.title).toBe('Fix issue');
+            expect(result?.fix).toBe('const x = 2;');
+        });
+
+        it('suggestFix should return null on error', async () => {
+            mockGetConfiguration();
+            mockFetchError();
+            const result = await new KernelClient().suggestFix('code');
+            expect(result).toBeNull();
+        });
+    });
 });

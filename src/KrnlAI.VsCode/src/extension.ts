@@ -11,6 +11,8 @@ import { MemoryPanel } from './panels/memoryPanel';
 import { KanbanPanel } from './panels/KanbanPanel';
 import { SettingsPanel } from './panels/settingsPanel';
 import { DebugPanel } from './panels/DebugPanel';
+import { PluginCatalogPanel } from './panels/pluginCatalogPanel';
+import { DiagnosticsTreeProvider } from './providers/diagnosticsTreeProvider';
 import { ChatViewProvider } from './chat/ChatViewProvider';
 import { EditorContextProvider } from './codingAgent/EditorContextProvider';
 import { SlashCommandManager } from './codingAgent/SlashCommandManager';
@@ -118,6 +120,39 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('krnlai.kanban', () => KanbanPanel.createOrShow()));
     context.subscriptions.push(vscode.commands.registerCommand('krnlai.settings', () => SettingsPanel.createOrShow()));
     context.subscriptions.push(vscode.commands.registerCommand('krnlai.debugPanel', () => DebugPanel.createOrShow(debugTracker)));
+
+    // Plugin catalog
+    context.subscriptions.push(vscode.commands.registerCommand('krnlai.plugins.listCatalog', () => PluginCatalogPanel.createOrShow()));
+    context.subscriptions.push(vscode.commands.registerCommand('krnlai.plugins.install', async (pluginId?: string) => {
+        if (!pluginId) {
+            pluginId = await vscode.window.showInputBox({ placeHolder: 'Plugin ID' });
+        }
+        if (!pluginId) return;
+        await vscode.window.withProgress(
+            { location: vscode.ProgressLocation.Notification, title: `Installing ${pluginId}...` },
+            async () => { await client.installPlugin(pluginId!); }
+        );
+        vscode.window.showInformationMessage(`Plugin "${pluginId}" installed`);
+    }));
+
+    // Status check
+    context.subscriptions.push(vscode.commands.registerCommand('krnlai.status.check', async () => {
+        try {
+            const health = await client.health();
+            if (health) {
+                vscode.window.showInformationMessage(`Krnl-AI: ${health.status} (v${health.version})`);
+            } else {
+                vscode.window.showErrorMessage('Krnl-AI: Unavailable');
+            }
+        } catch (err: any) {
+            vscode.window.showErrorMessage(`Krnl-AI: Unavailable — ${err.message}`);
+        }
+    }));
+
+    // Diagnostics tree view
+    const diagnosticsTree = new DiagnosticsTreeProvider(client);
+    vscode.window.registerTreeDataProvider('krnlai.diagnostics', diagnosticsTree);
+    context.subscriptions.push(vscode.commands.registerCommand('krnlai.diagnostics.refresh', () => diagnosticsTree.refresh()));
 
     // TreeView
     const treeProvider = new NavTreeProvider();
@@ -249,6 +284,29 @@ function registerCodingAgentFeatures(context: vscode.ExtensionContext, client: K
     pushSub(vscode.commands.registerCommand('krnlai.coding.review', () => {
         const ctx = ctxProvider;
         return runSlashCommand('/review', ctx.getActiveEditorContent()?.substring(0, 2000) || '');
+    }));
+    pushSub(vscode.commands.registerCommand('krnlai.coding.suggestFix', async () => {
+        const ctx = ctxProvider;
+        const code = ctx.getActiveEditorContent()?.substring(0, 2000) || '';
+        if (!code) {
+            vscode.window.showWarningMessage('Open a file first');
+            return;
+        }
+        const suggestion = await client.suggestFix(code, ctx.getCurrentLanguage());
+        if (suggestion) {
+            const result = await vscode.window.showInformationMessage(
+                `[Krnl-AI] ${suggestion.title}`, 'Apply Fix'
+            );
+            if (result === 'Apply Fix') {
+                const editor = vscode.window.activeTextEditor;
+                if (editor) {
+                    await editor.edit(builder => {
+                        const fullRange = new vscode.Range(0, 0, editor.document.lineCount, 0);
+                        builder.replace(fullRange, suggestion.fix);
+                    });
+                }
+            }
+        }
     }));
     pushSub(vscode.commands.registerCommand('krnlai.coding.run', async () => {
         const input = await vscode.window.showInputBox({ prompt: 'Digite um prompt personalizado...', placeHolder: 'Ex: refatore esta função para usar async/await' });

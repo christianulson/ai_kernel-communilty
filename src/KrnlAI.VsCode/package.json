@@ -39,7 +39,16 @@
   "bugs": {
     "url": "https://github.com/krnl-ai/kernel/issues"
   },
-  "main": "./out/extension.js",
+  "qna": "marketplace",
+  "main": "./dist/extension.js",
+  "badges": [
+    {
+      "url": "https://github.com/krnl-ai/kernel/actions/workflows/build-vsix.yml/badge.svg",
+      "href": "https://github.com/krnl-ai/kernel/actions/workflows/build-vsix.yml",
+      "description": "Build status"
+    }
+  ],
+  "markdown": "github",
   "contributes": {
     "commands": [
       {
@@ -99,6 +108,10 @@
         "title": "Krnl-AI: Revisar Código"
       },
       {
+        "command": "krnlai.coding.suggestFix",
+        "title": "Krnl-AI: Sugerir Correção"
+      },
+      {
         "command": "krnlai.coding.run",
         "title": "Krnl-AI: Executar Prompt..."
       },
@@ -141,6 +154,22 @@
       {
         "command": "krnlai.debugPanel",
         "title": "Krnl-AI: Debug Trace Panel"
+      },
+      {
+        "command": "krnlai.plugins.listCatalog",
+        "title": "Krnl-AI: List Plugin Catalog"
+      },
+      {
+        "command": "krnlai.plugins.install",
+        "title": "Krnl-AI: Install Plugin"
+      },
+      {
+        "command": "krnlai.status.check",
+        "title": "Krnl-AI: Check System Status"
+      },
+      {
+        "command": "krnlai.diagnostics.refresh",
+        "title": "Krnl-AI: Refresh Diagnostics"
       }
     ],
     "keybindings": [
@@ -262,6 +291,11 @@
         {
           "id": "krnlai.nav",
           "name": "Navegação"
+        },
+        {
+          "type": "tree",
+          "id": "krnlai.diagnostics",
+          "name": "Diagnostics"
         }
       ]
     },
@@ -346,8 +380,19 @@
     }
   },
   "scripts": {
+    "vscode:prepublish": "npm run build:bundle",
+    "test": "jest --passWithNoTests",
+    "test:watch": "jest --watch",
+    "test:integration": "node ./out/e2e/integration-runner.js",
+    "build": "tsc -p tsconfig.json",
+    "build:watch": "tsc -p tsconfig.json --watch",
+    "build:bundle": "webpack --config extension.webpack.config.js",
     "e2e": "node ./out/e2e/runner.js",
-    "e2e:build": "tsc -p tsconfig.json --outDir out"
+    "e2e:build": "tsc -p tsconfig.json --outDir out",
+    "lint": "tsc --noEmit",
+    "format": "prettier --check \"src/**/*.ts\"",
+    "format:fix": "prettier --write \"src/**/*.ts\"",
+    "package": "vsce package"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
@@ -355,7 +400,11 @@
     "@types/vscode": "^1.118.0",
     "@vscode/test-electron": "^2.5.2",
     "jest": "^30.4.1",
+    "prettier": "^3.8.4",
     "ts-jest": "^29.4.9",
-    "typescript": "^6.0.3"
+    "ts-loader": "^9.6.2",
+    "typescript": "^6.0.3",
+    "webpack": "^5.107.2",
+    "webpack-cli": "^7.0.3"
   }
 }

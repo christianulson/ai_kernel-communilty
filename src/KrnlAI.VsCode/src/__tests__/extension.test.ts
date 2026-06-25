@@ -48,7 +48,8 @@ jest.mock('vscode', () => ({
         registerCommand: jest.fn(() => ({ dispose: jest.fn() }))
     },
     EventEmitter: jest.fn(() => ({
-        event: jest.fn()
+        event: jest.fn(),
+        fire: jest.fn()
     })),
     TreeItem: jest.fn(),
     TreeItemCollapsibleState: { None: 0 },
@@ -109,7 +110,7 @@ describe('Extension', () => {
     it('should register all commands on activation', async () => {
         const { activate } = require('../extension');
         await activate(context);
-        expect(vscode.commands.registerCommand).toHaveBeenCalledTimes(19); // 10 panel + 9 debug + 1 navigate
+        expect(vscode.commands.registerCommand).toHaveBeenCalledTimes(23);
     });
 
     it('should register chat command', async () => {
@@ -225,6 +226,41 @@ describe('Extension', () => {
         );
     });
 
+    it('should register plugin catalog commands', async () => {
+        const { activate } = require('../extension');
+        await activate(context);
+        expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
+            'krnlai.plugins.listCatalog', expect.any(Function)
+        );
+        expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
+            'krnlai.plugins.install', expect.any(Function)
+        );
+    });
+
+    it('should register status check command', async () => {
+        const { activate } = require('../extension');
+        await activate(context);
+        expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
+            'krnlai.status.check', expect.any(Function)
+        );
+    });
+
+    it('should register diagnostics refresh command', async () => {
+        const { activate } = require('../extension');
+        await activate(context);
+        expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
+            'krnlai.diagnostics.refresh', expect.any(Function)
+        );
+    });
+
+    it('should register diagnostics tree data provider', async () => {
+        const { activate } = require('../extension');
+        await activate(context);
+        expect(vscode.window.registerTreeDataProvider).toHaveBeenCalledWith(
+            'krnlai.diagnostics', expect.any(Object)
+        );
+    });
+
     it('should add all subscriptions to context', async () => {
         const { activate } = require('../extension');
         await activate(context);
@@ -257,6 +293,7 @@ describe('Extension with Coding Agent Enabled', () => {
         expect(ids).toContain('krnlai.coding.test');
         expect(ids).toContain('krnlai.coding.refactor');
         expect(ids).toContain('krnlai.coding.review');
+        expect(ids).toContain('krnlai.coding.suggestFix');
     });
 
     it('ShouldRegisterCodeLensProvider_WhenEnabled', async () => {

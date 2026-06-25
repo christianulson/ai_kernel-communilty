@@ -190,4 +190,33 @@ export class KernelClient {
             return res.ok;
         } catch { return false; }
     }
+
+    // Plugin catalog
+    async listPlugins(): Promise<{ id: string; name: string; version: string; description: string }[]> {
+        const data = await this.fetchJson<{ items: { id: string; name: string; version: string; description: string }[] }>('/admin/plugins/catalog');
+        return data?.items || [];
+    }
+
+    async installPlugin(pluginId: string): Promise<boolean> {
+        try {
+            const res = await fetch(`${this.getBaseUrl()}/admin/plugins/catalog/${encodeURIComponent(pluginId)}/install`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }
+            });
+            return res.ok;
+        } catch { return false; }
+    }
+
+    // Diagnostics
+    async runDiagnostics(): Promise<{ checks: { name: string; status: string; message: string }[]; systemInfo: Record<string, unknown> | null }> {
+        const result = await this.fetchJson<{ checks: { name: string; status: string; message: string }[]; systemInfo: Record<string, unknown> | null }>('/api/diagnostics/run', { method: 'POST' });
+        return result || { checks: [], systemInfo: null };
+    }
+
+    // Suggest fix
+    async suggestFix(code: string, language?: string): Promise<{ title: string; fix: string } | null> {
+        return this.fetchJson('/api/coding/suggest-fix', {
+            method: 'POST',
+            body: JSON.stringify({ code, language })
+        });
+    }
 }
