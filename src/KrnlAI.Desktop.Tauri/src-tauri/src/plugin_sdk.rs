@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 /// -- Tauri Plugin SDK Architecture --
 ///
 /// This module defines the architecture for third-party Rust plugins
@@ -172,3 +173,7 @@ mod tests {
         assert_eq!(extract_field("key = \"value\"", "missing"), None);
     }
 }
+
+
+
+

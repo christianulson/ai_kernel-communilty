@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
@@ -49,9 +50,16 @@ impl SidecarWatchdog {
 
                         if consecutive_failures >= MAX_FAILURES {
                             let _ = app.emit("sidecar-restarting", "Sidecar unresponsive. Restarting...");
-                            sidecar.stop();
+                            let sidecar_clone = sidecar.clone();
+                            std::thread::spawn(move || {
+                                let rt = tokio::runtime::Runtime::new().unwrap();
+                                let _ = rt.block_on(sidecar_clone.stop());
+                            }).join().unwrap_or_default();
                             std::thread::sleep(RESTART_COOLDOWN);
-                            sidecar.start();
+                            std::thread::spawn(move || {
+                                let rt = tokio::runtime::Runtime::new().unwrap();
+                                let _ = rt.block_on(sidecar.start());
+                            }).join().unwrap_or_default();
                             consecutive_failures = 0;
                             let _ = app.emit("sidecar-restarted", "Sidecar restarted successfully");
                         }
@@ -84,3 +92,6 @@ mod tests {
         assert!(!w.running.load(Ordering::SeqCst));
     }
 }
+
+
+

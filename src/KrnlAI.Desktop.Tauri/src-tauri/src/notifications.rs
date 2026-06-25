@@ -1,6 +1,9 @@
+#![allow(dead_code)]
 use tauri::AppHandle;
 use tauri_plugin_notification::NotificationExt;
 
+/// A notification action button
+#[allow(dead_code)]
 #[derive(Clone, serde::Serialize)]
 pub struct NotificationAction {
     pub id: String,
@@ -8,6 +11,7 @@ pub struct NotificationAction {
 }
 
 /// Send a native notification
+#[allow(dead_code)]
 pub async fn send_notification(
     app: &AppHandle,
     title: &str,
@@ -58,3 +62,5 @@ pub async fn send_update_notification(
         &format!("Version {} is ready to install.", version),
     ).await
 }
+
+
