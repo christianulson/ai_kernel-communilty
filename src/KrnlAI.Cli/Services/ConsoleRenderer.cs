@@ -1,5 +1,4 @@
 using KrnlAI.Core.Abstractions;
-using KrnlAI.Core.Model;
 using KrnlAI.Core.Services.Memory;
 using Spectre.Console;
 

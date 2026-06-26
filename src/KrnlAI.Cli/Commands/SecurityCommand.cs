@@ -1,6 +1,5 @@
 using System.CommandLine;
 using System.Text.Json;
-using KrnlAI.Core.Model;
 using KrnlAI.Core.Services.Safety;
 using Spectre.Console;
 

@@ -1,6 +1,7 @@
 using KrnlAI.Core.Abstractions;
 using CoreModel = KrnlAI.Core.Model;
 using CoreAbstractions = KrnlAI.Desktop.Core.Abstractions;
+using KrnlAI.Contracts;
 
 namespace KrnlAI.Desktop.App.Services;
 
@@ -49,7 +50,7 @@ public sealed class EmbeddedCognitiveStreamProvider(ICognitiveStreamer streamer)
 
     private sealed class EmbeddedStreamSink(EmbeddedCognitiveStreamProvider owner) : ICognitiveStreamSink
     {
-        public Task OnEventAsync(CoreModel.CognitiveCycleEvent evt, CancellationToken ct)
+        public Task OnEventAsync(CognitiveCycleEvent evt, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
                 return Task.FromCanceled(ct);

@@ -17,6 +17,7 @@ using KrnlAI.Executive;
 using KrnlAI.Snapshot;
 using KrnlAI.Memory;
 using TestHelpers;
+using KrnlAI.Contracts;
 
 namespace KrnlAI.Cli.Tests;
 
