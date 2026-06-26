@@ -1,5 +1,3 @@
-using KrnlAI.Desktop.App.ViewModels;
-
 namespace KrnlAI.Desktop.Tests.ViewModels;
 
 public sealed class VideoCallViewModelTests

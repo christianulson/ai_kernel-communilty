@@ -1,6 +1,4 @@
 using System.Text.Json;
-using KrnlAI.Desktop.Core.Abstractions;
-using KrnlAI.Desktop.Core.Models;
 
 namespace KrnlAI.Desktop.Tests.Models;
 

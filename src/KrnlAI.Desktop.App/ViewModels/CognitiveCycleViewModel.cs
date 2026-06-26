@@ -2,7 +2,6 @@ using System.Collections.ObjectModel;
 using System.Windows.Input;
 using KrnlAI.Desktop.App.Services;
 using KrnlAI.Desktop.Core.Abstractions;
-using KrnlAI.Desktop.Core.Models;
 
 namespace KrnlAI.Desktop.App.ViewModels;
 

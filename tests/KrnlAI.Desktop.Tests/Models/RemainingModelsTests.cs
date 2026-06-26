@@ -1,6 +1,3 @@
-using KrnlAI.Desktop.Core.Abstractions;
-using KrnlAI.Desktop.App.ViewModels;
-
 namespace KrnlAI.Desktop.Tests.Models;
 
 using AudioArgs = AudioCaptureEventArgs;

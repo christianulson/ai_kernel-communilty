@@ -1,5 +1,3 @@
-using KrnlAI.Desktop.Core.Models;
-
 namespace KrnlAI.Desktop.Tests.Services;
 
 public sealed class ApiErrorTests

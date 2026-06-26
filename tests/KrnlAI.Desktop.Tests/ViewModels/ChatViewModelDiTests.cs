@@ -1,8 +1,5 @@
 using AutoFixture;
-using KrnlAI.Desktop.App.ViewModels;
-using Cts = KrnlAI.Contracts.Contracts;
-using KrnlAI.Desktop.Core.Abstractions;
-using KrnlAI.Desktop.Core.Models;
+using Cts = KrnlAI.Contracts;
 using KrnlAI.Desktop.Core.Services;
 using Moq;
 using TestHelpers;

@@ -1,6 +1,3 @@
-using KrnlAI.Desktop.App.ViewModels;
-using KrnlAI.Desktop.Core.Models;
-
 namespace KrnlAI.Desktop.Tests.ViewModels;
 
 public sealed class ChatViewModelTests

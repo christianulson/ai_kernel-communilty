@@ -1,5 +1,3 @@
-using System.CommandLine;
-using System.Globalization;
 using KrnlAI.Anticipation;
 using KrnlAI.Cli.Commands;
 using KrnlAI.Cli.Services;
@@ -15,8 +13,10 @@ using KrnlAI.Memory;
 using KrnlAI.Snapshot;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Spectre.Console.Testing;
 using Microsoft.Extensions.Options;
+using Spectre.Console.Testing;
+using System.CommandLine;
+using System.Globalization;
 
 namespace KrnlAI.Cli.Tests;
 

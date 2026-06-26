@@ -23,6 +23,9 @@
     <Using Include="KrnlAI.Desktop.App.ViewModels" />
     <Using Include="KrnlAI.Desktop.Core.Abstractions" />
     <Using Include="KrnlAI.Desktop.Core.Models" />
+    <Using Include="KrnlAI.Desktop.Infrastructure.KernelClient" />
+    <Using Include="System.Net" />
+    <Using Include="System.Net.Http" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\KrnlAI.Desktop.App\KrnlAI.Desktop.App.csproj" />

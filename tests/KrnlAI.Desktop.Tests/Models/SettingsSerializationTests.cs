@@ -1,6 +1,5 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using KrnlAI.Desktop.Core.Models;
 
 namespace KrnlAI.Desktop.Tests.Models;
 

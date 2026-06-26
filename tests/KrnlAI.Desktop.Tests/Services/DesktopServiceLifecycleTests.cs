@@ -1,8 +1,6 @@
 using AutoFixture;
 using System.Reflection;
-using Cts = KrnlAI.Contracts.Contracts;
-using KrnlAI.Desktop.Core.Abstractions;
-using KrnlAI.Desktop.Core.Models;
+using Cts = KrnlAI.Contracts;
 using KrnlAI.Desktop.Core.Services;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;

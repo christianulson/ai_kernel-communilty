@@ -1,7 +1,6 @@
 using KrnlAI.Core.Abstractions;
-using Cts = KrnlAI.Contracts.Contracts;
+using Cts = KrnlAI.Contracts;
 using KrnlAI.Desktop.App.Services;
-using KrnlAI.Desktop.Core.Models;
 using KrnlAI.Embedded;
 using KrnlAI.Embedded.Abstractions;
 using Moq;

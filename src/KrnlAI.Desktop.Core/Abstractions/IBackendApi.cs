@@ -1,4 +1,4 @@
-using KrnlAI.Contracts.Contracts;
+using KrnlAI.Contracts;
 
 namespace KrnlAI.Desktop.Core.Abstractions;
 

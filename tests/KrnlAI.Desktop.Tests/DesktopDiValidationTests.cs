@@ -1,8 +1,6 @@
 using KrnlAI.Desktop.App.Services;
-using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Services;
 using KrnlAI.Desktop.Infrastructure.Abstractions;
-using KrnlAI.Desktop.Infrastructure.KernelClient;
 using KrnlAI.Desktop.Infrastructure.Settings;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

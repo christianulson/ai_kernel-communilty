@@ -1,4 +1,3 @@
-using System.Linq;
 using Microsoft.VisualStudio.Shell;
 
 namespace KrnlAI.VisualStudio.Services;

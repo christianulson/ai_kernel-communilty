@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
-using KrnlAI.Contracts.Contracts;
+using KrnlAI.Contracts;
 using KrnlAI.Core.Abstractions;
 using KrnlAI.Core.Services.Safety;
 using KrnlAI.Embedded.Abstractions;

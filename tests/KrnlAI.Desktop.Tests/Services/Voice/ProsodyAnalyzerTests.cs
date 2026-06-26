@@ -1,4 +1,3 @@
-using KrnlAI.Desktop.Core.Models;
 using KrnlAI.Desktop.Core.Services.Voice;
 
 namespace KrnlAI.Desktop.Tests.Services.Voice;

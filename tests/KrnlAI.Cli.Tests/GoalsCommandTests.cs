@@ -1,21 +1,21 @@
-using System.CommandLine;
+using KrnlAI.Anticipation;
 using KrnlAI.Cli.Commands;
 using KrnlAI.Cli.Services;
-using KrnlAI.LLMGateway.Core.Abstractions;
-using KrnlAI.LLMGateway.Core.Services.Goals;
-using KrnlAI.LLMGateway.Core.Services.Governance;
 using KrnlAI.Contracts;
 using KrnlAI.Core.Abstractions;
 using KrnlAI.Core.Services.Memory;
 using KrnlAI.Core.Services.Safety;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Spectre.Console.Testing;
-using Microsoft.Extensions.Options;
-using KrnlAI.Anticipation;
 using KrnlAI.Executive;
+using KrnlAI.LLMGateway.Core.Abstractions;
+using KrnlAI.LLMGateway.Core.Services.Goals;
+using KrnlAI.LLMGateway.Core.Services.Governance;
 using KrnlAI.Memory;
 using KrnlAI.Snapshot;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Spectre.Console.Testing;
+using System.CommandLine;
 
 namespace KrnlAI.Cli.Tests;
 

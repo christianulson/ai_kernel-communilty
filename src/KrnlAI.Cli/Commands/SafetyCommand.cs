@@ -1,3 +1,4 @@
+using KrnlAI.Contracts;
 using System.CommandLine;
 using System.Text.Json;
 using KrnlAI.Cli.Services;

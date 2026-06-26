@@ -1,7 +1,4 @@
 using AutoFixture;
-using KrnlAI.Desktop.App.ViewModels;
-using KrnlAI.Desktop.Core.Abstractions;
-using KrnlAI.Desktop.Core.Models;
 using Moq;
 using TestHelpers;
 

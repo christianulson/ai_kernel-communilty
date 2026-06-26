@@ -4,7 +4,7 @@ using System.Text.Json;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using Cts = KrnlAI.Contracts.Contracts;
+using Cts = KrnlAI.Contracts;
 using KrnlAI.Desktop.App.Controls;
 using KrnlAI.Desktop.App.Services;
 using KrnlAI.Desktop.Core.Abstractions;

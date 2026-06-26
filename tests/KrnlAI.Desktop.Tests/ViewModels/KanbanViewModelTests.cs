@@ -1,4 +1,3 @@
-using KrnlAI.Desktop.App.ViewModels;
 using KrnlAI.Desktop.Core.Services;
 using Microsoft.Extensions.Logging.Abstractions;
 

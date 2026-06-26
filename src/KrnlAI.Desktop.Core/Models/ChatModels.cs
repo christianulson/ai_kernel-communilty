@@ -1,5 +1,3 @@
-using KrnlAI.Contracts.Contracts;
-
 namespace KrnlAI.Desktop.Core.Models;
 
 public record ChatMessage(

@@ -1,5 +1,3 @@
-using KrnlAI.Desktop.Infrastructure.KernelClient;
-
 namespace KrnlAI.Desktop.Tests.Services;
 
 public class AuthTokenProviderTests

@@ -1,5 +1,4 @@
-using KrnlAI.Desktop.Core.Models;
-using Cts = KrnlAI.Contracts.Contracts;
+using Cts = KrnlAI.Contracts;
 
 namespace KrnlAI.Desktop.Tests.Models;
 

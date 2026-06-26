@@ -1,6 +1,6 @@
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Infrastructure.Abstractions;
-using Cts = KrnlAI.Contracts.Contracts;
+using Cts = KrnlAI.Contracts;
 using CoreModels = KrnlAI.Desktop.Core.Models;
 
 namespace KrnlAI.Desktop.Infrastructure.KernelClient;

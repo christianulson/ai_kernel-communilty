@@ -1,8 +1,5 @@
-using KrnlAI.Desktop.Core.Abstractions;
-using Cts = KrnlAI.Contracts.Contracts;
-using KrnlAI.Desktop.Core.Models;
+using Cts = KrnlAI.Contracts;
 using KrnlAI.Desktop.Infrastructure.Abstractions;
-using KrnlAI.Desktop.Infrastructure.KernelClient;
 using Moq;
 
 namespace KrnlAI.Desktop.Tests.Services;

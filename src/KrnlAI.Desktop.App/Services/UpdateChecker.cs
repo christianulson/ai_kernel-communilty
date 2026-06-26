@@ -75,8 +75,8 @@ public sealed class UpdateChecker
             }
 
             var totalBytes = response.Content.Headers.ContentLength ?? -1;
-            await using var fs = new System.IO.FileStream(installerPath, System.IO.FileMode.Create, System.IO.FileAccess.Write, System.IO.FileShare.None);
-            await using var stream = (await response.Content.ReadAsStreamAsync().ConfigureAwait(false));
+            using var fs = new System.IO.FileStream(installerPath, System.IO.FileMode.Create, System.IO.FileAccess.Write, System.IO.FileShare.None);
+            using var stream = (await response.Content.ReadAsStreamAsync().ConfigureAwait(false));
 
             var buffer = new byte[81920];
             long bytesRead = 0;

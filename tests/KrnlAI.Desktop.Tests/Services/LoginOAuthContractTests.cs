@@ -1,5 +1,4 @@
 using KrnlAI.Desktop.App;
-using KrnlAI.Desktop.Core.Abstractions;
 
 namespace KrnlAI.Desktop.Tests.Services;
 

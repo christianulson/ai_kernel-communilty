@@ -1,6 +1,5 @@
 using System.Collections.Concurrent;
-using System.Linq;
-using Cts = KrnlAI.Contracts.Contracts;
+using Cts = KrnlAI.Contracts;
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
 using KrnlAI.Embedded;

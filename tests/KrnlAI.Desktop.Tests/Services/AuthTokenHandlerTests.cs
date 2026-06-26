@@ -1,6 +1,3 @@
-using System.Net;
-using KrnlAI.Desktop.Infrastructure.KernelClient;
-
 namespace KrnlAI.Desktop.Tests.Services;
 
 public class AuthTokenHandlerTests

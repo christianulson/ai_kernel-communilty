@@ -1,4 +1,4 @@
-using KrnlAI.Contracts.Contracts;
+using KrnlAI.Contracts;
 using KrnlAI.Desktop.Core.Abstractions;
 using Microsoft.Extensions.Logging;
 

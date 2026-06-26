@@ -1,5 +1,5 @@
 namespace KrnlAI.Desktop.Tests.Models;
-using Cts = KrnlAI.Contracts.Contracts;
+using Cts = KrnlAI.Contracts;
 
 public class FeedbackRequestTests
 {

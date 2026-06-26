@@ -1,4 +1,4 @@
-using KrnlAI.Contracts.Contracts;
+using KrnlAI.Contracts;
 using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace KrnlAI.Sidecar.Tests;
