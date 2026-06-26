@@ -1,3 +1,4 @@
+using KrnlAI.Contracts;
 using KrnlAI.Core.Abstractions;
 using KrnlAI.Core.Services.Memory;
 
