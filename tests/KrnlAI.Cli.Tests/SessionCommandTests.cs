@@ -1,3 +1,4 @@
+using KrnlAI.Contracts;
 using AutoFixture;
 using System.CommandLine;
 using KrnlAI.Cli.Services;

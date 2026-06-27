@@ -120,7 +120,7 @@ root.Add(new ExperimentCommand(cliCtx, renderer).Build());
 
 // Session management (Track B5)
 var sessionStore = host.Services.GetRequiredService<InMemorySessionStore>();
-var cognitiveSessionStore = host.Services.GetRequiredService<KrnlAI.Cognition.Contracts.ISessionStore>();
+var cognitiveSessionStore = host.Services.GetRequiredService<KrnlAI.Core.Abstractions.ISessionStore>();
 root.Add(new SessionCommand(console, sessionStore, cognitiveSessionStore).Build());
 
 // Lifecycle hooks management

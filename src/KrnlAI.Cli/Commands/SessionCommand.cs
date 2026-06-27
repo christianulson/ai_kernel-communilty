@@ -1,3 +1,4 @@
+using KrnlAI.Core.Abstractions;
 using System.CommandLine;
 using System.Text.Json;
 using KrnlAI.Cli.Services;
