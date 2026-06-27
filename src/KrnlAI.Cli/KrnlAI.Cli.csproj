@@ -31,6 +31,9 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
+    <Using Include="KrnlAI.Contracts" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="Templates\**\*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   <ItemGroup>

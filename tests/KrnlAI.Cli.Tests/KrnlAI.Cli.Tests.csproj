@@ -32,5 +32,6 @@
   <ItemGroup>
     <Using Include="Xunit" />
     <Using Include="FluentAssertions" />
+    <Using Include="KrnlAI.Contracts" />
   </ItemGroup>
 </Project>
