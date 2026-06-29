@@ -55,7 +55,7 @@ root.Add(new InitCommand(templateEngine, console).Build());
 root.Add(new TemplatesCommand(templateEngine).Build());
 
 // Config command (Plano 14 - YAML Config)
-var managedSettingsChain = host.Services.GetService<KrnlAI.Core.Config.ManagedSettingsChain>();
+var managedSettingsChain = host.Services.GetService<KrnlAI.Configuration.ManagedSettingsChain>();
 root.Add(new ConfigCommand(console, managedSettingsChain).Build());
 
 // Safety evaluation (Plano 4)
@@ -131,3 +131,4 @@ root.Add(new LifecycleCommand(lifecycleOrchestrator, renderer).Build());
 root.Add(new CheckpointCommand(cliCtx, renderer).Build());
 
 return await root.Parse(args).InvokeAsync().ConfigureAwait(false);
+

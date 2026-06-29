@@ -1,5 +1,5 @@
 using System.CommandLine;
-using KrnlAI.Core.Config;
+using KrnlAI.Configuration;
 using Spectre.Console;
 
 namespace KrnlAI.Cli.Commands;
@@ -220,3 +220,4 @@ public sealed class ConfigCommand(IAnsiConsole console, ManagedSettingsChain? ma
         return 0;
     }
 }
+
