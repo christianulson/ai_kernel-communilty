@@ -7,7 +7,7 @@ using KrnlAI.LLMGateway.Core.Services.Governance;
 using KrnlAI.Core.Abstractions;
 using KrnlAI.Core.Services.Memory;
 using KrnlAI.Core.Services.Safety;
-using KrnlAI.Core.Services.TemporalDepth;
+using KrnlAI.Core.Abstractions.TemporalDepth;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Spectre.Console.Testing;
