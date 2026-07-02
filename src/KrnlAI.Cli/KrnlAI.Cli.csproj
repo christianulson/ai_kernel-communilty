@@ -33,6 +33,9 @@
   </ItemGroup>
   <ItemGroup>
     <Using Include="KrnlAI.Contracts" />
+    <Using Include="KrnlAI.Core.Abstractions.FeatureFlags" />
+    <Using Include="KrnlAI.Core.Abstractions.Versioning" />
+    <Using Include="KrnlAI.Contracts.Versioning" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Templates\**\*" CopyToOutputDirectory="PreserveNewest" />
