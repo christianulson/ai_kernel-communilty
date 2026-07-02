@@ -1,5 +1,6 @@
 using System.CommandLine;
 using KrnlAI.Cli.Services;
+using KrnlAI.Contracts.ModelRegistry;
 using Spectre.Console;
 
 namespace KrnlAI.Cli.Commands;

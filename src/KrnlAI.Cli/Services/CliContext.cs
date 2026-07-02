@@ -1,9 +1,9 @@
 using KrnlAI.LLMGateway.Core.Abstractions;
 using KrnlAI.Core.Abstractions;
 using KrnlAI.Core.Abstractions.Mcp;
-using KrnlAI.Core.Services.ExperimentTracking;
+using KrnlAI.Core.Abstractions.ExperimentTracking;
 using KrnlAI.Core.Services.Memory;
-using KrnlAI.Core.Services.ModelRegistry;
+using KrnlAI.Core.Abstractions.ModelRegistry;
 using KrnlAI.Core.Services.Safety;
 using Microsoft.Extensions.DependencyInjection;
 

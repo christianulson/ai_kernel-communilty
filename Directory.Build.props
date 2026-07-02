@@ -8,7 +8,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <NoWarn>$(NoWarn);CS1591;CS0436</NoWarn>
     <NuGetAudit>false</NuGetAudit>
 
     <!-- Versão dos pacotes NuGet privados (fallback para standalone) -->
