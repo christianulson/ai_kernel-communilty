@@ -44,6 +44,22 @@
     <Using Include="KrnlAI.Core.Abstractions.Ontology" />
     <Using Include="KrnlAI.Core.Abstractions.Vision" />
     <Using Include="KrnlAI.Core.Abstractions.Sandbox" />
+    <Using Include="KrnlAI.Core.Abstractions.Goals" />
+    <Using Include="KrnlAI.Core.Abstractions.Lifecycle" />
+    <Using Include="KrnlAI.Core.Abstractions.Safety" />
+    <Using Include="KrnlAI.Core.Abstractions.Evaluation" />
+    <Using Include="KrnlAI.Core.Abstractions.Cognitive" />
+    <Using Include="KrnlAI.Core.Abstractions.HumanInTheLoop" />
+    <Using Include="KrnlAI.Core.Abstractions.Knowledge" />
+    <Using Include="KrnlAI.Core.Abstractions.Reasoning" />
+    <Using Include="KrnlAI.Core.Abstractions.Training" />
+    <Using Include="KrnlAI.Core.Abstractions.Deployment" />
+    <Using Include="KrnlAI.Core.Abstractions.Signals" />
+    <Using Include="KrnlAI.Core.Abstractions.Storage" />
+    <Using Include="KrnlAI.Core.Abstractions.ToolBroker" />
+    <Using Include="KrnlAI.Core.Abstractions.Meta" />
+    <Using Include="KrnlAI.Core.Abstractions.Analog" />
+    <Using Include="KrnlAI.Core.Abstractions.DocumentPipeline" />
     <Using Include="KrnlAI.Contracts.Versioning" />
   </ItemGroup>
   <ItemGroup>

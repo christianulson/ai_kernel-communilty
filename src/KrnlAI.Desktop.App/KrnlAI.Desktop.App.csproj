@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0-windows</TargetFramework>
@@ -50,4 +50,4 @@
     <Resource Include="Resources\Icons\krnl-ai-icon.png" />
     <Resource Include="Resources\Icons\favicon.ico" />
   </ItemGroup>
-</Project>
+  <ItemGroup><Using Include="KrnlAI.Core.Abstractions.Cognitive" /></ItemGroup></Project>

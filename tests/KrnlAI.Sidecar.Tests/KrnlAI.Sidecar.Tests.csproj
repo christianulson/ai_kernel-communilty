@@ -31,4 +31,4 @@
     <Using Include="KrnlAI.Sidecar" />
   </ItemGroup>
 
-</Project>
+  <ItemGroup><Using Include="KrnlAI.Core.Abstractions.Cognitive" /></ItemGroup></Project>

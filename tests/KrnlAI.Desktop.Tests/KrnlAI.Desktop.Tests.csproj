@@ -33,4 +33,7 @@
     <ProjectReference Include="..\..\src\KrnlAI.Desktop.Core\KrnlAI.Desktop.Core.csproj" />
     <ProjectReference Include="..\..\..\tests\TestHelpers\TestHelpers.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Using Include="KrnlAI.Core.Abstractions.Cognitive" />
+  </ItemGroup>
 </Project>
