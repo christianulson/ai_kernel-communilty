@@ -1,4 +1,5 @@
 using KrnlAI.Core.Abstractions;
+using KrnlAI.Core.Abstractions.Vector;
 using Cts = KrnlAI.Contracts;
 using KrnlAI.Desktop.App.Services;
 using KrnlAI.Embedded;

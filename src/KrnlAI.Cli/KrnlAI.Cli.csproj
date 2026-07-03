@@ -61,6 +61,15 @@
     <Using Include="KrnlAI.Core.Abstractions.Analog" />
     <Using Include="KrnlAI.Core.Abstractions.DocumentPipeline" />
     <Using Include="KrnlAI.Contracts.Versioning" />
+    <Using Include="KrnlAI.Core.Abstractions.Prospective" />
+    <Using Include="KrnlAI.Core.Abstractions.Execution" />
+    <Using Include="KrnlAI.Core.Abstractions.Scheduler" />
+    <Using Include="KrnlAI.Core.Abstractions.QLearning" />
+    <Using Include="KrnlAI.Core.Abstractions.Contracts" />
+    <Using Include="KrnlAI.Core.Abstractions.Plan" />
+    <Using Include="KrnlAI.Core.Abstractions.SystemClock" />
+    <Using Include="KrnlAI.Core.Abstractions.Scheduled" />
+    <Using Include="KrnlAI.Core.Abstractions.Actions" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Templates\**\*" CopyToOutputDirectory="PreserveNewest" />
