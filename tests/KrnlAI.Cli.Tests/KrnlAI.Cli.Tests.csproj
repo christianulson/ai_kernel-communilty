@@ -34,5 +34,6 @@
     <Using Include="FluentAssertions" />
     <Using Include="KrnlAI.Contracts" />
     <Using Include="KrnlAI.Core.Abstractions.Plugin" />
+    <Using Include="KrnlAI.Core.Abstractions.Moment" />
   </ItemGroup>
 </Project>

@@ -35,6 +35,8 @@
     <Using Include="KrnlAI.Contracts" />
     <Using Include="KrnlAI.Core.Abstractions.FeatureFlags" />
     <Using Include="KrnlAI.Core.Abstractions.Plugin" />
+    <Using Include="KrnlAI.Core.Abstractions.Moment" />
+    <Using Include="KrnlAI.Core.Abstractions.Counterfactual" />
     <Using Include="KrnlAI.Core.Abstractions.Versioning" />
     <Using Include="KrnlAI.Contracts.Versioning" />
   </ItemGroup>
