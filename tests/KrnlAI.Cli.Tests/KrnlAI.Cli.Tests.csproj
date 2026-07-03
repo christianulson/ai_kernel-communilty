@@ -33,5 +33,6 @@
     <Using Include="Xunit" />
     <Using Include="FluentAssertions" />
     <Using Include="KrnlAI.Contracts" />
+    <Using Include="KrnlAI.Core.Abstractions.Plugin" />
   </ItemGroup>
 </Project>

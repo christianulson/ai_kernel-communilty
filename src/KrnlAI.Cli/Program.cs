@@ -70,9 +70,9 @@ root.Add(new BenchmarkCommand(benchRunner, reportGen, console).Build());
 root.Add(new IntegrationCommand(console).Build());
 
 // Plugin management (Plano 37 - Plugin Ecosystem)
-var pluginLoader = host.Services.GetService<KrnlAI.Core.Abstractions.IAssemblyPluginLoader>();
-var pluginCatalog = host.Services.GetService<KrnlAI.Core.Abstractions.IPluginCatalog>();
-var pluginRegistry = host.Services.GetService<KrnlAI.Core.Abstractions.IPluginRegistryService>();
+var pluginLoader = host.Services.GetService<KrnlAI.Core.Abstractions.Plugin.IAssemblyPluginLoader>();
+var pluginCatalog = host.Services.GetService<KrnlAI.Core.Abstractions.Plugin.IPluginCatalog>();
+var pluginRegistry = host.Services.GetService<KrnlAI.Core.Abstractions.Plugin.IPluginRegistryService>();
 root.Add(new PluginCommand(console, pluginLoader, pluginCatalog, pluginRegistry).Build());
 
 // MCP management (Track B2)
