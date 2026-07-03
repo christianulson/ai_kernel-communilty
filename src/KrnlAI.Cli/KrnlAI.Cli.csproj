@@ -38,6 +38,12 @@
     <Using Include="KrnlAI.Core.Abstractions.Moment" />
     <Using Include="KrnlAI.Core.Abstractions.Counterfactual" />
     <Using Include="KrnlAI.Core.Abstractions.Versioning" />
+    <Using Include="KrnlAI.Core.Abstractions.Mcts" />
+    <Using Include="KrnlAI.Core.Abstractions.Self" />
+    <Using Include="KrnlAI.Core.Abstractions.Learning" />
+    <Using Include="KrnlAI.Core.Abstractions.Ontology" />
+    <Using Include="KrnlAI.Core.Abstractions.Vision" />
+    <Using Include="KrnlAI.Core.Abstractions.Sandbox" />
     <Using Include="KrnlAI.Contracts.Versioning" />
   </ItemGroup>
   <ItemGroup>

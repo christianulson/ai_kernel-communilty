@@ -35,5 +35,11 @@
     <Using Include="KrnlAI.Contracts" />
     <Using Include="KrnlAI.Core.Abstractions.Plugin" />
     <Using Include="KrnlAI.Core.Abstractions.Moment" />
+    <Using Include="KrnlAI.Core.Abstractions.Mcts" />
+    <Using Include="KrnlAI.Core.Abstractions.Self" />
+    <Using Include="KrnlAI.Core.Abstractions.Learning" />
+    <Using Include="KrnlAI.Core.Abstractions.Ontology" />
+    <Using Include="KrnlAI.Core.Abstractions.Vision" />
+    <Using Include="KrnlAI.Core.Abstractions.Sandbox" />
   </ItemGroup>
 </Project>
