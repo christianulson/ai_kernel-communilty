@@ -3,11 +3,12 @@ using System.Diagnostics.Metrics;
 using KrnlAI.Contracts;
 using KrnlAI.Core.Abstractions;
 using KrnlAI.Core.Abstractions.Adversarial;
+using KrnlAI.Core.Abstractions.Safety;
 using KrnlAI.Core.Services.Safety;
 using KrnlAI.Embedded.Abstractions;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
-using SafetyExecutionContext = KrnlAI.Core.Services.Safety.ExecutionContext;
+using SafetyExecutionContext = KrnlAI.Core.Abstractions.Safety.ExecutionContext;
 
 namespace KrnlAI.Sidecar;
 
