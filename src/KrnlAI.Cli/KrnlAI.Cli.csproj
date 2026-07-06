@@ -68,7 +68,6 @@
     <Using Include="KrnlAI.Core.Abstractions.Contracts" />
     <Using Include="KrnlAI.Core.Abstractions.Plan" />
     <Using Include="KrnlAI.Core.Abstractions.SystemClock" />
-    <Using Include="KrnlAI.Core.Abstractions.Scheduled" />
     <Using Include="KrnlAI.Core.Abstractions.Actions" />
     <Using Include="KrnlAI.Memory.Stores" />
     <Using Include="KrnlAI.Anticipation.Services" />
