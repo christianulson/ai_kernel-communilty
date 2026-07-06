@@ -2,8 +2,8 @@ using System.Collections.Concurrent;
 using Cts = KrnlAI.Contracts;
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
-using KrnlAI.Embedded;
 using KrnlAI.Embedded.Abstractions;
+using KrnlAI.Embedded.Models;
 
 namespace KrnlAI.Desktop.App.Services;
 

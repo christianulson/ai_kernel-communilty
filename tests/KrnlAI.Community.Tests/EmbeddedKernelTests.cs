@@ -1,4 +1,5 @@
-using KrnlAI.Embedded;
+using KrnlAI.Embedded.Models;
+using KrnlAI.Embedded.Services;
 using KrnlAI.Infrastructure.Storage.Dialect;
 
 namespace KrnlAI.Tests.Community;

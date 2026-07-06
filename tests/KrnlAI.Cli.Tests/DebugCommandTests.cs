@@ -14,7 +14,7 @@ using Microsoft.Extensions.Options;
 using KrnlAI.Anticipation;
 using KrnlAI.Executive;
 using KrnlAI.Memory;
-using KrnlAI.Snapshot;
+using KrnlAI.Snapshot.Services;
 
 namespace KrnlAI.Cli.Tests;
 

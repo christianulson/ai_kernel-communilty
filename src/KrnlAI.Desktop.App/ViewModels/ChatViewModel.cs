@@ -10,7 +10,7 @@ using KrnlAI.Desktop.App.Services;
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
 using KrnlAI.Desktop.Core.Services;
-using KrnlAI.Embedded;
+using KrnlAI.Embedded.Services;
 using SlashCommandInfo = KrnlAI.Desktop.App.Services.SlashCommandInfo;
 
 namespace KrnlAI.Desktop.App.ViewModels;

@@ -1,5 +1,6 @@
 using System.CommandLine;
-using KrnlAI.Embedded;
+using KrnlAI.Embedded.Models;
+using KrnlAI.Embedded.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;

@@ -11,8 +11,9 @@ using KrnlAI.Desktop.Infrastructure.KernelClient;
 using KrnlAI.Desktop.Infrastructure.Settings;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using KrnlAI.Embedded;
 using KrnlAI.Embedded.Abstractions;
+using KrnlAI.Embedded.Models;
+using KrnlAI.Embedded.Services;
 
 namespace KrnlAI.Desktop.App.Services;
 

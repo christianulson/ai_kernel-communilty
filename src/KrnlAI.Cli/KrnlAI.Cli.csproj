@@ -70,6 +70,11 @@
     <Using Include="KrnlAI.Core.Abstractions.SystemClock" />
     <Using Include="KrnlAI.Core.Abstractions.Scheduled" />
     <Using Include="KrnlAI.Core.Abstractions.Actions" />
+    <Using Include="KrnlAI.Memory.Stores" />
+    <Using Include="KrnlAI.Anticipation.Services" />
+    <Using Include="KrnlAI.Anticipation.Stores" />
+    <Using Include="KrnlAI.Embedded.Services" />
+    <Using Include="KrnlAI.Embedded.Models" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Templates\**\*" CopyToOutputDirectory="PreserveNewest" />

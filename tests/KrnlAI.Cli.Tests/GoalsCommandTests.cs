@@ -10,7 +10,7 @@ using KrnlAI.LLMGateway.Core.Abstractions;
 using KrnlAI.LLMGateway.Core.Services.Goals;
 using KrnlAI.LLMGateway.Core.Services.Governance;
 using KrnlAI.Memory;
-using KrnlAI.Snapshot;
+using KrnlAI.Snapshot.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

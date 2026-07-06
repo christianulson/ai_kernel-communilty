@@ -14,7 +14,7 @@ using Spectre.Console.Testing;
 using Microsoft.Extensions.Options;
 using KrnlAI.Anticipation;
 using KrnlAI.Executive;
-using KrnlAI.Snapshot;
+using KrnlAI.Snapshot.Services;
 using KrnlAI.Memory;
 using TestHelpers;
 using KrnlAI.Contracts;

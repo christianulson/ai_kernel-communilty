@@ -1,4 +1,4 @@
-using KrnlAI.Embedded;
+using KrnlAI.Embedded.Services;
 
 namespace KrnlAI.Cli.Services;
 

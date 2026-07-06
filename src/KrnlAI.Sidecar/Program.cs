@@ -1,5 +1,5 @@
-using KrnlAI.Embedded;
 using KrnlAI.Embedded.Abstractions;
+using KrnlAI.Embedded.Services;
 using KrnlAI.Sidecar;
 using KrnlAI.Sidecar.Rpc;
 using StreamJsonRpc;

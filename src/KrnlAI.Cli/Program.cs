@@ -55,7 +55,7 @@ root.Add(new InitCommand(templateEngine, console).Build());
 root.Add(new TemplatesCommand(templateEngine).Build());
 
 // Config command (Plano 14 - YAML Config)
-var managedSettingsChain = host.Services.GetService<KrnlAI.Configuration.ManagedSettingsChain>();
+var managedSettingsChain = host.Services.GetService<KrnlAI.Configuration.Services.ManagedSettingsChain>();
 root.Add(new ConfigCommand(console, managedSettingsChain).Build());
 
 // Safety evaluation (Plano 4)

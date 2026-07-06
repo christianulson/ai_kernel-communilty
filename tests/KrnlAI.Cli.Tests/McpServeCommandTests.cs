@@ -12,7 +12,7 @@ using Microsoft.Extensions.Options;
 using Spectre.Console.Testing;
 using KrnlAI.Executive;
 using KrnlAI.Memory;
-using KrnlAI.Snapshot;
+using KrnlAI.Snapshot.Services;
 using KrnlAI.Anticipation;
 
 namespace KrnlAI.Cli.Tests;

@@ -1,7 +1,8 @@
 using System.CommandLine;
 using System.Net.Http.Json;
 using System.Text.Json;
-using KrnlAI.Embedded;
+using KrnlAI.Embedded.Models;
+using KrnlAI.Embedded.Services;
 using Spectre.Console;
 
 namespace KrnlAI.Cli.Commands;

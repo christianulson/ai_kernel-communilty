@@ -1,7 +1,7 @@
 using KrnlAI.Core.Abstractions;
 using KrnlAI.Core.Abstractions.Vector;
-using KrnlAI.Embedded;
 using KrnlAI.Embedded.Abstractions;
+using KrnlAI.Embedded.Models;
 
 namespace KrnlAI.Sidecar.Tests;
 
