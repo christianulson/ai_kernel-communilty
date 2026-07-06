@@ -1,5 +1,5 @@
 using KrnlAI.Core.Abstractions;
-using KrnlAI.Core.Abstractions.Vector;
+using KrnlAI.Contracts.Vector;
 using Cts = KrnlAI.Contracts;
 using KrnlAI.Desktop.App.Services;
 using KrnlAI.Embedded.Abstractions;
@@ -1199,3 +1199,4 @@ public sealed class EmbeddedKernelClientTests
         Assert.Equal("test", result.Services["provider"]);
     }
 }
+

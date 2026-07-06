@@ -35,5 +35,6 @@
   </ItemGroup>
   <ItemGroup>
     <Using Include="KrnlAI.Core.Abstractions.Cognitive" />
+    <Using Include="KrnlAI.Core.Abstractions.Vector" />
   </ItemGroup>
 </Project>

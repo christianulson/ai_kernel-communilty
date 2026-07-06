@@ -108,3 +108,4 @@ public sealed class MemoryCommand(CliContext ctx, ConsoleRenderer renderer)
         return cmd;
     }
 }
+

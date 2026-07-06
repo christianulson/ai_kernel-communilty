@@ -118,3 +118,4 @@ public sealed class TuiEngine(IQLearningService? ql = null, MultiAgentOrchestrat
         return new Panel(new Markup(string.Join("\n", events))).Header("Events");
     }
 }
+

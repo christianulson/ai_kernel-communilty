@@ -31,5 +31,7 @@
     <Using Include="KrnlAI.Sidecar" />
   </ItemGroup>
 
-  <ItemGroup><Using Include="KrnlAI.Core.Abstractions.Cognitive" /></ItemGroup>
-  <ItemGroup><Using Include="KrnlAI.Core.Abstractions.Vector" /></ItemGroup></Project>
+  <ItemGroup><Using Include="KrnlAI.Contracts.Cognitive" /></ItemGroup>
+  <ItemGroup><Using Include="KrnlAI.Contracts.Vector" /></ItemGroup>
+  <ItemGroup><Using Include="KrnlAI.Core.Abstractions" /></ItemGroup>
+  <ItemGroup><Using Include="KrnlAI.Core.Abstractions.Cognitive" /></ItemGroup></Project>

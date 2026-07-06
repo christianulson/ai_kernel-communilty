@@ -52,3 +52,4 @@ public sealed class CliSeeder(IMomentStore momentStore, IMomentClassifierStore c
             await classifierStore.StoreAsync(c, CancellationToken.None).ConfigureAwait(false);
     }
 }
+

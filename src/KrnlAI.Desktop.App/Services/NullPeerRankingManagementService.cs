@@ -1,5 +1,6 @@
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
+using PeerRankingHistoryEntry = KrnlAI.Desktop.Core.Models.PeerRankingHistoryEntry;
 
 namespace KrnlAI.Desktop.App.Services;
 

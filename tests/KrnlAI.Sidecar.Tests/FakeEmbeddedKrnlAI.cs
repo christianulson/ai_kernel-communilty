@@ -1,5 +1,5 @@
 using KrnlAI.Core.Abstractions;
-using KrnlAI.Core.Abstractions.Vector;
+using KrnlAI.Contracts.Vector;
 using KrnlAI.Embedded.Abstractions;
 using KrnlAI.Embedded.Models;
 
@@ -48,3 +48,4 @@ public sealed class FakeEmbeddedKrnlAI : IEmbeddedKrnlAI
 
     public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 }
+

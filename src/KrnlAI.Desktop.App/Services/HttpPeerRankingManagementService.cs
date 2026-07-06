@@ -1,7 +1,7 @@
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
-using KrnlAI.Core.Abstractions.P2P.Ranking;
+using KrnlAI.Contracts.P2P.Ranking;
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
 using DesktopPeerRankingHistoryEntry = KrnlAI.Desktop.Core.Models.PeerRankingHistoryEntry;

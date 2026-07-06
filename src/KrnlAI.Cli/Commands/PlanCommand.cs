@@ -100,3 +100,4 @@ public sealed class PlanCommand(CliContext ctx, ConsoleRenderer renderer)
         return cmd;
     }
 }
+

@@ -1,5 +1,5 @@
 using KrnlAI.Contracts;
-using KrnlAI.Core.Abstractions;
+using KrnlAI.Contracts.Memory;
 using KrnlAI.Core.Services.Memory;
 using Spectre.Console;
 

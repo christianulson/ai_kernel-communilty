@@ -31,8 +31,9 @@
   </ItemGroup>
   <ItemGroup>
     <Using Include="Xunit" />
-    <Using Include="FluentAssertions" />
     <Using Include="KrnlAI.Contracts" />
+    <Using Include="KrnlAI.Contracts.Plugin" />
+    <Using Include="FluentAssertions" />
     <Using Include="KrnlAI.Core.Abstractions.Plugin" />
     <Using Include="KrnlAI.Core.Abstractions.Moment" />
     <Using Include="KrnlAI.Core.Abstractions.Mcts" />
@@ -60,6 +61,12 @@
     <Using Include="KrnlAI.Core.Abstractions.Prospective" />
     <Using Include="KrnlAI.Core.Abstractions.Execution" />
     <Using Include="KrnlAI.Core.Abstractions.SystemClock" />
+    <Using Include="KrnlAI.Core.Abstractions.Session" />
+    <Using Include="KrnlAI.Core.Abstractions.Contracts" />
+    <Using Include="KrnlAI.Contracts.Cognition" />
+    <Using Include="KrnlAI.Contracts.Memory" />
+    <Using Include="KrnlAI.Contracts.Temporal" />
+    <Using Include="KrnlAI.Contracts.Goals" />
     <Using Include="KrnlAI.Core.Abstractions.Actions" />
     <Using Include="KrnlAI.Memory.Stores" />
     <Using Include="KrnlAI.Anticipation.Services" />

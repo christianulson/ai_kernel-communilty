@@ -149,3 +149,4 @@ public sealed class EmbeddedCognitiveStreamProviderTests
         private sealed class Subscription(Action onDispose) : IDisposable { public void Dispose() => onDispose(); }
     }
 }
+

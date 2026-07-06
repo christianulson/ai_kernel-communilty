@@ -50,3 +50,4 @@ public sealed class LifecycleCommand(LifecycleOrchestrator orchestrator, Console
 
     private sealed record HookListItem(string EventType, string HookType, string Priority);
 }
+

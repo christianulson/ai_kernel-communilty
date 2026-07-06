@@ -3,6 +3,7 @@ using System.Windows.Input;
 using KrnlAI.Desktop.App.Services;
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
+using PeerRankingHistoryEntry = KrnlAI.Desktop.Core.Models.PeerRankingHistoryEntry;
 using Microsoft.Extensions.Logging;
 
 namespace KrnlAI.Desktop.App.ViewModels;

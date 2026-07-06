@@ -1,9 +1,9 @@
 using KrnlAI.LLMGateway.Core.Abstractions;
 using KrnlAI.Core.Abstractions;
-using KrnlAI.Core.Abstractions.Mcp;
-using KrnlAI.Core.Abstractions.ExperimentTracking;
+using KrnlAI.Contracts.Mcp;
+using KrnlAI.Contracts.ExperimentTracking;
 using KrnlAI.Core.Services.Memory;
-using KrnlAI.Core.Abstractions.ModelRegistry;
+using KrnlAI.Contracts.ModelRegistry;
 using KrnlAI.Core.Services.Safety;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -30,3 +30,4 @@ public sealed class CliContext(IServiceProvider sp)
 
     public T GetService<T>() where T : notnull => sp.GetRequiredService<T>();
 }
+

@@ -60,3 +60,4 @@ public sealed class CheckpointCommand(CliContext ctx, ConsoleRenderer renderer)
         return cmd;
     }
 }
+

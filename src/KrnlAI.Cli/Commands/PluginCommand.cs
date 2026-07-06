@@ -340,3 +340,4 @@ public sealed class PluginCommand(
         _ => "DotNetAssembly"
     };
 }
+

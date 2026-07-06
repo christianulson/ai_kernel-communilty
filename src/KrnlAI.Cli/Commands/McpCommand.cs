@@ -1,6 +1,6 @@
 using System.CommandLine;
 using KrnlAI.Cli.Services;
-using KrnlAI.Core.Abstractions.Mcp;
+using KrnlAI.Contracts.Mcp;
 using Spectre.Console;
 
 namespace KrnlAI.Cli.Commands;
@@ -180,3 +180,4 @@ public sealed class McpCommand(
         return cmd;
     }
 }
+

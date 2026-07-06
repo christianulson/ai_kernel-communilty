@@ -29,3 +29,4 @@ public sealed class ScheduleCommand(CliContext ctx, IAnsiConsole console)
         return cmd;
     }
 }
+

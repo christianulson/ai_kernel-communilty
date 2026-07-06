@@ -1,7 +1,5 @@
 using System.CommandLine;
 using KrnlAI.Cli.Services;
-using KrnlAI.Core.Abstractions.ExperimentTracking;
-using KrnlAI.Contracts.ExperimentTracking;
 using Spectre.Console;
 
 namespace KrnlAI.Cli.Commands;
@@ -142,3 +140,5 @@ public sealed class ExperimentCommand(CliContext ctx, ConsoleRenderer renderer)
         return cmd;
     }
 }
+
+

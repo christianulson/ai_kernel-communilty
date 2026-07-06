@@ -1,9 +1,9 @@
 using KrnlAI.Core.Abstractions;
-using KrnlAI.Core.Abstractions.Mcp;
-using KrnlAI.Core.Abstractions.Safety;
-using KrnlAI.Core.Abstractions.ExperimentTracking;
+using KrnlAI.Contracts.Mcp;
+using KrnlAI.Contracts.Safety;
+using KrnlAI.Contracts.ExperimentTracking;
 using KrnlAI.Core.Services.Memory;
-using KrnlAI.Core.Abstractions.ModelRegistry;
+using KrnlAI.Contracts.ModelRegistry;
 using KrnlAI.Core.Services.Safety;
 using KrnlAI.Executive.Options;
 using KrnlAI.Executive.Services;
@@ -112,3 +112,4 @@ public static class CliServiceExtensions
         return services;
     }
 }
+

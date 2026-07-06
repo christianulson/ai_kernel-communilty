@@ -132,3 +132,4 @@ root.Add(new CheckpointCommand(cliCtx, renderer).Build());
 
 return await root.Parse(args).InvokeAsync().ConfigureAwait(false);
 
+

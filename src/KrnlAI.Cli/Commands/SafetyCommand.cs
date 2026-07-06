@@ -3,7 +3,7 @@ using System.CommandLine;
 using System.Text.Json;
 using KrnlAI.Cli.Services;
 using KrnlAI.Core.Abstractions;
-using KrnlAI.Core.Abstractions.Safety;
+using KrnlAI.Contracts.Safety;
 using KrnlAI.Core.Services.Safety;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -198,3 +198,4 @@ public sealed class SafetyCommand(CliContext ctx, ConsoleRenderer renderer, ISer
         return int.TryParse(cleaned, out num);
     }
 }
+
