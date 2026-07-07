@@ -1,5 +1,4 @@
 using System.Net.Http.Json;
-using KrnlAI.Embedded.Services;
 using Spectre.Console;
 
 namespace KrnlAI.Cli.Tui;

@@ -1,6 +1,4 @@
 using System.Threading.RateLimiting;
-using KrnlAI.Core.Abstractions;
-using KrnlAI.Core.Abstractions.Adversarial;
 using KrnlAI.Core.Abstractions.Policy;
 using KrnlAI.Core.Abstractions.Risk;
 using KrnlAI.Core.Abstractions.State;
@@ -13,6 +11,7 @@ using Microsoft.Extensions.Options;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using KrnlAI.Core.Abstractions.Safety;
 
 namespace KrnlAI.Sidecar;
 
@@ -31,11 +30,11 @@ public static class ServiceCollectionExtensions
             .ValidateOnStart();
 
         // Safety pipeline
-        services.AddSingleton<FundamentalRulesEngine>();
-        services.AddSingleton<EthicalEnforcer>();
-        services.AddSingleton(sp => new SemanticSimilarityScorer(FundamentalRulesEngine.GetAllKeywords()));
-        services.AddSingleton<HybridSafetyEngine>();
-        services.AddSingleton<LawEnforcer>();
+        services.AddSingleton<IFundamentalRulesEngine, FundamentalRulesEngine>();
+        services.AddSingleton<IEthicalEnforcer, EthicalEnforcer>();
+        services.AddSingleton<ISemanticSimilarityScorer>(sp => new SemanticSimilarityScorer(FundamentalRulesEngine.GetAllKeywords()));
+        services.AddSingleton<IHybridSafetyEngine, HybridSafetyEngine>();
+        services.AddSingleton<ILawEnforcer, LawEnforcer>();
 
         // OpenTelemetry
         var otlpEndpoint = configuration.GetValue<string>("Sidecar:Otlp:Endpoint");

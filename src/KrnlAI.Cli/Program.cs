@@ -2,8 +2,6 @@ using System.CommandLine;
 using KrnlAI.Cli.Abstractions;
 using KrnlAI.Cli.Commands;
 using KrnlAI.Cli.Services;
-using KrnlAI.Core.Services.Safety;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Spectre.Console;
 

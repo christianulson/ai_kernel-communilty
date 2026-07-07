@@ -2,7 +2,6 @@ using System.Collections.Concurrent;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using KrnlAI.Cli.Abstractions;
-using Microsoft.Extensions.Logging;
 
 namespace KrnlAI.Cli.Services;
 

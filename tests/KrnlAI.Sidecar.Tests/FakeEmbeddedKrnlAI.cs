@@ -1,5 +1,3 @@
-using KrnlAI.Core.Abstractions;
-using KrnlAI.Contracts.Vector;
 using KrnlAI.Embedded.Abstractions;
 using KrnlAI.Embedded.Models;
 

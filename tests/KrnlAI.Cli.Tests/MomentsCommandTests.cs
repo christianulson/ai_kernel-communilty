@@ -5,19 +5,12 @@ using KrnlAI.Cli.Services;
 using KrnlAI.LLMGateway.Core.Abstractions;
 using KrnlAI.LLMGateway.Core.Services.Goals;
 using KrnlAI.LLMGateway.Core.Services.Governance;
-using KrnlAI.Core.Abstractions;
-using KrnlAI.Core.Services.Memory;
-using KrnlAI.Core.Services.Safety;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Spectre.Console.Testing;
 using Microsoft.Extensions.Options;
-using KrnlAI.Anticipation;
-using KrnlAI.Executive;
 using KrnlAI.Snapshot.Services;
-using KrnlAI.Memory;
 using TestHelpers;
-using KrnlAI.Contracts;
 
 namespace KrnlAI.Cli.Tests;
 

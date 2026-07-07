@@ -1,4 +1,3 @@
-using KrnlAI.Core.Abstractions;
 using KrnlAI.Contracts.Vector;
 using Cts = KrnlAI.Contracts;
 using KrnlAI.Desktop.App.Services;

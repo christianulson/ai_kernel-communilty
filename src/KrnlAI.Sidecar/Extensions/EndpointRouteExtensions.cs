@@ -1,8 +1,6 @@
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
-using KrnlAI.Contracts;
-using KrnlAI.Contracts.Safety;
-using KrnlAI.Core.Services.Safety;
+using KrnlAI.Core.Abstractions.Safety;
 using KrnlAI.Embedded.Abstractions;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
@@ -191,10 +189,10 @@ public static class EndpointRouteExtensions
         app.MapPost(prefix + "/agent/run", async (
             HttpContext ctx,
             IAdversarialGuard guard,
-            FundamentalRulesEngine rules,
-            HybridSafetyEngine hybrid,
-            EthicalEnforcer ethics,
-            LawEnforcer law,
+            IFundamentalRulesEngine rules,
+            IHybridSafetyEngine hybrid,
+            IEthicalEnforcer ethics,
+            ILawEnforcer law,
             KernelApiProxy kernel,
             IEmbeddedKrnlAI? embeddedKernel,
             IOptions<SidecarOptions> options,

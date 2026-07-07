@@ -1,5 +1,3 @@
-using KrnlAI.Core.Abstractions;
-using CoreModel = KrnlAI.Core.Model;
 using CoreAbstractions = KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Contracts;
 
