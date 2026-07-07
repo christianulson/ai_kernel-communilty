@@ -1,7 +1,7 @@
 # Script to translate hardcoded Portuguese strings in XAML files to {loc:Loc key}
 # Run from repo root: pwsh scripts\translate_xaml.ps1
 
-$base = "C:\Projects\ia_kernel\krnlai\src\KrnlAI.Desktop.App"
+$base = Join-Path (Split-Path $PSScriptRoot -Parent) "src\KrnlAI.Desktop.App"
 
 # Mapping: find → replace with {loc:Loc key}
 $replacements = @(
