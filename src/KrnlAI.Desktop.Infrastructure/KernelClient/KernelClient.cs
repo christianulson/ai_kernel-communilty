@@ -570,7 +570,7 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
     public Task<Core.Models.MessageInfo?> SendMessageAsync(string threadId, string content, CancellationToken ct = default) =>
         SafeCall.ExecuteAsync(async () => new Core.Models.MessageInfo(Guid.NewGuid().ToString("N"), threadId, "user", content, DateTime.UtcNow, null), default(Core.Models.MessageInfo?));
     public Task<List<Core.Models.MessageInfo>> GetMessagesAsync(string threadId, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => [], []);
+        SafeCall.ExecuteAsync(async () => new List<Core.Models.MessageInfo>(), []);
     public Task<Core.Models.RunInfo?> CreateRunAsync(string threadId, CancellationToken ct = default) =>
         SafeCall.ExecuteAsync(async () => new Core.Models.RunInfo(Guid.NewGuid().ToString("N"), threadId, "completed", null, DateTime.UtcNow, null, null), default(Core.Models.RunInfo?));
     public Task<Core.Models.RunInfo?> GetRunAsync(string threadId, string runId, CancellationToken ct = default) =>
@@ -633,7 +633,7 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
 
     // User Services
     public Task<List<Core.Models.UserServiceInfo>> GetUserServicesAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => [], []);
+        SafeCall.ExecuteAsync(async () => new List<Core.Models.UserServiceInfo>(), []);
     public Task<bool> UpdateUserServiceAsync(string serviceType, Core.Models.UserServiceUpdateRequest request, CancellationToken ct = default) =>
         SafeCall.ExecuteAsync(async () => true, false);
     public Task<bool> DeleteUserServiceAsync(string serviceType, CancellationToken ct = default) =>
