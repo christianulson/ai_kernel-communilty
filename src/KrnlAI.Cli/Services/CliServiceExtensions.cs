@@ -1,3 +1,5 @@
+using KrnlAI.Safety.Services;
+
 namespace KrnlAI.Cli.Services;
 
 public static class CliServiceExtensions

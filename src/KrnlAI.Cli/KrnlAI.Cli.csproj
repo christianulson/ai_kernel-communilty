@@ -87,7 +87,6 @@
     <Using Include="KrnlAI.Contracts.ExperimentTracking" />
     <Using Include="KrnlAI.Core.Services.Memory" />
     <Using Include="KrnlAI.Contracts.ModelRegistry" />
-    <Using Include="KrnlAI.Core.Services.Safety" />
     <Using Include="KrnlAI.Executive.Options" />
     <Using Include="KrnlAI.Executive.Services" />
     <Using Include="KrnlAI.Infrastructure.Services" />

@@ -1,10 +1,11 @@
 using System.CommandLine;
 using System.Text.Json;
+using KrnlAI.Safety.Services;
 using Spectre.Console;
 
 namespace KrnlAI.Cli.Commands;
 
-public sealed class SecurityCommand(SafetyBenchRunner benchRunner, IAnsiConsole console)
+public sealed class SecurityCommand(ISafetyBenchRunner benchRunner, IAnsiConsole console)
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {

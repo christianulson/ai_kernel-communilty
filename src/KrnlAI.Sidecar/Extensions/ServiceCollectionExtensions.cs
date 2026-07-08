@@ -2,7 +2,6 @@ using System.Threading.RateLimiting;
 using KrnlAI.Core.Abstractions.Policy;
 using KrnlAI.Core.Abstractions.Risk;
 using KrnlAI.Core.Abstractions.State;
-using KrnlAI.Core.Services.Safety;
 using KrnlAI.Infrastructure.InMemory;
 using KrnlAI.Core.Services;
 using KrnlAI.Embedded.Abstractions;
@@ -12,6 +11,7 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using KrnlAI.Core.Abstractions.Safety;
+using KrnlAI.Safety.Services;
 
 namespace KrnlAI.Sidecar;
 

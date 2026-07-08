@@ -57,7 +57,7 @@ var managedSettingsChain = host.Services.GetService<KrnlAI.Configuration.Service
 root.Add(new ConfigCommand(console, managedSettingsChain).Build());
 
 // Safety evaluation (Plano 4)
-var benchRunner = host.Services.GetRequiredService<SafetyBenchRunner>();
+var benchRunner = host.Services.GetRequiredService<ISafetyBenchRunner>();
 root.Add(new SecurityCommand(benchRunner, console).Build());
 
 // Benchmark (Plano 08 - Safety Benchmark)
