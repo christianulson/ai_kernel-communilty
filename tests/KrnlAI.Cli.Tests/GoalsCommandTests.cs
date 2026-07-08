@@ -1,6 +1,5 @@
 using KrnlAI.Cli.Commands;
 using KrnlAI.Cli.Services;
-using KrnlAI.Core.Abstractions.Memory;
 using KrnlAI.LLMGateway.Core.Abstractions;
 using KrnlAI.LLMGateway.Core.Services.Goals;
 using KrnlAI.LLMGateway.Core.Services.Governance;

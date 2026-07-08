@@ -1,5 +1,5 @@
 using Spectre.Console;
-using KrnlAI.Core.Services.Neural;
+using KrnlAI.Neural;
 
 namespace KrnlAI.Cli.Services;
 

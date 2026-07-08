@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using Spectre.Console.Testing;
 using Microsoft.Extensions.Options;
 using KrnlAI.Snapshot.Services;
-using KrnlAI.Core.Abstractions.Memory;
 
 namespace KrnlAI.Cli.Tests;
 
