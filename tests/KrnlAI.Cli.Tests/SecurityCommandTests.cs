@@ -1,6 +1,6 @@
 using System.CommandLine;
 using KrnlAI.Cli.Commands;
-using KrnlAI.Core.Services.Safety;
+using KrnlAI.Safety.Services;
 using Microsoft.Extensions.Logging.Abstractions;
 using Spectre.Console.Testing;
 

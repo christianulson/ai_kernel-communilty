@@ -1,6 +1,5 @@
 using System.CommandLine;
 using KrnlAI.Cli.Services;
-using KrnlAI.Core.Abstractions;
 using KrnlAI.Core.Services.Lifecycle;
 
 namespace KrnlAI.Cli.Commands;

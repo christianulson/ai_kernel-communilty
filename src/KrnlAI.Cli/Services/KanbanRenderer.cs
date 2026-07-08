@@ -1,4 +1,3 @@
-using KrnlAI.Contracts;
 using Spectre.Console;
 
 namespace KrnlAI.Cli.Services;

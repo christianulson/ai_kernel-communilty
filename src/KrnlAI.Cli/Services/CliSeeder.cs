@@ -1,7 +1,3 @@
-using KrnlAI.Contracts;
-using KrnlAI.Core.Abstractions;
-using KrnlAI.Core.Services.Memory;
-
 namespace KrnlAI.Cli.Services;
 
 public sealed class CliSeeder(IMomentStore momentStore, IMomentClassifierStore classifierStore)

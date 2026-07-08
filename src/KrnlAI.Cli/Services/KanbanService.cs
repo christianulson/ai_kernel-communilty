@@ -1,8 +1,5 @@
 using System.Globalization;
 using System.Net.Http.Json;
-using KrnlAI.Contracts;
-using KrnlAI.LLMGateway.Core.Abstractions;
-using Microsoft.Extensions.Logging;
 
 namespace KrnlAI.Cli.Services;
 

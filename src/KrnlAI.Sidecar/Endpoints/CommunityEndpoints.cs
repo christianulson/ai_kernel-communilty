@@ -1,4 +1,3 @@
-using KrnlAI.Contracts;
 using KrnlAI.Embedded.Abstractions;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;

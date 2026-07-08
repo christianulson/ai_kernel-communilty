@@ -1,12 +1,3 @@
-using KrnlAI.LLMGateway.Core.Abstractions;
-using KrnlAI.Core.Abstractions;
-using KrnlAI.Contracts.Mcp;
-using KrnlAI.Contracts.ExperimentTracking;
-using KrnlAI.Core.Services.Memory;
-using KrnlAI.Contracts.ModelRegistry;
-using KrnlAI.Core.Services.Safety;
-using Microsoft.Extensions.DependencyInjection;
-
 namespace KrnlAI.Cli.Services;
 
 public sealed class CliContext(IServiceProvider sp)

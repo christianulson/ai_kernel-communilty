@@ -1,5 +1,3 @@
-using KrnlAI.Embedded.Services;
-
 namespace KrnlAI.Cli.Services;
 
 public interface ILocalSlashExecutor

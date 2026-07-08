@@ -1,6 +1,3 @@
-using KrnlAI.Contracts;
-using KrnlAI.Contracts.Memory;
-using KrnlAI.Core.Services.Memory;
 using Spectre.Console;
 
 namespace KrnlAI.Cli.Services;

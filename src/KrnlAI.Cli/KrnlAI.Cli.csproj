@@ -80,6 +80,27 @@
     <Using Include="KrnlAI.Core.Abstractions.Plan" />
     <Using Include="KrnlAI.Core.Abstractions.Contracts" />
     <Using Include="KrnlAI.Core.Abstractions.Goals" />
+
+    <Using Include="KrnlAI.Core.Abstractions" />
+    <Using Include="KrnlAI.Contracts.Mcp" />
+    <Using Include="KrnlAI.Contracts.Safety" />
+    <Using Include="KrnlAI.Contracts.ExperimentTracking" />
+    <Using Include="KrnlAI.Core.Services.Memory" />
+    <Using Include="KrnlAI.Contracts.ModelRegistry" />
+    <Using Include="KrnlAI.Executive.Options" />
+    <Using Include="KrnlAI.Executive.Services" />
+    <Using Include="KrnlAI.Infrastructure.Services" />
+    <Using Include="KrnlAI.Infrastructure.InMemory" />
+    <Using Include="KrnlAI.LLMGateway.Core.Abstractions" />
+    <Using Include="KrnlAI.LLMGateway.Core.Services.Goals" />
+    <Using Include="KrnlAI.LLMGateway.Core.Services.Governance" />
+    <Using Include="KrnlAI.Memory" />
+    <Using Include="KrnlAI.Snapshot.Services" />
+    <Using Include="Microsoft.Extensions.DependencyInjection" />
+    <Using Include="Microsoft.Extensions.Logging" />
+    <Using Include="Microsoft.Extensions.Logging.Abstractions" />
+    <Using Include="Microsoft.Extensions.Options" />
+    <Using Include="KrnlAI.Core.Abstractions.Memory" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Templates\**\*" CopyToOutputDirectory="PreserveNewest" />
