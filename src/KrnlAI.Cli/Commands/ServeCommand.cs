@@ -13,7 +13,8 @@ public sealed class ServeCommand
     {
         var portOpt = new Option<int>("--port")
         {
-            Description = "HTTP port", DefaultValueFactory = _ => 5100
+            Description = "HTTP port",
+            DefaultValueFactory = _ => 5100
         };
         var modelOpt = new Option<string>("--model")
         {

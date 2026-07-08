@@ -36,7 +36,7 @@ public sealed class AdminUsersViewModel : ViewModelBase
 
     public async Task LoadAsync()
     {
-            if (ServiceLocator.Instance.CurrentMode == RunMode.Local) { StatusMessage = "Indisponível no modo Local"; return; }
+        if (ServiceLocator.Instance.CurrentMode == RunMode.Local) { StatusMessage = "Indisponível no modo Local"; return; }
         IsLoading = true;
         try
         {

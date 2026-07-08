@@ -149,7 +149,8 @@ public class SettingsViewModel : ViewModelBase, IDisposable
         ServiceLocator.Instance.SettingsService,
         ServiceLocator.Instance.ListeningService,
         ServiceLocator.Instance.AudioPlayback,
-        ServiceLocator.Instance.ThemeSvc) { }
+        ServiceLocator.Instance.ThemeSvc)
+    { }
 
     private void OnExternalThemeChanged(object? sender, string themeName)
     {
@@ -196,11 +197,20 @@ public class SettingsViewModel : ViewModelBase, IDisposable
         var s = _settingsService.LoadSettings();
         _settingsService.SaveSettings(s with
         {
-            SelectedMicrophoneId = SelectedMicrophone?.Id, SelectedCameraId = SelectedCamera?.Id,
-            SelectedSpeakerId = SelectedSpeaker?.Id, ApiBaseUrl = _apiEndpoint, ApiEndpoint = _apiEndpoint,
-            SpeakerVolume = _speakerVol, VoiceDetectionThreshold = _vadThreshold, SilenceDurationMs = _silenceMs,
-            Theme = IsDarkTheme ? "dark" : "light", AuthToken = s.AuthToken, Username = s.Username,
-            IsAuthenticated = s.IsAuthenticated, AutoDarkMode = _autoDarkMode, ChatFontSize = _chatFontSize
+            SelectedMicrophoneId = SelectedMicrophone?.Id,
+            SelectedCameraId = SelectedCamera?.Id,
+            SelectedSpeakerId = SelectedSpeaker?.Id,
+            ApiBaseUrl = _apiEndpoint,
+            ApiEndpoint = _apiEndpoint,
+            SpeakerVolume = _speakerVol,
+            VoiceDetectionThreshold = _vadThreshold,
+            SilenceDurationMs = _silenceMs,
+            Theme = IsDarkTheme ? "dark" : "light",
+            AuthToken = s.AuthToken,
+            Username = s.Username,
+            IsAuthenticated = s.IsAuthenticated,
+            AutoDarkMode = _autoDarkMode,
+            ChatFontSize = _chatFontSize
         });
     }
 

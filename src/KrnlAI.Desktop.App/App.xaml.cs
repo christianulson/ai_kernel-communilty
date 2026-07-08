@@ -51,7 +51,7 @@ public partial class App : Application
         _mainWindow = new MainWindow();
         _mainWindow.DataContext = new ViewModels.MainViewModel();
         _mainWindow.LogoutRequested += OnLogoutRequested;
-        
+
         if (!double.IsNaN(settings.WindowLeft) && !double.IsNaN(settings.WindowTop))
         {
             var screenWidth = SystemParameters.PrimaryScreenWidth;
@@ -64,7 +64,7 @@ public partial class App : Application
         if (settings.WindowWidth > 0) _mainWindow.Width = settings.WindowWidth;
         if (settings.WindowHeight > 0) _mainWindow.Height = settings.WindowHeight;
         if (settings.WindowMaximized) _mainWindow.WindowState = WindowState.Maximized;
-        
+
         _mainWindow.Closing += (s, args) =>
         {
             var currentSettings = settingsService.LoadSettings();

@@ -9,7 +9,7 @@ public class KrnlAIException(string message, int? statusCode = null, Exception? 
 
 public class KrnlAIAuthenticationException(string message = "Authentication failed", object? body = null) : KrnlAIException(message, 401, body: body)
 {
-    
+
 }
 
 public class KrnlAIRateLimitException(string message = "Rate limit exceeded", object? body = null) : KrnlAIException(message, 429, body: body)

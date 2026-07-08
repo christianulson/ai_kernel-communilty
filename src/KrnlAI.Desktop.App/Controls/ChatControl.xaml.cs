@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 namespace KrnlAI.Desktop.App.Controls;
+
 public partial class ChatControl : UserControl
 {
     public ChatControl()
@@ -29,7 +30,9 @@ public partial class ChatControl : UserControl
             {
                 var window = new Window
                 {
-                    Title = "Preview", Width = 800, Height = 600,
+                    Title = "Preview",
+                    Width = 800,
+                    Height = 600,
                     WindowStartupLocation = WindowStartupLocation.CenterOwner,
                     Owner = Window.GetWindow(this),
                     Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(8, 17, 31)),

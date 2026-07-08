@@ -475,7 +475,7 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
         {
             var r = await api.PieTermsAsync(ct).ConfigureAwait(false);
             return r.Select(t => new CoreModels.PieTerm(t.Id, t.Name, t.Description, t.OccurrenceCount)).ToList();
-        }, new List<CoreModels.PieTerm>());
+        }, []);
 
     // Emotional history
     public Task<List<CoreModels.EmotionalHistoryEntry>> EmotionalHistoryAsync(CancellationToken ct = default) =>
@@ -483,7 +483,7 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
         {
             var r = await api.EmotionalHistoryAsync(ct).ConfigureAwait(false);
             return r.Select(e => new CoreModels.EmotionalHistoryEntry(e.Timestamp, e.Event, e.Valence, e.Arousal, e.Trigger)).ToList();
-        }, new List<CoreModels.EmotionalHistoryEntry>());
+        }, []);
 
     public Task<bool> EmotionalEventAsync(string @event, string? trigger = null, double? valenceDelta = null, double? arousalDelta = null, CancellationToken ct = default) =>
         SafeCall.ExecuteAsync(async () =>
@@ -498,7 +498,7 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
         {
             var r = await api.EventsRecentAsync(take, ct).ConfigureAwait(false);
             return r.Select(e => new CoreModels.EventInfo(e.EventId, e.Type, e.Description, e.Source, e.Timestamp, e.Metadata)).ToList();
-        }, new List<CoreModels.EventInfo>());
+        }, []);
 
     public Task<CoreModels.EventDetail?> EventDetailAsync(string eventId, CancellationToken ct = default) =>
         SafeCall.ExecuteAsync(async () =>
@@ -512,7 +512,7 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
         {
             var r = await api.EventsByMomentAsync(momentId, ct).ConfigureAwait(false);
             return r.Select(e => new CoreModels.EventInfo(e.EventId, e.Type, e.Description, e.Source, e.Timestamp, e.Metadata)).ToList();
-        }, new List<CoreModels.EventInfo>());
+        }, []);
 
     public Task<List<Core.Models.ApprovalRequest>> GetPendingApprovalsAsync(string? role = null, CancellationToken ct = default) =>
         SafeCall.ExecuteAsync(async () =>
@@ -570,7 +570,7 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
     public Task<Core.Models.MessageInfo?> SendMessageAsync(string threadId, string content, CancellationToken ct = default) =>
         SafeCall.ExecuteAsync(async () => new Core.Models.MessageInfo(Guid.NewGuid().ToString("N"), threadId, "user", content, DateTime.UtcNow, null), default(Core.Models.MessageInfo?));
     public Task<List<Core.Models.MessageInfo>> GetMessagesAsync(string threadId, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => new List<Core.Models.MessageInfo>(), new List<Core.Models.MessageInfo>());
+        SafeCall.ExecuteAsync(async () => [], []);
     public Task<Core.Models.RunInfo?> CreateRunAsync(string threadId, CancellationToken ct = default) =>
         SafeCall.ExecuteAsync(async () => new Core.Models.RunInfo(Guid.NewGuid().ToString("N"), threadId, "completed", null, DateTime.UtcNow, null, null), default(Core.Models.RunInfo?));
     public Task<Core.Models.RunInfo?> GetRunAsync(string threadId, string runId, CancellationToken ct = default) =>
@@ -633,7 +633,7 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
 
     // User Services
     public Task<List<Core.Models.UserServiceInfo>> GetUserServicesAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => new List<Core.Models.UserServiceInfo>(), new List<Core.Models.UserServiceInfo>());
+        SafeCall.ExecuteAsync(async () => [], []);
     public Task<bool> UpdateUserServiceAsync(string serviceType, Core.Models.UserServiceUpdateRequest request, CancellationToken ct = default) =>
         SafeCall.ExecuteAsync(async () => true, false);
     public Task<bool> DeleteUserServiceAsync(string serviceType, CancellationToken ct = default) =>
@@ -653,7 +653,7 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
         {
             var r = await api.GetTemplatesAsync(ct).ConfigureAwait(false);
             return r.Select(t => new CoreModels.TemplateInfo(t.Id, t.Name, t.Description, t.Content, t.Category, t.Version, t.CreatedAt, t.UpdatedAt)).ToList();
-        }, new List<CoreModels.TemplateInfo>());
+        }, []);
 
     public Task<CoreModels.TemplateInfo?> TemplateGetAsync(string templateId, CancellationToken ct = default) =>
         SafeCall.ExecuteAsync(async () =>
@@ -692,7 +692,7 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
         {
             var r = await api.GetExperimentsAsync(ct).ConfigureAwait(false);
             return r.Select(e => new CoreModels.ExperimentInfo(e.Id, e.Name, e.Status, e.Description, e.CreatedAt, e.CompletedAt)).ToList();
-        }, new List<CoreModels.ExperimentInfo>());
+        }, []);
 
     public Task<CoreModels.ExperimentInfo?> ExperimentStartAsync(CoreModels.StartExperimentRequest request, CancellationToken ct = default) =>
         SafeCall.ExecuteAsync(async () =>

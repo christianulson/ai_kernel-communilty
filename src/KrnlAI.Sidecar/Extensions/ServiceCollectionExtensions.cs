@@ -58,9 +58,9 @@ public static class ServiceCollectionExtensions
                 t.AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
                     .SetSampler(new AlwaysOnSampler());
-                    if (hasOtlp)
-                        t.AddOtlpExporter(o =>
-                        {
+                if (hasOtlp)
+                    t.AddOtlpExporter(o =>
+                    {
                         o.Endpoint = new Uri(otlpEndpoint!);
                         var headers = configuration.GetValue<string>("Sidecar:Otlp:Headers");
                         if (!string.IsNullOrWhiteSpace(headers))

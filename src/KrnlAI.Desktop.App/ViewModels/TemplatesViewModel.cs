@@ -117,7 +117,7 @@ public class TemplatesViewModel : ViewModelBase
         RenderedContent = null;
         try
         {
-            var request = new RenderTemplateRequest(new Dictionary<string, string>());
+            var request = new RenderTemplateRequest([]);
             var result = await _kernelClient.TemplateRenderAsync(templateId, request).ConfigureAwait(false);
             if (result != null)
             {

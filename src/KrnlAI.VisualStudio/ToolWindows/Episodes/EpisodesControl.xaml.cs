@@ -51,25 +51,9 @@ public partial class EpisodesControl : UserControl
 
             DetailsPanel.Children.Clear();
 
-        if (episode.Steps is not null)
-        {
-            foreach (var step in episode.Steps)
+            if (episode.Steps is not null)
             {
-                var text = new TextBlock
-                {
-                    Text = $"#{step.Number} [{step.Tool}] {(step.Success ? "OK" : step.Result)}",
-                    Margin = new Thickness(0, 0, 0, 4),
-                };
-                DetailsPanel.Children.Add(text);
-            }
-        }
-        else
-        {
-            var details = await _service.GetEpisodeDetailsAsync(episode.Id, _cts.Token);
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-            if (details?.Steps is not null)
-            {
-                foreach (var step in details.Steps)
+                foreach (var step in episode.Steps)
                 {
                     var text = new TextBlock
                     {
@@ -79,9 +63,25 @@ public partial class EpisodesControl : UserControl
                     DetailsPanel.Children.Add(text);
                 }
             }
-        }
+            else
+            {
+                var details = await _service.GetEpisodeDetailsAsync(episode.Id, _cts.Token);
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                if (details?.Steps is not null)
+                {
+                    foreach (var step in details.Steps)
+                    {
+                        var text = new TextBlock
+                        {
+                            Text = $"#{step.Number} [{step.Tool}] {(step.Success ? "OK" : step.Result)}",
+                            Margin = new Thickness(0, 0, 0, 4),
+                        };
+                        DetailsPanel.Children.Add(text);
+                    }
+                }
+            }
 
-        EpisodeDetails.Visibility = Visibility.Visible;
+            EpisodeDetails.Visibility = Visibility.Visible;
         }
         catch (Exception ex)
         {

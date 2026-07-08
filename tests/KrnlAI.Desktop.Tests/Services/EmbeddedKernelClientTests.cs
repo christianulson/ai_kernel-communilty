@@ -969,7 +969,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task UpdateUserServiceAsync_ShouldReturnTrue()
     {
-        var request = new UserServiceUpdateRequest(new Dictionary<string, string>(), true);
+        var request = new UserServiceUpdateRequest([], true);
         var result = await CreateSut().UpdateUserServiceAsync("slack", request);
         Assert.True(result);
     }
@@ -1103,7 +1103,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task TemplateRenderAsync_NotFound_ShouldReturnError()
     {
-        var result = await CreateSut().TemplateRenderAsync("x", new RenderTemplateRequest(new()));
+        var result = await CreateSut().TemplateRenderAsync("x", new RenderTemplateRequest([]));
         Assert.NotNull(result);
         Assert.Null(result.RenderedContent);
         Assert.NotNull(result.Error);

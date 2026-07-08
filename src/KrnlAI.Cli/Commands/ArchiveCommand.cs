@@ -13,7 +13,8 @@ public sealed class ArchiveCommand(CliContext ctx, ConsoleRenderer renderer)
         var list = new Command("list", "List archived entries");
         var takeOpt = new Option<int>("--take")
         {
-            Description = "Max entries", DefaultValueFactory = _ => 10
+            Description = "Max entries",
+            DefaultValueFactory = _ => 10
         };
         list.Add(takeOpt);
         list.SetAction(async (ParseResult r, CancellationToken ct) =>

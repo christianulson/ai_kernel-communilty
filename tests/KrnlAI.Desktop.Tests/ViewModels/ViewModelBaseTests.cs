@@ -50,7 +50,7 @@ public class ViewModelBaseTests
     public void SetProperty_ShouldReturnTrueWhenChanged()
     {
         var vm = new TestViewModel();
-        
+
         vm.Name = "First";
         Assert.Equal("First", vm.Name);
     }

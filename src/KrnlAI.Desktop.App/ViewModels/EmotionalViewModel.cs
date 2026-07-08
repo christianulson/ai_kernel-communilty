@@ -35,10 +35,10 @@ public class EmotionalViewModel : ViewModelBase
 
     public string MoodIcon => CurrentState == null ? "🧐" : (CurrentState.Valence, CurrentState.Arousal) switch
     {
-        (> 0.3, > 0.5) => "⚡",
-        (> 0.3, _) => "😊",
-        (< -0.3, > 0.5) => "😰",
-        (< -0.3, _) => "😔",
+        ( > 0.3, > 0.5) => "⚡",
+        ( > 0.3, _) => "😊",
+        ( < -0.3, > 0.5) => "😰",
+        ( < -0.3, _) => "😔",
         (_, > 0.5) => "🧐",
         _ => "😐"
     };

@@ -5,6 +5,7 @@ using KrnlAI.Desktop.App.ViewModels;
 using KrnlAI.Desktop.Core.Services;
 using KrnlAI.Desktop.Core.Models;
 namespace KrnlAI.Desktop.App.Controls;
+
 public partial class SettingsControl : UserControl
 {
     public SettingsControl() { InitializeComponent(); }

@@ -23,7 +23,9 @@ public sealed class SafetyCommand(CliContext ctx, ConsoleRenderer renderer, ISer
             }
             var rows = allRules.Select(r => new
             {
-                r.Id, r.Title, r.Description,
+                r.Id,
+                r.Title,
+                r.Description,
                 Severity = r.Severity.ToString(),
                 Enabled = r.IsEnabled ? "yes" : "no"
             }).ToList();
@@ -48,7 +50,8 @@ public sealed class SafetyCommand(CliContext ctx, ConsoleRenderer renderer, ISer
             {
                 rec.CaseId,
                 Goal = rec.Goal.Length > 50 ? rec.Goal[..50] + "..." : rec.Goal,
-                rec.Status, Risk = $"{rec.RiskScore:F2}",
+                rec.Status,
+                Risk = $"{rec.RiskScore:F2}",
                 Probability = $"{rec.ExpectedSuccessProbability:F2}",
                 rec.Concerns.Count,
                 Created = rec.CreatedAt.ToString("yyyy-MM-dd HH:mm")
@@ -134,9 +137,11 @@ public sealed class SafetyCommand(CliContext ctx, ConsoleRenderer renderer, ISer
 
             var rows = filtered.Select(c => new
             {
-                c.RuleId, c.Description,
+                c.RuleId,
+                c.Description,
                 Coverage = $"{c.EffectivenessScore:P1}",
-                c.TimesTriggered, c.TimesBypassed,
+                c.TimesTriggered,
+                c.TimesBypassed,
                 Active = c.IsActive ? "yes" : "no"
             }).ToList();
 

@@ -103,14 +103,14 @@ public class ServiceLocator : IDisposable, IAsyncDisposable
             services.AddSingleton<ISettingsService>(settingsService);
             services.AddSingleton<ISessionPersistenceService>(_ => new SessionPersistenceService());
 
-        if (CurrentMode == RunMode.Local)
-        {
-            RegisterLocalMode(services, loggerFactory);
-        }
-        else
+            if (CurrentMode == RunMode.Local)
             {
-            RegisterApiMode(services, loggerFactory, baseUrl, settings);
-        }
+                RegisterLocalMode(services, loggerFactory);
+            }
+            else
+            {
+                RegisterApiMode(services, loggerFactory, baseUrl, settings);
+            }
 
             services.AddSingleton<IAudioCapture>(_ => new AudioCaptureService(loggerFactory.CreateLogger<AudioCaptureService>()));
             services.AddSingleton<IAudioPlayback>(_ => new AudioPlaybackService(loggerFactory.CreateLogger<AudioPlaybackService>()));

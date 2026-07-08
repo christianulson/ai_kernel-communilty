@@ -20,8 +20,12 @@ public class VideoCallViewModel : ViewModelBase, IDisposable
     public string VideoCallState { get => _state; set { SetProperty(ref _state, value); OnPropertyChanged(nameof(VideoCallStateText)); } }
     public string VideoCallStateText => _state switch
     {
-        "Connecting" => "Conectando...", "Ringing" => "Chamando...", "Connected" => "Em chamada",
-        "Ended" => "Encerrada", "Failed" => "Falhou", _ => "Pronto"
+        "Connecting" => "Conectando...",
+        "Ringing" => "Chamando...",
+        "Connected" => "Em chamada",
+        "Ended" => "Encerrada",
+        "Failed" => "Falhou",
+        _ => "Pronto"
     };
     public bool IsVideoCallMuted { get => _muted; set => SetProperty(ref _muted, value); }
     public bool IsVideoCallCameraOn { get => _cameraOn; set => SetProperty(ref _cameraOn, value); }

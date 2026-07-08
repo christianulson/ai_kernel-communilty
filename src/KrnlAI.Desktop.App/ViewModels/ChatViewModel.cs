@@ -529,9 +529,14 @@ public class ChatViewModel : ViewModelBase
             {
                 Icon = evt.Type switch
                 {
-                    "StepStarted" => "▶", "StepCompleted" => "✅", "ToolCalled" => "🔧",
-                    "Thought" => "💭", "SafetyCheck" => "🛡️", "Error" => "❌",
-                    "CycleCompleted" => "🏁", _ => "•"
+                    "StepStarted" => "▶",
+                    "StepCompleted" => "✅",
+                    "ToolCalled" => "🔧",
+                    "Thought" => "💭",
+                    "SafetyCheck" => "🛡️",
+                    "Error" => "❌",
+                    "CycleCompleted" => "🏁",
+                    _ => "•"
                 },
                 StepName = evt.StepName,
                 Content = evt.Content

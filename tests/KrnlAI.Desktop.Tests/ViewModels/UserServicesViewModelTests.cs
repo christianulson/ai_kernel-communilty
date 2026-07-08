@@ -77,7 +77,7 @@ public sealed class UserServicesViewModelTests
 
         var loadTask = vm.LoadAsync();
         Assert.True(vm.IsLoading);
-        tcs.SetResult(new List<UserServiceInfo>());
+        tcs.SetResult([]);
         await loadTask;
         Assert.False(vm.IsLoading);
     }

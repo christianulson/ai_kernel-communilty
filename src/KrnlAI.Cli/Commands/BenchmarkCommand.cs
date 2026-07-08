@@ -148,7 +148,11 @@ public sealed class BenchmarkCommand(
                     total = result.TotalScenarios,
                     categories = result.Categories.Select(c => new
                     {
-                        c.Category, c.Total, c.Passed, c.Failed, c.PassRate
+                        c.Category,
+                        c.Total,
+                        c.Passed,
+                        c.Failed,
+                        c.PassRate
                     })
                 },
                 competitors = externalResults,
