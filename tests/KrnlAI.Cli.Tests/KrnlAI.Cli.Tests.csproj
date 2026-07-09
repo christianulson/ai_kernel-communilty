@@ -124,7 +124,7 @@
     <Using Include="KrnlAI.Core.Abstractions.Cost" />
     <Using Include="KrnlAI.Core.Abstractions.Counterfactual" />
     <Using Include="KrnlAI.Core.Abstractions.Coupons" />
-    <Using Include="KrnlAI.Core.Abstractions.Cqrs" />
+
     <Using Include="KrnlAI.Core.Abstractions.Creativity" />
     <Using Include="KrnlAI.Core.Abstractions.Cross" />
     <Using Include="KrnlAI.Core.Abstractions.Curiosity" />
