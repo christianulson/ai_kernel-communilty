@@ -427,6 +427,7 @@ FodyWeavers.xsd
 *.msp
 
 .dotnet*/
+.gradle/
 
 doc/snapshots/
 .nx/
