@@ -31,10 +31,14 @@
     <ProjectReference Include="..\..\src\KrnlAI.Desktop.App\KrnlAI.Desktop.App.csproj" />
     <ProjectReference Include="..\..\src\KrnlAI.Desktop.Infrastructure\KrnlAI.Desktop.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\KrnlAI.Desktop.Core\KrnlAI.Desktop.Core.csproj" />
+    <ProjectReference Include="..\..\..\src\KrnlAI.Evolution\KrnlAI.Evolution.csproj" />
     <ProjectReference Include="..\..\..\tests\TestHelpers\TestHelpers.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="KrnlAI.Core.Abstractions.Cognitive" />
     <Using Include="KrnlAI.Core.Abstractions.Vector" />
+    <Using Include="KrnlAI.Evolution" />
+    <Using Include="KrnlAI.Evolution.Evolution" />
+    <Using Include="KrnlAI.Evolution.Meta" />
   </ItemGroup>
 </Project>

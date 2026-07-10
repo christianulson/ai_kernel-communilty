@@ -1,7 +1,6 @@
 using System.CommandLine;
 using KrnlAI.Cli.Services;
 using KrnlAI.Cognition.Runtime;
-using KrnlAI.Contracts.Cognition;
 
 namespace KrnlAI.Cli.Commands;
 
