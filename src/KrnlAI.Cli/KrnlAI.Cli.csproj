@@ -31,77 +31,7 @@
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
-  <ItemGroup>
-    <Using Include="KrnlAI.Contracts" />
-    <Using Include="KrnlAI.Contracts.Cognitive" />
-    <Using Include="KrnlAI.Contracts.Plan" />
-    <Using Include="KrnlAI.Contracts.Artifact" />
-    <Using Include="KrnlAI.Contracts.Health" />
-    <Using Include="KrnlAI.Contracts.P2P" />
-    <Using Include="KrnlAI.Contracts.P2P.Ranking" />
-    <Using Include="KrnlAI.Memory.Stores" />
-    <Using Include="KrnlAI.Anticipation.Services" />
-    <Using Include="KrnlAI.Anticipation.Stores" />
-    <Using Include="KrnlAI.Embedded.Services" />
-    <Using Include="KrnlAI.Embedded.Models" />
-    <Using Include="KrnlAI.Contracts.Execution" />
-    <Using Include="KrnlAI.Contracts.Safety" />
-    <Using Include="KrnlAI.Core.Services.Memory" />
-    <Using Include="KrnlAI.Contracts.Plan" />
-    <Using Include="KrnlAI.Contracts.Memory" />
-    <Using Include="KrnlAI.Contracts.Versioning" />
-    <Using Include="KrnlAI.Contracts.Goals" />
-    <Using Include="KrnlAI.Contracts.Moment" />
-    <Using Include="KrnlAI.Contracts.Lifecycle" />
-    <Using Include="KrnlAI.Contracts.Scheduling" />
-    <Using Include="KrnlAI.Contracts.Benchmark" />
-    <Using Include="KrnlAI.Contracts.Mcp" />
-    <Using Include="KrnlAI.Core.Abstractions" />
-    <Using Include="KrnlAI.Core.Abstractions.ExperimentTracking" />
-    <Using Include="KrnlAI.Core.Abstractions.SystemClock" />
-    <Using Include="KrnlAI.Contracts.Scheduled" />
-    <Using Include="KrnlAI.Contracts.Actions" />
-    <Using Include="KrnlAI.Contracts.Plugin" />
-    <Using Include="KrnlAI.Contracts.ExperimentTracking" />
-    <Using Include="KrnlAI.Core.Abstractions.Moment" />
-    <Using Include="KrnlAI.Core.Abstractions.ModelRegistry" />
-    <Using Include="KrnlAI.Core.Abstractions.Mcp" />
-    <Using Include="KrnlAI.Core.Abstractions.Safety" />
-    <Using Include="KrnlAI.Core.Abstractions.Scheduler" />
-    <Using Include="KrnlAI.Core.Abstractions.Session" />
-    <Using Include="KrnlAI.Core.Abstractions.Cognitive" />
-    <Using Include="KrnlAI.Core.Abstractions.Prospective" />
-    <Using Include="KrnlAI.Core.Abstractions.Execution" />
-    <Using Include="KrnlAI.Core.Abstractions.Plugin" />
-    <Using Include="KrnlAI.Core.Abstractions.ToolBroker" />
-    <Using Include="KrnlAI.Core.Abstractions.QLearning" />
-    <Using Include="KrnlAI.Core.Abstractions.Meta" />
-    <Using Include="KrnlAI.Core.Abstractions.Versioning" />
-    <Using Include="KrnlAI.Core.Abstractions.Plan" />
-    <Using Include="KrnlAI.Core.Abstractions.Contracts" />
-    <Using Include="KrnlAI.Core.Abstractions.Goals" />
 
-    <Using Include="KrnlAI.Core.Abstractions" />
-    <Using Include="KrnlAI.Contracts.Mcp" />
-    <Using Include="KrnlAI.Contracts.Safety" />
-    <Using Include="KrnlAI.Contracts.ExperimentTracking" />
-    <Using Include="KrnlAI.Core.Services.Memory" />
-    <Using Include="KrnlAI.Contracts.ModelRegistry" />
-    <Using Include="KrnlAI.Executive.Options" />
-    <Using Include="KrnlAI.Executive.Services" />
-    <Using Include="KrnlAI.Infrastructure.Services" />
-    <Using Include="KrnlAI.Infrastructure.InMemory" />
-    <Using Include="KrnlAI.LLMGateway.Core.Abstractions" />
-    <Using Include="KrnlAI.LLMGateway.Core.Services.Goals" />
-    <Using Include="KrnlAI.LLMGateway.Core.Services.Governance" />
-    <Using Include="KrnlAI.Memory" />
-    <Using Include="KrnlAI.Snapshot.Services" />
-    <Using Include="Microsoft.Extensions.DependencyInjection" />
-    <Using Include="Microsoft.Extensions.Logging" />
-    <Using Include="Microsoft.Extensions.Logging.Abstractions" />
-    <Using Include="Microsoft.Extensions.Options" />
-    <Using Include="KrnlAI.Core.Abstractions.Memory" />
-  </ItemGroup>
   <ItemGroup>
     <None Include="Templates\**\*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>

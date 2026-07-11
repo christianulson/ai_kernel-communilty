@@ -17,16 +17,7 @@
     </PackageReference>
     <PackageReference Include="Moq" Version="4.20.72" />
   </ItemGroup>
-  <ItemGroup>
-    <Using Include="Xunit" />
-    <Using Include="KrnlAI.Desktop.App.Controls" />
-    <Using Include="KrnlAI.Desktop.App.ViewModels" />
-    <Using Include="KrnlAI.Desktop.Core.Abstractions" />
-    <Using Include="KrnlAI.Desktop.Core.Models" />
-    <Using Include="KrnlAI.Desktop.Infrastructure.KernelClient" />
-    <Using Include="System.Net" />
-    <Using Include="System.Net.Http" />
-  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\src\KrnlAI.Desktop.App\KrnlAI.Desktop.App.csproj" />
     <ProjectReference Include="..\..\src\KrnlAI.Desktop.Infrastructure\KrnlAI.Desktop.Infrastructure.csproj" />
@@ -34,11 +25,5 @@
     <ProjectReference Include="..\..\..\src\KrnlAI.Evolution\KrnlAI.Evolution.csproj" />
     <ProjectReference Include="..\..\..\tests\TestHelpers\TestHelpers.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Using Include="KrnlAI.Core.Abstractions.Cognitive" />
-    <Using Include="KrnlAI.Core.Abstractions.Vector" />
-    <Using Include="KrnlAI.Evolution" />
-    <Using Include="KrnlAI.Evolution.Evolution" />
-    <Using Include="KrnlAI.Evolution.Meta" />
-  </ItemGroup>
+
 </Project>

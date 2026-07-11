@@ -50,8 +50,5 @@
     <Resource Include="Resources\Icons\krnl-ai-icon.png" />
     <Resource Include="Resources\Icons\favicon.ico" />
   </ItemGroup>
-  <ItemGroup>
-    <Using Include="KrnlAI.Contracts.P2P.Ranking" />
-    <Using Include="KrnlAI.Core.Abstractions.Cognitive" />
-  </ItemGroup>
+
 </Project>

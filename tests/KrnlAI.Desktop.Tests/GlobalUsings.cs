@@ -1,0 +1,13 @@
+global using Xunit;
+global using KrnlAI.Desktop.App.Controls;
+global using KrnlAI.Desktop.App.ViewModels;
+global using KrnlAI.Desktop.Core.Abstractions;
+global using KrnlAI.Desktop.Core.Models;
+global using KrnlAI.Desktop.Infrastructure.KernelClient;
+global using System.Net;
+global using System.Net.Http;
+global using KrnlAI.Core.Abstractions.Cognitive;
+global using KrnlAI.Core.Abstractions.Vector;
+global using KrnlAI.Evolution;
+global using KrnlAI.Evolution.Evolution;
+global using KrnlAI.Evolution.Meta;

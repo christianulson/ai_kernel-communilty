@@ -45,9 +45,7 @@
     <Reference Include="System.Design" />
 
   </ItemGroup>
-  <ItemGroup>
-    <Using Include="System.Net.Http" />
-  </ItemGroup>
+
   <ItemGroup>
     <Content Include="Resources\krnl-ai-icon.png">
       <IncludeInVSIX>true</IncludeInVSIX>
