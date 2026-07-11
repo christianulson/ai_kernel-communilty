@@ -12,7 +12,6 @@ global using KrnlAI.Embedded.Services;
 global using KrnlAI.Embedded.Models;
 global using KrnlAI.Contracts.Execution;
 global using KrnlAI.Contracts.Safety;
-global using KrnlAI.Core.Services.Memory;
 global using KrnlAI.Contracts.Memory;
 global using KrnlAI.Contracts.Versioning;
 global using KrnlAI.Contracts.Goals;
