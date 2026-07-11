@@ -10,7 +10,6 @@
     <Authors>Krnl-AI</Authors>
   </PropertyGroup>
   <ItemGroup Condition="Exists('..\..\..\src\KrnlAI.Core\KrnlAI.Core.csproj')">
-    <ProjectReference Include="..\..\..\src\KrnlAI.Core\KrnlAI.Core.csproj" />
     <ProjectReference Include="..\..\..\src\KrnlAI.Infrastructure\KrnlAI.Infrastructure.csproj" />
     <ProjectReference Include="..\..\..\src\LLMGateway.Core\LLMGateway.Core.csproj" />
     <ProjectReference Include="..\..\..\src\KrnlAI.Embedded\KrnlAI.Embedded.csproj" />

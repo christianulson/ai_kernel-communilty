@@ -27,7 +27,6 @@
 
   <!-- Modo 1: Submodule (ProjectReference) -->
   <ItemGroup Condition="Exists('..\..\..\src\KrnlAI.Core\KrnlAI.Core.csproj')">
-    <ProjectReference Include="..\..\..\src\KrnlAI.Core\KrnlAI.Core.csproj" />
     <ProjectReference Include="..\..\..\src\KrnlAI.Infrastructure\KrnlAI.Infrastructure.csproj" />
     <ProjectReference Include="..\..\..\src\KrnlAI.Contracts\KrnlAI.Contracts.csproj" />
     <ProjectReference Include="..\..\..\src\KrnlAI.Embedded\KrnlAI.Embedded.csproj" />

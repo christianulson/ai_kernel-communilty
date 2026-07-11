@@ -1,3 +1,5 @@
+using KrnlAI.Core.Abstractions.Cognition;
+
 namespace KrnlAI.Cli.Services;
 
 public sealed class CliContext(IServiceProvider sp)
@@ -11,7 +13,7 @@ public sealed class CliContext(IServiceProvider sp)
     public IExecutiveController ExecutiveController { get; } = sp.GetRequiredService<IExecutiveController>();
     public ICognitiveHomeostasis Homeostasis { get; } = sp.GetRequiredService<ICognitiveHomeostasis>();
     public IGoalStore GoalStore { get; } = sp.GetRequiredService<IGoalStore>();
-    public ISchedulerService Scheduler { get; } = sp.GetService<ISchedulerService>() ?? new Infrastructure.Scheduling.InMemorySchedulerStore();
+    public ISchedulerService Scheduler { get; } = sp.GetService<ISchedulerService>() ?? new Infrastructure.Scheduling.InMemorySchedulerStore(sp.GetRequiredService<ICronExpressionParser>());
     public ISafetyCaseStore SafetyCaseStore { get; } = sp.GetRequiredService<ISafetyCaseStore>();
     public FundamentalRulesEngine RulesEngine { get; } = sp.GetRequiredService<FundamentalRulesEngine>();
     public IMcpServerRegistry McpRegistry { get; } = sp.GetRequiredService<IMcpServerRegistry>();

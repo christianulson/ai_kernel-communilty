@@ -18,7 +18,6 @@
     <PackageReference Include="FluentAssertions" Version="8.10.0" />
   </ItemGroup>
     <ItemGroup Condition="Exists('..\..\..\src\KrnlAI.Core\KrnlAI.Core.csproj')">
-    <ProjectReference Include="..\..\..\src\KrnlAI.Core\KrnlAI.Core.csproj" />
     <ProjectReference Include="..\..\..\src\KrnlAI.Infrastructure\KrnlAI.Infrastructure.csproj" />
   </ItemGroup>
   <ItemGroup Condition="!Exists('..\..\..\src\KrnlAI.Core\KrnlAI.Core.csproj')">
