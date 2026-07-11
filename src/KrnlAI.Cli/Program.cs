@@ -61,20 +61,20 @@ var benchRunner = host.Services.GetRequiredService<ISafetyBenchRunner>();
 root.Add(new SecurityCommand(benchRunner, console).Build());
 
 // Benchmark (Plano 08 - Safety Benchmark)
-var reportGen = host.Services.GetRequiredService<KrnlAI.Core.Abstractions.Safety.ISafetyReportGenerator>();
+var reportGen = host.Services.GetRequiredService<ISafetyReportGenerator>();
 root.Add(new BenchmarkCommand(benchRunner, reportGen, console).Build());
 
 // Integration management (Plano 02 - Ecosystem)
 root.Add(new IntegrationCommand(console).Build());
 
 // Plugin management (Plano 37 - Plugin Ecosystem)
-var pluginLoader = host.Services.GetService<KrnlAI.Core.Abstractions.Plugin.IAssemblyPluginLoader>();
-var pluginCatalog = host.Services.GetService<KrnlAI.Core.Abstractions.Plugin.IPluginCatalog>();
-var pluginRegistry = host.Services.GetService<KrnlAI.Core.Abstractions.Plugin.IPluginRegistryService>();
+var pluginLoader = host.Services.GetService<IAssemblyPluginLoader>();
+var pluginCatalog = host.Services.GetService<IPluginCatalog>();
+var pluginRegistry = host.Services.GetService<IPluginRegistryService>();
 root.Add(new PluginCommand(console, pluginLoader, pluginCatalog, pluginRegistry).Build());
 
 // MCP management (Track B2)
-var mcpServerHost = host.Services.GetService<KrnlAI.Core.Abstractions.Mcp.IMcpServerHost>();
+var mcpServerHost = host.Services.GetService<IMcpServerHost>();
 root.Add(new McpCommand(cliCtx, renderer, mcpServerHost).Build());
 
 // Plan/Act mode
