@@ -1,4 +1,5 @@
 using KrnlAI.Safety.Services;
+using KrnlAI.Cognition;
 
 namespace KrnlAI.Cli.Services;
 
@@ -6,6 +7,7 @@ public static class CliServiceExtensions
 {
     public static IServiceCollection AddCliServices(this IServiceCollection services)
     {
+        services.AddKrnlAIServices();
         services.AddSingleton<CliContext>();
         services.AddSingleton<IMomentStore, InMemoryMomentStore>();
         services.AddSingleton<IMomentClassifierStore, InMemoryMomentClassifierStore>();

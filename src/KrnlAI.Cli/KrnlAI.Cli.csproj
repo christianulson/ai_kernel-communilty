@@ -37,6 +37,9 @@
   <ItemGroup>
     <InternalsVisibleTo Include="KrnlAI.Cli.Tests" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\KrnlAI.DI\KrnlAI.DI.csproj" />
+  </ItemGroup>
   <PropertyGroup>
     <NoWarn>$(NoWarn);NU1510</NoWarn>
   </PropertyGroup>
