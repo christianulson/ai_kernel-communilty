@@ -9,7 +9,8 @@
     <LangVersion>latest</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <NoWarn>$(NoWarn);CS1591;CS0436</NoWarn>
-    <NuGetAudit>false</NuGetAudit>
+    <NuGetAudit>true</NuGetAudit>
+    <NuGetAuditMode>direct</NuGetAuditMode>
 
     <!-- Versão dos pacotes NuGet privados (fallback para standalone) -->
     <PrivatePackagesVersion Condition="'$(PrivatePackagesVersion)' == ''">1.0.0</PrivatePackagesVersion>
