@@ -39,6 +39,7 @@ global using KrnlAI.Core.Abstractions.Actions;
 global using KrnlAI.Memory.Stores;
 global using KrnlAI.Anticipation.Services;
 global using KrnlAI.Anticipation.Stores;
+global using KrnlAI.Infrastructure.InMemory;
 global using KrnlAI.Executive.Services;
 global using KrnlAI.Executive.Options;
 global using KrnlAI.Embedded.Services;
