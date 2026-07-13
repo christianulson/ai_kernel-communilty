@@ -1,5 +1,6 @@
 using KrnlAI.Safety.Services;
 using KrnlAI.Cognition;
+using KrnlAI.DI;
 
 namespace KrnlAI.Cli.Services;
 
