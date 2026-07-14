@@ -269,3 +269,5 @@ global using KrnlAI.Core.Abstractions.Versioning;
 global using KrnlAI.Core.Abstractions.Working;
 global using KrnlAI.Core.Abstractions.Workspace;
 global using KrnlAI.Core.Abstractions.World;
+global using KrnlAI.LLMGateway.Core.Stores;
+global using KrnlAI.Snapshot.Stores;

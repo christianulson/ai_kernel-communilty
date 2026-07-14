@@ -1,6 +1,8 @@
 using KrnlAI.Safety.Services;
 using KrnlAI.Cognition;
 using KrnlAI.DI;
+using KrnlAI.Snapshot.Stores;
+using KrnlAI.LLMGateway.Core.Stores;
 
 namespace KrnlAI.Cli.Services;
 
