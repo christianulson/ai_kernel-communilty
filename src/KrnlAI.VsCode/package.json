@@ -10,6 +10,8 @@
     "onCommand:krnlai.policies",
     "onCommand:krnlai.episodes",
     "onCommand:krnlai.memory",
+    "onCommand:krnlai.backlog",
+    "onCommand:krnlai.qa",
     "onCommand:krnlai.settings",
     "onCommand:krnlai.start",
     "onCommand:krnlai.stop",
@@ -78,6 +80,14 @@
       {
         "command": "krnlai.memory",
         "title": "Krnl-AI: Memória"
+      },
+      {
+        "command": "krnlai.backlog",
+        "title": "Krnl-AI: Backlog"
+      },
+      {
+        "command": "krnlai.qa",
+        "title": "Krnl-AI: QA Tests"
       },
       {
         "command": "krnlai.settings",

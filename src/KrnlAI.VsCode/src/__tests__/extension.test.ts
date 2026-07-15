@@ -110,7 +110,7 @@ describe('Extension', () => {
     it('should register all commands on activation', async () => {
         const { activate } = require('../extension');
         await activate(context);
-        expect(vscode.commands.registerCommand).toHaveBeenCalledTimes(23);
+        expect(vscode.commands.registerCommand).toHaveBeenCalledTimes(25);
     });
 
     it('should register chat command', async () => {
@@ -158,6 +158,22 @@ describe('Extension', () => {
         await activate(context);
         expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
             'krnlai.settings', expect.any(Function)
+        );
+    });
+
+    it('should register backlog command', async () => {
+        const { activate } = require('../extension');
+        await activate(context);
+        expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
+            'krnlai.backlog', expect.any(Function)
+        );
+    });
+
+    it('should register qa command', async () => {
+        const { activate } = require('../extension');
+        await activate(context);
+        expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
+            'krnlai.qa', expect.any(Function)
         );
     });
 

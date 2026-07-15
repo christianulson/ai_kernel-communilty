@@ -8,6 +8,8 @@ import { DashboardPanel } from './panels/dashboardPanel';
 import { PoliciesPanel } from './panels/policiesPanel';
 import { EpisodesPanel } from './panels/episodesPanel';
 import { MemoryPanel } from './panels/memoryPanel';
+import { BacklogPanel } from './panels/backlogPanel';
+import { QAPanel } from './panels/qaPanel';
 import { KanbanPanel } from './panels/KanbanPanel';
 import { SettingsPanel } from './panels/settingsPanel';
 import { DebugPanel } from './panels/DebugPanel';
@@ -117,6 +119,8 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('krnlai.policies', () => PoliciesPanel.createOrShow()));
     context.subscriptions.push(vscode.commands.registerCommand('krnlai.episodes', () => EpisodesPanel.createOrShow()));
     context.subscriptions.push(vscode.commands.registerCommand('krnlai.memory', () => MemoryPanel.createOrShow()));
+    context.subscriptions.push(vscode.commands.registerCommand('krnlai.backlog', () => BacklogPanel.createOrShow()));
+    context.subscriptions.push(vscode.commands.registerCommand('krnlai.qa', () => QAPanel.createOrShow()));
     context.subscriptions.push(vscode.commands.registerCommand('krnlai.kanban', () => KanbanPanel.createOrShow()));
     context.subscriptions.push(vscode.commands.registerCommand('krnlai.settings', () => SettingsPanel.createOrShow()));
     context.subscriptions.push(vscode.commands.registerCommand('krnlai.debugPanel', () => DebugPanel.createOrShow(debugTracker)));
@@ -445,6 +449,8 @@ class NavTreeProvider implements vscode.TreeDataProvider<NavItem> {
             new NavItem('📋 Políticas', 'policies', 'Políticas aprendidas'),
             new NavItem('📜 Episódios', 'episodes', 'Histórico de execuções'),
             new NavItem('🧠 Memória', 'memory', 'Busca semântica'),
+            new NavItem('📋 Backlog', 'backlog', 'Backlog de tarefas'),
+            new NavItem('🧪 QA Tests', 'qa', 'Testes de qualidade'),
             new NavItem('📌 Kanban', 'kanban', 'Quadro Kanban'),
             new NavItem('⚙️ Configurações', 'settings', 'Configurações'),
         ];
