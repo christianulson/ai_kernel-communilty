@@ -219,4 +219,123 @@ export class KernelClient {
             body: JSON.stringify({ code, language })
         });
     }
+
+    // ── Backlog ──
+    async getBacklogItems(status?: string): Promise<BacklogItem[] | null> {
+        const params = status ? `?status=${encodeURIComponent(status)}` : '';
+        return this.fetchJson<BacklogItem[]>(`/api/backlog${params}`);
+    }
+
+    async getBacklogItem(id: string): Promise<BacklogItem | null> {
+        return this.fetchJson<BacklogItem>(`/api/backlog/${encodeURIComponent(id)}`);
+    }
+
+    async createBacklogItem(item: { title: string; description?: string; priority: string; dependencies?: string[]; tags?: string[] }): Promise<BacklogItem | null> {
+        return this.fetchJson<BacklogItem>('/api/backlog', {
+            method: 'POST',
+            body: JSON.stringify(item)
+        });
+    }
+
+    async updateBacklogStatus(id: string, status: string): Promise<BacklogItem | null> {
+        return this.fetchJson<BacklogItem>(`/api/backlog/${encodeURIComponent(id)}/status`, {
+            method: 'PATCH',
+            body: JSON.stringify({ status })
+        });
+    }
+
+    async deleteBacklogItem(id: string): Promise<boolean> {
+        try {
+            const res = await fetch(`${this.getBaseUrl()}/api/backlog/${encodeURIComponent(id)}`, { method: 'DELETE' });
+            return res.ok;
+        } catch { return false; }
+    }
+
+    // ── QA ──
+    async runQATest(config: { targetType: string; endpoint: string; timeoutSeconds: number; testNames?: string[]; options?: Record<string, string> }): Promise<QATestRun | null> {
+        return this.fetchJson<QATestRun>('/api/qa/run', {
+            method: 'POST',
+            body: JSON.stringify(config)
+        });
+    }
+
+    async getQARuns(): Promise<QATestRun[] | null> {
+        return this.fetchJson<QATestRun[]>('/api/qa/runs');
+    }
+
+    async getQARun(id: string): Promise<QATestRun | null> {
+        return this.fetchJson<QATestRun>(`/api/qa/runs/${encodeURIComponent(id)}`);
+    }
+
+    async getQARunEvidence(id: string): Promise<string[] | null> {
+        return this.fetchJson<string[]>(`/api/qa/runs/${encodeURIComponent(id)}/evidence`);
+    }
+
+    // ── Loop Execution ──
+    async startLoop(backlogItemId: string): Promise<LoopExecution | null> {
+        return this.fetchJson<LoopExecution>('/api/loops/start', {
+            method: 'POST',
+            body: JSON.stringify({ backlogItemId })
+        });
+    }
+
+    async getLoopStatus(executionId: string): Promise<LoopExecution | null> {
+        return this.fetchJson<LoopExecution>(`/api/loops/${encodeURIComponent(executionId)}`);
+    }
+
+    async getLoopIterations(itemId: string): Promise<LoopExecution[] | null> {
+        return this.fetchJson<LoopExecution[]>(`/api/loops/${encodeURIComponent(itemId)}/iterations`);
+    }
+
+    async cancelLoop(executionId: string): Promise<boolean> {
+        try {
+            const res = await fetch(`${this.getBaseUrl()}/api/loops/${encodeURIComponent(executionId)}/cancel`, { method: 'POST' });
+            return res.ok;
+        } catch { return false; }
+    }
+}
+
+// ── Backlog types ──
+export interface BacklogItem {
+    id: string;
+    title: string;
+    description: string;
+    status: string;
+    priority: string;
+    dependencies: string[];
+    tags: string[];
+}
+
+// ── QA types ──
+export interface QATestStep {
+    name: string;
+    status: string;
+    detail: string;
+}
+
+export interface QATestRun {
+    id: string;
+    targetType: string;
+    status: string;
+    steps: QATestStep[];
+    results: string;
+    evidence: string[];
+}
+
+// ── Loop Execution types ──
+export interface LoopStep {
+    name: string;
+    status: string;
+    detail: string;
+}
+
+export interface LoopExecution {
+    id: string;
+    itemId: string;
+    itemType: string;
+    iterations: number;
+    currentStep: number;
+    status: string;
+    baselineRef: string | null;
+    steps: LoopStep[];
 }
