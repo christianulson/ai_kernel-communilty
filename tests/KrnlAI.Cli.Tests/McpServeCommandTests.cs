@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Spectre.Console.Testing;
+using KrnlAI.Infrastructure.InMemory;
 using KrnlAI.Snapshot.Services;
 
 namespace KrnlAI.Cli.Tests;
