@@ -1,0 +1,82 @@
+<UserControl x:Class="KrnlAI.Desktop.App.Controls.SecurityIncidentsControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:loc="clr-namespace:KrnlAI.Desktop.App.Converters">
+    <ScrollViewer Padding="28" VerticalScrollBarVisibility="Auto">
+        <Grid>
+            <StackPanel>
+                <Grid Margin="0,0,0,20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <TextBlock Text="{loc:Loc security_title}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        <TextBlock Text="{loc:Loc security_subtitle}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                    </StackPanel>
+                    <Button Grid.Column="1" Command="{Binding SecurityVM.LoadCommand}" Style="{StaticResource GhostButton}" Padding="16,10">
+                        <TextBlock Text="{loc:Loc refresh}"/>
+                    </Button>
+                </Grid>
+
+                <Border Background="{DynamicResource PanelBrush}" CornerRadius="24" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="24"
+                        Visibility="{Binding SecurityVM.IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <StackPanel HorizontalAlignment="Center" Margin="0,20">
+                        <TextBlock Text="{loc:Loc loading}" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Background="{DynamicResource PanelBrush}" CornerRadius="24" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="24"
+                        Visibility="{Binding SecurityVM.HasError, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <StackPanel HorizontalAlignment="Center" Margin="0,20">
+                        <TextBlock Text="{Binding SecurityVM.ErrorMessage}" Foreground="{DynamicResource ErrorBrush}" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Background="{DynamicResource PanelBrush}" CornerRadius="24" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="24"
+                        Visibility="{Binding SecurityVM.HasNoData, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <StackPanel HorizontalAlignment="Center" Margin="0,20">
+                        <TextBlock Text="{loc:Loc security_empty}" FontSize="14" Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Background="{DynamicResource PanelBrush}" CornerRadius="24" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="24"
+                        Visibility="{Binding SecurityVM.HasData, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <StackPanel>
+                        <TextBlock Text="{loc:Loc security_incidents_list}" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,12"/>
+                        <ItemsControl ItemsSource="{Binding SecurityVM.Incidents}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{DynamicResource SurfaceBrush}" CornerRadius="16" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="16" Margin="0,0,0,8">
+                                        <StackPanel>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel>
+                                                    <TextBlock Text="{Binding Description}" FontWeight="SemiBold" FontSize="14" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                                    <TextBlock Margin="0,4,0,0" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}">
+                                                        <Run Text="{loc:Loc security_severity}"/><Run Text="{Binding Severity, Mode=OneWay}"/>
+                                                        <Run Text=" · "/><Run Text="{Binding DetectedAt, Mode=OneWay, StringFormat={}{0:g}}"/>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                                <Border Grid.Column="1" CornerRadius="12" Padding="8,4" Background="{DynamicResource ErrorBrush}" Opacity="0.8">
+                                                    <TextBlock Text="{Binding Status}" FontSize="11" FontWeight="Bold" Foreground="White"/>
+                                                </Border>
+                                            </Grid>
+                                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0" HorizontalAlignment="Right">
+                                                <Button Command="{Binding DataContext.SecurityVM.ResolveCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        CommandParameter="{Binding Id}" Style="{StaticResource SmallButton}" Padding="12,6">
+                                                    <TextBlock Text="{loc:Loc security_resolve}"/>
+                                                </Button>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

@@ -242,6 +242,30 @@ public interface IGatewayApi
     Task RecordMetricAsync(string id, [Body] Core.Models.RecordMetricRequest request, CancellationToken ct);
     [Get("/api/experiments/{id}/analysis")]
     Task<ExperimentAnalysisDto> GetExperimentAnalysisAsync(string id, CancellationToken ct);
+
+    [Get("/security/incidents")]
+    Task<List<SecurityIncidentDto>> GetSecurityIncidentsAsync(CancellationToken ct = default);
+
+    [Post("/security/alerts/{alertId}/resolve")]
+    Task ResolveSecurityAlertAsync(string alertId, CancellationToken ct = default);
+
+    [Get("/observability/autonomy-budgets")]
+    Task<List<GovernanceBudgetDto>> GetAutonomyBudgetsAsync(CancellationToken ct = default);
+
+    [Get("/observability/approval-matrix")]
+    Task<GovernanceBudgetDto> GetApprovalMatrixAsync(CancellationToken ct = default);
+
+    [Get("/events/recent")]
+    Task<List<NotificationDto>> GetNotificationsAsync(CancellationToken ct = default);
+
+    [Post("/events/{notificationId}/read")]
+    Task MarkNotificationReadAsync(string notificationId, CancellationToken ct = default);
+
+    [Get("/audit/provenance/chain/{entityId}")]
+    Task<List<ProvenanceEntryDto>> GetProvenanceChainAsync(string entityId, CancellationToken ct = default);
+
+    [Get("/audit/provenance/verify/{entityId}")]
+    Task<ProvenanceEntryDto> VerifyProvenanceChainAsync(string entityId, CancellationToken ct = default);
 }
 
 // Template DTOs
@@ -313,3 +337,9 @@ public sealed record EventDetailDto(string EventId, string Type, string Descript
 public sealed record EpisodicMemorySearchRequestDto(string UserId, string Query, int TopK = 5);
 public sealed record EpisodicMemorySearchResultDto(bool Ok, List<EpisodicMemoryHitDto>? Hits);
 public sealed record EpisodicMemoryHitDto(string EpisodeId, string Goal, string Summary, string Status, double? Similarity, DateTimeOffset CreatedAt);
+
+// Security DTOs
+public sealed record SecurityIncidentDto(string Id, string Description, string Severity, string Status, DateTimeOffset DetectedAt);
+public sealed record GovernanceBudgetDto(string Domain, double BudgetUsed, double BudgetLimit, bool IsExceeded);
+public sealed record NotificationDto(string Id, string Title, string Message, string Type, bool IsRead, DateTimeOffset CreatedAt);
+public sealed record ProvenanceEntryDto(string LinkId, string EntityType, string EntityId, string Description, bool IsIntact, DateTimeOffset RecordedAt);
