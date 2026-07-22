@@ -750,4 +750,49 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
             await api.ResolveSecurityAlertAsync(alertId, ct).ConfigureAwait(false);
             return true;
         }, false);
+
+    // Governance
+    public Task<List<CoreModels.GovernanceBudget>> GetAutonomyBudgetsAsync(CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var dtos = await api.GetAutonomyBudgetsAsync(ct).ConfigureAwait(false);
+            return dtos.Select(d => new CoreModels.GovernanceBudget(d.Domain, d.BudgetUsed, d.BudgetLimit, d.IsExceeded)).ToList();
+        }, []);
+
+    public Task<CoreModels.GovernanceBudget?> GetApprovalMatrixAsync(CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var dto = await api.GetApprovalMatrixAsync(ct).ConfigureAwait(false);
+            return new CoreModels.GovernanceBudget(dto.Domain, dto.BudgetUsed, dto.BudgetLimit, dto.IsExceeded);
+        }, null);
+
+    // Notifications
+    public Task<List<CoreModels.NotificationItem>> GetNotificationsAsync(CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var dtos = await api.GetNotificationsAsync(ct).ConfigureAwait(false);
+            return dtos.Select(d => new CoreModels.NotificationItem(d.Id, d.Title, d.Message, d.Type, d.IsRead, d.CreatedAt)).ToList();
+        }, []);
+
+    public Task<bool> MarkNotificationReadAsync(string notificationId, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            await api.MarkNotificationReadAsync(notificationId, ct).ConfigureAwait(false);
+            return true;
+        }, false);
+
+    // Provenance
+    public Task<List<CoreModels.ProvenanceEntry>> GetChainAsync(string entityId, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var dtos = await api.GetProvenanceChainAsync(entityId, ct).ConfigureAwait(false);
+            return dtos.Select(d => new CoreModels.ProvenanceEntry(d.LinkId, d.EntityType, d.EntityId, d.Description, d.IsIntact, d.RecordedAt)).ToList();
+        }, []);
+
+    public Task<bool> VerifyChainAsync(string entityId, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var dto = await api.VerifyProvenanceChainAsync(entityId, ct).ConfigureAwait(false);
+            return dto.IsIntact;
+        }, false);
 }

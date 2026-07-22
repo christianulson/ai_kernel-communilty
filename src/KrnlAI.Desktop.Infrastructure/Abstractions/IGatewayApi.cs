@@ -248,6 +248,24 @@ public interface IGatewayApi
 
     [Post("/security/alerts/{alertId}/resolve")]
     Task ResolveSecurityAlertAsync(string alertId, CancellationToken ct = default);
+
+    [Get("/observability/autonomy-budgets")]
+    Task<List<GovernanceBudgetDto>> GetAutonomyBudgetsAsync(CancellationToken ct = default);
+
+    [Get("/observability/approval-matrix")]
+    Task<GovernanceBudgetDto> GetApprovalMatrixAsync(CancellationToken ct = default);
+
+    [Get("/events/recent")]
+    Task<List<NotificationDto>> GetNotificationsAsync(CancellationToken ct = default);
+
+    [Post("/events/{notificationId}/read")]
+    Task MarkNotificationReadAsync(string notificationId, CancellationToken ct = default);
+
+    [Get("/audit/provenance/chain/{entityId}")]
+    Task<List<ProvenanceEntryDto>> GetProvenanceChainAsync(string entityId, CancellationToken ct = default);
+
+    [Get("/audit/provenance/verify/{entityId}")]
+    Task<ProvenanceEntryDto> VerifyProvenanceChainAsync(string entityId, CancellationToken ct = default);
 }
 
 // Template DTOs
@@ -322,3 +340,6 @@ public sealed record EpisodicMemoryHitDto(string EpisodeId, string Goal, string 
 
 // Security DTOs
 public sealed record SecurityIncidentDto(string Id, string Description, string Severity, string Status, DateTimeOffset DetectedAt);
+public sealed record GovernanceBudgetDto(string Domain, double BudgetUsed, double BudgetLimit, bool IsExceeded);
+public sealed record NotificationDto(string Id, string Title, string Message, string Type, bool IsRead, DateTimeOffset CreatedAt);
+public sealed record ProvenanceEntryDto(string LinkId, string EntityType, string EntityId, string Description, bool IsIntact, DateTimeOffset RecordedAt);

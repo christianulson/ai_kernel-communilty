@@ -3,7 +3,7 @@ namespace KrnlAI.Desktop.Core.Abstractions;
 /// <summary>Client for communicating with the Krnl-AI backend API.
 /// Inherits from <see cref="IBackendApi"/> (core backend methods) and
 /// adds WPF-specific methods for desktop UI features.</summary>
-public interface IKernelClient : IBackendApi, IAuthClient, IMemoryClient, IPolicyClient, IEpisodeClient, IDashboardClient, IGoalClient, IAdminClient, IKernelAgentClient, IKernelSpeechClient, ISnapshotClient, IObjectiveClient, IInvestigationClient, IApprovalClient, ISecurityClient
+public interface IKernelClient : IBackendApi, IAuthClient, IMemoryClient, IPolicyClient, IEpisodeClient, IDashboardClient, IGoalClient, IAdminClient, IKernelAgentClient, IKernelSpeechClient, ISnapshotClient, IObjectiveClient, IInvestigationClient, IApprovalClient, ISecurityClient, IGovernanceClient, INotificationClient, IProvenanceClient
 {
     // Coding
     Task<Core.Models.CodingResponse?> CodingExplainAsync(Core.Models.CodingRequest request, CancellationToken cancellationToken = default);
