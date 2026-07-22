@@ -1,8 +1,7 @@
+using KrnlAI.Infrastructure.InMemory;
 using KrnlAI.Safety.Services;
 using KrnlAI.Cognition;
 using KrnlAI.DI;
-using KrnlAI.Snapshot.Stores;
-using KrnlAI.LLMGateway.Core.Stores;
 
 namespace KrnlAI.Cli.Services;
 
@@ -31,7 +30,7 @@ public static class CliServiceExtensions
                 sp.GetRequiredService<IExecutiveModeSelector>(),
                 sp.GetRequiredService<ILogger<ExecutiveController>>()));
         services.AddSingleton<IAnticipationStore, InMemoryAnticipationStore>();
-        services.AddSingleton<IProspectiveMemoryStore, InMemoryProspectiveMemoryStore>();
+        services.AddSingleton<IProspectiveMemoryStore, KrnlAI.Infrastructure.InMemory.FromAnticipation.InMemoryProspectiveMemoryStore>();
         services.AddSingleton<IProspectiveMemoryService>(sp =>
             new ProspectiveMemoryService(
                 sp.GetRequiredService<IProspectiveMemoryStore>(),

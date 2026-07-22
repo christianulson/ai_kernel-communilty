@@ -1,7 +1,7 @@
 using AutoFixture;
 using System.CommandLine;
 using KrnlAI.Cli.Services;
-using KrnlAI.Cognition.Infrastructure;
+using KrnlAI.Infrastructure.InMemory.FromCognition;
 using Spectre.Console.Testing;
 using TestHelpers;
 using KrnlAI.Cli.Commands;
