@@ -735,4 +735,19 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
             )).ToList() ?? [],
             dto.AgentName, dto.RequestedBy);
     }
+
+    // Security
+    public Task<List<CoreModels.SecurityIncident>> GetSecurityIncidentsAsync(CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            var dtos = await api.GetSecurityIncidentsAsync(ct).ConfigureAwait(false);
+            return dtos.Select(d => new CoreModels.SecurityIncident(d.Id, d.Description, d.Severity, d.Status, d.DetectedAt)).ToList();
+        }, []);
+
+    public Task<bool> ResolveSecurityAlertAsync(string alertId, CancellationToken ct = default) =>
+        SafeCall.ExecuteAsync(async () =>
+        {
+            await api.ResolveSecurityAlertAsync(alertId, ct).ConfigureAwait(false);
+            return true;
+        }, false);
 }

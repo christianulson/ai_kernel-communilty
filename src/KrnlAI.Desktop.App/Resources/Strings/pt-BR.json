@@ -198,6 +198,13 @@
   "settings_open_logs": "Abrir pasta de logs",
 
   "nav_approvals": "Aprovacoes",
+  "nav_security": "Seguranca e Incidentes",
+  "nav_governance": "Governanca",
+  "nav_notifications": "Notificacoes",
+  "nav_provenance": "Proveniencia",
+  "nav_features": "Feature Flags",
+  "nav_webhooks": "Webhooks",
+  "nav_quality": "QA Dashboard",
   "approval_title": "Aprovacoes",
   "approval_subtitle": "Aprovacoes pendentes com supervisao humana.",
   "approval_empty": "Nenhuma aprovacao pendente.",
@@ -207,6 +214,12 @@
   "approval_requested_by": "Solicitado por:",
   "approval_approve": "Aprovar",
   "approval_reject": "Rejeitar",
+  "security_title": "Seguranca e Incidentes",
+  "security_subtitle": "Monitore incidentes de seguranca e alertas.",
+  "security_empty": "Nenhum incidente de seguranca.",
+  "security_incidents_list": "Incidentes",
+  "security_severity": "Severidade:",
+  "security_resolve": "Resolver",
   "refresh": "Atualizar",
   "loading": "Carregando..."
 }

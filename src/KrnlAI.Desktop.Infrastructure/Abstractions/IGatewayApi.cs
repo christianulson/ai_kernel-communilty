@@ -242,6 +242,12 @@ public interface IGatewayApi
     Task RecordMetricAsync(string id, [Body] Core.Models.RecordMetricRequest request, CancellationToken ct);
     [Get("/api/experiments/{id}/analysis")]
     Task<ExperimentAnalysisDto> GetExperimentAnalysisAsync(string id, CancellationToken ct);
+
+    [Get("/security/incidents")]
+    Task<List<SecurityIncidentDto>> GetSecurityIncidentsAsync(CancellationToken ct = default);
+
+    [Post("/security/alerts/{alertId}/resolve")]
+    Task ResolveSecurityAlertAsync(string alertId, CancellationToken ct = default);
 }
 
 // Template DTOs
@@ -313,3 +319,6 @@ public sealed record EventDetailDto(string EventId, string Type, string Descript
 public sealed record EpisodicMemorySearchRequestDto(string UserId, string Query, int TopK = 5);
 public sealed record EpisodicMemorySearchResultDto(bool Ok, List<EpisodicMemoryHitDto>? Hits);
 public sealed record EpisodicMemoryHitDto(string EpisodeId, string Goal, string Summary, string Status, double? Similarity, DateTimeOffset CreatedAt);
+
+// Security DTOs
+public sealed record SecurityIncidentDto(string Id, string Description, string Severity, string Status, DateTimeOffset DetectedAt);
