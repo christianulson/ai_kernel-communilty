@@ -1,5 +1,3 @@
-using KrnlAI.Cli.Commands;
-
 namespace KrnlAI.Cli.Tests;
 
 public sealed class UpgradeCommandTests

@@ -1,8 +1,5 @@
 using AutoFixture;
-using System.CommandLine;
-using KrnlAI.Cli.Commands;
 using Moq;
-using Spectre.Console.Testing;
 using TestHelpers;
 
 namespace KrnlAI.Cli.Tests;

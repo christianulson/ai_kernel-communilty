@@ -1,5 +1,5 @@
-using KrnlAI.Cli.Commands;
 using KrnlAI.Cli.Tui;
+using TuiEngine = KrnlAI.Cli.Tui.TuiEngine;
 
 namespace KrnlAI.Cli.Tests.Tui;
 

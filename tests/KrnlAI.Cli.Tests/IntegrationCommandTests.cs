@@ -1,6 +1,3 @@
-using KrnlAI.Cli.Commands;
-using Spectre.Console.Testing;
-
 namespace KrnlAI.Cli.Tests;
 
 public sealed class IntegrationCommandTests

@@ -1,6 +1,3 @@
-using System.CommandLine;
-using KrnlAI.Cli.Commands;
-
 namespace KrnlAI.Cli.Tests;
 
 public sealed class RunCommandTests

@@ -1,5 +1,4 @@
 using System.Net;
-using KrnlAI.Cli.Services;
 
 namespace KrnlAI.Cli.Tests;
 

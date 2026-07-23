@@ -1,7 +1,3 @@
-using System.CommandLine;
-using KrnlAI.Cli.Commands;
-using Spectre.Console.Testing;
-
 namespace KrnlAI.Cli.Tests;
 
 public sealed class ConfigCommandTests

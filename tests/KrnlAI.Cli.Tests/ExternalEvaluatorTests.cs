@@ -1,5 +1,4 @@
 using KrnlAI.Cli.Abstractions;
-using KrnlAI.Cli.Services;
 
 namespace KrnlAI.Cli.Tests;
 

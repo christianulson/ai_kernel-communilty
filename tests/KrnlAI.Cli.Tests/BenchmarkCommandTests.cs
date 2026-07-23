@@ -1,9 +1,6 @@
-using System.CommandLine;
-using KrnlAI.Cli.Commands;
 using KrnlAI.Infrastructure.Reports;
 using KrnlAI.Safety.Services;
 using Microsoft.Extensions.Logging.Abstractions;
-using Spectre.Console.Testing;
 
 namespace KrnlAI.Cli.Tests;
 

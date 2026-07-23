@@ -1,15 +1,3 @@
-using KrnlAI.Cli.Commands;
-using KrnlAI.Cli.Services;
-using KrnlAI.LLMGateway.Core.Abstractions;
-using KrnlAI.LLMGateway.Core.Services.Goals;
-using KrnlAI.LLMGateway.Core.Services.Governance;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Spectre.Console.Testing;
-using KrnlAI.Infrastructure.InMemory;
-using KrnlAI.Snapshot.Services;
-
 namespace KrnlAI.Cli.Tests;
 
 public sealed class McpServeCommandTests

@@ -1,5 +1,3 @@
-using KrnlAI.Cli.Services;
-
 namespace KrnlAI.Cli.Tests;
 
 public sealed class LocalSlashHandlerTests
