@@ -36,9 +36,10 @@ global using KrnlAI.Infrastructure.Services;
 global using KrnlAI.LLMGateway.Core.Abstractions;
 global using KrnlAI.LLMGateway.Core.Services.Goals;
 global using KrnlAI.LLMGateway.Core.Services.Governance;
-global using KrnlAI.Memory.Stores;
+global using KrnlAI.Infrastructure.InMemory.FromMemory;
 global using KrnlAI.Snapshot.Services;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Logging;
 global using Microsoft.Extensions.Logging.Abstractions;
 global using Microsoft.Extensions.Options;
+
