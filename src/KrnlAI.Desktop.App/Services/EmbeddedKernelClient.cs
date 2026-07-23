@@ -441,6 +441,30 @@ public sealed class EmbeddedKernelClient : IKernelClient
     public Task<List<MemoryMoment>> GetMemoryMomentsAsync(int limit = 20, CancellationToken ct = default)
         => Task.FromResult(_memoryMoments.Take(limit).ToList());
 
+    // ───── Security (stub) ─────
+    public Task<List<SecurityIncident>> GetSecurityIncidentsAsync(CancellationToken ct = default)
+        => Task.FromResult<List<SecurityIncident>>([]);
+    public Task<bool> ResolveSecurityAlertAsync(string alertId, CancellationToken ct = default)
+        => Task.FromResult(true);
+
+    // ───── Governance (stub) ─────
+    public Task<List<GovernanceBudget>> GetAutonomyBudgetsAsync(CancellationToken ct = default)
+        => Task.FromResult<List<GovernanceBudget>>([]);
+    public Task<GovernanceBudget?> GetApprovalMatrixAsync(CancellationToken ct = default)
+        => Task.FromResult<GovernanceBudget?>(null);
+
+    // ───── Notifications (stub) ─────
+    public Task<List<NotificationItem>> GetNotificationsAsync(CancellationToken ct = default)
+        => Task.FromResult<List<NotificationItem>>([]);
+    public Task<bool> MarkNotificationReadAsync(string notificationId, CancellationToken ct = default)
+        => Task.FromResult(true);
+
+    // ───── Provenance (stub) ─────
+    public Task<List<ProvenanceEntry>> GetChainAsync(string entityId, CancellationToken ct = default)
+        => Task.FromResult<List<ProvenanceEntry>>([]);
+    public Task<bool> VerifyChainAsync(string entityId, CancellationToken ct = default)
+        => Task.FromResult(true);
+
     // Plan
     public Task<PlanExecutionResult?> GetCurrentPlanAsync(CancellationToken ct = default)
     {

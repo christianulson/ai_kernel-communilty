@@ -3,6 +3,7 @@ using KrnlAI.Desktop.App.Services;
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace KrnlAI.Desktop.App.ViewModels;
 

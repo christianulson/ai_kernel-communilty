@@ -334,5 +334,13 @@ public sealed class DesktopServiceLifecycleTests
         public Task<List<Core.Models.FeedbackHistoryEntry>> GetFeedbackHistoryAsync(CancellationToken ct = default) => Task.FromResult(new List<Core.Models.FeedbackHistoryEntry>());
         public Task<Core.Models.FeedbackAverage?> GetFeedbackAverageAsync(CancellationToken ct = default) => Task.FromResult<Core.Models.FeedbackAverage?>(null);
         public Task<Core.Models.EpisodicMemorySearchResult?> SearchEpisodicMemoryAsync(Core.Models.EpisodicMemorySearchRequest request, CancellationToken ct = default) => Task.FromResult<Core.Models.EpisodicMemorySearchResult?>(null);
+        public Task<List<Core.Models.SecurityIncident>> GetSecurityIncidentsAsync(CancellationToken ct = default) => Task.FromResult(new List<Core.Models.SecurityIncident>());
+        public Task<bool> ResolveSecurityAlertAsync(string alertId, CancellationToken ct = default) => Task.FromResult(true);
+        public Task<List<Core.Models.GovernanceBudget>> GetAutonomyBudgetsAsync(CancellationToken ct = default) => Task.FromResult(new List<Core.Models.GovernanceBudget>());
+        public Task<Core.Models.GovernanceBudget?> GetApprovalMatrixAsync(CancellationToken ct = default) => Task.FromResult<Core.Models.GovernanceBudget?>(null);
+        public Task<List<Core.Models.NotificationItem>> GetNotificationsAsync(CancellationToken ct = default) => Task.FromResult(new List<Core.Models.NotificationItem>());
+        public Task<bool> MarkNotificationReadAsync(string notificationId, CancellationToken ct = default) => Task.FromResult(true);
+        public Task<List<Core.Models.ProvenanceEntry>> GetChainAsync(string entityId, CancellationToken ct = default) => Task.FromResult(new List<Core.Models.ProvenanceEntry>());
+        public Task<bool> VerifyChainAsync(string entityId, CancellationToken ct = default) => Task.FromResult(true);
     }
 }
