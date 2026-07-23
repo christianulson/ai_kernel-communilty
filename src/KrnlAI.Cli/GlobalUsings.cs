@@ -1,5 +1,4 @@
 global using KrnlAI.Anticipation.Services;
-global using KrnlAI.Anticipation.Stores;
 global using KrnlAI.Contracts;
 global using KrnlAI.Contracts.Actions;
 global using KrnlAI.Contracts.ExperimentTracking;
