@@ -66,6 +66,36 @@ public class AuthTokenHandlerTests
     }
 
     [Fact]
+    public async Task SendAsync_On401ForPost_ShouldNotRetryNonIdempotentRequest()
+    {
+        var tokenProvider = new AuthTokenProvider
+        {
+            Token = "expired-token",
+            RefreshToken = "valid-refresh-token"
+        };
+        var refreshCalled = false;
+        var handler = new AuthTokenHandler(tokenProvider, _ =>
+        {
+            refreshCalled = true;
+            return Task.FromResult<string?>("refreshed-token");
+        })
+        {
+            InnerHandler = new TestMessageHandler(HttpStatusCode.Unauthorized)
+        };
+
+        using var httpClient = new HttpClient(handler);
+        using var request = new HttpRequestMessage(HttpMethod.Post, "http://localhost/api/action")
+        {
+            Content = new StringContent("{}")
+        };
+
+        var response = await httpClient.SendAsync(request);
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        Assert.False(refreshCalled);
+    }
+
+    [Fact]
     public async Task SendAsync_On401WithoutRefreshToken_ShouldNotRetry()
     {
         var tokenProvider = new AuthTokenProvider

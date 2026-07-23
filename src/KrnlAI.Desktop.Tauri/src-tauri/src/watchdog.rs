@@ -50,18 +50,16 @@ impl SidecarWatchdog {
 
                         if consecutive_failures >= MAX_FAILURES {
                             let _ = app.emit("sidecar-restarting", "Sidecar unresponsive. Restarting...");
-                            let sidecar_clone = sidecar.clone();
-                            std::thread::spawn(move || {
-                                let rt = tokio::runtime::Runtime::new().unwrap();
-                                let _ = rt.block_on(sidecar_clone.stop());
-                            }).join().unwrap_or_default();
+                            let _ = tauri::async_runtime::block_on(sidecar.stop());
                             std::thread::sleep(RESTART_COOLDOWN);
-                            std::thread::spawn(move || {
-                                let rt = tokio::runtime::Runtime::new().unwrap();
-                                let _ = rt.block_on(sidecar.start());
-                            }).join().unwrap_or_default();
+                            let restarted = tauri::async_runtime::block_on(sidecar.start()).is_ok();
                             consecutive_failures = 0;
-                            let _ = app.emit("sidecar-restarted", "Sidecar restarted successfully");
+                            let message = if restarted {
+                                "Sidecar restarted successfully"
+                            } else {
+                                "Sidecar restart failed"
+                            };
+                            let _ = app.emit("sidecar-restarted", message);
                         }
                     }
                 }

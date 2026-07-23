@@ -32,7 +32,14 @@ public class SettingsViewModel : ViewModelBase, IDisposable
             }
             if (SetProperty(ref _apiEndpoint, value))
             {
-                if (_kernelClient != null) _kernelClient.SetBaseUrl(value);
+                if (_kernelClient != null)
+                {
+                    // Tokens are scoped to the endpoint that issued them. Never carry them to a new host.
+                    _kernelClient.SetTokens(null, null);
+                    _kernelClient.SetBaseUrl(value);
+                    var settings = _settingsService.LoadSettings();
+                    _settingsService.SaveSettings(settings with { AuthToken = null, RefreshToken = null, IsAuthenticated = false });
+                }
                 _debounceTimer?.Change(DebounceMs, Timeout.Infinite);
             }
         }

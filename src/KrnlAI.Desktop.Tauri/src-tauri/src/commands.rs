@@ -1,10 +1,6 @@
 use base64::Engine;
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
 use tauri::{Emitter, Manager, State};
-use tauri_plugin_clipboard_manager::ClipboardExt;
-use tokio::io::AsyncBufReadExt;
-use tokio::sync::Mutex;
 use crate::audio::AudioCapture;
 use crate::camera::{CameraCapture, CameraInfo, FaceRect};
 use crate::sidecar::SidecarManager;
@@ -315,7 +311,17 @@ pub fn toggle_always_on_top(
 
 #[tauri::command]
 pub fn open_external(url: String) -> Result<(), String> {
+    validate_external_url(&url)?;
     open::that(&url).map_err(|e| format!("Failed to open URL: {}", e))
+}
+
+fn validate_external_url(url: &str) -> Result<(), String> {
+    let parsed = url::Url::parse(url).map_err(|_| "Invalid external URL".to_string())?;
+    if matches!(parsed.scheme(), "https" | "http") {
+        Ok(())
+    } else {
+        Err("Only HTTP(S) URLs can be opened externally".to_string())
+    }
 }
 
 #[tauri::command]
@@ -330,11 +336,6 @@ pub fn show_save_dialog(default_name: String) -> Result<Option<String>, String> 
 pub fn show_open_dialog() -> Result<Option<String>, String> {
     let file = rfd::FileDialog::new().pick_file();
     Ok(file.map(|f| f.to_string_lossy().to_string()))
-}
-
-#[tauri::command]
-pub async fn copy_to_clipboard(text: String, app: tauri::AppHandle) -> Result<(), String> {
-    app.clipboard().write_text(text).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -375,137 +376,6 @@ pub async fn restore_data(path: String, sidecar: tauri::State<'_, SidecarManager
         .send().await.map_err(|e| e.to_string())?;
     let text = resp.text().await.map_err(|e| e.to_string())?;
     Ok(text)
-}
-
-#[tauri::command]
-pub async fn execute_cli(command: String, args: Vec<String>) -> Result<String, String> {
-    let output = std::process::Command::new(&command)
-        .args(&args)
-        .output()
-        .map_err(|e| format!("Failed to execute command: {}", e))?;
-
-    if output.status.success() {
-        Ok(String::from_utf8_lossy(&output.stdout).to_string())
-    } else {
-        Err(String::from_utf8_lossy(&output.stderr).to_string())
-    }
-}
-
-#[tauri::command]
-pub async fn execute_cli_with_workdir(command: String, args: Vec<String>, workdir: String) -> Result<String, String> {
-    let output = std::process::Command::new(&command)
-        .args(&args)
-        .current_dir(&workdir)
-        .output()
-        .map_err(|e| format!("Failed to execute command: {}", e))?;
-
-    if output.status.success() {
-        Ok(String::from_utf8_lossy(&output.stdout).to_string())
-    } else {
-        Err(String::from_utf8_lossy(&output.stderr).to_string())
-    }
-}
-
-// ── Terminal Process Manager ─────────────────────────────────────────────────
-
-pub struct TerminalProcessManager {
-    child: Arc<Mutex<Option<tokio::process::Child>>>,
-}
-
-impl TerminalProcessManager {
-    pub fn new() -> Self {
-        Self { child: Arc::new(Mutex::new(None)) }
-    }
-}
-
-#[tauri::command]
-pub async fn execute_cli_stream(
-    app_handle: tauri::AppHandle,
-    command: String,
-    workdir: Option<String>,
-    manager: State<'_, TerminalProcessManager>,
-) -> Result<(), String> {
-    // Cancel any existing process first
-    {
-        let mut child_lock = manager.child.lock().await;
-        if let Some(mut child) = child_lock.take() {
-            let _ = child.kill().await;
-            let _ = child.wait().await;
-        }
-    }
-
-    let mut cmd = if cfg!(target_os = "windows") {
-        let mut c = tokio::process::Command::new("cmd");
-        c.arg("/C");
-        c.arg(&command);
-        c
-    } else {
-        let mut c = tokio::process::Command::new("sh");
-        c.arg("-c");
-        c.arg(&command);
-        c
-    };
-
-    if let Some(ref wd) = workdir {
-        cmd.current_dir(wd);
-    }
-    cmd.stdout(std::process::Stdio::piped());
-    cmd.stderr(std::process::Stdio::piped());
-
-    let mut child = cmd.spawn().map_err(|e| format!("Failed to spawn process: {}", e))?;
-
-    let stdout = child.stdout.take().ok_or_else(|| "Failed to capture stdout".to_string())?;
-    let stderr = child.stderr.take().ok_or_else(|| "Failed to capture stderr".to_string())?;
-
-    // Store child for cancellation
-    {
-        let mut child_lock = manager.child.lock().await;
-        *child_lock = Some(child);
-    }
-
-    let ah = app_handle.clone();
-    let stdout_task = tokio::spawn(async move {
-        let reader = tokio::io::BufReader::new(stdout);
-        let mut lines = reader.lines();
-        while let Ok(Some(line)) = lines.next_line().await {
-            let _ = ah.emit("terminal-output", &line);
-        }
-    });
-
-    let ah = app_handle.clone();
-    let stderr_task = tokio::spawn(async move {
-        let reader = tokio::io::BufReader::new(stderr);
-        let mut lines = reader.lines();
-        while let Ok(Some(line)) = lines.next_line().await {
-            let _ = ah.emit("terminal-error", &line);
-        }
-    });
-
-    // Take child back and wait for completion
-    let mut child = manager.child.lock().await.take();
-    let exit_code = match child.as_mut() {
-        Some(c) => c.wait().await.map(|s| s.code()).ok().flatten().unwrap_or(-1),
-        None => -1,
-    };
-    let _ = app_handle.emit("terminal-exit", exit_code);
-
-    // Wait for output readers to finish
-    let _ = stdout_task.await;
-    let _ = stderr_task.await;
-
-    Ok(())
-}
-
-#[tauri::command]
-pub async fn cancel_cli_execution(
-    manager: State<'_, TerminalProcessManager>,
-) -> Result<(), String> {
-    let mut child_lock = manager.child.lock().await;
-    if let Some(mut child) = child_lock.take() {
-        let _ = child.kill().await;
-        let _ = child.wait().await;
-    }
-    Ok(())
 }
 
 // ── Audio Commands ──────────────────────────────────────────────────────────
@@ -602,5 +472,15 @@ mod tests {
     fn test_theme_result_struct() {
         let t = ThemeResult { theme: "dark".into() };
         assert_eq!(t.theme, "dark");
+    }
+
+    #[test]
+    fn validate_external_url_FileScheme_ShouldReject() {
+        assert!(validate_external_url("file:///C:/private.txt").is_err());
+    }
+
+    #[test]
+    fn validate_external_url_HttpsScheme_ShouldAccept() {
+        assert!(validate_external_url("https://krnl.ai/docs").is_ok());
     }
 }

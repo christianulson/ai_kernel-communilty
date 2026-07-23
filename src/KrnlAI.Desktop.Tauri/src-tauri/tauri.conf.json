@@ -4,13 +4,13 @@
   "version": "0.1.0",
   "identifier": "com.krnlai.desktop",
   "build": {
-    "frontendDist": "../../../webapp/apps/kernel-ui/dist",
+    "frontendDist": "../../../../webapp/apps/kernel-ui/dist",
     "devUrl": "http://localhost:4200",
-    "beforeDevCommand": "cd ../../../webapp && npx nx run @krnl-ai/kernel-ui:serve --configuration=local",
-    "beforeBuildCommand": "cd ../../../webapp && npx nx run @krnl-ai/kernel-ui:build"
+    "beforeDevCommand": "cd ../../../../webapp && npx nx run @krnl-ai/kernel-ui:serve --configuration=local",
+    "beforeBuildCommand": "cd ../../../../webapp && npx nx run @krnl-ai/kernel-ui:build"
   },
   "app": {
-    "withGlobalTauri": true,
+    "withGlobalTauri": false,
     "windows": [
       {
         "title": "Krnl-AI Desktop",
@@ -23,7 +23,7 @@
       }
     ],
     "security": {
-      "csp": "default-src 'self'; connect-src 'self' http://localhost:* http://127.0.0.1:* ws: wss:; img-src 'self' data: blob:; media-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self' data:"
+      "csp": "default-src 'self'; connect-src 'self' http://localhost:5235 http://127.0.0.1:5235 ws://localhost:5235 ws://127.0.0.1:5235; img-src 'self' data: blob:; media-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; font-src 'self' data:"
     }
   },
   "bundle": {
@@ -49,14 +49,6 @@
     }
   },
   "plugins": {
-    "updater": {
-      "enabled": true,
-      "showDialog": true,
-      "pubkey": "PLEASE_GENERATE_ME_RUN_tauri_signer_generate_k",
-      "endpoints": [
-        "https://github.com/krnl-ai/kernel/releases/latest/download/updater.json"
-      ]
-    },
     "deep-link": {
       "desktop": {
         "schemes": ["krnl-ai"]

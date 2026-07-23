@@ -175,14 +175,16 @@ impl AudioCapture {
     pub fn play_audio(&self, app: AppHandle, data: Vec<u8>) -> Result<(), String> {
         #[cfg(feature = "audio")]
         {
+            if data.is_empty() || data.len() % 2 != 0 {
+                return Err("Audio data must contain complete 16-bit samples".into());
+            }
+            if data.len() > 16_000 * 2 * 30 {
+                return Err("Audio data exceeds the 30-second limit".into());
+            }
             let samples: Vec<i16> = data
                 .chunks(2)
                 .map(|c| i16::from_le_bytes([c[0], c[1]]))
                 .collect();
-
-            if samples.is_empty() {
-                return Err("No audio data".into());
-            }
 
             let host = cpal::default_host();
             let device = host

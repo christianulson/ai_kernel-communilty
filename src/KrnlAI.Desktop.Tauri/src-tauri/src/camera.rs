@@ -138,6 +138,10 @@ pub fn list_cameras() -> Result<Vec<CameraInfo>, String> {
 
 #[cfg(feature = "camera")]
 fn detect_faces_impl(image_data: Vec<u8>) -> Result<Vec<FaceRect>, String> {
+    const MAX_IMAGE_BYTES: usize = 10 * 1024 * 1024;
+    if image_data.is_empty() || image_data.len() > MAX_IMAGE_BYTES {
+        return Err("Image data must be between 1 byte and 10 MiB".to_string());
+    }
     let buf: opencv::core::Vector<u8> = image_data.into_iter().collect();
     let img = opencv::imgcodecs::imdecode(&buf, opencv::imgcodecs::IMREAD_COLOR)
         .map_err(|e| format!("Failed to decode image: {}", e))?;
