@@ -11,7 +11,7 @@
                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                 <TextBox Text="{Binding ProvenanceVM.SearchEntityId, UpdateSourceTrigger=PropertyChanged}" Padding="12,10"
                          Background="{DynamicResource SurfaceBrush}" Foreground="{DynamicResource TextPrimaryBrush}"
-                         BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12"/>
+                         BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" />
                 <Button Grid.Column="1" Command="{Binding ProvenanceVM.LoadCommand}" Style="{StaticResource SmallButton}" Padding="16,10" Margin="8,0,0,0">
                     <TextBlock Text="{loc:Loc provenance_search}"/>
                 </Button>
