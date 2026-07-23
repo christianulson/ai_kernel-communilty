@@ -15,6 +15,7 @@ public sealed class AuthTokenHandler(AuthTokenProvider tokenProvider, Func<Cance
         if (response.StatusCode == HttpStatusCode.Unauthorized
             && tokenProvider.RefreshToken != null
             && refreshHandler != null
+            && IsSafeToRetry(request.Method)
             && !IsRefreshRequest(request))
         {
             var newToken = await refreshHandler(ct).ConfigureAwait(false);
@@ -35,6 +36,9 @@ public sealed class AuthTokenHandler(AuthTokenProvider tokenProvider, Func<Cance
     private static bool IsRefreshRequest(HttpRequestMessage request) =>
         request.RequestUri?.AbsolutePath?.EndsWith("/auth/refresh", StringComparison.OrdinalIgnoreCase) == true
         || request.RequestUri?.AbsolutePath?.EndsWith("/auth/oauth2/callback", StringComparison.OrdinalIgnoreCase) == true;
+
+    private static bool IsSafeToRetry(HttpMethod method) =>
+        method == HttpMethod.Get || method == HttpMethod.Head || method == HttpMethod.Options;
 
     private static async Task<HttpRequestMessage> CloneRequestAsync(HttpRequestMessage request, CancellationToken ct)
     {

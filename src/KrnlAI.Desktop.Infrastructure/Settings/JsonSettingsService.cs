@@ -71,11 +71,13 @@ public class JsonSettingsService : ISettingsService
                 var json = JsonSerializer.Serialize(settings, _jsonOptions);
                 var encrypted = Encrypt(json);
 
-                // Atomic write: write to temp file, then rename
+                // Keep the existing file intact until the encrypted replacement is durable.
                 var tempPath = _settingsPath + ".tmp";
                 File.WriteAllBytes(tempPath, encrypted);
-                File.Delete(_settingsPath);
-                File.Move(tempPath, _settingsPath);
+                if (File.Exists(_settingsPath))
+                    File.Replace(tempPath, _settingsPath, null);
+                else
+                    File.Move(tempPath, _settingsPath);
             }
             catch (Exception ex)
             {

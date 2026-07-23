@@ -79,9 +79,7 @@ public sealed class TrajectoryViewerViewModel : ViewModelBase
     public TrajectoryViewerViewModel(ILogger<TrajectoryViewerViewModel>? logger = null)
     {
         _logger = logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<TrajectoryViewerViewModel>.Instance;
-        var settings = ServiceLocator.Instance.SettingsService.LoadSettings();
-        var baseUrl = settings.ApiEndpoint ?? settings.ApiBaseUrl ?? Environment.GetEnvironmentVariable("KRNL__API_BASE_URL") ?? "http://localhost:5235";
-        _http = new HttpClient { BaseAddress = new Uri(baseUrl), Timeout = TimeSpan.FromSeconds(10) };
+        _http = ServiceLocator.Instance.CreateApiClient();
         RefreshCommand = new AsyncRelayCommand(LoadSessionsAsync);
         LoadSessionCommand = new AsyncRelayCommand(async () =>
         {

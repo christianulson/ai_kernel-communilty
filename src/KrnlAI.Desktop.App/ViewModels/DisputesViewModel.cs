@@ -19,9 +19,7 @@ public sealed class DisputesViewModel : ViewModelBase
     public DisputesViewModel(ILogger<DisputesViewModel>? logger = null)
     {
         _logger = logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<DisputesViewModel>.Instance;
-        var settings = ServiceLocator.Instance.SettingsService.LoadSettings();
-        var baseUrl = settings.ApiEndpoint ?? settings.ApiBaseUrl ?? Environment.GetEnvironmentVariable("KRNL__API_BASE_URL") ?? "http://localhost:5235";
-        _http = new HttpClient { BaseAddress = new Uri(baseUrl), Timeout = TimeSpan.FromSeconds(10) };
+        _http = ServiceLocator.Instance.CreateApiClient();
         RefreshCommand = new AsyncRelayCommand(RefreshAsync);
         ResolveForWorkerCommand = new AsyncRelayCommand(() => ResolveAsync("worker"));
         ResolveForSolicitorCommand = new AsyncRelayCommand(() => ResolveAsync("solicitor"));

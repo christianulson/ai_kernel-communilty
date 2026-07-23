@@ -19,6 +19,7 @@ namespace KrnlAI.Desktop.App.Services;
 
 public class ServiceLocator : IDisposable, IAsyncDisposable
 {
+    private const string DesktopApiClientName = "DesktopApi";
     private static ServiceLocator? _instance;
     private static readonly object _lock = new();
     public static ServiceLocator Instance
@@ -57,6 +58,11 @@ public class ServiceLocator : IDisposable, IAsyncDisposable
     public ILogger<T> GetLogger<T>() => _provider!.GetRequiredService<ILogger<T>>();
     public Func<WebRtcService> WebRtcServiceFactory => () => new WebRtcService(GetLogger<WebRtcService>());
     public IThemeService ThemeSvc => _provider.GetRequiredService<IThemeService>();
+
+    /// <summary>Creates a client that always uses the current trusted API endpoint and authentication pipeline.</summary>
+    public HttpClient CreateApiClient() => CurrentMode == RunMode.Api
+        ? _provider.GetRequiredService<IHttpClientFactory>().CreateClient(DesktopApiClientName)
+        : new HttpClient { BaseAddress = new Uri("http://localhost:5235"), Timeout = TimeSpan.FromSeconds(30) };
 
     /// <summary>
     /// Creates the embedded kernel options used by Desktop local AI mode.
@@ -216,6 +222,14 @@ public class ServiceLocator : IDisposable, IAsyncDisposable
             });
         });
 
+        services.AddHttpClient(DesktopApiClientName, c =>
+            {
+                c.BaseAddress = new Uri("http://localhost");
+                c.Timeout = TimeSpan.FromSeconds(30);
+            })
+            .AddHttpMessageHandler<DynamicBaseUrlHandler>()
+            .AddHttpMessageHandler<AuthTokenHandler>();
+
         services.AddRefitClient<IGatewayApi>()
             .ConfigureHttpClient(c => { c.BaseAddress = new Uri("http://localhost"); c.Timeout = TimeSpan.FromSeconds(60); })
             .AddHttpMessageHandler<DynamicBaseUrlHandler>()
@@ -225,28 +239,16 @@ public class ServiceLocator : IDisposable, IAsyncDisposable
         services.AddSingleton<IKernelAgentClient>(sp => sp.GetRequiredService<IKernelClient>());
         services.AddSingleton<IKernelSpeechClient>(sp => sp.GetRequiredService<IKernelClient>());
         services.AddSingleton<IApiKeyManagementService>(sp =>
-            new HttpApiKeyManagementService(new HttpClient(new AuthTokenHandler(sp.GetRequiredService<AuthTokenProvider>()))
-            {
-                BaseAddress = new Uri(baseUrl),
-                Timeout = TimeSpan.FromSeconds(30)
-            }));
+            new HttpApiKeyManagementService(sp.GetRequiredService<IHttpClientFactory>().CreateClient(DesktopApiClientName)));
         services.AddSingleton<IPeerRankingManagementService>(sp =>
-            new HttpPeerRankingManagementService(new HttpClient(new AuthTokenHandler(sp.GetRequiredService<AuthTokenProvider>()))
-            {
-                BaseAddress = new Uri(baseUrl),
-                Timeout = TimeSpan.FromSeconds(30)
-            }));
+            new HttpPeerRankingManagementService(sp.GetRequiredService<IHttpClientFactory>().CreateClient(DesktopApiClientName)));
         services.AddSingleton<ITelemetryPrivacyService>(sp =>
-            new HttpTelemetryPrivacyService(new HttpClient(new AuthTokenHandler(sp.GetRequiredService<AuthTokenProvider>()))
-            {
-                BaseAddress = new Uri(baseUrl),
-                Timeout = TimeSpan.FromSeconds(30)
-            }));
+            new HttpTelemetryPrivacyService(sp.GetRequiredService<IHttpClientFactory>().CreateClient(DesktopApiClientName)));
 
         services.AddSingleton<ISlashCommandExecutor>(
-            _ => new HttpSlashCommandExecutor(baseUrl));
+            sp => new HttpSlashCommandExecutor(sp.GetRequiredService<IHttpClientFactory>().CreateClient(DesktopApiClientName)));
         services.AddSingleton<ICognitiveStreamProvider>(
-            _ => new HttpCognitiveStreamProvider(baseUrl));
+            sp => new HttpCognitiveStreamProvider(sp.GetRequiredService<IHttpClientFactory>().CreateClient(DesktopApiClientName)));
 
         services.AddRefitClient<IAdminApi>()
             .ConfigureHttpClient(c => { c.BaseAddress = new Uri("http://localhost"); c.Timeout = TimeSpan.FromSeconds(30); })
