@@ -54,8 +54,6 @@
         "schemes": ["krnl-ai"]
       }
     },
-    "window-state": {
-      "filename": "window-state.json"
-    }
+    "window-state": null
   }
 }
