@@ -180,7 +180,7 @@ public class ServiceLocator : IDisposable, IAsyncDisposable
     private void RegisterApiMode(ServiceCollection services, ILoggerFactory loggerFactory, string baseUrl, AppSettings settings)
     {
         services.AddSingleton<AuthTokenProvider>();
-        services.AddSingleton<DynamicBaseUrlHandler>();
+        services.AddTransient<DynamicBaseUrlHandler>();
         DynamicBaseUrlHandler.SetBaseUrl(baseUrl);
 
         var refreshHttpClient = new HttpClient(new DynamicBaseUrlHandler

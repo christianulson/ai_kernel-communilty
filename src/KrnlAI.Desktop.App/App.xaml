@@ -31,6 +31,9 @@
             <converters:CognitiveStepIconConverter x:Key="CognitiveStepIconConverter"/>
             <converters:CognitiveStepLabelConverter x:Key="CognitiveStepLabelConverter"/>
             <converters:CognitiveStepColorConverter x:Key="CognitiveStepColorConverter"/>
+            <converters:BoolToBrushConverter x:Key="BoolToBrushConverter"/>
+            <converters:BoolToOpacityConverter x:Key="BoolToOpacityConverter"/>
+            <converters:InvertBoolToVisibilityConverter x:Key="InvertBoolToVisibilityConverter"/>
 
             <!-- Shadow Effects -->
             <DropShadowEffect x:Key="CardShadow" BlurRadius="24" Opacity="0.3" ShadowDepth="0" Color="#030814"/>

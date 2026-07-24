@@ -26,7 +26,8 @@ public sealed class DesktopDiValidationTests
         "IEpisodeClient", "IGoalClient", "IMemoryClient", "IPolicyClient",
         "ISnapshotClient", "IObjectiveClient", "IInvestigationClient",
         "ICognitiveStreamProvider", "ISlashCommandExecutor",
-        "IApprovalClient"
+        "IApprovalClient", "ISecurityClient", "IGovernanceClient",
+        "INotificationClient", "IProvenanceClient"
     ];
 
     [Fact]
