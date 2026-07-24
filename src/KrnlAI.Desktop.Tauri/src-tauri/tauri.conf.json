@@ -6,7 +6,7 @@
   "build": {
     "frontendDist": "../../../../webapp/apps/kernel-ui/dist",
     "devUrl": "http://localhost:4200",
-    "beforeDevCommand": "cd /d C:\\Projects\\ia_kernel\\webapp && npx nx run @krnl-ai/kernel-ui:serve --configuration=local",
+    "beforeDevCommand": "echo dev-server-already-running",
     "beforeBuildCommand": "cd /d C:\\Projects\\ia_kernel\\webapp && npx nx run @krnl-ai/kernel-ui:build"
   },
   "app": {
