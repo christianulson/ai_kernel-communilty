@@ -6,8 +6,8 @@
   "build": {
     "frontendDist": "../../../../webapp/apps/kernel-ui/dist",
     "devUrl": "http://localhost:4200",
-    "beforeDevCommand": "cd ../../../../webapp && npx nx run @krnl-ai/kernel-ui:serve --configuration=local",
-    "beforeBuildCommand": "cd ../../../../webapp && npx nx run @krnl-ai/kernel-ui:build"
+    "beforeDevCommand": "cd /d C:\\Projects\\ia_kernel\\webapp && npx nx run @krnl-ai/kernel-ui:serve --configuration=local",
+    "beforeBuildCommand": "cd /d C:\\Projects\\ia_kernel\\webapp && npx nx run @krnl-ai/kernel-ui:build"
   },
   "app": {
     "withGlobalTauri": false,
