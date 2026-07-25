@@ -8,6 +8,7 @@ mod notifications;
 mod plugin_sdk;
 mod sidecar;
 mod tray;
+mod updater;
 mod watchdog;
 
 pub fn run() {
@@ -25,6 +26,10 @@ pub fn run() {
             Some(vec!["--flag1"]),
         ))
         .plugin(tauri_plugin_window_state::Builder::new().build())
+        .plugin(tauri_plugin_clipboard_manager::init())
+        .plugin(tauri_plugin_drag::init())
+        .plugin(tauri_plugin_fs::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         // .plugin(tauri_plugin_authenticator::init()) // requires OpenSSL + Perl
         .manage(sidecar::SidecarManager::new())
         .manage(audio::AudioCapture::new())
@@ -71,6 +76,8 @@ pub fn run() {
             commands::get_camera_status,
             commands::detect_faces,
             commands::get_available_cameras,
+            updater::check_for_updates,
+            updater::install_update,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
