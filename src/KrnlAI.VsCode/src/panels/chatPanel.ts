@@ -78,18 +78,22 @@ export class ChatPanel {
 </style></head><body>
 <div id="status">$(sync) Conectando...</div><div id="messages"></div>
 <div id="input-area"><input id="input" type="text" placeholder="Digite sua mensagem..." /><button id="send">Enviar</button></div>
-<script nonce="${nonce}">(function(){
-const vscode=acquireVsCodeApi(),msgDiv=document.getElementById('messages')!,input=document.getElementById('input')as HTMLInputElement,status=document.getElementById('status')!;
+ <script nonce="${nonce}">(function(){
+const vscode=acquireVsCodeApi();
+const msgDiv=document.getElementById('messages');
+const input=document.getElementById('input');
+const status=document.getElementById('status');
 vscode.postMessage({type:'checkHealth'});
-window.addEventListener('message',e=>{const m=e.data;
+window.addEventListener('message',function(e){var m=e.data;
 if(m.type==='health')status.textContent=m.mood?m.status+' · '+m.mood:m.status;
 if(m.type==='response'){addMsg(m.data,'assistant',m.error?'error':'');if(m.error)status.textContent='$(error) '+m.error;}
 });
-document.getElementById('send')!.onclick=send;input.onkeydown=e=>{if(e.key==='Enter')send();};
-function send(){const t=input.value.trim();if(!t)return;addMsg(t,'user');vscode.postMessage({type:'send',text:t});input.value='';status.textContent='$(sync) Processando...';}
-function addMsg(t,r,e){const d=document.createElement('div');d.className='msg '+r+' '+e;
-const l=document.createElement('div');l.className='msg-label';l.textContent=r==='user'?'Usuário':'Krnl-AI';d.appendChild(l);
-const c=document.createElement('div');c.textContent=t;d.appendChild(c);msgDiv.appendChild(d);d.scrollIntoView({behavior:'smooth'});}
+document.getElementById('send').onclick=send;
+input.onkeydown=function(e){if(e.key==='Enter')send();};
+function send(){var t=input.value.trim();if(!t)return;addMsg(t,'user');vscode.postMessage({type:'send',text:t});input.value='';status.textContent='$(sync) Processando...';}
+function addMsg(t,r,e){var d=document.createElement('div');d.className='msg '+r+' '+e;
+var l=document.createElement('div');l.className='msg-label';l.textContent=r==='user'?'Usuário':'Krnl-AI';d.appendChild(l);
+var c=document.createElement('div');c.textContent=t;d.appendChild(c);msgDiv.appendChild(c);d.scrollIntoView({behavior:'smooth'});}
 })();</script></body></html>`;
     }
 

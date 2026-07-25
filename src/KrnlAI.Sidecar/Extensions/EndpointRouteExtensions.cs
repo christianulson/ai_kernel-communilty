@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
+using System.Net.Http.Headers;
 using KrnlAI.Core.Abstractions.Safety;
 using KrnlAI.Embedded.Abstractions;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -125,6 +126,68 @@ public static class EndpointRouteExtensions
         {
             var result = await kernel.ProxyGetAsync<object>("/cognitive/dashboard", ctx.RequestAborted).ConfigureAwait(false);
             return result is not null ? Results.Ok(result) : Results.Json(new ErrorResponse("not_implemented", "Available when KrnlAI API is configured", null), statusCode: 501);
+        });
+
+        // Chat endpoint via DeepSeek API (OpenAI-compatible)
+        app.MapPost("/api/chat", async (ChatRequestDto request, IHttpClientFactory httpFactory, ILogger<Program> logger, CancellationToken ct) =>
+        {
+            var apiKey = Environment.GetEnvironmentVariable("DEEPSEEK_API_KEY");
+            if (string.IsNullOrWhiteSpace(apiKey))
+                return Results.Json(new { error = "DEEPSEEK_API_KEY not set" }, statusCode: 503);
+
+            var baseUrl = Environment.GetEnvironmentVariable("DEEPSEEK_BASE_URL") ?? "https://api.deepseek.com";
+            var model = Environment.GetEnvironmentVariable("DEEPSEEK_MODEL") ?? "deepseek-chat";
+
+            var client = httpFactory.CreateClient("deepseek-chat");
+            client.BaseAddress = new Uri(baseUrl);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+
+            var messages = new List<object>
+            {
+                new { role = "system", content = request.SystemPrompt ?? "You are a helpful assistant." },
+                new { role = "user", content = request.Prompt }
+            };
+
+            var reqBody = new Dictionary<string, object>
+            {
+                ["model"] = model,
+                ["messages"] = messages,
+                ["stream"] = false,
+                ["max_tokens"] = request.MaxTokens > 0 ? request.MaxTokens : 2048
+            };
+
+            if (request.Temperature.HasValue)
+                reqBody["temperature"] = request.Temperature.Value;
+
+            logger.LogInformation("Chat API call: model={Model}, promptLen={Len}", model, request.Prompt.Length);
+
+            try
+            {
+                var resp = await client.PostAsJsonAsync("/v1/chat/completions", reqBody, ct).ConfigureAwait(false);
+                resp.EnsureSuccessStatusCode();
+                var json = await resp.Content.ReadFromJsonAsync<System.Text.Json.JsonElement>(ct).ConfigureAwait(false);
+                var text = "";
+                if (json.TryGetProperty("choices", out var choices) && choices.ValueKind == System.Text.Json.JsonValueKind.Array)
+                {
+                    foreach (var choice in choices.EnumerateArray())
+                    {
+                        if (choice.TryGetProperty("message", out var msg) &&
+                            msg.TryGetProperty("content", out var content) &&
+                            content.ValueKind == System.Text.Json.JsonValueKind.String)
+                        {
+                            text = content.GetString() ?? "";
+                            break;
+                        }
+                    }
+                }
+                logger.LogInformation("Chat API response: ok, respLen={Len}", text.Length);
+                return Results.Ok(new { response = text });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Chat API call failed");
+                return Results.Json(new { error = ex.Message }, statusCode: 502);
+            }
         });
 
         return app;
@@ -344,3 +407,5 @@ public static class EndpointRouteExtensions
         }).RequireRateLimiting("agent-run");
     }
 }
+
+public record ChatRequestDto(string Prompt, string? SystemPrompt = null, double? Temperature = null, int MaxTokens = 0);
