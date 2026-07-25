@@ -4,66 +4,70 @@
  */
 let mockConfigValues: Record<string, any> = {};
 
-jest.mock('vscode', () => ({
-    window: {
-        createStatusBarItem: jest.fn(() => ({
-            text: '',
-            command: '',
-            tooltip: '',
-            show: jest.fn(),
-            dispose: jest.fn()
+jest.mock(
+    'vscode',
+    () => ({
+        window: {
+            createStatusBarItem: jest.fn(() => ({
+                text: '',
+                command: '',
+                tooltip: '',
+                show: jest.fn(),
+                dispose: jest.fn(),
+            })),
+            createWebviewPanel: jest.fn(() => ({
+                webview: { html: '', onDidReceiveMessage: jest.fn(), postMessage: jest.fn() },
+                onDidDispose: jest.fn(),
+                reveal: jest.fn(),
+                dispose: jest.fn(),
+            })),
+            registerTreeDataProvider: jest.fn(),
+            showInformationMessage: jest.fn(),
+            showErrorMessage: jest.fn(),
+            showTextDocument: jest.fn(),
+            visibleTextEditors: [],
+            activeTextEditor: undefined,
+        },
+        workspace: {
+            getConfiguration: jest.fn(() => ({
+                get: jest.fn((key: string, defaultVal?: any) => {
+                    return key in mockConfigValues ? mockConfigValues[key] : defaultVal;
+                }),
+                has: jest.fn(() => true),
+                inspect: jest.fn(),
+                update: jest.fn(),
+            })),
+            onDidChangeConfiguration: jest.fn(() => ({ dispose: jest.fn() })),
+            openTextDocument: jest.fn(),
+        },
+        languages: {
+            getDiagnostics: jest.fn(() => []),
+            registerCodeLensProvider: jest.fn(() => ({ dispose: jest.fn() })),
+            registerCodeActionsProvider: jest.fn(() => ({ dispose: jest.fn() })),
+        },
+        // Note: mockConfigValues is used by coding tests below
+        commands: {
+            registerCommand: jest.fn(() => ({ dispose: jest.fn() })),
+        },
+        EventEmitter: jest.fn(() => ({
+            event: jest.fn(),
+            fire: jest.fn(),
         })),
-        createWebviewPanel: jest.fn(() => ({
-            webview: { html: '', onDidReceiveMessage: jest.fn(), postMessage: jest.fn() },
-            onDidDispose: jest.fn(),
-            reveal: jest.fn(),
-            dispose: jest.fn()
-        })),
-        registerTreeDataProvider: jest.fn(),
-        showInformationMessage: jest.fn(),
-        showErrorMessage: jest.fn(),
-        showTextDocument: jest.fn(),
-        visibleTextEditors: [],
-        activeTextEditor: undefined
-    },
-    workspace: {
-        getConfiguration: jest.fn(() => ({
-            get: jest.fn((key: string, defaultVal?: any) => {
-                return key in mockConfigValues ? mockConfigValues[key] : defaultVal;
-            }),
-            has: jest.fn(() => true),
-            inspect: jest.fn(),
-            update: jest.fn()
-        })),
-        onDidChangeConfiguration: jest.fn(() => ({ dispose: jest.fn() })),
-        openTextDocument: jest.fn()
-    },
-    languages: {
-        getDiagnostics: jest.fn(() => []),
-        registerCodeLensProvider: jest.fn(() => ({ dispose: jest.fn() })),
-        registerCodeActionsProvider: jest.fn(() => ({ dispose: jest.fn() }))
-    },
-    // Note: mockConfigValues is used by coding tests below
-    commands: {
-        registerCommand: jest.fn(() => ({ dispose: jest.fn() }))
-    },
-    EventEmitter: jest.fn(() => ({
-        event: jest.fn(),
-        fire: jest.fn()
-    })),
-    TreeItem: jest.fn(),
-    TreeItemCollapsibleState: { None: 0 },
-    Disposable: jest.fn((dispose?: () => void) => ({ dispose: jest.fn(() => dispose?.()) })),
-    StatusBarAlignment: { Right: 1 },
-    CodeLens: jest.fn(),
-    CodeLensProvider: jest.fn(),
-    CompletionItem: jest.fn(),
-    CompletionItemKind: { Snippet: 27 },
-    RelativePattern: jest.fn(),
-    Range: jest.fn(),
-    Position: jest.fn(),
-    DiagnosticSeverity: { Error: 0, Warning: 1, Information: 2, Hint: 3 }
-}), { virtual: true });
+        TreeItem: jest.fn(),
+        TreeItemCollapsibleState: { None: 0 },
+        Disposable: jest.fn((dispose?: () => void) => ({ dispose: jest.fn(() => dispose?.()) })),
+        StatusBarAlignment: { Right: 1 },
+        CodeLens: jest.fn(),
+        CodeLensProvider: jest.fn(),
+        CompletionItem: jest.fn(),
+        CompletionItemKind: { Snippet: 27 },
+        RelativePattern: jest.fn(),
+        Range: jest.fn(),
+        Position: jest.fn(),
+        DiagnosticSeverity: { Error: 0, Warning: 1, Information: 2, Hint: 3 },
+    }),
+    { virtual: true },
+);
 
 import * as vscode from 'vscode';
 
@@ -84,7 +88,7 @@ function createMockContext(): vscode.ExtensionContext {
         environmentVariableCollection: null as any,
         globalStoragePath: '',
         logPath: '',
-        storagePath: ''
+        storagePath: '',
     } as any;
 }
 
@@ -116,108 +120,70 @@ describe('Extension', () => {
     it('should register chat command', async () => {
         const { activate } = require('../extension');
         await activate(context);
-        expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
-            'krnlai.chat', expect.any(Function)
-        );
+        expect(vscode.commands.registerCommand).toHaveBeenCalledWith('krnlai.chat', expect.any(Function));
     });
 
     it('should register dashboard command', async () => {
         const { activate } = require('../extension');
         await activate(context);
-        expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
-            'krnlai.dashboard', expect.any(Function)
-        );
+        expect(vscode.commands.registerCommand).toHaveBeenCalledWith('krnlai.dashboard', expect.any(Function));
     });
 
     it('should register policies command', async () => {
         const { activate } = require('../extension');
         await activate(context);
-        expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
-            'krnlai.policies', expect.any(Function)
-        );
+        expect(vscode.commands.registerCommand).toHaveBeenCalledWith('krnlai.policies', expect.any(Function));
     });
 
     it('should register episodes command', async () => {
         const { activate } = require('../extension');
         await activate(context);
-        expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
-            'krnlai.episodes', expect.any(Function)
-        );
+        expect(vscode.commands.registerCommand).toHaveBeenCalledWith('krnlai.episodes', expect.any(Function));
     });
 
     it('should register memory command', async () => {
         const { activate } = require('../extension');
         await activate(context);
-        expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
-            'krnlai.memory', expect.any(Function)
-        );
+        expect(vscode.commands.registerCommand).toHaveBeenCalledWith('krnlai.memory', expect.any(Function));
     });
 
     it('should register settings command', async () => {
         const { activate } = require('../extension');
         await activate(context);
-        expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
-            'krnlai.settings', expect.any(Function)
-        );
+        expect(vscode.commands.registerCommand).toHaveBeenCalledWith('krnlai.settings', expect.any(Function));
     });
 
     it('should register backlog command', async () => {
         const { activate } = require('../extension');
         await activate(context);
-        expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
-            'krnlai.backlog', expect.any(Function)
-        );
+        expect(vscode.commands.registerCommand).toHaveBeenCalledWith('krnlai.backlog', expect.any(Function));
     });
 
     it('should register qa command', async () => {
         const { activate } = require('../extension');
         await activate(context);
-        expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
-            'krnlai.qa', expect.any(Function)
-        );
+        expect(vscode.commands.registerCommand).toHaveBeenCalledWith('krnlai.qa', expect.any(Function));
     });
 
     it('should register start and stop sidecar commands', async () => {
         const { activate } = require('../extension');
         await activate(context);
-        expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
-            'krnlai.start', expect.any(Function)
-        );
-        expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
-            'krnlai.stop', expect.any(Function)
-        );
+        expect(vscode.commands.registerCommand).toHaveBeenCalledWith('krnlai.start', expect.any(Function));
+        expect(vscode.commands.registerCommand).toHaveBeenCalledWith('krnlai.stop', expect.any(Function));
     });
 
     it('should register debug commands', async () => {
         const { activate } = require('../extension');
         await activate(context);
-        expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
-            'krnlai.debugTrace', expect.any(Function)
-        );
-        expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
-            'krnlai.debugBuild', expect.any(Function)
-        );
-        expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
-            'krnlai.debugLaunch', expect.any(Function)
-        );
-        expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
-            'krnlai.debugStop', expect.any(Function)
-        );
-        expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
-            'krnlai.debugStepOver', expect.any(Function)
-        );
-        expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
-            'krnlai.debugStepInto', expect.any(Function)
-        );
-        expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
-            'krnlai.debugContinue', expect.any(Function)
-        );
-        expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
-            'krnlai.debugBreakpoint', expect.any(Function)
-        );
-        expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
-            'krnlai.debugPanel', expect.any(Function)
-        );
+        expect(vscode.commands.registerCommand).toHaveBeenCalledWith('krnlai.debugTrace', expect.any(Function));
+        expect(vscode.commands.registerCommand).toHaveBeenCalledWith('krnlai.debugBuild', expect.any(Function));
+        expect(vscode.commands.registerCommand).toHaveBeenCalledWith('krnlai.debugLaunch', expect.any(Function));
+        expect(vscode.commands.registerCommand).toHaveBeenCalledWith('krnlai.debugStop', expect.any(Function));
+        expect(vscode.commands.registerCommand).toHaveBeenCalledWith('krnlai.debugStepOver', expect.any(Function));
+        expect(vscode.commands.registerCommand).toHaveBeenCalledWith('krnlai.debugStepInto', expect.any(Function));
+        expect(vscode.commands.registerCommand).toHaveBeenCalledWith('krnlai.debugContinue', expect.any(Function));
+        expect(vscode.commands.registerCommand).toHaveBeenCalledWith('krnlai.debugBreakpoint', expect.any(Function));
+        expect(vscode.commands.registerCommand).toHaveBeenCalledWith('krnlai.debugPanel', expect.any(Function));
     });
 
     it('should create status bar item on activation', async () => {
@@ -229,52 +195,44 @@ describe('Extension', () => {
     it('should register tree data provider', async () => {
         const { activate } = require('../extension');
         await activate(context);
-        expect(vscode.window.registerTreeDataProvider).toHaveBeenCalledWith(
-            'krnlai.nav', expect.any(Object)
-        );
+        expect(vscode.window.registerTreeDataProvider).toHaveBeenCalledWith('krnlai.nav', expect.any(Object));
     });
 
     it('should register navigate command', async () => {
         const { activate } = require('../extension');
         await activate(context);
-        expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
-            'krnlai.navigate', expect.any(Function)
-        );
+        expect(vscode.commands.registerCommand).toHaveBeenCalledWith('krnlai.navigate', expect.any(Function));
     });
 
     it('should register plugin catalog commands', async () => {
         const { activate } = require('../extension');
         await activate(context);
         expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
-            'krnlai.plugins.listCatalog', expect.any(Function)
+            'krnlai.plugins.listCatalog',
+            expect.any(Function),
         );
-        expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
-            'krnlai.plugins.install', expect.any(Function)
-        );
+        expect(vscode.commands.registerCommand).toHaveBeenCalledWith('krnlai.plugins.install', expect.any(Function));
     });
 
     it('should register status check command', async () => {
         const { activate } = require('../extension');
         await activate(context);
-        expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
-            'krnlai.status.check', expect.any(Function)
-        );
+        expect(vscode.commands.registerCommand).toHaveBeenCalledWith('krnlai.status.check', expect.any(Function));
     });
 
     it('should register diagnostics refresh command', async () => {
         const { activate } = require('../extension');
         await activate(context);
         expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
-            'krnlai.diagnostics.refresh', expect.any(Function)
+            'krnlai.diagnostics.refresh',
+            expect.any(Function),
         );
     });
 
     it('should register diagnostics tree data provider', async () => {
         const { activate } = require('../extension');
         await activate(context);
-        expect(vscode.window.registerTreeDataProvider).toHaveBeenCalledWith(
-            'krnlai.diagnostics', expect.any(Object)
-        );
+        expect(vscode.window.registerTreeDataProvider).toHaveBeenCalledWith('krnlai.diagnostics', expect.any(Object));
     });
 
     it('should add all subscriptions to context', async () => {
@@ -302,7 +260,7 @@ describe('Extension with Coding Agent Enabled', () => {
         const { activate } = require('../extension');
         await activate(context);
         const calls = (vscode.commands.registerCommand as jest.Mock).mock.calls;
-        const ids = calls.map(c => c[0]);
+        const ids = calls.map((c) => c[0]);
         expect(ids).toContain('krnlai.coding.chat');
         expect(ids).toContain('krnlai.coding.explain');
         expect(ids).toContain('krnlai.coding.fix');
@@ -315,23 +273,20 @@ describe('Extension with Coding Agent Enabled', () => {
     it('ShouldRegisterCodeLensProvider_WhenEnabled', async () => {
         const { activate } = require('../extension');
         await activate(context);
-        expect(vscode.languages.registerCodeLensProvider).toHaveBeenCalledWith(
-            { scheme: 'file' },
-            expect.any(Object)
-        );
+        expect(vscode.languages.registerCodeLensProvider).toHaveBeenCalledWith({ scheme: 'file' }, expect.any(Object));
     });
 
     it('ShouldNotDuplicateCodingCommands_WhenActivatedTwice', async () => {
         const mod = require('../extension');
         await mod.activate(context);
         const calls1 = (vscode.commands.registerCommand as jest.Mock).mock.calls;
-        const codingIds1 = calls1.filter(c => c[0].startsWith('krnlai.coding')).map(c => c[0]);
+        const codingIds1 = calls1.filter((c) => c[0].startsWith('krnlai.coding')).map((c) => c[0]);
 
         const ctx2 = createMockContext();
         try {
             await mod.activate(ctx2);
             const calls2 = (vscode.commands.registerCommand as jest.Mock).mock.calls;
-            const codingIds2 = calls2.filter(c => c[0].startsWith('krnlai.coding')).map(c => c[0]);
+            const codingIds2 = calls2.filter((c) => c[0].startsWith('krnlai.coding')).map((c) => c[0]);
 
             expect(codingIds2.length).toBe(codingIds1.length);
         } finally {

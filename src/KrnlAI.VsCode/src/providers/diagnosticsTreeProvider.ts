@@ -12,21 +12,28 @@ export class DiagnosticsTreeProvider implements vscode.TreeDataProvider<Diagnost
     }
 
     refresh(): void {
-        this._client.health().then(health => {
-            if (!health) {
+        this._client
+            .health()
+            .then((health) => {
+                if (!health) {
+                    this._data = [{ label: 'API Status', description: '❌ Unreachable', contextValue: 'error' }];
+                } else {
+                    this._data = [
+                        {
+                            label: 'API Status',
+                            description: health.status === 'ok' ? '✅ Online' : '❌ Offline',
+                            contextValue: health.status,
+                        },
+                        { label: 'Version', description: `v${health.version}`, contextValue: 'version' },
+                        { label: 'Sidecar', description: '—', contextValue: 'sidecar' },
+                    ];
+                }
+                this._onDidChangeTreeData.fire(undefined);
+            })
+            .catch(() => {
                 this._data = [{ label: 'API Status', description: '❌ Unreachable', contextValue: 'error' }];
-            } else {
-                this._data = [
-                    { label: 'API Status', description: health.status === 'ok' ? '✅ Online' : '❌ Offline', contextValue: health.status },
-                    { label: 'Version', description: `v${health.version}`, contextValue: 'version' },
-                    { label: 'Sidecar', description: '—', contextValue: 'sidecar' },
-                ];
-            }
-            this._onDidChangeTreeData.fire(undefined);
-        }).catch(() => {
-            this._data = [{ label: 'API Status', description: '❌ Unreachable', contextValue: 'error' }];
-            this._onDidChangeTreeData.fire(undefined);
-        });
+                this._onDidChangeTreeData.fire(undefined);
+            });
     }
 
     getTreeItem(element: DiagnosticsNode): vscode.TreeItem {

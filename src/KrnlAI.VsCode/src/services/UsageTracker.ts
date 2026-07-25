@@ -54,7 +54,13 @@ export class UsageTracker {
         });
     }
 
-    async trackTokens(command: string, input: number, output: number, provider?: string, model?: string): Promise<void> {
+    async trackTokens(
+        command: string,
+        input: number,
+        output: number,
+        provider?: string,
+        model?: string,
+    ): Promise<void> {
         await this.track({
             timestamp: Date.now(),
             action: command,
@@ -84,8 +90,8 @@ export class UsageTracker {
             totalOutput += r.tokensOutput || 0;
         }
 
-        const inputCost = (totalInput / 1_000_000) * 2.50;
-        const outputCost = (totalOutput / 1_000_000) * 10.00;
+        const inputCost = (totalInput / 1_000_000) * 2.5;
+        const outputCost = (totalOutput / 1_000_000) * 10.0;
         totalCost = inputCost + outputCost;
 
         const topActions = Object.entries(commandCounts)
@@ -93,7 +99,7 @@ export class UsageTracker {
             .slice(0, 10)
             .map(([action, count]) => ({ action, count }));
 
-        const sessionCount = new Set(records.map(r => new Date(r.timestamp).toISOString().substring(0, 10))).size;
+        const sessionCount = new Set(records.map((r) => new Date(r.timestamp).toISOString().substring(0, 10))).size;
 
         return {
             totalTokens: totalInput + totalOutput,
@@ -126,7 +132,7 @@ export class UsageTracker {
             `$${s.totalCost.toFixed(4)}`,
             ``,
             `**Most Used Commands**`,
-            ...s.topActions.map(a => `- ${a.action}: ${a.count}x`),
+            ...s.topActions.map((a) => `- ${a.action}: ${a.count}x`),
             ``,
             `**Activity by Date**`,
             ...Object.entries(s.byDate)
@@ -138,11 +144,15 @@ export class UsageTracker {
 
     async exportAll(): Promise<string> {
         const records = this._getRecords();
-        return JSON.stringify({
-            exportedAt: new Date().toISOString(),
-            version: '1.0',
-            stats: this.getStats(),
-            records: records.slice(-500),
-        }, null, 2);
+        return JSON.stringify(
+            {
+                exportedAt: new Date().toISOString(),
+                version: '1.0',
+                stats: this.getStats(),
+                records: records.slice(-500),
+            },
+            null,
+            2,
+        );
     }
 }

@@ -26,7 +26,13 @@ export class ChatViewProvider {
     private _editorSubscriptions: vscode.Disposable[] = [];
     private _currentSessionId: string | undefined;
 
-    private constructor(panel: vscode.WebviewPanel, client: KernelClient, approvalManager: ApprovalManager, sessionManager?: SessionManager, usageTracker?: UsageTracker) {
+    private constructor(
+        panel: vscode.WebviewPanel,
+        client: KernelClient,
+        approvalManager: ApprovalManager,
+        sessionManager?: SessionManager,
+        usageTracker?: UsageTracker,
+    ) {
         this._panel = panel;
         this._client = client;
         this._approvalManager = approvalManager;
@@ -36,31 +42,36 @@ export class ChatViewProvider {
         this._nonce = Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10);
         this._panel.webview.html = this._getHtml();
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
-        this._panel.webview.onDidReceiveMessage(msg => this._handleMessage(msg), null, this._disposables);
+        this._panel.webview.onDidReceiveMessage((msg) => this._handleMessage(msg), null, this._disposables);
 
         this._editorSubscriptions.push(
             vscode.window.onDidChangeActiveTextEditor(() => this._pushContext()),
             vscode.languages.onDidChangeDiagnostics(() => {
                 this._context?.invalidateDiagCache();
                 this._pushContext();
-            })
+            }),
         );
 
-        this._approvalManager.onPending(approval => {
+        this._approvalManager.onPending((approval) => {
             this._panel.webview.postMessage({
                 type: 'approval',
                 id: approval.id,
                 action: approval.action,
                 details: approval.details,
                 deadline: approval.deadline,
-                remaining: Math.max(0, approval.deadline - Date.now())
+                remaining: Math.max(0, approval.deadline - Date.now()),
             });
         });
 
         this._loadLastSession();
     }
 
-    static createOrShow(client?: KernelClient, approvalManager?: ApprovalManager, sessionManager?: SessionManager, usageTracker?: UsageTracker) {
+    static createOrShow(
+        client?: KernelClient,
+        approvalManager?: ApprovalManager,
+        sessionManager?: SessionManager,
+        usageTracker?: UsageTracker,
+    ) {
         if (ChatViewProvider.currentPanel) {
             ChatViewProvider.currentPanel._panel.reveal(vscode.ViewColumn.Beside);
             return;
@@ -69,9 +80,15 @@ export class ChatViewProvider {
             'krnlai.coding.chat',
             'Krnl-AI - Coding Agent',
             vscode.ViewColumn.Beside,
-            { enableScripts: true, retainContextWhenHidden: true }
+            { enableScripts: true, retainContextWhenHidden: true },
         );
-        ChatViewProvider.currentPanel = new ChatViewProvider(panel, client || new KernelClient(), approvalManager || new ApprovalManager(), sessionManager, usageTracker);
+        ChatViewProvider.currentPanel = new ChatViewProvider(
+            panel,
+            client || new KernelClient(),
+            approvalManager || new ApprovalManager(),
+            sessionManager,
+            usageTracker,
+        );
     }
 
     private _ensureContext(): EditorContextProvider {
@@ -105,14 +122,20 @@ export class ChatViewProvider {
             this._trimMessages();
             this._panel.webview.postMessage({
                 type: 'message',
-                message: userMsg
+                message: userMsg,
             });
 
             const parsed = this._slashCommands.parse(input);
             let responseContent: string;
 
             if (parsed.command) {
-                if (parsed.command === '/sessions' || parsed.command === '/session' || parsed.command === '/export' || parsed.command === '/import' || parsed.command === '/stats') {
+                if (
+                    parsed.command === '/sessions' ||
+                    parsed.command === '/session' ||
+                    parsed.command === '/export' ||
+                    parsed.command === '/import' ||
+                    parsed.command === '/stats'
+                ) {
                     responseContent = await this._handleSessionCommand(parsed.command, parsed.args);
                 } else {
                     try {
@@ -126,22 +149,20 @@ export class ChatViewProvider {
                 const contextPrefix = ctx.activeFile
                     ? `[Contexto: ${path.basename(ctx.activeFile)} (${ctx.language})]\n${ctx.selection ? 'Seleção ativa\n' : ''}`
                     : '';
-                const prompt = contextPrefix
-                    ? `${contextPrefix}\n\n${input}`
-                    : input;
+                const prompt = contextPrefix ? `${contextPrefix}\n\n${input}` : input;
 
                 const response = await this._client.runAgent(prompt);
                 responseContent = response.narration || response.error || 'Sem resposta';
             }
 
             const assistantMsg = createMessage('assistant', responseContent, {
-                command: parsed.command
+                command: parsed.command,
             });
             this._messages.push(assistantMsg);
             this._trimMessages();
             this._panel.webview.postMessage({
                 type: 'message',
-                message: assistantMsg
+                message: assistantMsg,
             });
             this._panel.webview.postMessage({ type: 'done' });
             this._autoSave();
@@ -151,7 +172,7 @@ export class ChatViewProvider {
         if (msg.type === 'getSlashCommands') {
             this._panel.webview.postMessage({
                 type: 'slashCommands',
-                commands: this._slashCommands.getAll().map(c => ({ id: c.id, description: c.description }))
+                commands: this._slashCommands.getAll().map((c) => ({ id: c.id, description: c.description })),
             });
         }
 
@@ -500,9 +521,7 @@ vscode.postMessage({type:'send',text:t});}
     private async _autoSave(): Promise<void> {
         if (!this._sessionManager) return;
         const label = `Chat ${new Date().toLocaleDateString()}`;
-        this._currentSessionId = await this._sessionManager.autoSave(
-            label, this._messages, this._currentSessionId
-        );
+        this._currentSessionId = await this._sessionManager.autoSave(label, this._messages, this._currentSessionId);
     }
 
     private async _loadLastSession(): Promise<void> {
@@ -532,9 +551,12 @@ vscode.postMessage({type:'send',text:t});}
                     case '/sessions': {
                         const sessions = await this._sessionManager.listSessions();
                         if (sessions.length === 0) return 'Nenhuma sessão salva.';
-                        return sessions.map((s, i) =>
-                            `${i + 1}. ${s.label} (${s.messageCount} msgs) - ${new Date(s.updatedAt).toLocaleString()}`
-                        ).join('\n');
+                        return sessions
+                            .map(
+                                (s, i) =>
+                                    `${i + 1}. ${s.label} (${s.messageCount} msgs) - ${new Date(s.updatedAt).toLocaleString()}`,
+                            )
+                            .join('\n');
                     }
 
                     case '/session': {

@@ -1,21 +1,25 @@
-jest.mock('vscode', () => ({
-    window: {
-        createStatusBarItem: jest.fn().mockReturnValue({
-            show: jest.fn(),
-            dispose: jest.fn(),
-            text: '',
-            tooltip: '',
-        }),
-        withProgress: jest.fn().mockImplementation(async (_opts: any, task: (p: any, t: any) => Promise<any>) => {
-            const progress = { report: jest.fn() };
-            const token = { isCancellationRequested: false, onCancellationRequested: jest.fn() };
-            return task(progress, token);
-        }),
-        showWarningMessage: jest.fn(),
-    },
-    StatusBarAlignment: { Left: 1, Right: 2 },
-    ProgressLocation: { Notification: 1, Window: 2 },
-}), { virtual: true });
+jest.mock(
+    'vscode',
+    () => ({
+        window: {
+            createStatusBarItem: jest.fn().mockReturnValue({
+                show: jest.fn(),
+                dispose: jest.fn(),
+                text: '',
+                tooltip: '',
+            }),
+            withProgress: jest.fn().mockImplementation(async (_opts: any, task: (p: any, t: any) => Promise<any>) => {
+                const progress = { report: jest.fn() };
+                const token = { isCancellationRequested: false, onCancellationRequested: jest.fn() };
+                return task(progress, token);
+            }),
+            showWarningMessage: jest.fn(),
+        },
+        StatusBarAlignment: { Left: 1, Right: 2 },
+        ProgressLocation: { Notification: 1, Window: 2 },
+    }),
+    { virtual: true },
+);
 
 import { withProgress, withLongRunningOperation, createStatusBarProgress } from '../utils/ProgressHelper';
 
@@ -37,7 +41,7 @@ describe('ProgressHelper', () => {
         await withProgress('Test', async () => 'done');
         expect(window.withProgress).toHaveBeenCalledWith(
             expect.objectContaining({ location: 1 }),
-            expect.any(Function)
+            expect.any(Function),
         );
     });
 
@@ -53,7 +57,7 @@ describe('ProgressHelper', () => {
         window.withProgress.mockImplementationOnce(async (_opts: any, task: any) => task(progress, token));
 
         await withLongRunningOperation('Task', async () => 'done', {
-            steps: ['Step 1', 'Step 2', 'Step 3']
+            steps: ['Step 1', 'Step 2', 'Step 3'],
         });
 
         expect(progress.report).toHaveBeenCalled();

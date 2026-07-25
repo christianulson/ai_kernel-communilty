@@ -9,24 +9,28 @@ function resetMockConfig() {
     };
 }
 
-jest.mock('vscode', () => ({
-    window: {
-        withProgress: jest.fn().mockImplementation(async (_opts: any, task: any) => {
-            const progress = { report: jest.fn() };
-            const token = { isCancellationRequested: false, onCancellationRequested: jest.fn() };
-            return task(progress, token);
-        }),
-        showWarningMessage: jest.fn(),
-    },
-    workspace: {
-        getConfiguration: jest.fn().mockImplementation(() => ({
-            get: jest.fn().mockImplementation((key: string, defaultVal?: any) => {
-                return (mockConfig as any)[key] ?? defaultVal;
+jest.mock(
+    'vscode',
+    () => ({
+        window: {
+            withProgress: jest.fn().mockImplementation(async (_opts: any, task: any) => {
+                const progress = { report: jest.fn() };
+                const token = { isCancellationRequested: false, onCancellationRequested: jest.fn() };
+                return task(progress, token);
             }),
-        })),
-    },
-    ProgressLocation: { Notification: 1, Window: 2 },
-}), { virtual: true });
+            showWarningMessage: jest.fn(),
+        },
+        workspace: {
+            getConfiguration: jest.fn().mockImplementation(() => ({
+                get: jest.fn().mockImplementation((key: string, defaultVal?: any) => {
+                    return (mockConfig as any)[key] ?? defaultVal;
+                }),
+            })),
+        },
+        ProgressLocation: { Notification: 1, Window: 2 },
+    }),
+    { virtual: true },
+);
 
 import { CloudDelegationManager, DelegationStatus } from '../codingAgent/CloudDelegationManager';
 

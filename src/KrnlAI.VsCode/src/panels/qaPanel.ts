@@ -15,7 +15,7 @@ export class QAPanel {
         this._nonce = Math.random().toString(36).substring(2, 10);
         this._panel.webview.html = this._getHtml();
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
-        this._panel.webview.onDidReceiveMessage(msg => this._handle(msg), null, this._disposables);
+        this._panel.webview.onDidReceiveMessage((msg) => this._handle(msg), null, this._disposables);
     }
 
     static createOrShow() {
@@ -23,11 +23,10 @@ export class QAPanel {
             QAPanel.currentPanel._panel.reveal();
             return;
         }
-        const panel = vscode.window.createWebviewPanel(
-            'krnlai.qa', 'Krnl-AI - QA Tests',
-            vscode.ViewColumn.Beside,
-            { enableScripts: true, retainContextWhenHidden: true }
-        );
+        const panel = vscode.window.createWebviewPanel('krnlai.qa', 'Krnl-AI - QA Tests', vscode.ViewColumn.Beside, {
+            enableScripts: true,
+            retainContextWhenHidden: true,
+        });
         QAPanel.currentPanel = new QAPanel(panel);
     }
 
@@ -39,10 +38,16 @@ export class QAPanel {
                 break;
             case 'runTest':
                 const run = await this._client.runQATest({
-                    targetType: msg.targetType, endpoint: msg.endpoint,
-                    timeoutSeconds: msg.timeoutSeconds ?? 30, testNames: msg.testNames
+                    targetType: msg.targetType,
+                    endpoint: msg.endpoint,
+                    timeoutSeconds: msg.timeoutSeconds ?? 30,
+                    testNames: msg.testNames,
                 });
-                this._panel.webview.postMessage({ type: 'runResult', run, error: run ? undefined : 'Failed to start test' });
+                this._panel.webview.postMessage({
+                    type: 'runResult',
+                    run,
+                    error: run ? undefined : 'Failed to start test',
+                });
                 if (run) this._startPolling(run.id);
                 break;
             case 'getEvidence':

@@ -23,8 +23,7 @@ suite('Navigation', () => {
             'krnlai.settings',
         ];
         for (const cmd of panelCommands) {
-            assert.ok(commands.includes(cmd),
-                `Command ${cmd} should be registered`);
+            assert.ok(commands.includes(cmd), `Command ${cmd} should be registered`);
         }
     });
 

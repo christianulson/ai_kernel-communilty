@@ -12,8 +12,10 @@ export class PluginCatalogPanel {
         this._client = new KernelClient();
         this._nonce = Math.random().toString(36).substring(2, 10);
         this._panel.webview.html = this._getHtml();
-        this._panel.onDidDispose(() => { PluginCatalogPanel.currentPanel = undefined; });
-        this._panel.webview.onDidReceiveMessage(msg => this._handle(msg));
+        this._panel.onDidDispose(() => {
+            PluginCatalogPanel.currentPanel = undefined;
+        });
+        this._panel.webview.onDidReceiveMessage((msg) => this._handle(msg));
     }
 
     static createOrShow() {
@@ -22,9 +24,10 @@ export class PluginCatalogPanel {
             return;
         }
         const panel = vscode.window.createWebviewPanel(
-            'krnlai.pluginCatalog', 'Krnl-AI - Plugin Catalog',
+            'krnlai.pluginCatalog',
+            'Krnl-AI - Plugin Catalog',
             vscode.ViewColumn.Beside,
-            { enableScripts: true, retainContextWhenHidden: true }
+            { enableScripts: true, retainContextWhenHidden: true },
         );
         PluginCatalogPanel.currentPanel = new PluginCatalogPanel(panel);
     }

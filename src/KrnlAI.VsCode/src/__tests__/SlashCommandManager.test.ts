@@ -1,17 +1,21 @@
-jest.mock('vscode', () => ({
-    CompletionItem: jest.fn(),
-    CompletionItemKind: { Snippet: 27 },
-    window: {
-        createTerminal: jest.fn().mockReturnValue({
-            show: jest.fn(),
-            sendText: jest.fn(),
-            dispose: jest.fn(),
-        }),
-    },
-    workspace: {
-        workspaceFolders: [{ uri: { fsPath: '/workspace' } }],
-    },
-}), { virtual: true });
+jest.mock(
+    'vscode',
+    () => ({
+        CompletionItem: jest.fn(),
+        CompletionItemKind: { Snippet: 27 },
+        window: {
+            createTerminal: jest.fn().mockReturnValue({
+                show: jest.fn(),
+                sendText: jest.fn(),
+                dispose: jest.fn(),
+            }),
+        },
+        workspace: {
+            workspaceFolders: [{ uri: { fsPath: '/workspace' } }],
+        },
+    }),
+    { virtual: true },
+);
 
 import { SlashCommandManager } from '../codingAgent/SlashCommandManager';
 import { KernelClient } from '../api/client';
@@ -54,7 +58,7 @@ describe('SlashCommandManager', () => {
         it('ShouldHaveDefaultCommandsRegistered', () => {
             const commands = manager.getAll();
             expect(commands.length).toBeGreaterThanOrEqual(16);
-            const ids = commands.map(c => c.id);
+            const ids = commands.map((c) => c.id);
             expect(ids).toContain('/explain');
             expect(ids).toContain('/fix');
             expect(ids).toContain('/test');
@@ -120,45 +124,33 @@ describe('SlashCommandManager', () => {
     describe('execute', () => {
         it('ShouldExecuteExplainHandler', async () => {
             await manager.execute('/explain', mockContext);
-            expect(mockClient.runAgent).toHaveBeenCalledWith(
-                expect.stringContaining('Explique este código')
-            );
+            expect(mockClient.runAgent).toHaveBeenCalledWith(expect.stringContaining('Explique este código'));
         });
 
         it('ShouldExecuteFixHandler_WithDiagnostics', async () => {
             mockContext.diagnostics = [{ message: 'erro', severity: 'error', source: 'ts' }];
             await manager.execute('/fix', mockContext);
-            expect(mockClient.runAgent).toHaveBeenCalledWith(
-                expect.stringContaining('Corrija este código')
-            );
+            expect(mockClient.runAgent).toHaveBeenCalledWith(expect.stringContaining('Corrija este código'));
         });
 
         it('ShouldExecuteTestHandler', async () => {
             await manager.execute('/test', mockContext);
-            expect(mockClient.runAgent).toHaveBeenCalledWith(
-                expect.stringContaining('testes unitários')
-            );
+            expect(mockClient.runAgent).toHaveBeenCalledWith(expect.stringContaining('testes unitários'));
         });
 
         it('ShouldExecuteRefactorHandler', async () => {
             await manager.execute('/refactor', mockContext);
-            expect(mockClient.runAgent).toHaveBeenCalledWith(
-                expect.stringContaining('Refatore este código')
-            );
+            expect(mockClient.runAgent).toHaveBeenCalledWith(expect.stringContaining('Refatore este código'));
         });
 
         it('ShouldExecuteReviewHandler', async () => {
             await manager.execute('/review', mockContext);
-            expect(mockClient.runAgent).toHaveBeenCalledWith(
-                expect.stringContaining('revisão de código')
-            );
+            expect(mockClient.runAgent).toHaveBeenCalledWith(expect.stringContaining('revisão de código'));
         });
 
         it('ShouldExecuteDocHandler', async () => {
             await manager.execute('/doc', mockContext);
-            expect(mockClient.runAgent).toHaveBeenCalledWith(
-                expect.stringContaining('documentação')
-            );
+            expect(mockClient.runAgent).toHaveBeenCalledWith(expect.stringContaining('documentação'));
         });
 
         it('ShouldThrow_WhenCommandNotFound', async () => {
@@ -170,7 +162,7 @@ describe('SlashCommandManager', () => {
         it('ShouldReturnCompletionItemsForAllCommands', () => {
             const items = manager.getCompletionItems();
             expect(items.length).toBe(manager.getAll().length);
-            items.forEach(item => {
+            items.forEach((item) => {
                 expect(item.insertText).toMatch(/^\/[\w-]+ /);
                 expect(item.detail).toBeTruthy();
             });

@@ -1,14 +1,18 @@
-jest.mock('vscode', () => {
-    const CodeLensMock = jest.fn().mockImplementation((range: any, cmd: any) => ({
-        range,
-        command: cmd
-    }));
-    return {
-        CodeLens: CodeLensMock,
-        Range: jest.fn(),
-        Position: jest.fn()
-    };
-}, { virtual: true });
+jest.mock(
+    'vscode',
+    () => {
+        const CodeLensMock = jest.fn().mockImplementation((range: any, cmd: any) => ({
+            range,
+            command: cmd,
+        }));
+        return {
+            CodeLens: CodeLensMock,
+            Range: jest.fn(),
+            Position: jest.fn(),
+        };
+    },
+    { virtual: true },
+);
 
 import { CodeLensProvider } from '../codingAgent/CodeLensProvider';
 import * as vscode from 'vscode';
@@ -24,7 +28,7 @@ describe('CodeLensProvider', () => {
             getText: jest.fn(),
             positionAt: jest.fn((offset: number) => ({ line: 0, character: offset })),
             uri: { fsPath: '/test.ts' },
-            languageId: 'typescript'
+            languageId: 'typescript',
         };
     });
 

@@ -3,11 +3,15 @@ jest.mock('child_process', () => {
     return { spawn: mockSpawn };
 });
 
-jest.mock('vscode', () => ({
-    workspace: {
-        workspaceFolders: [{ uri: { fsPath: '/workspace' } }],
-    },
-}), { virtual: true });
+jest.mock(
+    'vscode',
+    () => ({
+        workspace: {
+            workspaceFolders: [{ uri: { fsPath: '/workspace' } }],
+        },
+    }),
+    { virtual: true },
+);
 
 import { GitManager } from '../codingAgent/GitManager';
 import { spawn } from 'child_process';
@@ -112,9 +116,7 @@ describe('GitManager', () => {
             let callCount = 0;
             const mockChild = createMockChildProcess('');
             const mockChild2 = createMockChildProcess('[main abc1234] fix: bug');
-            (spawn as jest.Mock)
-                .mockReturnValueOnce(mockChild)
-                .mockReturnValueOnce(mockChild2);
+            (spawn as jest.Mock).mockReturnValueOnce(mockChild).mockReturnValueOnce(mockChild2);
 
             const result = await manager.commit('fix: bug de login');
             expect(result.success).toBe(true);

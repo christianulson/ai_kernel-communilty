@@ -15,7 +15,7 @@ export class KanbanPanel {
         this._nonce = Math.random().toString(36).substring(2, 10);
         this._panel.webview.html = this._getHtml();
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
-        this._panel.webview.onDidReceiveMessage(msg => this._handle(msg), null, this._disposables);
+        this._panel.webview.onDidReceiveMessage((msg) => this._handle(msg), null, this._disposables);
     }
 
     public static createOrShow() {
@@ -25,9 +25,10 @@ export class KanbanPanel {
             return;
         }
         const panel = vscode.window.createWebviewPanel(
-            KanbanPanel.viewType, 'Kanban',
+            KanbanPanel.viewType,
+            'Kanban',
             column || vscode.ViewColumn.One,
-            { enableScripts: true, retainContextWhenHidden: true }
+            { enableScripts: true, retainContextWhenHidden: true },
         );
         KanbanPanel.currentPanel = new KanbanPanel(panel);
     }
@@ -47,7 +48,9 @@ export class KanbanPanel {
                 break;
             case 'create':
                 const created = await this._client.createBacklogItem({
-                    title: msg.title, description: msg.description, priority: msg.priority
+                    title: msg.title,
+                    description: msg.description,
+                    priority: msg.priority,
                 });
                 if (created) {
                     const all = await this._client.getBacklogItems();

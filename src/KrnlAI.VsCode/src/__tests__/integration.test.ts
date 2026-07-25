@@ -5,75 +5,79 @@ let mockShowInformationMessage = jest.fn();
 let mockShowErrorMessage = jest.fn();
 let mockShowWarningMessage = jest.fn();
 
-jest.mock('vscode', () => ({
-    window: {
-        createStatusBarItem: jest.fn(() => ({
-            text: '',
-            command: '',
-            tooltip: '',
-            show: jest.fn(),
-            dispose: jest.fn()
+jest.mock(
+    'vscode',
+    () => ({
+        window: {
+            createStatusBarItem: jest.fn(() => ({
+                text: '',
+                command: '',
+                tooltip: '',
+                show: jest.fn(),
+                dispose: jest.fn(),
+            })),
+            createWebviewPanel: jest.fn(() => ({
+                webview: { html: '', onDidReceiveMessage: jest.fn(), postMessage: jest.fn() },
+                onDidDispose: jest.fn(),
+                reveal: jest.fn(),
+                dispose: jest.fn(),
+            })),
+            registerTreeDataProvider: jest.fn(),
+            showInformationMessage: (...args: any[]) => mockShowInformationMessage(...args),
+            showErrorMessage: (...args: any[]) => mockShowErrorMessage(...args),
+            showWarningMessage: (...args: any[]) => mockShowWarningMessage(...args),
+            showInputBox: jest.fn(),
+            showTextDocument: jest.fn(),
+            visibleTextEditors: [],
+            activeTextEditor: undefined,
+            createTerminal: jest.fn(() => ({ show: jest.fn(), sendText: jest.fn(), dispose: jest.fn() })),
+            withProgress: jest.fn(),
+        },
+        workspace: {
+            getConfiguration: jest.fn(() => ({
+                get: jest.fn((key: string, defaultVal?: any) => {
+                    return key in mockConfigValues ? mockConfigValues[key] : defaultVal;
+                }),
+                has: jest.fn(() => true),
+                inspect: jest.fn(),
+                update: jest.fn(),
+            })),
+            onDidChangeConfiguration: jest.fn(() => ({ dispose: jest.fn() })),
+            openTextDocument: jest.fn(),
+        },
+        languages: {
+            getDiagnostics: jest.fn(() => []),
+            registerCodeLensProvider: jest.fn(() => ({ dispose: jest.fn() })),
+            registerCodeActionsProvider: jest.fn(() => ({ dispose: jest.fn() })),
+            registerInlineCompletionItemProvider: jest.fn(() => ({ dispose: jest.fn() })),
+            registerHoverProvider: jest.fn(() => ({ dispose: jest.fn() })),
+        },
+        commands: {
+            registerCommand: jest.fn(() => ({ dispose: jest.fn() })),
+            executeCommand: jest.fn(),
+        },
+        EventEmitter: jest.fn(() => ({
+            event: jest.fn(),
+            fire: jest.fn(),
         })),
-        createWebviewPanel: jest.fn(() => ({
-            webview: { html: '', onDidReceiveMessage: jest.fn(), postMessage: jest.fn() },
-            onDidDispose: jest.fn(),
-            reveal: jest.fn(),
-            dispose: jest.fn()
-        })),
-        registerTreeDataProvider: jest.fn(),
-        showInformationMessage: (...args: any[]) => mockShowInformationMessage(...args),
-        showErrorMessage: (...args: any[]) => mockShowErrorMessage(...args),
-        showWarningMessage: (...args: any[]) => mockShowWarningMessage(...args),
-        showInputBox: jest.fn(),
-        showTextDocument: jest.fn(),
-        visibleTextEditors: [],
-        activeTextEditor: undefined,
-        createTerminal: jest.fn(() => ({ show: jest.fn(), sendText: jest.fn(), dispose: jest.fn() })),
-        withProgress: jest.fn()
-    },
-    workspace: {
-        getConfiguration: jest.fn(() => ({
-            get: jest.fn((key: string, defaultVal?: any) => {
-                return key in mockConfigValues ? mockConfigValues[key] : defaultVal;
-            }),
-            has: jest.fn(() => true),
-            inspect: jest.fn(),
-            update: jest.fn()
-        })),
-        onDidChangeConfiguration: jest.fn(() => ({ dispose: jest.fn() })),
-        openTextDocument: jest.fn()
-    },
-    languages: {
-        getDiagnostics: jest.fn(() => []),
-        registerCodeLensProvider: jest.fn(() => ({ dispose: jest.fn() })),
-        registerCodeActionsProvider: jest.fn(() => ({ dispose: jest.fn() })),
-        registerInlineCompletionItemProvider: jest.fn(() => ({ dispose: jest.fn() })),
-        registerHoverProvider: jest.fn(() => ({ dispose: jest.fn() }))
-    },
-    commands: {
-        registerCommand: jest.fn(() => ({ dispose: jest.fn() })),
-        executeCommand: jest.fn()
-    },
-    EventEmitter: jest.fn(() => ({
-        event: jest.fn(),
-        fire: jest.fn()
-    })),
-    TreeItem: jest.fn().mockImplementation(function (this: any, label: string) {
-        this.label = label;
+        TreeItem: jest.fn().mockImplementation(function (this: any, label: string) {
+            this.label = label;
+        }),
+        TreeItemCollapsibleState: { None: 0 },
+        Disposable: jest.fn((dispose?: () => void) => ({ dispose: jest.fn(() => dispose?.()) })),
+        StatusBarAlignment: { Right: 1 },
+        CodeLens: jest.fn(),
+        CompletionItem: jest.fn(),
+        CompletionItemKind: { Snippet: 27 },
+        RelativePattern: jest.fn(),
+        Range: jest.fn(),
+        Position: jest.fn(),
+        DiagnosticSeverity: { Error: 0, Warning: 1, Information: 2, Hint: 3 },
+        ViewColumn: { Beside: 2, One: 1 },
+        ProgressLocation: { Notification: 1 },
     }),
-    TreeItemCollapsibleState: { None: 0 },
-    Disposable: jest.fn((dispose?: () => void) => ({ dispose: jest.fn(() => dispose?.()) })),
-    StatusBarAlignment: { Right: 1 },
-    CodeLens: jest.fn(),
-    CompletionItem: jest.fn(),
-    CompletionItemKind: { Snippet: 27 },
-    RelativePattern: jest.fn(),
-    Range: jest.fn(),
-    Position: jest.fn(),
-    DiagnosticSeverity: { Error: 0, Warning: 1, Information: 2, Hint: 3 },
-    ViewColumn: { Beside: 2, One: 1 },
-    ProgressLocation: { Notification: 1 }
-}), { virtual: true });
+    { virtual: true },
+);
 
 function createMockContext(): vscode.ExtensionContext {
     return {
@@ -92,7 +96,7 @@ function createMockContext(): vscode.ExtensionContext {
         environmentVariableCollection: null as any,
         globalStoragePath: '',
         logPath: '',
-        storagePath: ''
+        storagePath: '',
     } as any;
 }
 
@@ -120,7 +124,7 @@ describe('Extension Integration', () => {
         (global as any).fetch = jest.fn().mockResolvedValue({
             ok: true,
             headers: { get: () => 'application/json' },
-            json: jest.fn().mockResolvedValue({ status: 'ok', version: '1.0' })
+            json: jest.fn().mockResolvedValue({ status: 'ok', version: '1.0' }),
         });
     }
 
@@ -133,9 +137,7 @@ describe('Extension Integration', () => {
                 await ext.activate(context);
                 const handler = getHandler('krnlai.status.check');
                 await handler();
-                expect(mockShowInformationMessage).toHaveBeenCalledWith(
-                    expect.stringContaining('ok')
-                );
+                expect(mockShowInformationMessage).toHaveBeenCalledWith(expect.stringContaining('ok'));
             } finally {
                 disposeContext(context);
             }
@@ -150,9 +152,7 @@ describe('Extension Integration', () => {
                 await ext.activate(context);
                 const handler = getHandler('krnlai.status.check');
                 await handler();
-                expect(mockShowErrorMessage).toHaveBeenCalledWith(
-                    expect.stringContaining('Unavailable')
-                );
+                expect(mockShowErrorMessage).toHaveBeenCalledWith(expect.stringContaining('Unavailable'));
             } finally {
                 disposeContext(context);
             }
@@ -170,9 +170,7 @@ describe('Extension Integration', () => {
                 await ext.activate(context);
                 const handler = getHandler('krnlai.plugins.install');
                 await handler();
-                expect(mockShowInformationMessage).toHaveBeenCalledWith(
-                    expect.stringContaining('test-plugin')
-                );
+                expect(mockShowInformationMessage).toHaveBeenCalledWith(expect.stringContaining('test-plugin'));
             } finally {
                 disposeContext(context);
             }
@@ -187,9 +185,7 @@ describe('Extension Integration', () => {
                 await ext.activate(context);
                 const handler = getHandler('krnlai.plugins.install');
                 await handler('arg-plugin');
-                expect(mockShowInformationMessage).toHaveBeenCalledWith(
-                    expect.stringContaining('arg-plugin')
-                );
+                expect(mockShowInformationMessage).toHaveBeenCalledWith(expect.stringContaining('arg-plugin'));
             } finally {
                 disposeContext(context);
             }
@@ -204,9 +200,7 @@ describe('Extension Integration', () => {
                 await ext.activate(context);
                 const handler = getHandler('krnlai.plugins.install');
                 await handler();
-                expect(mockShowInformationMessage).not.toHaveBeenCalledWith(
-                    expect.stringContaining('installed')
-                );
+                expect(mockShowInformationMessage).not.toHaveBeenCalledWith(expect.stringContaining('installed'));
             } finally {
                 disposeContext(context);
             }
@@ -223,8 +217,10 @@ describe('Extension Integration', () => {
                 const handler = getHandler('krnlai.plugins.listCatalog');
                 handler();
                 expect(vscode.window.createWebviewPanel).toHaveBeenCalledWith(
-                    'krnlai.pluginCatalog', expect.any(String),
-                    expect.any(Number), expect.any(Object)
+                    'krnlai.pluginCatalog',
+                    expect.any(String),
+                    expect.any(Number),
+                    expect.any(Object),
                 );
             } finally {
                 disposeContext(context);
@@ -242,7 +238,8 @@ describe('Extension Integration', () => {
                 const handler = getHandler('krnlai.diagnostics.refresh');
                 handler();
                 expect(vscode.window.registerTreeDataProvider).toHaveBeenCalledWith(
-                    'krnlai.diagnostics', expect.any(Object)
+                    'krnlai.diagnostics',
+                    expect.any(Object),
                 );
             } finally {
                 disposeContext(context);

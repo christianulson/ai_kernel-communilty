@@ -14,19 +14,29 @@ export class MemoryPanel {
         this._nonce = Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10);
         this._panel.webview.html = this._getHtml();
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
-        this._panel.webview.onDidReceiveMessage(msg => this._handle(msg), null, this._disposables);
+        this._panel.webview.onDidReceiveMessage((msg) => this._handle(msg), null, this._disposables);
     }
 
     static createOrShow() {
-        if (MemoryPanel.currentPanel) { MemoryPanel.currentPanel._panel.reveal(); return; }
-        const panel = vscode.window.createWebviewPanel('krnlai.memory', 'Krnl-AI - Memória', vscode.ViewColumn.Beside, { enableScripts: true, retainContextWhenHidden: true });
+        if (MemoryPanel.currentPanel) {
+            MemoryPanel.currentPanel._panel.reveal();
+            return;
+        }
+        const panel = vscode.window.createWebviewPanel('krnlai.memory', 'Krnl-AI - Memória', vscode.ViewColumn.Beside, {
+            enableScripts: true,
+            retainContextWhenHidden: true,
+        });
         MemoryPanel.currentPanel = new MemoryPanel(panel);
     }
 
     private async _handle(msg: any) {
         if (msg.type === 'search') {
             const result = await this._client.searchMemory(msg.query);
-            this._panel.webview.postMessage({ type: 'results', hits: result?.hits || [], total: result?.totalCount || 0 });
+            this._panel.webview.postMessage({
+                type: 'results',
+                hits: result?.hits || [],
+                total: result?.totalCount || 0,
+            });
         }
         if (msg.type === 'metrics') {
             const metrics = await this._client.getMemoryMetrics();
@@ -34,7 +44,9 @@ export class MemoryPanel {
         }
     }
 
-    private _getHtml(): string { const nonce = this._nonce; return `<!DOCTYPE html>
+    private _getHtml(): string {
+        const nonce = this._nonce;
+        return `<!DOCTYPE html>
 <html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'nonce-${nonce}'; script-src 'nonce-${nonce}';">
 <title>Memória</title>
@@ -78,7 +90,12 @@ function loadMetrics(){vscode.postMessage({type:'metrics'});}
 function showTab(t){['search','metrics'].forEach(x=>{const e=document.getElementById('tab-'+x)!;e.className=x===t?'tab active':'tab';document.getElementById(x+'-page')!.style.display=x===t?'block':'none';});
 if(t==='metrics')loadMetrics();}
 showTab('search');
-})();</script></body></html>`; }
+})();</script></body></html>`;
+    }
 
-    public dispose() { MemoryPanel.currentPanel = undefined; this._panel.dispose(); while (this._disposables.length) this._disposables.pop()!.dispose(); }
+    public dispose() {
+        MemoryPanel.currentPanel = undefined;
+        this._panel.dispose();
+        while (this._disposables.length) this._disposables.pop()!.dispose();
+    }
 }

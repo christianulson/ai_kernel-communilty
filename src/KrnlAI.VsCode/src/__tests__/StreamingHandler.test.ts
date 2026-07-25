@@ -12,16 +12,18 @@ describe('StreamingHandler', () => {
             const mockStream = new ReadableStream({
                 start(controller) {
                     controller.enqueue(new TextEncoder().encode('data: {"choices":[{"delta":{"content":"Hello"}}]}\n'));
-                    controller.enqueue(new TextEncoder().encode('data: {"choices":[{"delta":{"content":" World"}}]}\n'));
+                    controller.enqueue(
+                        new TextEncoder().encode('data: {"choices":[{"delta":{"content":" World"}}]}\n'),
+                    );
                     controller.enqueue(new TextEncoder().encode('data: [DONE]\n'));
                     controller.close();
-                }
+                },
             });
 
             global.fetch = jest.fn().mockResolvedValue({
                 ok: true,
                 body: mockStream,
-                headers: new Headers({ 'content-type': 'text/event-stream' })
+                headers: new Headers({ 'content-type': 'text/event-stream' }),
             } as any);
 
             const chunks: string[] = [];
@@ -34,7 +36,7 @@ describe('StreamingHandler', () => {
                 { prompt: 'test' },
                 onChunk,
                 onComplete,
-                onError
+                onError,
             );
 
             expect(onChunk).toHaveBeenCalledTimes(2);
@@ -49,13 +51,13 @@ describe('StreamingHandler', () => {
                     controller.enqueue(new TextEncoder().encode('Hello'));
                     controller.enqueue(new TextEncoder().encode(' World'));
                     controller.close();
-                }
+                },
             });
 
             global.fetch = jest.fn().mockResolvedValue({
                 ok: true,
                 body: mockStream,
-                headers: new Headers({ 'content-type': 'application/json' })
+                headers: new Headers({ 'content-type': 'application/json' }),
             } as any);
 
             const chunks: string[] = [];
@@ -66,7 +68,7 @@ describe('StreamingHandler', () => {
                 { prompt: 'test' },
                 (chunk) => chunks.push(chunk),
                 onComplete,
-                jest.fn()
+                jest.fn(),
             );
 
             expect(chunks).toEqual(['Hello', ' World']);
@@ -77,7 +79,7 @@ describe('StreamingHandler', () => {
             global.fetch = jest.fn().mockResolvedValue({
                 ok: false,
                 status: 500,
-                statusText: 'Internal Server Error'
+                statusText: 'Internal Server Error',
             } as any);
 
             const onError = jest.fn();
@@ -87,7 +89,7 @@ describe('StreamingHandler', () => {
                 { prompt: 'test' },
                 jest.fn(),
                 jest.fn(),
-                onError
+                onError,
             );
 
             expect(onError).toHaveBeenCalledWith(expect.any(Error));
@@ -99,7 +101,7 @@ describe('StreamingHandler', () => {
                 ok: true,
                 body: null,
                 text: jest.fn().mockResolvedValue(''),
-                headers: new Headers({})
+                headers: new Headers({}),
             } as any);
 
             const onError = jest.fn();
@@ -109,7 +111,7 @@ describe('StreamingHandler', () => {
                 { prompt: 'test' },
                 jest.fn(),
                 jest.fn(),
-                onError
+                onError,
             );
 
             expect(onError).toHaveBeenCalledWith(expect.any(Error));
@@ -125,7 +127,7 @@ describe('StreamingHandler', () => {
                 { prompt: 'test' },
                 jest.fn(),
                 jest.fn(),
-                onError
+                onError,
             );
 
             expect(onError).toHaveBeenCalledWith(expect.any(Error));
@@ -138,22 +140,22 @@ describe('StreamingHandler', () => {
                 start(controller) {
                     controller.enqueue(new TextEncoder().encode('data: chunk\n'));
                     controller.close();
-                }
+                },
             });
 
-            global.fetch = jest.fn().mockResolvedValue({ ok: true, body: mockStream, headers: new Headers({ 'content-type': 'text/event-stream' }) } as any);
+            global.fetch = jest
+                .fn()
+                .mockResolvedValue({
+                    ok: true,
+                    body: mockStream,
+                    headers: new Headers({ 'content-type': 'text/event-stream' }),
+                } as any);
 
             const onChunk = jest.fn();
             const onComplete = jest.fn();
             const onError = jest.fn();
 
-            handler.streamFromUrl(
-                'http://localhost:5235/api/stream',
-                { prompt: 'test' },
-                onChunk,
-                onComplete,
-                onError
-            );
+            handler.streamFromUrl('http://localhost:5235/api/stream', { prompt: 'test' }, onChunk, onComplete, onError);
 
             expect(() => handler.abort()).not.toThrow();
         });
@@ -166,19 +168,22 @@ describe('StreamingHandler', () => {
         });
 
         it('ShouldAbortDuringFetchWithoutCrash', async () => {
-            global.fetch = jest.fn().mockImplementationOnce((_url: string, opts: any) =>
-                new Promise((_resolve, reject) => {
-                    const signal = opts?.signal;
-                    if (signal) {
-                        signal.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')));
-                    }
-                })
+            global.fetch = jest.fn().mockImplementationOnce(
+                (_url: string, opts: any) =>
+                    new Promise((_resolve, reject) => {
+                        const signal = opts?.signal;
+                        if (signal) {
+                            signal.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')));
+                        }
+                    }),
             );
 
             const promise = handler.streamFromUrl(
                 'http://localhost:5235/api/stream',
                 { prompt: 'test' },
-                jest.fn(), jest.fn(), jest.fn()
+                jest.fn(),
+                jest.fn(),
+                jest.fn(),
             );
 
             handler.abort();
@@ -192,7 +197,7 @@ describe('StreamingHandler', () => {
                 ok: true,
                 body: null,
                 text: jest.fn().mockResolvedValue(''),
-                headers: new Headers({})
+                headers: new Headers({}),
             } as any);
 
             const onError = jest.fn();
@@ -202,7 +207,7 @@ describe('StreamingHandler', () => {
                 { prompt: 'test' },
                 jest.fn(),
                 jest.fn(),
-                onError
+                onError,
             );
 
             expect(onError).toHaveBeenCalled();
@@ -213,7 +218,7 @@ describe('StreamingHandler', () => {
                 ok: true,
                 body: null,
                 text: jest.fn().mockResolvedValue('Hello World'),
-                headers: new Headers({})
+                headers: new Headers({}),
             } as any);
 
             const chunks: string[] = [];
@@ -224,7 +229,7 @@ describe('StreamingHandler', () => {
                 { prompt: 'test' },
                 (chunk) => chunks.push(chunk),
                 onComplete,
-                jest.fn()
+                jest.fn(),
             );
 
             expect(chunks).toEqual(['Hello World']);
@@ -237,13 +242,13 @@ describe('StreamingHandler', () => {
                     controller.enqueue(new TextEncoder().encode('event: ping\n'));
                     controller.enqueue(new TextEncoder().encode('data: {"content":"hello"}\n\n'));
                     controller.close();
-                }
+                },
             });
 
             global.fetch = jest.fn().mockResolvedValue({
                 ok: true,
                 body: mockStream,
-                headers: new Headers({ 'content-type': 'text/event-stream' })
+                headers: new Headers({ 'content-type': 'text/event-stream' }),
             } as any);
 
             const chunks: string[] = [];
@@ -254,7 +259,7 @@ describe('StreamingHandler', () => {
                 { prompt: 'test' },
                 (chunk) => chunks.push(chunk),
                 onComplete,
-                jest.fn()
+                jest.fn(),
             );
 
             expect(chunks.length).toBeGreaterThanOrEqual(1);

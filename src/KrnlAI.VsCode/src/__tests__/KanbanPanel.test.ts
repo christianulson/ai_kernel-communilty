@@ -1,35 +1,44 @@
-jest.mock('vscode', () => ({
-    window: {
-        createWebviewPanel: jest.fn(),
-        showInformationMessage: jest.fn(),
-        showErrorMessage: jest.fn(),
-        activeTextEditor: undefined
-    },
-    workspace: {
-        getConfiguration: jest.fn()
-    },
-    ViewColumn: { One: 1, Beside: 2 },
-    Disposable: class { dispose() { } },
-    EventEmitter: class { event = jest.fn(); fire = jest.fn(); }
-}), { virtual: true });
+jest.mock(
+    'vscode',
+    () => ({
+        window: {
+            createWebviewPanel: jest.fn(),
+            showInformationMessage: jest.fn(),
+            showErrorMessage: jest.fn(),
+            activeTextEditor: undefined,
+        },
+        workspace: {
+            getConfiguration: jest.fn(),
+        },
+        ViewColumn: { One: 1, Beside: 2 },
+        Disposable: class {
+            dispose() {}
+        },
+        EventEmitter: class {
+            event = jest.fn();
+            fire = jest.fn();
+        },
+    }),
+    { virtual: true },
+);
 
 function mockPanel() {
     return {
         webview: { html: '', onDidReceiveMessage: jest.fn(), postMessage: jest.fn() },
         onDidDispose: jest.fn(),
         reveal: jest.fn(),
-        dispose: jest.fn()
+        dispose: jest.fn(),
     };
 }
 
 const mockClient = {
     getBacklogItems: jest.fn(),
     createBacklogItem: jest.fn(),
-    updateBacklogStatus: jest.fn()
+    updateBacklogStatus: jest.fn(),
 };
 
 jest.mock('../api/client', () => ({
-    KernelClient: jest.fn(() => mockClient)
+    KernelClient: jest.fn(() => mockClient),
 }));
 
 describe('KanbanPanel', () => {
@@ -51,9 +60,10 @@ describe('KanbanPanel', () => {
             KanbanPanel.createOrShow();
 
             expect(vscode.window.createWebviewPanel).toHaveBeenCalledWith(
-                'krnlai.kanban', 'Kanban',
+                'krnlai.kanban',
+                'Kanban',
                 vscode.ViewColumn.One,
-                { enableScripts: true, retainContextWhenHidden: true }
+                { enableScripts: true, retainContextWhenHidden: true },
             );
             expect(panel.webview.html).toContain('Kanban Board');
         });
@@ -112,7 +122,9 @@ describe('KanbanPanel', () => {
             await handler({ type: 'create', title: 'New Card', description: 'Desc', priority: 'High' });
 
             expect(mockClient.createBacklogItem).toHaveBeenCalledWith({
-                title: 'New Card', description: 'Desc', priority: 'High'
+                title: 'New Card',
+                description: 'Desc',
+                priority: 'High',
             });
         });
     });
