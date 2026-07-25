@@ -71,7 +71,7 @@ export function activate(context: vscode.ExtensionContext) {
                 vscode.window.showErrorMessage('Configure "krnlai.sidecarPath" ou abra uma pasta do projeto Krnl-AI');
                 return;
             }
-            csprojPath = path.join(projectDir, 'src', 'KrnlAI.Sidecar', 'KrnlAI.Sidecar.csproj');
+            csprojPath = path.join(projectDir, 'Community', 'src', 'KrnlAI.Sidecar', 'KrnlAI.Sidecar.csproj');
         }
         if (!fs.existsSync(csprojPath)) {
             vscode.window.showErrorMessage(`Sidecar não encontrado em: ${csprojPath}. Configure "krnlai.sidecarPath" ou a env var KRNL_SIDECAR_PATH`);
