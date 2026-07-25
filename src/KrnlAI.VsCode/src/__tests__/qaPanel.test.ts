@@ -121,3 +121,5 @@ describe('QAPanel', () => {
         });
     });
 });
+
+export {};

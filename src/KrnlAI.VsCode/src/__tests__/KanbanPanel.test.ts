@@ -117,3 +117,5 @@ describe('KanbanPanel', () => {
         });
     });
 });
+
+export {};
