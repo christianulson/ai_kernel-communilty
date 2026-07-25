@@ -1,30 +1,34 @@
-jest.mock('vscode', () => ({
-    workspace: {
-        workspaceFolders: [{ uri: { fsPath: '/workspace' } }],
-        findFiles: jest.fn().mockResolvedValue([]),
-        openTextDocument: jest.fn(),
-        applyEdit: jest.fn().mockResolvedValue(true),
-    },
-    window: {
-        activeTextEditor: {
-            document: { uri: { fsPath: '/workspace/src/test.ts' }, getText: () => 'const x = 1;' },
-            selection: { isEmpty: true },
+jest.mock(
+    'vscode',
+    () => ({
+        workspace: {
+            workspaceFolders: [{ uri: { fsPath: '/workspace' } }],
+            findFiles: jest.fn().mockResolvedValue([]),
+            openTextDocument: jest.fn(),
+            applyEdit: jest.fn().mockResolvedValue(true),
         },
-        showInformationMessage: jest.fn(),
-        createTerminal: jest.fn().mockReturnValue({
-            show: jest.fn(),
-            sendText: jest.fn(),
-            dispose: jest.fn(),
-        }),
-    },
-    Uri: { file: jest.fn().mockImplementation((p: string) => ({ fsPath: p, path: p })) },
-    Range: jest.fn(),
-    WorkspaceEdit: jest.fn().mockImplementation(() => ({ replace: jest.fn() })),
-    languages: {
-        getDiagnostics: jest.fn().mockReturnValue([]),
-    },
-    commands: { executeCommand: jest.fn() },
-}), { virtual: true });
+        window: {
+            activeTextEditor: {
+                document: { uri: { fsPath: '/workspace/src/test.ts' }, getText: () => 'const x = 1;' },
+                selection: { isEmpty: true },
+            },
+            showInformationMessage: jest.fn(),
+            createTerminal: jest.fn().mockReturnValue({
+                show: jest.fn(),
+                sendText: jest.fn(),
+                dispose: jest.fn(),
+            }),
+        },
+        Uri: { file: jest.fn().mockImplementation((p: string) => ({ fsPath: p, path: p })) },
+        Range: jest.fn(),
+        WorkspaceEdit: jest.fn().mockImplementation(() => ({ replace: jest.fn() })),
+        languages: {
+            getDiagnostics: jest.fn().mockReturnValue([]),
+        },
+        commands: { executeCommand: jest.fn() },
+    }),
+    { virtual: true },
+);
 
 import { AgenticLoopManager } from '../codingAgent/AgenticLoopManager';
 import { KernelClient } from '../api/client';
@@ -66,8 +70,7 @@ describe('AgenticLoopManager', () => {
     });
 
     it('AgenticLoopManager_ShouldLimitIterations', async () => {
-        mockClient.runAgent
-            .mockResolvedValue({ narration: 'RUN: echo hello' });
+        mockClient.runAgent.mockResolvedValue({ narration: 'RUN: echo hello' });
 
         const result = await manager.executeTask('loop forever', mockContext);
         expect(result.iterations).toBeLessThanOrEqual(10);

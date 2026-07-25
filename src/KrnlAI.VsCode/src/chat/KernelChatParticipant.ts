@@ -8,7 +8,7 @@ export function registerKernelChatParticipant(
     context: vscode.ExtensionContext,
     client: KernelClient,
     approvalManager: ApprovalManager,
-    sessionManager?: SessionManager
+    sessionManager?: SessionManager,
 ): vscode.Disposable {
     const participant = vscode.chat.createChatParticipant('krnlai.coding', async (request, _ctx, stream, token) => {
         const sessionMessages: ChatMessage[] = [];
@@ -33,9 +33,7 @@ export function registerKernelChatParticipant(
         }
 
         try {
-            const prompt = command
-                ? `/${command} ${request.prompt}`
-                : request.prompt;
+            const prompt = command ? `/${command} ${request.prompt}` : request.prompt;
 
             const response = await client.runAgent(prompt, 'gateway');
 
@@ -52,10 +50,7 @@ export function registerKernelChatParticipant(
             }
 
             if (sessionManager && sessionMessages.length > 0) {
-                await sessionManager.autoSave(
-                    `Chat ${new Date().toLocaleDateString()}`,
-                    sessionMessages
-                );
+                await sessionManager.autoSave(`Chat ${new Date().toLocaleDateString()}`, sessionMessages);
             }
         } catch (err: any) {
             stream.markdown(`❌ **Erro de conexão:** ${err.message}`);
@@ -78,7 +73,7 @@ export function registerKernelChatParticipant(
             { id: '/refactor', description: 'Refactor selected code' },
             { id: '/review', description: 'Review code' },
             { id: '/doc', description: 'Generate documentation' },
-        ]
+        ],
     };
 
     const logger = vscode.window.createOutputChannel('Krnl-AI Chat', { log: true });

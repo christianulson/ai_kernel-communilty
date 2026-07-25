@@ -1,21 +1,27 @@
-jest.mock('vscode', () => {
-    const mockParticipant = {
-        onDidReceiveFeedback: jest.fn(),
-        commandProvider: {
-            provideCommands: jest.fn().mockReturnValue([]),
-        },
-    };
-    return {
-        window: {
-            createOutputChannel: jest.fn().mockReturnValue({ trace: jest.fn(), info: jest.fn(), warn: jest.fn(), error: jest.fn() }),
-        },
-        chat: {
-            createChatParticipant: jest.fn().mockReturnValue(mockParticipant),
-        },
-        ThemeIcon: jest.fn().mockImplementation((id: string) => ({ id })),
-        ChatResultFeedbackKind: { Helpful: 1, Unhelpful: 2 },
-    };
-}, { virtual: true });
+jest.mock(
+    'vscode',
+    () => {
+        const mockParticipant = {
+            onDidReceiveFeedback: jest.fn(),
+            commandProvider: {
+                provideCommands: jest.fn().mockReturnValue([]),
+            },
+        };
+        return {
+            window: {
+                createOutputChannel: jest
+                    .fn()
+                    .mockReturnValue({ trace: jest.fn(), info: jest.fn(), warn: jest.fn(), error: jest.fn() }),
+            },
+            chat: {
+                createChatParticipant: jest.fn().mockReturnValue(mockParticipant),
+            },
+            ThemeIcon: jest.fn().mockImplementation((id: string) => ({ id })),
+            ChatResultFeedbackKind: { Helpful: 1, Unhelpful: 2 },
+        };
+    },
+    { virtual: true },
+);
 
 import { registerKernelChatParticipant } from '../chat/KernelChatParticipant';
 import { KernelClient } from '../api/client';

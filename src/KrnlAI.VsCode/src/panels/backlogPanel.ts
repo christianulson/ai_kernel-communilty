@@ -14,7 +14,7 @@ export class BacklogPanel {
         this._nonce = Math.random().toString(36).substring(2, 10);
         this._panel.webview.html = this._getHtml();
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
-        this._panel.webview.onDidReceiveMessage(msg => this._handle(msg), null, this._disposables);
+        this._panel.webview.onDidReceiveMessage((msg) => this._handle(msg), null, this._disposables);
     }
 
     static createOrShow() {
@@ -23,9 +23,10 @@ export class BacklogPanel {
             return;
         }
         const panel = vscode.window.createWebviewPanel(
-            'krnlai.backlog', 'Krnl-AI - Backlog',
+            'krnlai.backlog',
+            'Krnl-AI - Backlog',
             vscode.ViewColumn.Beside,
-            { enableScripts: true, retainContextWhenHidden: true }
+            { enableScripts: true, retainContextWhenHidden: true },
         );
         BacklogPanel.currentPanel = new BacklogPanel(panel);
     }
@@ -39,10 +40,17 @@ export class BacklogPanel {
                 break;
             case 'create':
                 const created = await this._client.createBacklogItem({
-                    title: msg.title, description: msg.description, priority: msg.priority,
-                    dependencies: msg.dependencies, tags: msg.tags
+                    title: msg.title,
+                    description: msg.description,
+                    priority: msg.priority,
+                    dependencies: msg.dependencies,
+                    tags: msg.tags,
                 });
-                this._panel.webview.postMessage({ type: 'createResult', item: created, error: created ? undefined : 'Failed to create item' });
+                this._panel.webview.postMessage({
+                    type: 'createResult',
+                    item: created,
+                    error: created ? undefined : 'Failed to create item',
+                });
                 if (created) {
                     const all = await this._client.getBacklogItems();
                     this._panel.webview.postMessage({ type: 'items', items: all ?? [] });
@@ -50,7 +58,12 @@ export class BacklogPanel {
                 break;
             case 'updateStatus':
                 const updated = await this._client.updateBacklogStatus(msg.id, msg.status);
-                this._panel.webview.postMessage({ type: 'updateResult', id: msg.id, item: updated, error: updated ? undefined : 'Failed to update' });
+                this._panel.webview.postMessage({
+                    type: 'updateResult',
+                    id: msg.id,
+                    item: updated,
+                    error: updated ? undefined : 'Failed to update',
+                });
                 if (updated) {
                     const all = await this._client.getBacklogItems();
                     this._panel.webview.postMessage({ type: 'items', items: all ?? [] });

@@ -26,7 +26,7 @@ export class CompletionCache {
         let hash = 0;
         for (let i = 0; i < s.length; i++) {
             const char = s.charCodeAt(i);
-            hash = ((hash << 5) - hash) + char;
+            hash = (hash << 5) - hash + char;
             hash |= 0;
         }
         return hash.toString(36);
@@ -66,7 +66,7 @@ export class CompletionCache {
             completions,
             timestamp: Date.now(),
             prefixStart: prefix.substring(0, Math.min(80, prefix.length)),
-            language
+            language,
         });
     }
 

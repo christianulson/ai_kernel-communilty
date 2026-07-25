@@ -42,7 +42,7 @@ describe('ChatMessage', () => {
                 role: 'assistant',
                 content: 'test',
                 timestamp: 100,
-                isStreaming: true
+                isStreaming: true,
             };
             expect(msg.isStreaming).toBe(true);
         });
@@ -53,7 +53,7 @@ describe('ChatMessage', () => {
                 role: 'assistant',
                 content: 'error',
                 timestamp: 100,
-                isError: true
+                isError: true,
             };
             expect(msg.isError).toBe(true);
         });

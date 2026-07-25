@@ -21,9 +21,16 @@ export class SlashCommandManager {
     private _gitManager?: GitManager;
     private _loopManager?: AgenticLoopManager;
 
-    constructor(client: KernelClient, terminalManager?: TerminalManager, gitManager?: GitManager, loopManager?: AgenticLoopManager, debugTracker?: OperationTracker) {
+    constructor(
+        client: KernelClient,
+        terminalManager?: TerminalManager,
+        gitManager?: GitManager,
+        loopManager?: AgenticLoopManager,
+        debugTracker?: OperationTracker,
+    ) {
         this._client = client;
-        this._terminalManager = debugTracker && terminalManager ? this._wrapTerminal(terminalManager, debugTracker) : terminalManager;
+        this._terminalManager =
+            debugTracker && terminalManager ? this._wrapTerminal(terminalManager, debugTracker) : terminalManager;
         this._gitManager = debugTracker && gitManager ? this._wrapGit(gitManager, debugTracker) : gitManager;
         this._loopManager = loopManager;
         this.registerDefaults();
@@ -67,9 +74,11 @@ export class SlashCommandManager {
             description: 'Explica o código com contexto do editor',
             handler: async (args, ctx, client) => {
                 const prompt = args || ctx.selection || ctx.content?.substring(0, 2000) || '';
-                const response = await client.runAgent(`Explique este código:\n\`\`\`${ctx.language || ''}\n${prompt}\n\`\`\``);
+                const response = await client.runAgent(
+                    `Explique este código:\n\`\`\`${ctx.language || ''}\n${prompt}\n\`\`\``,
+                );
                 return response.narration || response.error || 'Sem resposta';
-            }
+            },
         });
 
         this.register({
@@ -77,11 +86,14 @@ export class SlashCommandManager {
             description: 'Tenta corrigir código baseado em diagnostics',
             handler: async (args, ctx, client) => {
                 const code = args || ctx.selection || ctx.content?.substring(0, 2000) || '';
-                const diags = ctx.diagnostics.slice(0, 20).map(d => `[${d.severity}] ${d.message}`).join('\n');
+                const diags = ctx.diagnostics
+                    .slice(0, 20)
+                    .map((d) => `[${d.severity}] ${d.message}`)
+                    .join('\n');
                 const prompt = `Corrija este código considerando os diagnósticos:\n${diags}\n\nCódigo:\n\`\`\`${ctx.language || ''}\n${code}\n\`\`\``;
                 const response = await client.runAgent(prompt);
                 return response.narration || response.error || 'Sem resposta';
-            }
+            },
         });
 
         this.register({
@@ -92,7 +104,7 @@ export class SlashCommandManager {
                 const prompt = `Gere testes unitários para este código:\n\`\`\`${ctx.language || ''}\n${code}\n\`\`\``;
                 const response = await client.runAgent(prompt);
                 return response.narration || response.error || 'Sem resposta';
-            }
+            },
         });
 
         this.register({
@@ -103,7 +115,7 @@ export class SlashCommandManager {
                 const prompt = `Refatore este código mantendo o mesmo comportamento:\n\`\`\`${ctx.language || ''}\n${code}\n\`\`\``;
                 const response = await client.runAgent(prompt);
                 return response.narration || response.error || 'Sem resposta';
-            }
+            },
         });
 
         this.register({
@@ -114,7 +126,7 @@ export class SlashCommandManager {
                 const prompt = `Faça uma revisão de código detalhada:\n\`\`\`${ctx.language || ''}\n${code}\n\`\`\``;
                 const response = await client.runAgent(prompt);
                 return response.narration || response.error || 'Sem resposta';
-            }
+            },
         });
 
         this.register({
@@ -125,7 +137,7 @@ export class SlashCommandManager {
                 const prompt = `Gere documentação para este código:\n\`\`\`${ctx.language || ''}\n${code}\n\`\`\``;
                 const response = await client.runAgent(prompt);
                 return response.narration || response.error || 'Sem resposta';
-            }
+            },
         });
 
         this.register({
@@ -135,10 +147,8 @@ export class SlashCommandManager {
                 if (!args) return 'Uso: /run <comando>. Exemplo: /run npm test';
                 if (!this._terminalManager) return 'TerminalManager não disponível';
                 const result = await this._terminalManager.runCommand(args);
-                return result.exitCode === 1 && result.stderr
-                    ? `❌ ${result.stderr}`
-                    : `✅ ${result.stdout}`;
-            }
+                return result.exitCode === 1 && result.stderr ? `❌ ${result.stderr}` : `✅ ${result.stdout}`;
+            },
         });
 
         this.register({
@@ -149,9 +159,18 @@ export class SlashCommandManager {
                 const lang = (ctx.language || '').toLowerCase();
                 let cmd = args;
                 if (!cmd) {
-                    if (lang.includes('c#') || lang.includes('csharp') || ctx.activeFile?.endsWith('.csproj') || ctx.activeFile?.endsWith('.sln')) {
+                    if (
+                        lang.includes('c#') ||
+                        lang.includes('csharp') ||
+                        ctx.activeFile?.endsWith('.csproj') ||
+                        ctx.activeFile?.endsWith('.sln')
+                    ) {
                         cmd = 'dotnet build';
-                    } else if (lang.includes('typescript') || lang.includes('javascript') || ctx.activeFile?.endsWith('package.json')) {
+                    } else if (
+                        lang.includes('typescript') ||
+                        lang.includes('javascript') ||
+                        ctx.activeFile?.endsWith('package.json')
+                    ) {
                         cmd = 'npm run build';
                     } else if (lang.includes('python')) {
                         cmd = 'python -m build';
@@ -163,7 +182,7 @@ export class SlashCommandManager {
                 return result.exitCode === 1 && result.stderr
                     ? `❌ Build falhou:\n${result.stderr}`
                     : `✅ Build concluído:\n${result.stdout || cmd}`;
-            }
+            },
         });
 
         this.register({
@@ -188,7 +207,7 @@ export class SlashCommandManager {
                 return result.exitCode === 1 && result.stderr
                     ? `❌ Testes falharam:\n${result.stderr}`
                     : `✅ Testes executados:\n${result.stdout || cmd}`;
-            }
+            },
         });
 
         // Git commands
@@ -202,7 +221,7 @@ export class SlashCommandManager {
                 return result.success
                     ? `✅ Commit criado:\n${result.output}`
                     : `❌ Erro ao criar commit:\n${result.error || result.output}`;
-            }
+            },
         });
 
         this.register({
@@ -215,7 +234,7 @@ export class SlashCommandManager {
                 return result.success
                     ? `📊 Diff${staged ? ' (staged)' : ''}:\n\`\`\`diff\n${result.output || '(sem mudanças)'}\n\`\`\``
                     : `❌ Erro ao obter diff:\n${result.error || result.output}`;
-            }
+            },
         });
 
         this.register({
@@ -231,10 +250,8 @@ export class SlashCommandManager {
                 }
                 const branches = await this._gitManager.getBranches();
                 if (!branches.length) return 'Nenhuma branch encontrada';
-                return branches.map(b =>
-                    `${b.current ? '* ' : '  '}${b.name}`
-                ).join('\n');
-            }
+                return branches.map((b) => `${b.current ? '* ' : '  '}${b.name}`).join('\n');
+            },
         });
 
         this.register({
@@ -247,7 +264,7 @@ export class SlashCommandManager {
                 const header = `📂 Branch: ${branch}\n`;
                 if (!status.success) return `${header}❌ ${status.error || 'Erro ao obter status'}`;
                 return `${header}\`\`\`\n${status.output || '(working tree limpo)'}\n\`\`\``;
-            }
+            },
         });
 
         this.register({
@@ -260,7 +277,7 @@ export class SlashCommandManager {
                 return result.success
                     ? `📜 Últimos ${count} commits:\n\`\`\`\n${result.output}\n\`\`\``
                     : `❌ ${result.error || 'Erro ao obter log'}`;
-            }
+            },
         });
 
         this.register({
@@ -271,7 +288,7 @@ export class SlashCommandManager {
                 const prNumber = parseInt(args);
                 if (isNaN(prNumber)) return 'Uso: /review-pr <número>. Exemplo: /review-pr 123';
                 return await this._gitManager.reviewPR(prNumber);
-            }
+            },
         });
 
         // Agentic Loop
@@ -279,11 +296,13 @@ export class SlashCommandManager {
             id: '/task',
             description: 'Executa tarefa multi-passo com loop agente (ex: /task adicione testes para auth)',
             handler: async (args, ctx, client) => {
-                if (!this._loopManager) return 'AgenticLoopManager não disponível (requer codingAgent.agenticLoops=true)';
-                if (!args) return 'Uso: /task <descrição da tarefa>. Exemplo: /task adicione testes para o módulo de autenticação';
+                if (!this._loopManager)
+                    return 'AgenticLoopManager não disponível (requer codingAgent.agenticLoops=true)';
+                if (!args)
+                    return 'Uso: /task <descrição da tarefa>. Exemplo: /task adicione testes para o módulo de autenticação';
                 const result = await this._loopManager.executeTask(args, ctx);
                 return this._loopManager.formatResult(result);
-            }
+            },
         });
     }
 
@@ -300,7 +319,7 @@ export class SlashCommandManager {
     }
 
     getCompletionItems(): vscode.CompletionItem[] {
-        return this.getAll().map(cmd => {
+        return this.getAll().map((cmd) => {
             const item = new vscode.CompletionItem(cmd.id, vscode.CompletionItemKind.Snippet);
             item.detail = cmd.description;
             item.insertText = cmd.id + ' ';
@@ -328,7 +347,7 @@ export class SlashCommandManager {
         return {
             command: this._commands.has(cmd) ? cmd : undefined,
             args,
-            rest: this._commands.has(cmd) ? '' : trimmed
+            rest: this._commands.has(cmd) ? '' : trimmed,
         };
     }
 }

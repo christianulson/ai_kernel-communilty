@@ -67,7 +67,7 @@ export class OperationScope implements Disposable {
     private _toOperationCall(): OperationCall {
         let children: OperationCall[] | null = null;
         if (this._childScopes.length > 0) {
-            children = this._childScopes.map(c => c._toOperationCall());
+            children = this._childScopes.map((c) => c._toOperationCall());
         }
 
         return {
@@ -168,9 +168,7 @@ export class OperationTracker {
             return 'No operations tracked yet. Use any extension feature to generate operations.';
         }
 
-        let ops = limit > 0
-            ? this._history.slice(-limit)
-            : [...this._history];
+        let ops = limit > 0 ? this._history.slice(-limit) : [...this._history];
 
         const lines: string[] = ['### Debug Trace\n'];
         for (const op of ops) {
@@ -182,14 +180,18 @@ export class OperationTracker {
 
     private _appendOperation(lines: string[], op: OperationCall, indent: number): void {
         const prefix = '  '.repeat(indent);
-        const icon = op.state === OperationState.Running ? '⏳'
-            : op.state === OperationState.Completed ? '✅'
-            : op.state === OperationState.Failed ? '❌'
-            : op.state === OperationState.Cancelled ? '🚫' : '❓';
+        const icon =
+            op.state === OperationState.Running
+                ? '⏳'
+                : op.state === OperationState.Completed
+                  ? '✅'
+                  : op.state === OperationState.Failed
+                    ? '❌'
+                    : op.state === OperationState.Cancelled
+                      ? '🚫'
+                      : '❓';
 
-        const elapsed = op.elapsedMs >= 1000
-            ? `${(op.elapsedMs / 1000).toFixed(1)}s`
-            : `${op.elapsedMs}ms`;
+        const elapsed = op.elapsedMs >= 1000 ? `${(op.elapsedMs / 1000).toFixed(1)}s` : `${op.elapsedMs}ms`;
 
         lines.push(`${prefix}${icon} **${op.name}** — ${op.state} (${elapsed})`);
 
@@ -212,7 +214,7 @@ export class OperationTracker {
 
     /** @internal */
     _replaceOperation(completedOp: OperationCall): void {
-        const index = this._history.findIndex(o => o.id === completedOp.id);
+        const index = this._history.findIndex((o) => o.id === completedOp.id);
         if (index >= 0) {
             this._history[index] = completedOp;
         }

@@ -1,12 +1,26 @@
-jest.mock('vscode', () => ({
-    Hover: jest.fn().mockImplementation((content: any, range?: any) => ({ content, range })),
-    MarkdownString: jest.fn().mockImplementation(() => ({
-        appendMarkdown: jest.fn(),
-        isTrusted: false,
-    })),
-    Position: class { constructor(line: number, char: number) { (this as any).line = line; (this as any).character = char; } },
-    Range: class { constructor(start: any, end: any) { (this as any).start = start; (this as any).end = end; } },
-}), { virtual: true });
+jest.mock(
+    'vscode',
+    () => ({
+        Hover: jest.fn().mockImplementation((content: any, range?: any) => ({ content, range })),
+        MarkdownString: jest.fn().mockImplementation(() => ({
+            appendMarkdown: jest.fn(),
+            isTrusted: false,
+        })),
+        Position: class {
+            constructor(line: number, char: number) {
+                (this as any).line = line;
+                (this as any).character = char;
+            }
+        },
+        Range: class {
+            constructor(start: any, end: any) {
+                (this as any).start = start;
+                (this as any).end = end;
+            }
+        },
+    }),
+    { virtual: true },
+);
 
 import { CodingHoverProvider } from '../codingAgent/CodingHoverProvider';
 
@@ -31,7 +45,9 @@ describe('CodingHoverProvider', () => {
                 if (!range) return 'const x = 1;';
                 return 'calculateTotal';
             }),
-            getWordRangeAtPosition: jest.fn().mockReturnValue({ start: { line: 5, character: 4 }, end: { line: 5, character: 18 } }),
+            getWordRangeAtPosition: jest
+                .fn()
+                .mockReturnValue({ start: { line: 5, character: 4 }, end: { line: 5, character: 18 } }),
             lineAt: jest.fn().mockReturnValue({ text: '  const total = calculateTotal(items);' }),
         };
 
@@ -50,7 +66,9 @@ describe('CodingHoverProvider', () => {
 
     it('CodingHoverProvider_NumericSymbol_ShouldReturnUndefined', async () => {
         mockDoc.getText = jest.fn().mockReturnValue('12345');
-        mockDoc.getWordRangeAtPosition = jest.fn().mockReturnValue({ start: { line: 0, character: 0 }, end: { line: 0, character: 5 } });
+        mockDoc.getWordRangeAtPosition = jest
+            .fn()
+            .mockReturnValue({ start: { line: 0, character: 0 }, end: { line: 0, character: 5 } });
         const result = await provider.provideHover(mockDoc, mockPos, mockToken);
         expect(result).toBeUndefined();
     });

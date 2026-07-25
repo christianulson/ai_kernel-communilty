@@ -19,7 +19,7 @@ export async function waitForExtension(timeoutMs = 10000): Promise<void> {
 }
 
 export function sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export async function getSidecarProcessStatus(): Promise<string | undefined> {

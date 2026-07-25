@@ -10,7 +10,7 @@ export class StreamingHandler {
         body: any,
         onChunk: StreamChunkHandler,
         onComplete: StreamCompleteHandler,
-        onError: StreamErrorHandler
+        onError: StreamErrorHandler,
     ): Promise<void> {
         this._abortController = new AbortController();
         let fullContent = '';
@@ -20,7 +20,7 @@ export class StreamingHandler {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body),
-                signal: this._abortController.signal
+                signal: this._abortController.signal,
             });
 
             if (!response.ok) {

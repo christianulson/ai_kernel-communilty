@@ -1,23 +1,32 @@
-jest.mock('vscode', () => ({
-    window: {
-        createWebviewPanel: jest.fn(),
-        showInformationMessage: jest.fn(),
-        showErrorMessage: jest.fn()
-    },
-    workspace: {
-        getConfiguration: jest.fn()
-    },
-    ViewColumn: { One: 1, Beside: 2 },
-    Disposable: class { dispose() { } },
-    EventEmitter: class { event = jest.fn(); fire = jest.fn(); }
-}), { virtual: true });
+jest.mock(
+    'vscode',
+    () => ({
+        window: {
+            createWebviewPanel: jest.fn(),
+            showInformationMessage: jest.fn(),
+            showErrorMessage: jest.fn(),
+        },
+        workspace: {
+            getConfiguration: jest.fn(),
+        },
+        ViewColumn: { One: 1, Beside: 2 },
+        Disposable: class {
+            dispose() {}
+        },
+        EventEmitter: class {
+            event = jest.fn();
+            fire = jest.fn();
+        },
+    }),
+    { virtual: true },
+);
 
 function mockPanel() {
     return {
         webview: { html: '', onDidReceiveMessage: jest.fn(), postMessage: jest.fn() },
         onDidDispose: jest.fn(),
         reveal: jest.fn(),
-        dispose: jest.fn()
+        dispose: jest.fn(),
     };
 }
 
@@ -25,11 +34,11 @@ const mockClient = {
     getBacklogItems: jest.fn(),
     createBacklogItem: jest.fn(),
     updateBacklogStatus: jest.fn(),
-    deleteBacklogItem: jest.fn()
+    deleteBacklogItem: jest.fn(),
 };
 
 jest.mock('../api/client', () => ({
-    KernelClient: jest.fn(() => mockClient)
+    KernelClient: jest.fn(() => mockClient),
 }));
 
 describe('BacklogPanel', () => {
@@ -51,9 +60,10 @@ describe('BacklogPanel', () => {
             BacklogPanel.createOrShow();
 
             expect(vscode.window.createWebviewPanel).toHaveBeenCalledWith(
-                'krnlai.backlog', 'Krnl-AI - Backlog',
+                'krnlai.backlog',
+                'Krnl-AI - Backlog',
                 vscode.ViewColumn.Beside,
-                { enableScripts: true, retainContextWhenHidden: true }
+                { enableScripts: true, retainContextWhenHidden: true },
             );
             expect(panel.webview.html).toContain('Backlog');
             expect(panel.webview.onDidReceiveMessage).toHaveBeenCalled();
@@ -97,12 +107,27 @@ describe('BacklogPanel', () => {
             mockClient.getBacklogItems.mockResolvedValue([created]);
 
             const handler = panel.webview.onDidReceiveMessage.mock.calls[0][0];
-            await handler({ type: 'create', title: 'New', description: 'Desc', priority: 'High', dependencies: [], tags: [] });
+            await handler({
+                type: 'create',
+                title: 'New',
+                description: 'Desc',
+                priority: 'High',
+                dependencies: [],
+                tags: [],
+            });
 
             expect(mockClient.createBacklogItem).toHaveBeenCalledWith({
-                title: 'New', description: 'Desc', priority: 'High', dependencies: [], tags: []
+                title: 'New',
+                description: 'Desc',
+                priority: 'High',
+                dependencies: [],
+                tags: [],
             });
-            expect(panel.webview.postMessage).toHaveBeenCalledWith({ type: 'createResult', item: created, error: undefined });
+            expect(panel.webview.postMessage).toHaveBeenCalledWith({
+                type: 'createResult',
+                item: created,
+                error: undefined,
+            });
         });
 
         it('should update status on updateStatus message', async () => {

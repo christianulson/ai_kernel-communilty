@@ -1,16 +1,71 @@
 import * as vscode from 'vscode';
 import { StreamingHandler } from '../chat/StreamingHandler';
 
-export interface AgentRunResponse { narration?: string; error?: string; transportSteps?: { label: string; detail: string; ok: boolean }[]; activeStages?: string[]; }
-export interface HealthResponse { status: string; ts: string; version: string; }
-export interface ScorecardData { reliability: number; efficiency: number; safety: number; antiLoop: number; governance: number; overall: number; }
-export interface PolicyInfo { id: string; name: string; domain: string; version: string; createdAt: string; isActive: boolean; }
-export interface EpisodeInfo { id: string; goalId: string; status: string; createdAt: string; durationMs?: number; }
-export interface EpisodeDetail { id: string; goalId: string; status: string; createdAt: string; durationMs?: number; steps?: { label: string; detail: string; ok: boolean }[]; }
-export interface MemoryHit { id: string; content: string; source: string; score: number; }
-export interface MemoryMetrics { totalChunks?: number; totalDocuments?: number; totalSizeBytes?: number; }
-export interface EmotionalState { valence: number; arousal: number; motivation: number; updatedAt: string; }
-export interface PendingApprovalDTO { id: string; action: string; details: string[]; createdAt: string; }
+export interface AgentRunResponse {
+    narration?: string;
+    error?: string;
+    transportSteps?: { label: string; detail: string; ok: boolean }[];
+    activeStages?: string[];
+}
+export interface HealthResponse {
+    status: string;
+    ts: string;
+    version: string;
+}
+export interface ScorecardData {
+    reliability: number;
+    efficiency: number;
+    safety: number;
+    antiLoop: number;
+    governance: number;
+    overall: number;
+}
+export interface PolicyInfo {
+    id: string;
+    name: string;
+    domain: string;
+    version: string;
+    createdAt: string;
+    isActive: boolean;
+}
+export interface EpisodeInfo {
+    id: string;
+    goalId: string;
+    status: string;
+    createdAt: string;
+    durationMs?: number;
+}
+export interface EpisodeDetail {
+    id: string;
+    goalId: string;
+    status: string;
+    createdAt: string;
+    durationMs?: number;
+    steps?: { label: string; detail: string; ok: boolean }[];
+}
+export interface MemoryHit {
+    id: string;
+    content: string;
+    source: string;
+    score: number;
+}
+export interface MemoryMetrics {
+    totalChunks?: number;
+    totalDocuments?: number;
+    totalSizeBytes?: number;
+}
+export interface EmotionalState {
+    valence: number;
+    arousal: number;
+    motivation: number;
+    updatedAt: string;
+}
+export interface PendingApprovalDTO {
+    id: string;
+    action: string;
+    details: string[];
+    createdAt: string;
+}
 export type RuntimeMode = 'embedded' | 'localApi' | 'remoteApi';
 
 export class KernelClient {
@@ -58,29 +113,38 @@ export class KernelClient {
         try {
             const res = await fetch(`${this.getBaseUrl()}${path}`, {
                 headers: { 'Content-Type': 'application/json' },
-                ...options
+                ...options,
             });
             if (!res.ok) return null;
             return await res.json();
-        } catch { return null; }
+        } catch {
+            return null;
+        }
     }
 
-    async health(): Promise<HealthResponse | null> { return this.fetchJson('/health'); }
+    async health(): Promise<HealthResponse | null> {
+        return this.fetchJson('/health');
+    }
 
     async runAgent(prompt: string, mode = 'gateway'): Promise<AgentRunResponse> {
         try {
             const res = await fetch(`${this.getBaseUrl()}/agent/run`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt, mode })
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt, mode }),
             });
             if (!res.headers.get('content-type')?.includes('application/json')) {
                 return { narration: undefined, error: 'Resposta inválida do servidor' };
             }
             return await res.json();
-        } catch (ex: any) { return { narration: undefined, error: `Erro de conexão: ${ex.message}` }; }
+        } catch (ex: any) {
+            return { narration: undefined, error: `Erro de conexão: ${ex.message}` };
+        }
     }
 
-    async getScorecard(): Promise<ScorecardData | null> { return this.fetchJson('/agent/metrics/scorecard'); }
+    async getScorecard(): Promise<ScorecardData | null> {
+        return this.fetchJson('/agent/metrics/scorecard');
+    }
     async getPolicies(domain?: string): Promise<PolicyInfo[] | null> {
         const params = domain ? `?domain=${encodeURIComponent(domain)}` : '';
         const r = await this.fetchJson<{ policies: PolicyInfo[] }>(`/policy/list${params}`);
@@ -90,14 +154,18 @@ export class KernelClient {
         const r = await this.fetchJson<{ episodes: EpisodeInfo[] }>('/episodes/search?pageSize=50');
         return r?.episodes || null;
     }
-    async getEpisode(id: string): Promise<EpisodeDetail | null> { return this.fetchJson(`/episodes/${id}`); }
+    async getEpisode(id: string): Promise<EpisodeDetail | null> {
+        return this.fetchJson(`/episodes/${id}`);
+    }
     async searchMemory(query: string): Promise<{ hits: MemoryHit[]; totalCount: number } | null> {
         return this.fetchJson('/memory/search', {
             method: 'POST',
-            body: JSON.stringify({ query, limit: 20 })
+            body: JSON.stringify({ query, limit: 20 }),
         });
     }
-    async getMemoryMetrics(): Promise<MemoryMetrics | null> { return this.fetchJson('/memory/metrics'); }
+    async getMemoryMetrics(): Promise<MemoryMetrics | null> {
+        return this.fetchJson('/memory/metrics');
+    }
 
     async getEmotionalState(userId = 'dev-user'): Promise<EmotionalState | null> {
         return this.fetchJson(`/profile/emotional?userId=${encodeURIComponent(userId)}`);
@@ -114,20 +182,25 @@ export class KernelClient {
         if (!health) return '$(circle-slash) Indisponível';
         const emotional = await this.getEmotionalState();
         const mood = emotional ? this._describeMood(emotional.valence, emotional.arousal) : '';
-        return mood ? `$(pass-filled) ${health.version || 'Conectado'} · ${mood}` : `$(pass-filled) ${health.version || 'Conectado'}`;
+        return mood
+            ? `$(pass-filled) ${health.version || 'Conectado'} · ${mood}`
+            : `$(pass-filled) ${health.version || 'Conectado'}`;
     }
 
     private async _codingRequest(endpoint: string, body: any): Promise<AgentRunResponse> {
         try {
             const res = await fetch(`${this.getBaseUrl()}${endpoint}`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body),
             });
             if (!res.headers.get('content-type')?.includes('application/json')) {
                 return { narration: undefined, error: 'Resposta inválida do servidor' };
             }
             return await res.json();
-        } catch (ex: any) { return { narration: undefined, error: `Erro de conexão: ${ex.message}` }; }
+        } catch (ex: any) {
+            return { narration: undefined, error: `Erro de conexão: ${ex.message}` };
+        }
     }
 
     async codingExplain(code: string, language?: string): Promise<AgentRunResponse> {
@@ -151,13 +224,15 @@ export class KernelClient {
         language: string | undefined,
         onChunk: (chunk: string) => void,
         onComplete: (full: string) => void,
-        onError: (err: Error) => void
+        onError: (err: Error) => void,
     ): Promise<void> {
         const handler = new StreamingHandler();
         await handler.streamFromUrl(
             `${this.getBaseUrl()}/api/coding/explain`,
             { code, language },
-            onChunk, onComplete, onError
+            onChunk,
+            onComplete,
+            onError,
         );
     }
 
@@ -166,14 +241,10 @@ export class KernelClient {
         mode: string,
         onChunk: (chunk: string) => void,
         onComplete: (full: string) => void,
-        onError: (err: Error) => void
+        onError: (err: Error) => void,
     ): Promise<void> {
         const handler = new StreamingHandler();
-        await handler.streamFromUrl(
-            `${this.getBaseUrl()}/agent/run`,
-            { prompt, mode },
-            onChunk, onComplete, onError
-        );
+        await handler.streamFromUrl(`${this.getBaseUrl()}/agent/run`, { prompt, mode }, onChunk, onComplete, onError);
     }
 
     async getPendingApprovals(): Promise<PendingApprovalDTO[]> {
@@ -184,31 +255,48 @@ export class KernelClient {
     async respondApproval(id: string, decision: 'allowed' | 'rejected'): Promise<boolean> {
         try {
             const res = await fetch(`${this.getBaseUrl()}/api/coding/approvals/${id}/respond`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ decision })
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ decision }),
             });
             return res.ok;
-        } catch { return false; }
+        } catch {
+            return false;
+        }
     }
 
     // Plugin catalog
     async listPlugins(): Promise<{ id: string; name: string; version: string; description: string }[]> {
-        const data = await this.fetchJson<{ items: { id: string; name: string; version: string; description: string }[] }>('/admin/plugins/catalog');
+        const data = await this.fetchJson<{
+            items: { id: string; name: string; version: string; description: string }[];
+        }>('/admin/plugins/catalog');
         return data?.items || [];
     }
 
     async installPlugin(pluginId: string): Promise<boolean> {
         try {
-            const res = await fetch(`${this.getBaseUrl()}/admin/plugins/catalog/${encodeURIComponent(pluginId)}/install`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' }
-            });
+            const res = await fetch(
+                `${this.getBaseUrl()}/admin/plugins/catalog/${encodeURIComponent(pluginId)}/install`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                },
+            );
             return res.ok;
-        } catch { return false; }
+        } catch {
+            return false;
+        }
     }
 
     // Diagnostics
-    async runDiagnostics(): Promise<{ checks: { name: string; status: string; message: string }[]; systemInfo: Record<string, unknown> | null }> {
-        const result = await this.fetchJson<{ checks: { name: string; status: string; message: string }[]; systemInfo: Record<string, unknown> | null }>('/api/diagnostics/run', { method: 'POST' });
+    async runDiagnostics(): Promise<{
+        checks: { name: string; status: string; message: string }[];
+        systemInfo: Record<string, unknown> | null;
+    }> {
+        const result = await this.fetchJson<{
+            checks: { name: string; status: string; message: string }[];
+            systemInfo: Record<string, unknown> | null;
+        }>('/api/diagnostics/run', { method: 'POST' });
         return result || { checks: [], systemInfo: null };
     }
 
@@ -216,7 +304,7 @@ export class KernelClient {
     async suggestFix(code: string, language?: string): Promise<{ title: string; fix: string } | null> {
         return this.fetchJson('/api/coding/suggest-fix', {
             method: 'POST',
-            body: JSON.stringify({ code, language })
+            body: JSON.stringify({ code, language }),
         });
     }
 
@@ -230,17 +318,23 @@ export class KernelClient {
         return this.fetchJson<BacklogItem>(`/api/backlog/${encodeURIComponent(id)}`);
     }
 
-    async createBacklogItem(item: { title: string; description?: string; priority: string; dependencies?: string[]; tags?: string[] }): Promise<BacklogItem | null> {
+    async createBacklogItem(item: {
+        title: string;
+        description?: string;
+        priority: string;
+        dependencies?: string[];
+        tags?: string[];
+    }): Promise<BacklogItem | null> {
         return this.fetchJson<BacklogItem>('/api/backlog', {
             method: 'POST',
-            body: JSON.stringify(item)
+            body: JSON.stringify(item),
         });
     }
 
     async updateBacklogStatus(id: string, status: string): Promise<BacklogItem | null> {
         return this.fetchJson<BacklogItem>(`/api/backlog/${encodeURIComponent(id)}/status`, {
             method: 'PATCH',
-            body: JSON.stringify({ status })
+            body: JSON.stringify({ status }),
         });
     }
 
@@ -248,14 +342,22 @@ export class KernelClient {
         try {
             const res = await fetch(`${this.getBaseUrl()}/api/backlog/${encodeURIComponent(id)}`, { method: 'DELETE' });
             return res.ok;
-        } catch { return false; }
+        } catch {
+            return false;
+        }
     }
 
     // ── QA ──
-    async runQATest(config: { targetType: string; endpoint: string; timeoutSeconds: number; testNames?: string[]; options?: Record<string, string> }): Promise<QATestRun | null> {
+    async runQATest(config: {
+        targetType: string;
+        endpoint: string;
+        timeoutSeconds: number;
+        testNames?: string[];
+        options?: Record<string, string>;
+    }): Promise<QATestRun | null> {
         return this.fetchJson<QATestRun>('/api/qa/run', {
             method: 'POST',
-            body: JSON.stringify(config)
+            body: JSON.stringify(config),
         });
     }
 
@@ -275,7 +377,7 @@ export class KernelClient {
     async startLoop(backlogItemId: string): Promise<LoopExecution | null> {
         return this.fetchJson<LoopExecution>('/api/loops/start', {
             method: 'POST',
-            body: JSON.stringify({ backlogItemId })
+            body: JSON.stringify({ backlogItemId }),
         });
     }
 
@@ -289,9 +391,13 @@ export class KernelClient {
 
     async cancelLoop(executionId: string): Promise<boolean> {
         try {
-            const res = await fetch(`${this.getBaseUrl()}/api/loops/${encodeURIComponent(executionId)}/cancel`, { method: 'POST' });
+            const res = await fetch(`${this.getBaseUrl()}/api/loops/${encodeURIComponent(executionId)}/cancel`, {
+                method: 'POST',
+            });
             return res.ok;
-        } catch { return false; }
+        } catch {
+            return false;
+        }
     }
 }
 

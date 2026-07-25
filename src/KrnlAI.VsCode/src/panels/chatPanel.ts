@@ -15,12 +15,18 @@ export class ChatPanel {
         this._nonce = Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10);
         this._panel.webview.html = this._getHtml();
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
-        this._panel.webview.onDidReceiveMessage(msg => this._handleMessage(msg), null, this._disposables);
+        this._panel.webview.onDidReceiveMessage((msg) => this._handleMessage(msg), null, this._disposables);
     }
 
     static createOrShow() {
-        if (ChatPanel.currentPanel) { ChatPanel.currentPanel._panel.reveal(vscode.ViewColumn.Beside); return; }
-        const panel = vscode.window.createWebviewPanel('krnlai.chat', 'Krnl-AI - Chat', vscode.ViewColumn.Beside, { enableScripts: true, retainContextWhenHidden: true });
+        if (ChatPanel.currentPanel) {
+            ChatPanel.currentPanel._panel.reveal(vscode.ViewColumn.Beside);
+            return;
+        }
+        const panel = vscode.window.createWebviewPanel('krnlai.chat', 'Krnl-AI - Chat', vscode.ViewColumn.Beside, {
+            enableScripts: true,
+            retainContextWhenHidden: true,
+        });
         ChatPanel.currentPanel = new ChatPanel(panel);
     }
 
@@ -30,26 +36,34 @@ export class ChatPanel {
             this._panel.webview.postMessage({
                 type: 'response',
                 data: response.narration || response.error || 'Sem resposta',
-                error: response.error
+                error: response.error,
             });
         }
         if (msg.type === 'checkHealth') {
             const [status, emotional] = await Promise.all([
                 this._client.getStatusMessage(),
-                this._client.getEmotionalState()
+                this._client.getEmotionalState(),
             ]);
             const mood = emotional
-                ? (emotional.valence > 0.3
-                    ? (emotional.arousal < 0.4 ? '😌 Tranquilo' : '⚡ Animado')
+                ? emotional.valence > 0.3
+                    ? emotional.arousal < 0.4
+                        ? '😌 Tranquilo'
+                        : '⚡ Animado'
                     : emotional.valence < -0.3
-                        ? (emotional.arousal < 0.4 ? '😮‍💨 Cansado' : '😰 Tenso')
-                        : emotional.arousal >= 0.4 ? '🧐 Atento' : '😐 Neutro')
+                      ? emotional.arousal < 0.4
+                          ? '😮‍💨 Cansado'
+                          : '😰 Tenso'
+                      : emotional.arousal >= 0.4
+                        ? '🧐 Atento'
+                        : '😐 Neutro'
                 : '';
             this._panel.webview.postMessage({ type: 'health', status, mood });
         }
     }
 
-    private _getHtml(): string { const nonce = this._nonce; return `<!DOCTYPE html>
+    private _getHtml(): string {
+        const nonce = this._nonce;
+        return `<!DOCTYPE html>
 <html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'nonce-${nonce}'; script-src 'nonce-${nonce}';">
 <title>Krnl-AI Chat</title>
@@ -76,7 +90,12 @@ function send(){const t=input.value.trim();if(!t)return;addMsg(t,'user');vscode.
 function addMsg(t,r,e){const d=document.createElement('div');d.className='msg '+r+' '+e;
 const l=document.createElement('div');l.className='msg-label';l.textContent=r==='user'?'Usuário':'Krnl-AI';d.appendChild(l);
 const c=document.createElement('div');c.textContent=t;d.appendChild(c);msgDiv.appendChild(d);d.scrollIntoView({behavior:'smooth'});}
-})();</script></body></html>`; }
+})();</script></body></html>`;
+    }
 
-    public dispose() { ChatPanel.currentPanel = undefined; this._panel.dispose(); while (this._disposables.length) this._disposables.pop()!.dispose(); }
+    public dispose() {
+        ChatPanel.currentPanel = undefined;
+        this._panel.dispose();
+        while (this._disposables.length) this._disposables.pop()!.dispose();
+    }
 }

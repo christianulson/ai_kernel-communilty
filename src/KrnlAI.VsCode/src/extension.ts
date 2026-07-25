@@ -40,9 +40,9 @@ let slashMgr: SlashCommandManager | undefined;
 
 export function activate(context: vscode.ExtensionContext) {
     statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-    statusBarItem.text = "$(hubot) Krnl-AI";
-    statusBarItem.command = "krnlai.chat";
-    statusBarItem.tooltip = "Clique para abrir o Chat";
+    statusBarItem.text = '$(hubot) Krnl-AI';
+    statusBarItem.command = 'krnlai.chat';
+    statusBarItem.tooltip = 'Clique para abrir o Chat';
     statusBarItem.show();
     context.subscriptions.push(statusBarItem);
 
@@ -55,67 +55,109 @@ export function activate(context: vscode.ExtensionContext) {
     const healthTimer = setInterval(updateHealth, 30000);
     context.subscriptions.push(new vscode.Disposable(() => clearInterval(healthTimer)));
 
-    context.subscriptions.push(new vscode.Disposable(() => {
-        if (sidecarProcess) { sidecarProcess.kill(); sidecarProcess = undefined; }
-    }));
+    context.subscriptions.push(
+        new vscode.Disposable(() => {
+            if (sidecarProcess) {
+                sidecarProcess.kill();
+                sidecarProcess = undefined;
+            }
+        }),
+    );
 
     // Sidecar
-    context.subscriptions.push(vscode.commands.registerCommand('krnlai.start', async () => {
-        if (sidecarProcess) { vscode.window.showInformationMessage('Sidecar já está rodando'); return; }
-
-        // Sidecar path: env var > workspace config > project default
-        let csprojPath = process.env.KRNL_SIDECAR_PATH || vscode.workspace.getConfiguration('krnlai').get<string>('sidecarPath', '');
-        if (!csprojPath) {
-            const projectDir = vscode.workspace.workspaceFolders?.[0]?.uri?.fsPath;
-            if (!projectDir) {
-                vscode.window.showErrorMessage('Configure "krnlai.sidecarPath" ou abra uma pasta do projeto Krnl-AI');
+    context.subscriptions.push(
+        vscode.commands.registerCommand('krnlai.start', async () => {
+            if (sidecarProcess) {
+                vscode.window.showInformationMessage('Sidecar já está rodando');
                 return;
             }
-            csprojPath = path.join(projectDir, 'Community', 'src', 'KrnlAI.Sidecar', 'KrnlAI.Sidecar.csproj');
-        }
-        if (!fs.existsSync(csprojPath)) {
-            vscode.window.showErrorMessage(`Sidecar não encontrado em: ${csprojPath}. Configure "krnlai.sidecarPath" ou a env var KRNL_SIDECAR_PATH`);
-            return;
-        }
-        const transport = vscode.workspace.getConfiguration('krnlai').get<string>('sidecarTransport', 'http');
-        const isStdio = transport === 'stdio';
-        const args = isStdio ? ['run', '--project', csprojPath, '--', '--stdio'] : ['run', '--project', csprojPath];
-        vscode.window.showInformationMessage(`Iniciando Krnl-AI Sidecar (${transport})...`);
-        try {
-            sidecarProcess = spawn('dotnet', args, {
-                cwd: path.dirname(csprojPath),
-                stdio: isStdio ? ['pipe', 'pipe', 'pipe'] : 'pipe'
-            });
-            const sanitizeLog = (data: any): string => {
-                const s = String(data);
-                return s.replace(/((?:token|secret|password|key|authorization|api_key)\s*[:=]\s*['"]?)[^\s'"&]+/gi, '$1***');
-            };
-            if (isStdio) {
-                // JSON-RPC over stdio: send request, read response
-                let buffer = '';
-                sidecarProcess.stdout.on('data', (d: any) => {
-                    buffer += String(d);
-                    console.log(`[sidecar-rpc] ${sanitizeLog(d)}`);
-                });
-                sidecarProcess.stderr.on('data', (d: any) => console.error(`[sidecar-rpc] ${sanitizeLog(d)}`));
-                sidecarProcess.on('close', (code: number) => { console.log(`Sidecar stdio exited: ${code}`); sidecarProcess = undefined; });
-                setTimeout(() => { vscode.window.showInformationMessage('Sidecar iniciado em modo stdio/RPC'); updateHealth(); }, 3000);
-            } else {
-                sidecarProcess.stdout.on('data', (d: any) => console.log(`[sidecar] ${sanitizeLog(d)}`));
-                sidecarProcess.stderr.on('data', (d: any) => console.error(`[sidecar] ${sanitizeLog(d)}`));
-                sidecarProcess.on('close', (code: number) => { console.log(`Sidecar exited: ${code}`); sidecarProcess = undefined; });
-                setTimeout(() => { vscode.window.showInformationMessage('Sidecar iniciado na porta 5001'); updateHealth(); }, 5000);
-            }
-        } catch (ex: any) { vscode.window.showErrorMessage(`Erro: ${ex.message}`); }
-    }));
 
-    context.subscriptions.push(vscode.commands.registerCommand('krnlai.stop', () => {
-        if (sidecarProcess) { sidecarProcess.kill(); sidecarProcess = undefined; vscode.window.showInformationMessage('Sidecar parado'); updateHealth(); }
-    }));
+            // Sidecar path: env var > workspace config > project default
+            let csprojPath =
+                process.env.KRNL_SIDECAR_PATH ||
+                vscode.workspace.getConfiguration('krnlai').get<string>('sidecarPath', '');
+            if (!csprojPath) {
+                const projectDir = vscode.workspace.workspaceFolders?.[0]?.uri?.fsPath;
+                if (!projectDir) {
+                    vscode.window.showErrorMessage(
+                        'Configure "krnlai.sidecarPath" ou abra uma pasta do projeto Krnl-AI',
+                    );
+                    return;
+                }
+                csprojPath = path.join(projectDir, 'Community', 'src', 'KrnlAI.Sidecar', 'KrnlAI.Sidecar.csproj');
+            }
+            if (!fs.existsSync(csprojPath)) {
+                vscode.window.showErrorMessage(
+                    `Sidecar não encontrado em: ${csprojPath}. Configure "krnlai.sidecarPath" ou a env var KRNL_SIDECAR_PATH`,
+                );
+                return;
+            }
+            const transport = vscode.workspace.getConfiguration('krnlai').get<string>('sidecarTransport', 'http');
+            const isStdio = transport === 'stdio';
+            const args = isStdio ? ['run', '--project', csprojPath, '--', '--stdio'] : ['run', '--project', csprojPath];
+            vscode.window.showInformationMessage(`Iniciando Krnl-AI Sidecar (${transport})...`);
+            try {
+                sidecarProcess = spawn('dotnet', args, {
+                    cwd: path.dirname(csprojPath),
+                    stdio: isStdio ? ['pipe', 'pipe', 'pipe'] : 'pipe',
+                });
+                const sanitizeLog = (data: any): string => {
+                    const s = String(data);
+                    return s.replace(
+                        /((?:token|secret|password|key|authorization|api_key)\s*[:=]\s*['"]?)[^\s'"&]+/gi,
+                        '$1***',
+                    );
+                };
+                if (isStdio) {
+                    // JSON-RPC over stdio: send request, read response
+                    let buffer = '';
+                    sidecarProcess.stdout.on('data', (d: any) => {
+                        buffer += String(d);
+                        console.log(`[sidecar-rpc] ${sanitizeLog(d)}`);
+                    });
+                    sidecarProcess.stderr.on('data', (d: any) => console.error(`[sidecar-rpc] ${sanitizeLog(d)}`));
+                    sidecarProcess.on('close', (code: number) => {
+                        console.log(`Sidecar stdio exited: ${code}`);
+                        sidecarProcess = undefined;
+                    });
+                    setTimeout(() => {
+                        vscode.window.showInformationMessage('Sidecar iniciado em modo stdio/RPC');
+                        updateHealth();
+                    }, 3000);
+                } else {
+                    sidecarProcess.stdout.on('data', (d: any) => console.log(`[sidecar] ${sanitizeLog(d)}`));
+                    sidecarProcess.stderr.on('data', (d: any) => console.error(`[sidecar] ${sanitizeLog(d)}`));
+                    sidecarProcess.on('close', (code: number) => {
+                        console.log(`Sidecar exited: ${code}`);
+                        sidecarProcess = undefined;
+                    });
+                    setTimeout(() => {
+                        vscode.window.showInformationMessage('Sidecar iniciado na porta 5001');
+                        updateHealth();
+                    }, 5000);
+                }
+            } catch (ex: any) {
+                vscode.window.showErrorMessage(`Erro: ${ex.message}`);
+            }
+        }),
+    );
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand('krnlai.stop', () => {
+            if (sidecarProcess) {
+                sidecarProcess.kill();
+                sidecarProcess = undefined;
+                vscode.window.showInformationMessage('Sidecar parado');
+                updateHealth();
+            }
+        }),
+    );
 
     // Panels (existing)
     context.subscriptions.push(vscode.commands.registerCommand('krnlai.chat', () => ChatPanel.createOrShow()));
-    context.subscriptions.push(vscode.commands.registerCommand('krnlai.dashboard', () => DashboardPanel.createOrShow()));
+    context.subscriptions.push(
+        vscode.commands.registerCommand('krnlai.dashboard', () => DashboardPanel.createOrShow()),
+    );
     context.subscriptions.push(vscode.commands.registerCommand('krnlai.policies', () => PoliciesPanel.createOrShow()));
     context.subscriptions.push(vscode.commands.registerCommand('krnlai.episodes', () => EpisodesPanel.createOrShow()));
     context.subscriptions.push(vscode.commands.registerCommand('krnlai.memory', () => MemoryPanel.createOrShow()));
@@ -123,45 +165,61 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('krnlai.qa', () => QAPanel.createOrShow()));
     context.subscriptions.push(vscode.commands.registerCommand('krnlai.kanban', () => KanbanPanel.createOrShow()));
     context.subscriptions.push(vscode.commands.registerCommand('krnlai.settings', () => SettingsPanel.createOrShow()));
-    context.subscriptions.push(vscode.commands.registerCommand('krnlai.debugPanel', () => DebugPanel.createOrShow(debugTracker)));
+    context.subscriptions.push(
+        vscode.commands.registerCommand('krnlai.debugPanel', () => DebugPanel.createOrShow(debugTracker)),
+    );
 
     // Plugin catalog
-    context.subscriptions.push(vscode.commands.registerCommand('krnlai.plugins.listCatalog', () => PluginCatalogPanel.createOrShow()));
-    context.subscriptions.push(vscode.commands.registerCommand('krnlai.plugins.install', async (pluginId?: string) => {
-        if (!pluginId) {
-            pluginId = await vscode.window.showInputBox({ placeHolder: 'Plugin ID' });
-        }
-        if (!pluginId) return;
-        await vscode.window.withProgress(
-            { location: vscode.ProgressLocation.Notification, title: `Installing ${pluginId}...` },
-            async () => { await client.installPlugin(pluginId!); }
-        );
-        vscode.window.showInformationMessage(`Plugin "${pluginId}" installed`);
-    }));
+    context.subscriptions.push(
+        vscode.commands.registerCommand('krnlai.plugins.listCatalog', () => PluginCatalogPanel.createOrShow()),
+    );
+    context.subscriptions.push(
+        vscode.commands.registerCommand('krnlai.plugins.install', async (pluginId?: string) => {
+            if (!pluginId) {
+                pluginId = await vscode.window.showInputBox({ placeHolder: 'Plugin ID' });
+            }
+            if (!pluginId) return;
+            await vscode.window.withProgress(
+                { location: vscode.ProgressLocation.Notification, title: `Installing ${pluginId}...` },
+                async () => {
+                    await client.installPlugin(pluginId!);
+                },
+            );
+            vscode.window.showInformationMessage(`Plugin "${pluginId}" installed`);
+        }),
+    );
 
     // Status check
-    context.subscriptions.push(vscode.commands.registerCommand('krnlai.status.check', async () => {
-        try {
-            const health = await client.health();
-            if (health) {
-                vscode.window.showInformationMessage(`Krnl-AI: ${health.status} (v${health.version})`);
-            } else {
-                vscode.window.showErrorMessage('Krnl-AI: Unavailable');
+    context.subscriptions.push(
+        vscode.commands.registerCommand('krnlai.status.check', async () => {
+            try {
+                const health = await client.health();
+                if (health) {
+                    vscode.window.showInformationMessage(`Krnl-AI: ${health.status} (v${health.version})`);
+                } else {
+                    vscode.window.showErrorMessage('Krnl-AI: Unavailable');
+                }
+            } catch (err: any) {
+                vscode.window.showErrorMessage(`Krnl-AI: Unavailable — ${err.message}`);
             }
-        } catch (err: any) {
-            vscode.window.showErrorMessage(`Krnl-AI: Unavailable — ${err.message}`);
-        }
-    }));
+        }),
+    );
 
     // Diagnostics tree view
     const diagnosticsTree = new DiagnosticsTreeProvider(client);
     vscode.window.registerTreeDataProvider('krnlai.diagnostics', diagnosticsTree);
-    context.subscriptions.push(vscode.commands.registerCommand('krnlai.diagnostics.refresh', () => diagnosticsTree.refresh()));
+    context.subscriptions.push(
+        vscode.commands.registerCommand('krnlai.diagnostics.refresh', () => diagnosticsTree.refresh()),
+    );
 
     // TreeView
     const treeProvider = new NavTreeProvider();
     vscode.window.registerTreeDataProvider('krnlai.nav', treeProvider);
-    context.subscriptions.push(vscode.commands.registerCommand('krnlai.navigate', (id: string) => vscode.commands.executeCommand(`krnlai.${id}`)));
+    context.subscriptions.push(
+        vscode.commands.registerCommand('krnlai.navigate', (id: string) =>
+            vscode.commands.executeCommand(`krnlai.${id}`),
+        ),
+    );
 
     // Debug tracker + manager (used by both debug commands and coding agent)
     const debugTracker = new OperationTracker();
@@ -179,16 +237,18 @@ export function activate(context: vscode.ExtensionContext) {
     registerDebugCommands(context, client, debugTracker, debugMgr);
 
     // Watch for config changes to enable/disable coding agent dynamically
-    context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(e => {
-        if (e.affectsConfiguration('krnlai.codingAgent.enabled')) {
-            const enabled = vscode.workspace.getConfiguration('krnlai').get<boolean>('codingAgent.enabled', false);
-            if (enabled && codingAgentDisposables.length === 0) {
-                registerCodingAgentFeatures(context, client, debugTracker);
-            } else if (!enabled && codingAgentDisposables.length > 0) {
-                unregisterCodingAgentFeatures();
+    context.subscriptions.push(
+        vscode.workspace.onDidChangeConfiguration((e) => {
+            if (e.affectsConfiguration('krnlai.codingAgent.enabled')) {
+                const enabled = vscode.workspace.getConfiguration('krnlai').get<boolean>('codingAgent.enabled', false);
+                if (enabled && codingAgentDisposables.length === 0) {
+                    registerCodingAgentFeatures(context, client, debugTracker);
+                } else if (!enabled && codingAgentDisposables.length > 0) {
+                    unregisterCodingAgentFeatures();
+                }
             }
-        }
-    }));
+        }),
+    );
 }
 
 function unregisterCodingAgentFeatures() {
@@ -197,7 +257,11 @@ function unregisterCodingAgentFeatures() {
     slashMgr = undefined;
 }
 
-function registerCodingAgentFeatures(context: vscode.ExtensionContext, client: KernelClient, debugTracker?: OperationTracker) {
+function registerCodingAgentFeatures(
+    context: vscode.ExtensionContext,
+    client: KernelClient,
+    debugTracker?: OperationTracker,
+) {
     if (codingAgentDisposables.length > 0) return;
 
     const ctxProvider = new EditorContextProvider();
@@ -207,10 +271,19 @@ function registerCodingAgentFeatures(context: vscode.ExtensionContext, client: K
     const terminalManager = terminalEnabled ? new TerminalManager() : undefined;
     const gitEnabled = vscode.workspace.getConfiguration('krnlai').get<boolean>('codingAgent.git', false);
     const gitManager = gitEnabled ? new GitManager() : undefined;
-    const agenticLoopsEnabled = vscode.workspace.getConfiguration('krnlai').get<boolean>('codingAgent.agenticLoops', false);
-    const loopManager = agenticLoopsEnabled && terminalManager
-        ? new AgenticLoopManager(client, undefined, terminalManager, gitManager, approvalManager.getMode() !== ApprovalMode.Chat ? approvalManager : undefined)
-        : undefined;
+    const agenticLoopsEnabled = vscode.workspace
+        .getConfiguration('krnlai')
+        .get<boolean>('codingAgent.agenticLoops', false);
+    const loopManager =
+        agenticLoopsEnabled && terminalManager
+            ? new AgenticLoopManager(
+                  client,
+                  undefined,
+                  terminalManager,
+                  gitManager,
+                  approvalManager.getMode() !== ApprovalMode.Chat ? approvalManager : undefined,
+              )
+            : undefined;
     slashMgr = new SlashCommandManager(client, terminalManager, gitManager, loopManager, debugTracker);
 
     function pushSub(d: vscode.Disposable) {
@@ -234,10 +307,10 @@ function registerCodingAgentFeatures(context: vscode.ExtensionContext, client: K
         }
         const shouldApprove = approvalManager.getMode() !== ApprovalMode.Chat;
         if (shouldApprove) {
-            const decision = await approvalManager.requestApproval(
-                `executar ${cmd}`,
-                [`Comando: ${cmd}`, `Contexto: ${content.substring(0, 100)}...`]
-            );
+            const decision = await approvalManager.requestApproval(`executar ${cmd}`, [
+                `Comando: ${cmd}`,
+                `Contexto: ${content.substring(0, 100)}...`,
+            ]);
             if (decision === 'rejected') return;
         }
         const ctx = await ctxProvider.getFullContext();
@@ -253,9 +326,9 @@ function registerCodingAgentFeatures(context: vscode.ExtensionContext, client: K
                         filePath: ctx.activeFile,
                         originalContent: content,
                         newContent: newCode,
-                        label: cmd === '/fix' ? 'Correção' : 'Refatoração'
+                        label: cmd === '/fix' ? 'Correção' : 'Refatoração',
                     },
-                    shouldApprove ? approvalManager : undefined
+                    shouldApprove ? approvalManager : undefined,
                 );
                 return;
             }
@@ -266,74 +339,115 @@ function registerCodingAgentFeatures(context: vscode.ExtensionContext, client: K
 
     const sessionManager = new SessionManager(context);
     const usageTracker = new UsageTracker(context);
-    pushSub(vscode.commands.registerCommand('krnlai.coding.chat', () => ChatViewProvider.createOrShow(client, approvalManager, sessionManager, usageTracker)));
+    pushSub(
+        vscode.commands.registerCommand('krnlai.coding.chat', () =>
+            ChatViewProvider.createOrShow(client, approvalManager, sessionManager, usageTracker),
+        ),
+    );
 
-    const chatParticipantEnabled = vscode.workspace.getConfiguration('krnlai').get<boolean>('codingAgent.chatParticipant', false);
+    const chatParticipantEnabled = vscode.workspace
+        .getConfiguration('krnlai')
+        .get<boolean>('codingAgent.chatParticipant', false);
     if (chatParticipantEnabled) {
         pushSub(registerKernelChatParticipant(context, client, approvalManager, sessionManager));
     }
 
-    pushSub(vscode.commands.registerCommand('krnlai.coding.explain', () =>
-        runSlashCommand('/explain', ctxProvider.getSelection() || ctxProvider.getActiveEditorContent()?.substring(0, 1000) || '')));
-    pushSub(vscode.commands.registerCommand('krnlai.coding.fix', () =>
-        runSlashCommand('/fix', ctxProvider.getSelection() || ctxProvider.getActiveEditorContent()?.substring(0, 1000) || '')));
-    pushSub(vscode.commands.registerCommand('krnlai.coding.test', () => {
-        const ctx = ctxProvider;
-        return runSlashCommand('/test', ctx.getSelection() || ctx.getActiveEditorContent()?.substring(0, 1000) || '', ctx.getCurrentLanguage());
-    }));
-    pushSub(vscode.commands.registerCommand('krnlai.coding.refactor', () => {
-        const ctx = ctxProvider;
-        return runSlashCommand('/refactor', ctx.getSelection() || ctx.getActiveEditorContent()?.substring(0, 1000) || '', ctx.getCurrentLanguage());
-    }));
-    pushSub(vscode.commands.registerCommand('krnlai.coding.review', () => {
-        const ctx = ctxProvider;
-        return runSlashCommand('/review', ctx.getActiveEditorContent()?.substring(0, 2000) || '');
-    }));
-    pushSub(vscode.commands.registerCommand('krnlai.coding.suggestFix', async () => {
-        const ctx = ctxProvider;
-        const code = ctx.getActiveEditorContent()?.substring(0, 2000) || '';
-        if (!code) {
-            vscode.window.showWarningMessage('Open a file first');
-            return;
-        }
-        const suggestion = await client.suggestFix(code, ctx.getCurrentLanguage());
-        if (suggestion) {
-            const result = await vscode.window.showInformationMessage(
-                `[Krnl-AI] ${suggestion.title}`, 'Apply Fix'
+    pushSub(
+        vscode.commands.registerCommand('krnlai.coding.explain', () =>
+            runSlashCommand(
+                '/explain',
+                ctxProvider.getSelection() || ctxProvider.getActiveEditorContent()?.substring(0, 1000) || '',
+            ),
+        ),
+    );
+    pushSub(
+        vscode.commands.registerCommand('krnlai.coding.fix', () =>
+            runSlashCommand(
+                '/fix',
+                ctxProvider.getSelection() || ctxProvider.getActiveEditorContent()?.substring(0, 1000) || '',
+            ),
+        ),
+    );
+    pushSub(
+        vscode.commands.registerCommand('krnlai.coding.test', () => {
+            const ctx = ctxProvider;
+            return runSlashCommand(
+                '/test',
+                ctx.getSelection() || ctx.getActiveEditorContent()?.substring(0, 1000) || '',
+                ctx.getCurrentLanguage(),
             );
-            if (result === 'Apply Fix') {
-                const editor = vscode.window.activeTextEditor;
-                if (editor) {
-                    await editor.edit(builder => {
-                        const fullRange = new vscode.Range(0, 0, editor.document.lineCount, 0);
-                        builder.replace(fullRange, suggestion.fix);
-                    });
+        }),
+    );
+    pushSub(
+        vscode.commands.registerCommand('krnlai.coding.refactor', () => {
+            const ctx = ctxProvider;
+            return runSlashCommand(
+                '/refactor',
+                ctx.getSelection() || ctx.getActiveEditorContent()?.substring(0, 1000) || '',
+                ctx.getCurrentLanguage(),
+            );
+        }),
+    );
+    pushSub(
+        vscode.commands.registerCommand('krnlai.coding.review', () => {
+            const ctx = ctxProvider;
+            return runSlashCommand('/review', ctx.getActiveEditorContent()?.substring(0, 2000) || '');
+        }),
+    );
+    pushSub(
+        vscode.commands.registerCommand('krnlai.coding.suggestFix', async () => {
+            const ctx = ctxProvider;
+            const code = ctx.getActiveEditorContent()?.substring(0, 2000) || '';
+            if (!code) {
+                vscode.window.showWarningMessage('Open a file first');
+                return;
+            }
+            const suggestion = await client.suggestFix(code, ctx.getCurrentLanguage());
+            if (suggestion) {
+                const result = await vscode.window.showInformationMessage(`[Krnl-AI] ${suggestion.title}`, 'Apply Fix');
+                if (result === 'Apply Fix') {
+                    const editor = vscode.window.activeTextEditor;
+                    if (editor) {
+                        await editor.edit((builder) => {
+                            const fullRange = new vscode.Range(0, 0, editor.document.lineCount, 0);
+                            builder.replace(fullRange, suggestion.fix);
+                        });
+                    }
                 }
             }
-        }
-    }));
-    pushSub(vscode.commands.registerCommand('krnlai.coding.run', async () => {
-        const input = await vscode.window.showInputBox({ prompt: 'Digite um prompt personalizado...', placeHolder: 'Ex: refatore esta função para usar async/await' });
-        if (input) {
-            const content = ctxProvider.getSelection() || ctxProvider.getActiveEditorContent() || '';
-            await runSlashCommand(input, content);
-        }
-    }));
+        }),
+    );
+    pushSub(
+        vscode.commands.registerCommand('krnlai.coding.run', async () => {
+            const input = await vscode.window.showInputBox({
+                prompt: 'Digite um prompt personalizado...',
+                placeHolder: 'Ex: refatore esta função para usar async/await',
+            });
+            if (input) {
+                const content = ctxProvider.getSelection() || ctxProvider.getActiveEditorContent() || '';
+                await runSlashCommand(input, content);
+            }
+        }),
+    );
 
     pushSub(vscode.languages.registerCodeLensProvider({ scheme: 'file' }, new CodeLensProvider()));
 
     pushSub(vscode.languages.registerCodeActionsProvider({ scheme: 'file' }, new CodeActionProvider()));
 
-    pushSub(vscode.commands.registerCommand('krnlai.coding.setMode', (mode: string) => {
-        const m = mode as ApprovalMode;
-        if (Object.values(ApprovalMode).includes(m)) {
-            approvalManager.setMode(m);
-            vscode.window.showInformationMessage(`Modo de aprovação: ${m}`);
-        }
-    }));
+    pushSub(
+        vscode.commands.registerCommand('krnlai.coding.setMode', (mode: string) => {
+            const m = mode as ApprovalMode;
+            if (Object.values(ApprovalMode).includes(m)) {
+                approvalManager.setMode(m);
+                vscode.window.showInformationMessage(`Modo de aprovação: ${m}`);
+            }
+        }),
+    );
 
     // Inline Completion (feature flag: krnlai.codingAgent.inlineCompletion)
-    const inlineCompletionEnabled = vscode.workspace.getConfiguration('krnlai').get<boolean>('codingAgent.inlineCompletion', false);
+    const inlineCompletionEnabled = vscode.workspace
+        .getConfiguration('krnlai')
+        .get<boolean>('codingAgent.inlineCompletion', false);
     if (inlineCompletionEnabled) {
         const inlineProvider = new InlineCompletionProvider(() => client.getBaseUrl());
         pushSub(vscode.languages.registerInlineCompletionItemProvider({ pattern: '**' }, inlineProvider));
@@ -352,95 +466,115 @@ function registerDebugCommands(
     context: vscode.ExtensionContext,
     client: KernelClient,
     debugTracker: OperationTracker,
-    debugMgr: DebugManager
+    debugMgr: DebugManager,
 ) {
-
     // Debug trace viewer
-    context.subscriptions.push(vscode.commands.registerCommand('krnlai.debugTrace', async () => {
-        const trace = debugTracker.formatTrace();
-        const doc = await vscode.workspace.openTextDocument({ content: trace, language: 'markdown' });
-        vscode.window.showTextDocument(doc, { preview: true, viewColumn: vscode.ViewColumn.Beside });
-    }));
+    context.subscriptions.push(
+        vscode.commands.registerCommand('krnlai.debugTrace', async () => {
+            const trace = debugTracker.formatTrace();
+            const doc = await vscode.workspace.openTextDocument({ content: trace, language: 'markdown' });
+            vscode.window.showTextDocument(doc, { preview: true, viewColumn: vscode.ViewColumn.Beside });
+        }),
+    );
 
     // Debug build
-    context.subscriptions.push(vscode.commands.registerCommand('krnlai.debugBuild', async () => {
-        using op = debugTracker.start('debug.build');
-        try {
-            const terminal = vscode.window.createTerminal('Krnl-AI Build');
-            terminal.show();
-            terminal.sendText('dotnet build --no-restore');
-            op.setResult('Build started in terminal');
-        } catch (ex: any) {
-            op.setError(ex.message ?? String(ex));
-            vscode.window.showErrorMessage(`Build failed: ${ex.message}`);
-        }
-    }));
+    context.subscriptions.push(
+        vscode.commands.registerCommand('krnlai.debugBuild', async () => {
+            using op = debugTracker.start('debug.build');
+            try {
+                const terminal = vscode.window.createTerminal('Krnl-AI Build');
+                terminal.show();
+                terminal.sendText('dotnet build --no-restore');
+                op.setResult('Build started in terminal');
+            } catch (ex: any) {
+                op.setError(ex.message ?? String(ex));
+                vscode.window.showErrorMessage(`Build failed: ${ex.message}`);
+            }
+        }),
+    );
 
     // Debug launch
-    context.subscriptions.push(vscode.commands.registerCommand('krnlai.debugLaunch', async () => {
-        const ok = await debugMgr.launch();
-        if (ok) {
-            vscode.window.showInformationMessage('🚀 Debugger launched.');
-        } else {
-            vscode.window.showWarningMessage('⚠️ Could not launch debugger (already running or failed).');
-        }
-    }));
+    context.subscriptions.push(
+        vscode.commands.registerCommand('krnlai.debugLaunch', async () => {
+            const ok = await debugMgr.launch();
+            if (ok) {
+                vscode.window.showInformationMessage('🚀 Debugger launched.');
+            } else {
+                vscode.window.showWarningMessage('⚠️ Could not launch debugger (already running or failed).');
+            }
+        }),
+    );
 
     // Debug stop
-    context.subscriptions.push(vscode.commands.registerCommand('krnlai.debugStop', async () => {
-        await debugMgr.stop();
-        vscode.window.showInformationMessage('🛑 Debugger stopped.');
-    }));
+    context.subscriptions.push(
+        vscode.commands.registerCommand('krnlai.debugStop', async () => {
+            await debugMgr.stop();
+            vscode.window.showInformationMessage('🛑 Debugger stopped.');
+        }),
+    );
 
     // Debug step over
-    context.subscriptions.push(vscode.commands.registerCommand('krnlai.debugStepOver', async () => {
-        await debugMgr.stepOver();
-    }));
+    context.subscriptions.push(
+        vscode.commands.registerCommand('krnlai.debugStepOver', async () => {
+            await debugMgr.stepOver();
+        }),
+    );
 
     // Debug step into
-    context.subscriptions.push(vscode.commands.registerCommand('krnlai.debugStepInto', async () => {
-        await debugMgr.stepInto();
-    }));
+    context.subscriptions.push(
+        vscode.commands.registerCommand('krnlai.debugStepInto', async () => {
+            await debugMgr.stepInto();
+        }),
+    );
 
     // Debug continue
-    context.subscriptions.push(vscode.commands.registerCommand('krnlai.debugContinue', async () => {
-        await debugMgr.continue();
-    }));
+    context.subscriptions.push(
+        vscode.commands.registerCommand('krnlai.debugContinue', async () => {
+            await debugMgr.continue();
+        }),
+    );
 
     // Debug set breakpoint (prompts for file:line)
-    context.subscriptions.push(vscode.commands.registerCommand('krnlai.debugBreakpoint', async () => {
-        const input = await vscode.window.showInputBox({
-            prompt: 'Enter file:line (e.g., src/main.ts:42)',
-            placeHolder: 'file.ts:10',
-        });
-        if (!input) return;
+    context.subscriptions.push(
+        vscode.commands.registerCommand('krnlai.debugBreakpoint', async () => {
+            const input = await vscode.window.showInputBox({
+                prompt: 'Enter file:line (e.g., src/main.ts:42)',
+                placeHolder: 'file.ts:10',
+            });
+            if (!input) return;
 
-        const match = input.match(/^(.+):(\d+)$/);
-        if (!match) {
-            vscode.window.showErrorMessage('Invalid format. Use file:line (e.g., src/main.ts:42)');
-            return;
-        }
+            const match = input.match(/^(.+):(\d+)$/);
+            if (!match) {
+                vscode.window.showErrorMessage('Invalid format. Use file:line (e.g., src/main.ts:42)');
+                return;
+            }
 
-        const filePath = match[1].replace(/"/g, '');
-        const line = parseInt(match[2], 10);
-        const ok = await debugMgr.setBreakpoint(filePath, line);
-        if (ok) {
-            vscode.window.showInformationMessage(`🔴 Breakpoint set at ${filePath}:${line}`);
-        } else {
-            vscode.window.showErrorMessage(`Failed to set breakpoint at ${filePath}:${line}`);
-        }
-    }));
+            const filePath = match[1].replace(/"/g, '');
+            const line = parseInt(match[2], 10);
+            const ok = await debugMgr.setBreakpoint(filePath, line);
+            if (ok) {
+                vscode.window.showInformationMessage(`🔴 Breakpoint set at ${filePath}:${line}`);
+            } else {
+                vscode.window.showErrorMessage(`Failed to set breakpoint at ${filePath}:${line}`);
+            }
+        }),
+    );
 }
 
 export function deactivate() {
-    if (sidecarProcess) { sidecarProcess.kill(); sidecarProcess = undefined; }
+    if (sidecarProcess) {
+        sidecarProcess.kill();
+        sidecarProcess = undefined;
+    }
     unregisterCodingAgentFeatures();
 }
 
 class NavTreeProvider implements vscode.TreeDataProvider<NavItem> {
     private _onDidChangeTreeData = new vscode.EventEmitter<NavItem | undefined>();
     readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
-    getTreeItem(element: NavItem): vscode.TreeItem { return element; }
+    getTreeItem(element: NavItem): vscode.TreeItem {
+        return element;
+    }
     getChildren(element?: NavItem): NavItem[] {
         if (element) return [];
         return [
@@ -458,7 +592,11 @@ class NavTreeProvider implements vscode.TreeDataProvider<NavItem> {
 }
 
 class NavItem extends vscode.TreeItem {
-    constructor(label: string, public readonly id: string, tooltip: string) {
+    constructor(
+        label: string,
+        public readonly id: string,
+        tooltip: string,
+    ) {
         super(label, vscode.TreeItemCollapsibleState.None);
         this.tooltip = tooltip;
         this.command = { command: 'krnlai.navigate', title: '', arguments: [id] };

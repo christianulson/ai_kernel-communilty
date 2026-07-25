@@ -1,7 +1,7 @@
 export enum ApprovalMode {
     Chat = 'chat',
     SafeAgent = 'safeAgent',
-    FullAgent = 'fullAgent'
+    FullAgent = 'fullAgent',
 }
 
 export interface PendingApproval {
@@ -25,10 +25,7 @@ export type ApprovalDecision = 'allowed' | 'rejected';
 
 type ApprovalListener = (approval: PendingApproval) => void;
 
-const ALLOWED_TOOLS = [
-    'read_file', 'edit_file', 'search_files',
-    'list_directory', 'get_diagnostics', 'run_command'
-];
+const ALLOWED_TOOLS = ['read_file', 'edit_file', 'search_files', 'list_directory', 'get_diagnostics', 'run_command'];
 
 export class ApprovalManager {
     private _mode: ApprovalMode = ApprovalMode.Chat;
@@ -48,7 +45,7 @@ export class ApprovalManager {
     }
 
     getPendingApprovals(): PendingApproval[] {
-        return Array.from(this._pending.values()).filter(p => p.status === 'pending');
+        return Array.from(this._pending.values()).filter((p) => p.status === 'pending');
     }
 
     getAuditLog(): AuditEntry[] {
@@ -59,18 +56,18 @@ export class ApprovalManager {
         this._listeners.push(cb);
     }
 
-    async requestApproval(
-        action: string,
-        details: string[]
-    ): Promise<ApprovalDecision> {
+    async requestApproval(action: string, details: string[]): Promise<ApprovalDecision> {
         if (this._mode === ApprovalMode.Chat) return 'allowed';
 
         if (this._mode === ApprovalMode.FullAgent) {
             const toolName = action.split(' ')[0];
             if (!ALLOWED_TOOLS.includes(toolName)) return 'rejected';
             this._auditLog.push({
-                action, mode: this._mode, decision: 'auto' as const,
-                timestamp: Date.now(), details
+                action,
+                mode: this._mode,
+                decision: 'auto' as const,
+                timestamp: Date.now(),
+                details,
             });
             return 'allowed';
         }
@@ -89,17 +86,16 @@ export class ApprovalManager {
         this._listeners = [];
     }
 
-    private _promptForApproval(
-        action: string,
-        details: string[]
-    ): Promise<ApprovalDecision> {
-        return new Promise(resolve => {
+    private _promptForApproval(action: string, details: string[]): Promise<ApprovalDecision> {
+        return new Promise((resolve) => {
             const id = `app_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
             const approval: PendingApproval = {
-                id, action, details,
+                id,
+                action,
+                details,
                 timestamp: Date.now(),
                 deadline: Date.now() + this._timeoutMs,
-                status: 'pending'
+                status: 'pending',
             };
             this._pending.set(id, approval);
 
@@ -117,12 +113,14 @@ export class ApprovalManager {
         const pending = this._pending.get(id);
         if (!pending || pending.status !== 'pending') return;
 
-        const mapped = decision === 'allowed' ? 'approved' as const : 'rejected' as const;
+        const mapped = decision === 'allowed' ? ('approved' as const) : ('rejected' as const);
         pending.status = mapped;
         this._auditLog.push({
-            action: pending.action, mode: this._mode,
-            decision: mapped, timestamp: Date.now(),
-            details: pending.details
+            action: pending.action,
+            mode: this._mode,
+            decision: mapped,
+            timestamp: Date.now(),
+            details: pending.details,
         });
 
         const timeout = this._pendingTimeouts.get(id);

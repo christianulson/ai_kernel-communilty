@@ -14,12 +14,20 @@ export class DashboardPanel {
         this._nonce = Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10);
         this._panel.webview.html = this._getHtml();
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
-        this._panel.webview.onDidReceiveMessage(msg => this._handle(msg), null, this._disposables);
+        this._panel.webview.onDidReceiveMessage((msg) => this._handle(msg), null, this._disposables);
     }
 
     static createOrShow() {
-        if (DashboardPanel.currentPanel) { DashboardPanel.currentPanel._panel.reveal(); return; }
-        const panel = vscode.window.createWebviewPanel('krnlai.dashboard', 'Krnl-AI - Dashboard', vscode.ViewColumn.Beside, { enableScripts: true, retainContextWhenHidden: true });
+        if (DashboardPanel.currentPanel) {
+            DashboardPanel.currentPanel._panel.reveal();
+            return;
+        }
+        const panel = vscode.window.createWebviewPanel(
+            'krnlai.dashboard',
+            'Krnl-AI - Dashboard',
+            vscode.ViewColumn.Beside,
+            { enableScripts: true, retainContextWhenHidden: true },
+        );
         DashboardPanel.currentPanel = new DashboardPanel(panel);
     }
 
@@ -28,13 +36,15 @@ export class DashboardPanel {
             const [health, scorecard, emotional] = await Promise.all([
                 this._client.health(),
                 this._client.getScorecard(),
-                this._client.getEmotionalState()
+                this._client.getEmotionalState(),
             ]);
             this._panel.webview.postMessage({ type: 'data', health, scorecard, emotional });
         }
     }
 
-    private _getHtml(): string { const nonce = this._nonce; return `<!DOCTYPE html>
+    private _getHtml(): string {
+        const nonce = this._nonce;
+        return `<!DOCTYPE html>
 <html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'nonce-${nonce}'; script-src 'nonce-${nonce}';">
 <title>Dashboard</title>
@@ -92,7 +102,12 @@ document.getElementById('sc-antiloop')!.textContent=Math.round(m.scorecard.antiL
 document.getElementById('sc-governance')!.textContent=Math.round(m.scorecard.governance*100)+'%';}
 }});
 function load(){document.getElementById('loading')!.style.display='block';document.getElementById('content')!.style.display='none';vscode.postMessage({type:'load'});}
-})();</script></body></html>`; }
+})();</script></body></html>`;
+    }
 
-    public dispose() { DashboardPanel.currentPanel = undefined; this._panel.dispose(); while (this._disposables.length) this._disposables.pop()!.dispose(); }
+    public dispose() {
+        DashboardPanel.currentPanel = undefined;
+        this._panel.dispose();
+        while (this._disposables.length) this._disposables.pop()!.dispose();
+    }
 }

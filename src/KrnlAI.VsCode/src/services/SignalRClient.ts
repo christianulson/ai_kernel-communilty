@@ -35,7 +35,9 @@ export class SignalRClient implements vscode.Disposable {
     private _eventHandlers: Map<string, Array<(event: CognitiveEvent) => void>> = new Map();
     private _disposed = false;
 
-    public get status(): SignalRStatus { return this._status; }
+    public get status(): SignalRStatus {
+        return this._status;
+    }
     private readonly _serverUrl: string;
     private readonly _reconnectDelayMs = 5000;
 
@@ -121,7 +123,9 @@ export class SignalRClient implements vscode.Disposable {
         if (this._connection) {
             try {
                 await this._connection.stop();
-            } catch { /* ignore */ }
+            } catch {
+                /* ignore */
+            }
             this._connection = null;
         }
         this._status = 'disconnected';
@@ -139,23 +143,27 @@ export class SignalRClient implements vscode.Disposable {
         const handlers = this._eventHandlers.get(event.type) ?? this._eventHandlers.get('*');
         if (handlers) {
             for (const handler of handlers) {
-                try { handler(event); } catch { /* handler error */ }
+                try {
+                    handler(event);
+                } catch {
+                    /* handler error */
+                }
             }
         }
     }
 
     private updateStatusBar(): void {
         const icons: Record<SignalRStatus, string> = {
-            'connected': '$(plug)',
-            'connecting': '$(sync~spin)',
-            'disconnected': '$(plug)',
-            'error': '$(warning)'
+            connected: '$(plug)',
+            connecting: '$(sync~spin)',
+            disconnected: '$(plug)',
+            error: '$(warning)',
         };
         const colors: Record<SignalRStatus, string> = {
-            'connected': '#4ecdc4',
-            'connecting': '#ffe66d',
-            'disconnected': '#888',
-            'error': '#ff6b6b'
+            connected: '#4ecdc4',
+            connecting: '#ffe66d',
+            disconnected: '#888',
+            error: '#ff6b6b',
         };
         this._statusBarItem.text = `${icons[this._status]} SignalR`;
         this._statusBarItem.color = colors[this._status];
@@ -178,8 +186,9 @@ export class SignalRClient implements vscode.Disposable {
     private async loadSignalRLibrary(): Promise<SignalRModule | null> {
         try {
             // Keep SignalR optional: load it only when bundled/installed by the extension host.
-            const importModule = new Function('moduleName', 'return import(moduleName)') as
-                (moduleName: string) => Promise<unknown>;
+            const importModule = new Function('moduleName', 'return import(moduleName)') as (
+                moduleName: string,
+            ) => Promise<unknown>;
             const mod = await importModule('@microsoft/signalr');
             return this.isSignalRModule(mod) ? mod : null;
         } catch {
@@ -188,8 +197,10 @@ export class SignalRClient implements vscode.Disposable {
     }
 
     private isSignalRModule(value: unknown): value is SignalRModule {
-        return typeof value === 'object'
-            && value !== null
-            && typeof (value as { HubConnectionBuilder?: unknown }).HubConnectionBuilder === 'function';
+        return (
+            typeof value === 'object' &&
+            value !== null &&
+            typeof (value as { HubConnectionBuilder?: unknown }).HubConnectionBuilder === 'function'
+        );
     }
 }

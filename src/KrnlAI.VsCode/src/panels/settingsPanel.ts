@@ -11,12 +11,20 @@ export class SettingsPanel {
         this._nonce = Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10);
         this._panel.webview.html = this._getHtml();
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
-        this._panel.webview.onDidReceiveMessage(msg => this._handle(msg), null, this._disposables);
+        this._panel.webview.onDidReceiveMessage((msg) => this._handle(msg), null, this._disposables);
     }
 
     static createOrShow() {
-        if (SettingsPanel.currentPanel) { SettingsPanel.currentPanel._panel.reveal(); return; }
-        const panel = vscode.window.createWebviewPanel('krnlai.settings', 'Krnl-AI - Configurações', vscode.ViewColumn.Beside, { enableScripts: true, retainContextWhenHidden: true });
+        if (SettingsPanel.currentPanel) {
+            SettingsPanel.currentPanel._panel.reveal();
+            return;
+        }
+        const panel = vscode.window.createWebviewPanel(
+            'krnlai.settings',
+            'Krnl-AI - Configurações',
+            vscode.ViewColumn.Beside,
+            { enableScripts: true, retainContextWhenHidden: true },
+        );
         SettingsPanel.currentPanel = new SettingsPanel(panel);
     }
 
@@ -28,17 +36,21 @@ export class SettingsPanel {
                 endpoint: config.get('endpoint'),
                 mode: config.get('mode'),
                 standalone: config.get('standalone'),
-                sidecarPort: config.get('sidecarPort')
+                sidecarPort: config.get('sidecarPort'),
             });
         }
         if (msg.type === 'save') {
             if (typeof msg.endpoint !== 'string') return;
-            const mode = msg.mode === 'embedded' || msg.mode === 'localApi' || msg.mode === 'remoteApi'
-                ? msg.mode
-                : (msg.standalone ? 'embedded' : 'localApi');
+            const mode =
+                msg.mode === 'embedded' || msg.mode === 'localApi' || msg.mode === 'remoteApi'
+                    ? msg.mode
+                    : msg.standalone
+                      ? 'embedded'
+                      : 'localApi';
             try {
                 const url = new URL(msg.endpoint);
-                const isLoopback = url.hostname === 'localhost' || url.hostname === '127.0.0.1' || url.hostname === '::1';
+                const isLoopback =
+                    url.hostname === 'localhost' || url.hostname === '127.0.0.1' || url.hostname === '::1';
                 if (mode === 'localApi' && !isLoopback) {
                     vscode.window.showErrorMessage('Endpoint em modo API Local deve ser localhost, 127.0.0.1 ou ::1');
                     return;
@@ -61,7 +73,8 @@ export class SettingsPanel {
             if (currentEndpoint?.workspaceValue) {
                 const action = await vscode.window.showWarningMessage(
                     'O endpoint está definido nas configurações do workspace (.vscode/settings.json) e sobrescreverá a configuração global. Deseja removê-lo do workspace?',
-                    'Sim, remover do workspace', 'Ignorar'
+                    'Sim, remover do workspace',
+                    'Ignorar',
                 );
                 if (action === 'Sim, remover do workspace') {
                     config.update('endpoint', undefined, vscode.ConfigurationTarget.Workspace);
@@ -75,7 +88,9 @@ export class SettingsPanel {
         }
     }
 
-    private _getHtml(): string { const nonce = this._nonce; return `<!DOCTYPE html>
+    private _getHtml(): string {
+        const nonce = this._nonce;
+        return `<!DOCTYPE html>
 <html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'nonce-${nonce}'; script-src 'nonce-${nonce}';">
 <title>Configurações</title>
@@ -104,7 +119,12 @@ const endpoint=(document.getElementById('endpoint')as HTMLInputElement).value;
 const port=parseInt((document.getElementById('sidecarPort')as HTMLInputElement).value)||5001;
 vscode.postMessage({type:'save',endpoint,mode,standalone:mode==='embedded',sidecarPort:port});
 document.getElementById('status')!.textContent='Salvo!';}
-})();</script></body></html>`; }
+})();</script></body></html>`;
+    }
 
-    public dispose() { SettingsPanel.currentPanel = undefined; this._panel.dispose(); while (this._disposables.length) this._disposables.pop()!.dispose(); }
+    public dispose() {
+        SettingsPanel.currentPanel = undefined;
+        this._panel.dispose();
+        while (this._disposables.length) this._disposables.pop()!.dispose();
+    }
 }

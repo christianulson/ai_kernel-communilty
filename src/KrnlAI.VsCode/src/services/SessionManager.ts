@@ -25,9 +25,7 @@ export class SessionManager {
     }
 
     private async _saveAllSessions(sessions: ChatSession[]): Promise<void> {
-        const trimmed = sessions
-            .sort((a, b) => b.updatedAt - a.updatedAt)
-            .slice(0, MAX_SESSIONS);
+        const trimmed = sessions.sort((a, b) => b.updatedAt - a.updatedAt).slice(0, MAX_SESSIONS);
         await this._globalState.update(STORAGE_KEY, trimmed);
     }
 
@@ -40,7 +38,7 @@ export class SessionManager {
             createdAt: Date.now(),
             updatedAt: Date.now(),
             messageCount: messages.length,
-            messages: messages.slice()
+            messages: messages.slice(),
         };
 
         sessions.push(session);
@@ -50,7 +48,7 @@ export class SessionManager {
 
     async updateSession(sessionId: string, messages: ChatMessage[]): Promise<boolean> {
         const sessions = this._getAllSessions();
-        const idx = sessions.findIndex(s => s.id === sessionId);
+        const idx = sessions.findIndex((s) => s.id === sessionId);
         if (idx === -1) return false;
 
         sessions[idx].messages = messages.slice();
@@ -62,20 +60,19 @@ export class SessionManager {
 
     async loadSession(sessionId: string): Promise<ChatSession | null> {
         const sessions = this._getAllSessions();
-        return sessions.find(s => s.id === sessionId) || null;
+        return sessions.find((s) => s.id === sessionId) || null;
     }
 
     async deleteSession(sessionId: string): Promise<boolean> {
         const sessions = this._getAllSessions();
-        const filtered = sessions.filter(s => s.id !== sessionId);
+        const filtered = sessions.filter((s) => s.id !== sessionId);
         if (filtered.length === sessions.length) return false;
         await this._saveAllSessions(filtered);
         return true;
     }
 
     async listSessions(): Promise<ChatSession[]> {
-        return this._getAllSessions()
-            .sort((a, b) => b.updatedAt - a.updatedAt);
+        return this._getAllSessions().sort((a, b) => b.updatedAt - a.updatedAt);
     }
 
     async exportSession(sessionId: string): Promise<string | null> {
