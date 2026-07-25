@@ -277,9 +277,7 @@ export class AgenticLoopManager {
         return plan.includes('COMPLETE') || plan.includes('complete') || plan.trim() === '';
     }
 
-    private _parseAction(
-        plan: string,
-    ): {
+    private _parseAction(plan: string): {
         type: 'read' | 'edit' | 'run' | 'search';
         file?: string;
         command?: string;

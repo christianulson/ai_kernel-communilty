@@ -143,13 +143,11 @@ describe('StreamingHandler', () => {
                 },
             });
 
-            global.fetch = jest
-                .fn()
-                .mockResolvedValue({
-                    ok: true,
-                    body: mockStream,
-                    headers: new Headers({ 'content-type': 'text/event-stream' }),
-                } as any);
+            global.fetch = jest.fn().mockResolvedValue({
+                ok: true,
+                body: mockStream,
+                headers: new Headers({ 'content-type': 'text/event-stream' }),
+            } as any);
 
             const onChunk = jest.fn();
             const onComplete = jest.fn();

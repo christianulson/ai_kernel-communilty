@@ -123,13 +123,11 @@ describe('KernelClient', () => {
         });
 
         it('should pass domain filter', async () => {
-            const fetchMock = jest
-                .fn()
-                .mockResolvedValue({
-                    ok: true,
-                    headers: { get: () => 'application/json' },
-                    json: jest.fn().mockResolvedValue({ policies: [] }),
-                });
+            const fetchMock = jest.fn().mockResolvedValue({
+                ok: true,
+                headers: { get: () => 'application/json' },
+                json: jest.fn().mockResolvedValue({ policies: [] }),
+            });
             (global as any).fetch = fetchMock;
             await new KernelClient().getPolicies('security');
             expect(fetchMock.mock.calls[0][0]).toContain('domain=security');
@@ -189,13 +187,11 @@ describe('KernelClient', () => {
         });
 
         it('should POST memory search using the shared runtime contract', async () => {
-            const fetchMock = jest
-                .fn()
-                .mockResolvedValue({
-                    ok: true,
-                    headers: { get: () => 'application/json' },
-                    json: jest.fn().mockResolvedValue({ hits: [], totalCount: 0 }),
-                });
+            const fetchMock = jest.fn().mockResolvedValue({
+                ok: true,
+                headers: { get: () => 'application/json' },
+                json: jest.fn().mockResolvedValue({ hits: [], totalCount: 0 }),
+            });
             (global as any).fetch = fetchMock;
             await new KernelClient().searchMemory('test query with spaces');
             expect(fetchMock.mock.calls[0][0]).toContain('/memory/search');
