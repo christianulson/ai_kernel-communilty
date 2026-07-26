@@ -119,8 +119,8 @@ body{font-family:var(--vscode-font-family);background:var(--vscode-editor-backgr
 .filter-bar{display:flex;gap:8px;margin-bottom:12px;align-items:center}
 .filter-bar label{font-size:12px;opacity:.7}.filter-bar select{padding:4px 8px;background:var(--vscode-dropdown-background);color:var(--vscode-dropdown-foreground);border:1px solid var(--vscode-dropdown-border);border-radius:4px;font-size:12px}
 </style></head><body>
-<div class="header"><h2>📋 Backlog</h2><button onclick="showCreate()">+ Novo Item</button></div>
-<div class="filter-bar"><label>Filtrar:</label><select id="statusFilter" onchange="applyFilter()">
+<div class="header"><h2>📋 Backlog</h2><button id="btn-create">+ Novo Item</button></div>
+<div class="filter-bar"><label>Filtrar:</label><select id="statusFilter">
 <option value="">Todos</option><option value="Pending">Pendente</option><option value="InProgress">Em Progresso</option>
 <option value="Review">Revisão</option><option value="Done">Concluído</option><option value="Cancelled">Cancelado</option>
 </select></div>
@@ -132,7 +132,7 @@ body{font-family:var(--vscode-font-family);background:var(--vscode-editor-backgr
 <label>Prioridade</label><select id="fieldPriority"><option value="Low">Baixa</option><option value="Medium" selected>Média</option><option value="High">Alta</option><option value="Critical">Crítica</option></select>
 <label>Dependências (IDs separados por vírgula)</label><input id="fieldDeps" placeholder="B-001, B-002">
 <label>Tags (separadas por vírgula)</label><input id="fieldTags" placeholder="frontend, bug">
-<div class="actions"><button class="secondary" onclick="hideModal()">Cancelar</button><button class="primary" id="modalSave" onclick="saveItem()">Criar</button></div>
+<div class="actions"><button class="secondary" id="btn-cancel">Cancelar</button><button class="primary" id="modalSave">Criar</button></div>
 </div></div>
 <div class="toast" id="toast"></div>
 <script nonce="${nonce}">
@@ -180,6 +180,9 @@ else if(msg.type==='updateResult'&&msg.error){showToast(msg.error,'error');}
 else if(msg.type==='deleteResult'&&!msg.ok){showToast('Erro ao excluir','error');}});
 function showToast(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type;
 setTimeout(()=>{t.className='';t.style.display='none';},3000);}
+document.getElementById('btn-create')!.addEventListener('click',showCreate);
+document.getElementById('statusFilter')!.addEventListener('change',applyFilter);
+document.getElementById('btn-cancel')!.addEventListener('click',hideModal);
 vscode.postMessage({type:'load'});})();
 </script></body></html>`;
     }

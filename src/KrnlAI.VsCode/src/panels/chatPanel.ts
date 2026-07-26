@@ -35,16 +35,11 @@ export class ChatPanel {
             let data = '';
             let error = '';
             try {
-                const res = await fetch(`${this._client.getBaseUrl()}/api/chat`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt: msg.text, maxTokens: 1024 }),
-                });
-                if (res.ok) {
-                    const json = await res.json();
-                    data = json.response || 'Sem resposta';
+                const result = await this._client.chat(msg.text);
+                if (result) {
+                    data = result.response ?? '';
                 } else {
-                    error = `Erro ${res.status}`;
+                    error = 'Servidor indisponível';
                 }
             } catch (ex: any) {
                 error = ex.message;

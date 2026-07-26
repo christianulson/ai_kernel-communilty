@@ -60,7 +60,7 @@ button{padding:8px 16px;background:var(--vscode-button-background);color:var(--v
 button:hover{background:var(--vscode-button-hoverBackground)}#loading{text-align:center;padding:40px;color:var(--vscode-descriptionForeground)}
 #error{display:none;padding:16px;background:var(--vscode-inputValidation-errorBackground);border-radius:8px;margin-bottom:16px;color:var(--vscode-errorForeground)}
 </style></head><body>
-<button onclick="load()">↻ Atualizar</button><div id="error"></div><div id="loading">Carregando...</div>
+<button id="btn-refresh">↻ Atualizar</button><div id="error"></div><div id="loading">Carregando...</div>
 <div id="content" style="display:none">
 <h1>📊 Dashboard</h1><p>Métricas, saúde do sistema e autonomia.</p>
 <div class="card"><h2>🩺 Saúde do Sistema</h2>
@@ -101,7 +101,7 @@ document.getElementById('sc-safety')!.textContent=Math.round(m.scorecard.safety*
 document.getElementById('sc-antiloop')!.textContent=Math.round(m.scorecard.antiLoop*100)+'%';
 document.getElementById('sc-governance')!.textContent=Math.round(m.scorecard.governance*100)+'%';}
 }});
-function load(){document.getElementById('loading')!.style.display='block';document.getElementById('content')!.style.display='none';vscode.postMessage({type:'load'});}
+document.getElementById('btn-refresh')!.addEventListener('click',()=>{document.getElementById('loading')!.style.display='block';document.getElementById('content')!.style.display='none';vscode.postMessage({type:'load'});});
 })();</script></body></html>`;
     }
 

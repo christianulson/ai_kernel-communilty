@@ -115,7 +115,7 @@ body{font-family:var(--vscode-font-family);background:var(--vscode-editor-backgr
 .toast{position:fixed;bottom:16px;right:16px;padding:8px 16px;border-radius:4px;font-size:12px;z-index:2000;display:none}
 .toast.error{background:var(--vscode-inputValidation-errorBackground);border:1px solid var(--vscode-inputValidation-errorBorder);display:block}
 </style></head><body>
-<div class="header"><h2>🧪 QA Tests</h2><button onclick="showNewTest()">+ Novo Teste</button></div>
+<div class="header"><h2>🧪 QA Tests</h2><button id="btn-new-test">+ Novo Teste</button></div>
 <div class="run-list" id="runList"></div>
 <div class="evidence-panel" id="evidencePanel"><h4>Evidências</h4><ul id="evidenceList"></ul></div>
 <div class="modal-overlay" id="modal"><div class="modal">
@@ -123,7 +123,7 @@ body{font-family:var(--vscode-font-family);background:var(--vscode-editor-backgr
 <label>Tipo</label><select id="fieldType"><option value="Smoke">Smoke</option><option value="Api">API</option><option value="Frontend">Frontend</option><option value="Performance">Performance</option><option value="Chaos">Chaos</option></select>
 <label>Endpoint</label><input id="fieldEndpoint" placeholder="http://localhost:5000" value="http://localhost:5000">
 <label>Timeout (s)</label><input id="fieldTimeout" type="number" value="30">
-<div class="actions"><button class="secondary" onclick="hideModal()">Cancelar</button><button class="primary" onclick="startTest()">Iniciar</button></div>
+<div class="actions"><button class="secondary" id="btn-cancel">Cancelar</button><button class="primary" id="btn-start">Iniciar</button></div>
 </div></div>
 <div class="toast" id="toast"></div>
 <script nonce="${nonce}">
@@ -134,7 +134,7 @@ const header='<div class="header-row"><span class="id">'+run.id+' - '+run.target
 let steps='';if(run.steps&&run.steps.length){steps='<div class="steps">';
 run.steps.forEach(s=>{steps+='<div class="step"><span class="dot dot-'+s.status+'"></span><span>'+escapeHtml(s.name)+'</span><span style="opacity:.6;font-size:11px">'+escapeHtml(s.detail||'')+'</span>';});steps+='</div>';}
 card.innerHTML=header+'<div style="font-size:12px;opacity:.7;margin-bottom:4px">'+escapeHtml(run.results||'')+'</div>'+steps;
-if(run.evidence&&run.evidence.length){card.innerHTML+='<span class="evidence-link" onclick="showEvidence(\''+run.id+'\')">📎 Evidências ('+run.evidence.length+')</span>';}
+if(run.evidence&&run.evidence.length){card.innerHTML+='<span class="evidence-link">📎 Evidências ('+run.evidence.length+')</span>';card.querySelector('.evidence-link')!.addEventListener('click',()=>showEvidence(run.id));}
 card.onclick=()=>showEvidence(run.id);container.appendChild(card);});}
 function escapeHtml(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
 function showNewTest(){document.getElementById('modalTitle').textContent='Novo Teste';
@@ -155,6 +155,9 @@ else if(msg.type==='runUpdate'){const idx=runs.findIndex(r=>r.id===msg.run.id);i
 else if(msg.type==='evidence'){const list=document.getElementById('evidenceList');list.innerHTML='';
 if(msg.evidence.length){msg.evidence.forEach(e=>{const li=document.createElement('li');li.textContent='📄 '+e;list.appendChild(li);});}else{list.innerHTML='<li style="opacity:.6">Nenhuma evidência</li>';}}});
 function showToast(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type;setTimeout(()=>{t.className='';t.style.display='none';},3000);}
+document.getElementById('btn-new-test')!.addEventListener('click',showNewTest);
+document.getElementById('btn-cancel')!.addEventListener('click',hideModal);
+document.getElementById('btn-start')!.addEventListener('click',startTest);
 vscode.postMessage({type:'load'});})();
 </script></body></html>`;
     }

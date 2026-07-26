@@ -110,20 +110,33 @@ export class KernelClient {
     }
 
     private async fetchJson<T>(path: string, options?: RequestInit): Promise<T | null> {
+        const url = `${this.getBaseUrl()}${path}`;
         try {
-            const res = await fetch(`${this.getBaseUrl()}${path}`, {
+            const res = await fetch(url, {
                 headers: { 'Content-Type': 'application/json' },
                 ...options,
             });
-            if (!res.ok) return null;
-            return await res.json();
-        } catch {
+            if (!res.ok) {
+                console.warn(`[Krnl-AI] fetchJson ${res.status} for ${path}`);
+                return null;
+            }
+            const data: T = await res.json();
+            return data;
+        } catch (ex) {
+            console.warn(`[Krnl-AI] fetchJson error for ${path}:`, ex);
             return null;
         }
     }
 
     async health(): Promise<HealthResponse | null> {
         return this.fetchJson('/health');
+    }
+
+    async chat(prompt: string, maxTokens = 1024): Promise<{ response: string } | null> {
+        return this.fetchJson<{ response: string }>('/api/chat', {
+            method: 'POST',
+            body: JSON.stringify({ prompt, maxTokens }),
+        });
     }
 
     async runAgent(prompt: string, mode = 'gateway'): Promise<AgentRunResponse> {

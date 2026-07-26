@@ -60,7 +60,7 @@ button{padding:8px 16px;background:var(--vscode-button-background);color:var(--v
 #detail{display:none}
 </style></head><body>
 <h1>📜 Episódios</h1><p>Histórico de execuções do agente.</p>
-<button onclick="loadList()">↻ Atualizar</button>
+<button id="btn-refresh">↻ Atualizar</button>
 <div class="grid"><div id="list"></div><div id="detail"></div></div>
 <script nonce="${nonce}">(function(){
 const vscode=acquireVsCodeApi(),list=document.getElementById('list')!,detail=document.getElementById('detail')!;vscode.postMessage({type:'load'});
@@ -77,7 +77,7 @@ const r2=document.createElement('div');r2.className='row';r2.textContent='Status
 const r3=document.createElement('div');r3.className='row';r3.textContent='Duração: '+(m.episode.durationMs||'-')+'ms';detail.appendChild(r3);
 if(m.episode.steps)m.episode.steps.forEach((s:any)=>{const d2=document.createElement('div');d2.className='step';
 d2.textContent=(s.ok?'✔ ':'✖ ')+(s.label||'')+': '+(s.detail||'');detail.appendChild(d2);});}});
-function loadList(){detail.style.display='none';vscode.postMessage({type:'load'});}
+document.getElementById('btn-refresh')!.addEventListener('click',()=>{detail.style.display='none';vscode.postMessage({type:'load'});});
 })();</script></body></html>`;
     }
 

@@ -66,9 +66,9 @@ button{padding:8px 16px;background:var(--vscode-button-background);color:var(--v
 #search-page,#metrics-page{display:none}
 </style></head><body>
 <h1>🧠 Memória</h1><p>Busca semântica e métricas.</p>
-<div class="tabs"><div class="tab active" id="tab-search" onclick="showTab('search')">🔍 Busca</div><div class="tab" id="tab-metrics" onclick="showTab('metrics')">📊 Métricas</div></div>
-<div id="search-page"><div class="search-area"><input id="query" placeholder="Digite sua busca..." /><button onclick="search()">Buscar</button></div><div id="results"></div></div>
-<div id="metrics-page"><button onclick="loadMetrics()">↻ Atualizar</button>
+<div class="tabs"><div class="tab active" id="tab-search">🔍 Busca</div><div class="tab" id="tab-metrics">📊 Métricas</div></div>
+<div id="search-page"><div class="search-area"><input id="query" placeholder="Digite sua busca..." /><button id="btn-search">Buscar</button></div><div id="results"></div></div>
+<div id="metrics-page"><button id="btn-load-metrics">↻ Atualizar</button>
 <div class="metrics-grid"><div class="metric"><div class="val" id="m-chunks">--</div><div class="lbl">Chunks</div></div>
 <div class="metric"><div class="val" id="m-docs">--</div><div class="lbl">Documentos</div></div>
 <div class="metric"><div class="val" id="m-size">--</div><div class="lbl">Bytes</div></div></div></div>
@@ -89,6 +89,10 @@ function search(){const q=(document.getElementById('query')as HTMLInputElement).
 function loadMetrics(){vscode.postMessage({type:'metrics'});}
 function showTab(t){['search','metrics'].forEach(x=>{const e=document.getElementById('tab-'+x)!;e.className=x===t?'tab active':'tab';document.getElementById(x+'-page')!.style.display=x===t?'block':'none';});
 if(t==='metrics')loadMetrics();}
+document.getElementById('tab-search')!.addEventListener('click',()=>showTab('search'));
+document.getElementById('tab-metrics')!.addEventListener('click',()=>showTab('metrics'));
+document.getElementById('btn-search')!.addEventListener('click',search);
+document.getElementById('btn-load-metrics')!.addEventListener('click',loadMetrics);
 showTab('search');
 })();</script></body></html>`;
     }

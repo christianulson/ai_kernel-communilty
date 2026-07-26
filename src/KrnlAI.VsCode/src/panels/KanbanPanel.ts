@@ -96,14 +96,14 @@ body{font-family:var(--vscode-font-family);background:var(--vscode-editor-backgr
 .modal .actions .primary{background:var(--vscode-button-background);color:var(--vscode-button-foreground)}
 .modal .actions .secondary{background:var(--vscode-button-secondaryBackground);color:var(--vscode-button-secondaryForeground)}
 </style></head><body>
-<div class="header"><h2>📌 Kanban Board</h2><button onclick="showCreate()">+ Novo Card</button></div>
+<div class="header"><h2>📌 Kanban Board</h2><button id="btn-create">+ Novo Card</button></div>
 <div class="columns" id="columns"></div>
 <div class="modal-overlay" id="modal"><div class="modal">
 <h3 id="modalTitle">Novo Card</h3>
 <label>Título</label><input id="fieldTitle" placeholder="Título do card">
 <label>Descrição</label><textarea id="fieldDesc" placeholder="Descrição"></textarea>
 <label>Prioridade</label><select id="fieldPriority"><option value="Low">Baixa</option><option value="Medium" selected>Média</option><option value="High">Alta</option><option value="Critical">Crítica</option></select>
-<div class="actions"><button class="secondary" onclick="hideModal()">Cancelar</button><button class="primary" onclick="saveCard()">Criar</button></div>
+<div class="actions"><button class="secondary" id="btn-cancel">Cancelar</button><button class="primary" id="btn-save">Criar</button></div>
 </div></div>
 <script nonce="${nonce}">
 (function(){const vscode=acquireVsCodeApi();let items=[];
@@ -116,7 +116,10 @@ const col=document.createElement('div');col.className='column';
 const h3=document.createElement('h3');h3.innerHTML=statusLabel(status)+' <span class="count">'+colItems.length+'</span>';col.appendChild(h3);
 colItems.forEach(item=>{const card=document.createElement('div');card.className='card';
 card.innerHTML='<div class="title">'+escapeHtml(item.title)+'</div><div class="meta"><span class="priority priority-'+item.priority+'">'+item.priority+'</span><span>'+item.id+'</span></div>';
-card.innerHTML+='<div class="move-buttons"><button onclick="event.stopPropagation();moveItem(\''+item.id+'\',\''+prevStatus(item.status)+'\')">◀</button><button onclick="event.stopPropagation();moveItem(\''+item.id+'\',\''+nextStatus(item.status)+'\')">▶</button></div>';
+const md=document.createElement('div');md.className='move-buttons';
+const pb=document.createElement('button');pb.textContent='◀';pb.addEventListener('click',(e)=>{e.stopPropagation();moveItem(item.id,prevStatus(item.status));});md.appendChild(pb);
+const nb=document.createElement('button');nb.textContent='▶';nb.addEventListener('click',(e)=>{e.stopPropagation();moveItem(item.id,nextStatus(item.status));});md.appendChild(nb);
+card.appendChild(md);
 col.appendChild(card);});container.appendChild(col);});}
 function escapeHtml(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
 function moveItem(id,status){vscode.postMessage({type:'move',id,status});}
@@ -127,6 +130,9 @@ function saveCard(){const title=document.getElementById('fieldTitle').value;if(!
 vscode.postMessage({type:'create',title,description:document.getElementById('fieldDesc').value,
 priority:document.getElementById('fieldPriority').value});hideModal();}
 window.addEventListener('message',e=>{const msg=e.data;if(msg.type==='items'){items=msg.items;render();}});
+document.getElementById('btn-create')!.addEventListener('click',showCreate);
+document.getElementById('btn-cancel')!.addEventListener('click',hideModal);
+document.getElementById('btn-save')!.addEventListener('click',saveCard);
 vscode.postMessage({type:'load'});})();
 </script></body></html>`;
     }

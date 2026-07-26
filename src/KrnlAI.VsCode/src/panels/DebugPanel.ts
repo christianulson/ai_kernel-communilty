@@ -108,8 +108,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; f
 </head>
 <body>
 <div class="tabs">
-  <button class="tab active" data-tab="trace" onclick="switchTab('trace')">📋 Trace</button>
-  <button class="tab" data-tab="stats" onclick="switchTab('stats')">📊 Stats</button>
+  <button class="tab active" data-tab="trace" id="tab-trace">📋 Trace</button>
+  <button class="tab" data-tab="stats" id="tab-stats">📊 Stats</button>
 </div>
 <div class="content">
   <div class="count" id="count">0 operations</div>
@@ -141,6 +141,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; f
             statsEl.textContent = msg.stats || 'No data.';
         }
     });
+    document.getElementById('tab-trace')!.addEventListener('click',()=>switchTab('trace'));
+    document.getElementById('tab-stats')!.addEventListener('click',()=>switchTab('stats'));
 }());
 </script>
 </body>
