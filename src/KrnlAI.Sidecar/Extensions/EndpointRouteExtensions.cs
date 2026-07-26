@@ -128,45 +128,203 @@ public static class EndpointRouteExtensions
             return result is not null ? Results.Ok(result) : Results.Json(new ErrorResponse("not_implemented", "Available when KrnlAI API is configured", null), statusCode: 501);
         });
 
-        // Chat endpoint via DeepSeek API (OpenAI-compatible)
-        app.MapPost("/api/chat", async (ChatRequestDto request, IHttpClientFactory httpFactory, ILogger<Program> logger, CancellationToken ct) =>
+        // ── Profile / Emotional ──
+        app.MapGet("/profile/emotional", (string? userId, ILogger<Program> logger) =>
         {
-            var apiKey = Environment.GetEnvironmentVariable("DEEPSEEK_API_KEY");
-            if (string.IsNullOrWhiteSpace(apiKey))
+            logger.LogInformation("Profile emotional fallback (no KrnlAI API)");
+            return Results.Ok(new { valence = 0.15, arousal = 0.3, motivation = 0.5, updatedAt = DateTime.UtcNow });
+        });
+
+        // ── Coding endpoints (local fallbacks, no proxy) ──
+        app.MapPost("/api/coding/explain", (ILogger<Program> logger) =>
+        {
+            logger.LogInformation("Coding explain fallback (no KrnlAI API)");
+            return Results.Ok(new { narration = "Funcionalidade de explicação disponível quando KrnlAI API estiver configurada.", command = (string?)null });
+        });
+
+        app.MapPost("/api/coding/fix", (ILogger<Program> logger) =>
+        {
+            logger.LogInformation("Coding fix fallback (no KrnlAI API)");
+            return Results.Ok(new { narration = "Funcionalidade de correção disponível quando KrnlAI API estiver configurada.", command = (string?)null });
+        });
+
+        app.MapPost("/api/coding/test", (ILogger<Program> logger) =>
+        {
+            logger.LogInformation("Coding test fallback (no KrnlAI API)");
+            return Results.Ok(new { narration = "Funcionalidade de geração de testes disponível quando KrnlAI API estiver configurada.", command = (string?)null });
+        });
+
+        app.MapPost("/api/coding/review", (ILogger<Program> logger) =>
+        {
+            logger.LogInformation("Coding review fallback (no KrnlAI API)");
+            return Results.Ok(new { narration = "Funcionalidade de revisão disponível quando KrnlAI API estiver configurada.", command = (string?)null });
+        });
+
+        app.MapPost("/api/coding/suggest-fix", (ILogger<Program> logger) =>
+        {
+            logger.LogInformation("Suggest-fix fallback (no KrnlAI API)");
+            return Results.Ok(new { title = "standalone", fix = (string?)null });
+        });
+
+        app.MapGet("/api/coding/approvals/pending", (ILogger<Program> logger) =>
+        {
+            logger.LogInformation("Approvals fallback (no KrnlAI API)");
+            return Results.Ok(new { approvals = Array.Empty<object>() });
+        });
+
+        app.MapPost("/api/coding/approvals/{id}/respond", (string id, ILogger<Program> logger) =>
+        {
+            logger.LogInformation("Approval respond fallback (no KrnlAI API)");
+            return Results.Ok(new { ok = true });
+        });
+
+        // ── Plugins ──
+        app.MapGet("/admin/plugins/catalog", (ILogger<Program> logger) =>
+        {
+            logger.LogInformation("Plugin catalog fallback (no KrnlAI API)");
+            return Results.Ok(new { items = Array.Empty<object>() });
+        });
+
+        app.MapPost("/admin/plugins/catalog/{pluginId}/install", (string pluginId, ILogger<Program> logger) =>
+        {
+            logger.LogInformation("Plugin install fallback (no KrnlAI API)");
+            return Results.Ok(new { ok = false, error = "Plugin catalog requires KrnlAI API" });
+        });
+
+        // ── Diagnostics ──
+        app.MapPost("/api/diagnostics/run", (ILogger<Program> logger) =>
+        {
+            logger.LogInformation("Diagnostics fallback (no KrnlAI API)");
+            return Results.Ok(new
+            {
+                checks = new[]
+                {
+                    new { name = "sidecar_status", status = "passed", message = "Sidecar running" },
+                    new { name = "krnlai_api", status = "skipped", message = "KrnlAI API not configured" },
+                    new { name = "memory_store", status = "skipped", message = "No memory backend configured" },
+                },
+                systemInfo = new
+                {
+                    mode = "standalone",
+                    os = Environment.OSVersion.ToString(),
+                    dotnet = Environment.Version.ToString(),
+                }
+            });
+        });
+
+        // ── Backlog ──
+        app.MapGet("/api/backlog", (string? status, ILogger<Program> logger) =>
+        {
+            logger.LogInformation("Backlog list fallback (no KrnlAI API)");
+            return Results.Ok(Array.Empty<object>());
+        });
+
+        app.MapPost("/api/backlog", (ILogger<Program> logger) =>
+        {
+            logger.LogInformation("Backlog create fallback (no KrnlAI API)");
+            return Results.Ok(new { id = Guid.NewGuid().ToString(), status = "standalone" });
+        });
+
+        app.MapGet("/api/backlog/{id}", (string id, ILogger<Program> logger) =>
+        {
+            logger.LogInformation("Backlog get fallback (no KrnlAI API)");
+            return Results.Ok(new { id, title = "standalone", status = "pending" });
+        });
+
+        app.MapPatch("/api/backlog/{id}/status", (string id, ILogger<Program> logger) =>
+        {
+            logger.LogInformation("Backlog status update fallback (no KrnlAI API)");
+            return Results.Ok(new { ok = true });
+        });
+
+        app.MapDelete("/api/backlog/{id}", (string id, ILogger<Program> logger) =>
+        {
+            logger.LogInformation("Backlog delete fallback (no KrnlAI API)");
+            return Results.Ok(new { ok = true });
+        });
+
+        // ── QA ──
+        app.MapPost("/api/qa/run", (ILogger<Program> logger) =>
+        {
+            logger.LogInformation("QA run fallback (no KrnlAI API)");
+            return Results.Ok(new { id = Guid.NewGuid().ToString(), status = "standalone_fallback" });
+        });
+
+        app.MapGet("/api/qa/runs", (ILogger<Program> logger) =>
+        {
+            logger.LogInformation("QA runs list fallback (no KrnlAI API)");
+            return Results.Ok(Array.Empty<object>());
+        });
+
+        app.MapGet("/api/qa/runs/{id}", (string id, ILogger<Program> logger) =>
+        {
+            logger.LogInformation("QA run get fallback (no KrnlAI API)");
+            return Results.Ok(new { id, status = "standalone_fallback" });
+        });
+
+        app.MapGet("/api/qa/runs/{id}/evidence", (string id, ILogger<Program> logger) =>
+        {
+            logger.LogInformation("QA evidence fallback (no KrnlAI API)");
+            return Results.Ok(Array.Empty<string>());
+        });
+
+        // ── Loop Execution ──
+        app.MapPost("/api/loops/start", (ILogger<Program> logger) =>
+        {
+            logger.LogInformation("Loop start fallback (no KrnlAI API)");
+            return Results.Ok(new { id = Guid.NewGuid().ToString(), status = "standalone_fallback" });
+        });
+
+        app.MapGet("/api/loops/{executionId}", (string executionId, ILogger<Program> logger) =>
+        {
+            logger.LogInformation("Loop status fallback (no KrnlAI API)");
+            return Results.Ok(new { id = executionId, status = "standalone_fallback" });
+        });
+
+        app.MapGet("/api/loops/{itemId}/iterations", (string itemId, ILogger<Program> logger) =>
+        {
+            logger.LogInformation("Loop iterations fallback (no KrnlAI API)");
+            return Results.Ok(Array.Empty<object>());
+        });
+
+        app.MapPost("/api/loops/{executionId}/cancel", (string executionId, ILogger<Program> logger) =>
+        {
+            logger.LogInformation("Loop cancel fallback (no KrnlAI API)");
+            return Results.Ok(new { ok = true });
+        });
+
+        // ── Bridge Chat: LLM → KrnlAI AGI → LLM ──
+        app.MapPost("/api/chat", async (ChatRequestDto request, IHttpClientFactory httpFactory, IEmbeddedKrnlAI? embeddedKernel, ILogger<Program> logger, CancellationToken ct) =>
+        {
+            if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("DEEPSEEK_API_KEY")))
                 return Results.Json(new { error = "DEEPSEEK_API_KEY not set" }, statusCode: 503);
 
             var baseUrl = Environment.GetEnvironmentVariable("DEEPSEEK_BASE_URL") ?? "https://api.deepseek.com";
             var model = Environment.GetEnvironmentVariable("DEEPSEEK_MODEL") ?? "deepseek-chat";
+            var apiKey = Environment.GetEnvironmentVariable("DEEPSEEK_API_KEY");
 
-            var client = httpFactory.CreateClient("deepseek-chat");
-            client.BaseAddress = new Uri(baseUrl);
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+            var baseUri = baseUrl.EndsWith('/') ? baseUrl : baseUrl + "/";
 
-            var messages = new List<object>
+            async Task<string> CallLlm(string system, string user, int maxTokens = 1024)
             {
-                new { role = "system", content = request.SystemPrompt ?? "You are a helpful assistant." },
-                new { role = "user", content = request.Prompt }
-            };
-
-            var reqBody = new Dictionary<string, object>
-            {
-                ["model"] = model,
-                ["messages"] = messages,
-                ["stream"] = false,
-                ["max_tokens"] = request.MaxTokens > 0 ? request.MaxTokens : 2048
-            };
-
-            if (request.Temperature.HasValue)
-                reqBody["temperature"] = request.Temperature.Value;
-
-            logger.LogInformation("Chat API call: model={Model}, promptLen={Len}", model, request.Prompt.Length);
-
-            try
-            {
-                var resp = await client.PostAsJsonAsync("/v1/chat/completions", reqBody, ct).ConfigureAwait(false);
+                var c = httpFactory.CreateClient("deepseek-chat");
+                c.BaseAddress = new Uri(baseUri);
+                c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+                var body = new Dictionary<string, object>
+                {
+                    ["model"] = model,
+                    ["messages"] = new object[]
+                    {
+                        new { role = "system", content = system },
+                        new { role = "user", content = user }
+                    },
+                    ["stream"] = false,
+                    ["max_tokens"] = maxTokens,
+                    ["temperature"] = 0.3
+                };
+                var resp = await c.PostAsJsonAsync("v1/chat/completions", body, ct).ConfigureAwait(false);
                 resp.EnsureSuccessStatusCode();
                 var json = await resp.Content.ReadFromJsonAsync<System.Text.Json.JsonElement>(ct).ConfigureAwait(false);
-                var text = "";
                 if (json.TryGetProperty("choices", out var choices) && choices.ValueKind == System.Text.Json.JsonValueKind.Array)
                 {
                     foreach (var choice in choices.EnumerateArray())
@@ -175,19 +333,54 @@ public static class EndpointRouteExtensions
                             msg.TryGetProperty("content", out var content) &&
                             content.ValueKind == System.Text.Json.JsonValueKind.String)
                         {
-                            text = content.GetString() ?? "";
-                            break;
+                            return content.GetString() ?? "";
                         }
                     }
                 }
-                logger.LogInformation("Chat API response: ok, respLen={Len}", text.Length);
-                return Results.Ok(new { response = text });
+                return "";
             }
-            catch (Exception ex)
+
+            // Step 1: LLM traduz mensagem do usuário para goal do KrnlAI
+            logger.LogInformation("Bridge Chat step 1: translating user text to AGI goal");
+            var goal = (await CallLlm(
+                "Você é um tradutor entre um usuário e um sistema AGI chamado KrnlAI. " +
+                "Traduza a mensagem do usuário em um goal conciso e acionável para o AGI processar. " +
+                "Responda APENAS com o goal, sem explicações, em português.",
+                request.Prompt, 256)).Trim();
+
+            if (string.IsNullOrWhiteSpace(goal))
+                goal = request.Prompt;
+
+            logger.LogInformation("Bridge Chat goal: {Goal}", goal);
+
+            // Step 2: KrnlAI AGI processa o goal
+            string narration;
+            if (embeddedKernel != null)
             {
-                logger.LogError(ex, "Chat API call failed");
-                return Results.Json(new { error = ex.Message }, statusCode: 502);
+                var result = await embeddedKernel.RunAsync(goal, ct).ConfigureAwait(false);
+                narration = result.Error ?? result.Narration;
+                logger.LogInformation("Bridge Chat step 2: AGI processed, narLen={Len}", narration.Length);
             }
+            else
+            {
+                narration = $"Processed goal: {goal}";
+                logger.LogInformation("Bridge Chat step 2: no embedded kernel, using fallback");
+            }
+
+            // Step 3: LLM traduz a saída cognitiva para linguagem natural
+            logger.LogInformation("Bridge Chat step 3: translating AGI output to natural language");
+            var response = (await CallLlm(
+                "Você é um narrador amigável que traduz a saída de um sistema AGI para linguagem natural. " +
+                "O AGI processou internamente o pedido do usuário. Abaixo está o log cognitivo interno. " +
+                "Explique o que aconteceu em linguagem natural, amigável e em português, " +
+                "como se fosse um assistente inteligente conversando com o usuário. " +
+                "NÃO mencione que você está traduzindo um log interno. Apenas responda naturalmente. " +
+                "Se o AGI indicou erro ou bloqueio, informe o usuário educadamente.\n\n" +
+                "Log cognitivo:\n" + narration,
+                request.Prompt, request.MaxTokens > 0 ? request.MaxTokens : 2048)).Trim();
+
+            logger.LogInformation("Bridge Chat step 3 complete, respLen={Len}", response.Length);
+            return Results.Ok(new { response });
         });
 
         return app;

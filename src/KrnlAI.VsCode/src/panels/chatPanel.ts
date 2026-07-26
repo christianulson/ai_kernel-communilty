@@ -32,12 +32,24 @@ export class ChatPanel {
 
     private async _handleMessage(msg: any) {
         if (msg.type === 'send') {
-            const response = await this._client.runAgent(msg.text);
-            this._panel.webview.postMessage({
-                type: 'response',
-                data: response.narration || response.error || 'Sem resposta',
-                error: response.error,
-            });
+            let data = '';
+            let error = '';
+            try {
+                const res = await fetch(`${this._client.getBaseUrl()}/api/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: msg.text, maxTokens: 1024 }),
+                });
+                if (res.ok) {
+                    const json = await res.json();
+                    data = json.response || 'Sem resposta';
+                } else {
+                    error = `Erro ${res.status}`;
+                }
+            } catch (ex: any) {
+                error = ex.message;
+            }
+            this._panel.webview.postMessage({ type: 'response', data: data || error || 'Sem resposta', error });
         }
         if (msg.type === 'checkHealth') {
             const [status, emotional] = await Promise.all([
@@ -93,7 +105,7 @@ input.onkeydown=function(e){if(e.key==='Enter')send();};
 function send(){var t=input.value.trim();if(!t)return;addMsg(t,'user');vscode.postMessage({type:'send',text:t});input.value='';status.textContent='$(sync) Processando...';}
 function addMsg(t,r,e){var d=document.createElement('div');d.className='msg '+r+' '+e;
 var l=document.createElement('div');l.className='msg-label';l.textContent=r==='user'?'Usuário':'Krnl-AI';d.appendChild(l);
-var c=document.createElement('div');c.textContent=t;d.appendChild(c);msgDiv.appendChild(c);d.scrollIntoView({behavior:'smooth'});}
+            var c=document.createElement('div');c.textContent=t;d.appendChild(c);msgDiv.appendChild(d);d.scrollIntoView({behavior:'smooth'});}
 })();</script></body></html>`;
     }
 
