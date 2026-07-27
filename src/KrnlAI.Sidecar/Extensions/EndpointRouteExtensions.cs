@@ -1,8 +1,10 @@
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using System.Net.Http.Headers;
+using System.Text.Json;
 using KrnlAI.Core.Abstractions.Safety;
 using KrnlAI.Embedded.Abstractions;
+using KrnlAI.Sidecar.Services;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 
@@ -293,8 +295,8 @@ public static class EndpointRouteExtensions
             return Results.Ok(new { ok = true });
         });
 
-        // ── Bridge Chat: LLM → KrnlAI AGI → LLM ──
-        app.MapPost("/api/chat", async (ChatRequestDto request, IHttpClientFactory httpFactory, IEmbeddedKrnlAI? embeddedKernel, ILogger<Program> logger, CancellationToken ct) =>
+        // ── Bridge Chat: Tools → LLM → KrnlAI AGI → LLM ──
+        app.MapPost("/api/chat", async (ChatRequestDto request, IHttpClientFactory httpFactory, IEmbeddedKrnlAI? embeddedKernel, IConversationStore convStore, ISearchService searchService, ILogger<Program> logger, CancellationToken ct) =>
         {
             if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("DEEPSEEK_API_KEY")))
                 return Results.Json(new { error = "DEEPSEEK_API_KEY not set" }, statusCode: 503);
@@ -302,10 +304,13 @@ public static class EndpointRouteExtensions
             var baseUrl = Environment.GetEnvironmentVariable("DEEPSEEK_BASE_URL") ?? "https://api.deepseek.com";
             var model = Environment.GetEnvironmentVariable("DEEPSEEK_MODEL") ?? "deepseek-chat";
             var apiKey = Environment.GetEnvironmentVariable("DEEPSEEK_API_KEY");
-
             var baseUri = baseUrl.EndsWith('/') ? baseUrl : baseUrl + "/";
 
-            async Task<string> CallLlm(string system, string user, int maxTokens = 1024)
+            // Contexto de conversa persistente
+            var session = convStore.GetOrCreate(request.SessionId ?? "default");
+            session.AddMessage("user", request.Prompt);
+
+            async Task<string> CallLlm(string system, string user, int maxTokens = 1024, double temperature = 0.3)
             {
                 var c = httpFactory.CreateClient("deepseek-chat");
                 c.BaseAddress = new Uri(baseUri);
@@ -320,18 +325,18 @@ public static class EndpointRouteExtensions
                     },
                     ["stream"] = false,
                     ["max_tokens"] = maxTokens,
-                    ["temperature"] = 0.3
+                    ["temperature"] = temperature
                 };
                 var resp = await c.PostAsJsonAsync("v1/chat/completions", body, ct).ConfigureAwait(false);
                 resp.EnsureSuccessStatusCode();
-                var json = await resp.Content.ReadFromJsonAsync<System.Text.Json.JsonElement>(ct).ConfigureAwait(false);
-                if (json.TryGetProperty("choices", out var choices) && choices.ValueKind == System.Text.Json.JsonValueKind.Array)
+                var json = await resp.Content.ReadFromJsonAsync<JsonElement>(ct).ConfigureAwait(false);
+                if (json.TryGetProperty("choices", out var choices) && choices.ValueKind == JsonValueKind.Array)
                 {
                     foreach (var choice in choices.EnumerateArray())
                     {
                         if (choice.TryGetProperty("message", out var msg) &&
                             msg.TryGetProperty("content", out var content) &&
-                            content.ValueKind == System.Text.Json.JsonValueKind.String)
+                            content.ValueKind == JsonValueKind.String)
                         {
                             return content.GetString() ?? "";
                         }
@@ -340,20 +345,79 @@ public static class EndpointRouteExtensions
                 return "";
             }
 
-            // Step 1: LLM traduz mensagem do usuário para goal do KrnlAI
-            logger.LogInformation("Bridge Chat step 1: translating user text to AGI goal");
+            // ── TOOL DETECTION: LLM decide se precisa de ferramentas ──
+            var historyContext = session.GetRecentHistory(6);
+            var knownFacts = string.Join("\n", session.KnownFacts.Select(kv => $"- {kv.Key}: {kv.Value}"));
+
+            var toolAnalysis = (await CallLlm(
+                "Você é um analisador de intent. Dada uma mensagem de usuário, o histórico da conversa e fatos conhecidos, " +
+                "determine se é necessário usar ferramentas externas. Responda APENAS com um JSON: " +
+                "{ \"needs_search\": bool, \"query\": \"string ou vazio\", " +
+                "\"needs_knowledge_recall\": bool, \"recall_topics\": [\"string\"], " +
+                "\"user_introducing_self\": bool, \"user_name\": \"string ou vazio\" }",
+                $"Histórico:\n{historyContext}\n\nFatos conhecidos:\n{knownFacts}\n\nMensagem: {request.Prompt}",
+                512, 0.1)).Trim();
+
+            logger.LogInformation("Bridge Chat tool analysis: {Analysis}", toolAnalysis);
+
+            var needsSearch = false;
+            var searchQuery = "";
+            var userIntroName = "";
+            try
+            {
+                var analysis = JsonSerializer.Deserialize<JsonElement>(toolAnalysis);
+                if (analysis.TryGetProperty("needs_search", out var ns)) needsSearch = ns.GetBoolean();
+                if (analysis.TryGetProperty("query", out var sq)) searchQuery = sq.GetString() ?? "";
+                if (analysis.TryGetProperty("user_introducing_self", out var ui) && ui.GetBoolean())
+                    if (analysis.TryGetProperty("user_name", out var un)) userIntroName = un.GetString() ?? "";
+            }
+            catch { logger.LogWarning("Failed to parse tool analysis JSON"); }
+
+            // ── TOOL EXECUTION ──
+            var toolResults = new List<string>();
+
+            if (needsSearch && !string.IsNullOrWhiteSpace(searchQuery))
+            {
+                logger.LogInformation("Bridge Chat executing web search: {Query}", searchQuery);
+                var searchResults = await searchService.SearchAsync(searchQuery, ct).ConfigureAwait(false);
+                if (searchResults.Count > 0)
+                {
+                    var lines = searchResults.Select(r => $"[{r.Source}] {r.Title}: {r.Snippet}");
+                    toolResults.Add("--- RESULTADOS DE PESQUISA NA WEB ---\n" + string.Join("\n", lines));
+                }
+                else
+                {
+                    toolResults.Add("--- PESQUISA NA WEB: nenhum resultado encontrado ---");
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(userIntroName))
+            {
+                session.UserName = userIntroName;
+                session.KnownFacts["user_name"] = userIntroName;
+                session.KnownFacts["user_introduced_at"] = DateTimeOffset.UtcNow.ToString("O");
+                logger.LogInformation("Bridge Chat: user introduced as {Name}", userIntroName);
+            }
+
+            // ── STEP 1: LLM traduz para goal com contexto enriquecido ──
+            var enrichedPrompt = request.Prompt;
+            if (toolResults.Count > 0)
+                enrichedPrompt = request.Prompt + "\n\n" + string.Join("\n\n", toolResults);
+
+            logger.LogInformation("Bridge Chat step 1: translating to AGI goal");
             var goal = (await CallLlm(
                 "Você é um tradutor entre um usuário e um sistema AGI chamado KrnlAI. " +
                 "Traduza a mensagem do usuário em um goal conciso e acionável para o AGI processar. " +
+                "Se houver resultados de pesquisa ou contexto adicional, incorpore-os ao goal. " +
                 "Responda APENAS com o goal, sem explicações, em português.",
-                request.Prompt, 256)).Trim();
+                enrichedPrompt, 256)).Trim();
 
             if (string.IsNullOrWhiteSpace(goal))
                 goal = request.Prompt;
 
             logger.LogInformation("Bridge Chat goal: {Goal}", goal);
 
-            // Step 2: KrnlAI AGI processa o goal
+            // ── STEP 2: KrnlAI AGI processa o goal ──
             string narration;
             if (embeddedKernel != null)
             {
@@ -367,18 +431,59 @@ public static class EndpointRouteExtensions
                 logger.LogInformation("Bridge Chat step 2: no embedded kernel, using fallback");
             }
 
-            // Step 3: LLM traduz a saída cognitiva para linguagem natural
+            // ── KNOWLEDGE STORAGE: extrai fatos da interação ──
+            var factExtraction = (await CallLlm(
+                "Extraia FATOS objetivos da conversa abaixo no formato:\n" +
+                "FATO: chave = valor\n" +
+                "Se não houver fatos novos, responda apenas VAZIO.\n" +
+                "Exemplos:\n" +
+                "FATO: usuário_gosta_de = programação\n" +
+                "FATO: projeto_atual = krnl-ai",
+                $"Histórico:\n{historyContext}\n\nMensagem: {request.Prompt}\n\nResposta AGI:\n{narration}",
+                256, 0.1)).Trim();
+
+            if (factExtraction.StartsWith("FATO:", StringComparison.OrdinalIgnoreCase))
+            {
+                foreach (var line in factExtraction.Split('\n', StringSplitOptions.RemoveEmptyEntries))
+                {
+                    var trimmed = line.Trim();
+                    if (!trimmed.StartsWith("FATO:", StringComparison.OrdinalIgnoreCase)) continue;
+                    var kv = trimmed["FATO:".Length..].Trim();
+                    var eqIdx = kv.IndexOf('=');
+                    if (eqIdx > 0)
+                    {
+                        var key = kv[..eqIdx].Trim();
+                        var val = kv[(eqIdx + 1)..].Trim();
+                        session.KnownFacts[key] = val;
+                        logger.LogInformation("Bridge Chat stored fact: {Key} = {Value}", key, val);
+                    }
+                }
+            }
+
+            // ── STEP 3: LLM narra resposta final com contexto completo ──
             logger.LogInformation("Bridge Chat step 3: translating AGI output to natural language");
+            var knowledgeContext = session.KnownFacts.Count > 0
+                ? "\n\nFatos que você sabe sobre o usuário:\n" + string.Join("\n", session.KnownFacts.Select(kv => $"- {kv.Key}: {kv.Value}"))
+                : "";
+            var searchContext = toolResults.Count > 0
+                ? "\n\nResultados de pesquisa usados:\n" + string.Join("\n\n", toolResults)
+                : "";
+
             var response = (await CallLlm(
                 "Você é um narrador amigável que traduz a saída de um sistema AGI para linguagem natural. " +
-                "O AGI processou internamente o pedido do usuário. Abaixo está o log cognitivo interno. " +
+                "O AGI processou internamente o pedido do usuário. Abaixo está o log cognitivo interno " +
+                "e qualquer resultado de ferramentas externas. " +
                 "Explique o que aconteceu em linguagem natural, amigável e em português, " +
                 "como se fosse um assistente inteligente conversando com o usuário. " +
                 "NÃO mencione que você está traduzindo um log interno. Apenas responda naturalmente. " +
+                "Use os fatos que você sabe sobre o usuário para personalizar a resposta. " +
                 "Se o AGI indicou erro ou bloqueio, informe o usuário educadamente.\n\n" +
-                "Log cognitivo:\n" + narration,
+                "Log cognitivo:\n" + narration +
+                searchContext +
+                knowledgeContext,
                 request.Prompt, request.MaxTokens > 0 ? request.MaxTokens : 2048)).Trim();
 
+            session.AddMessage("assistant", response);
             logger.LogInformation("Bridge Chat step 3 complete, respLen={Len}", response.Length);
             return Results.Ok(new { response });
         });
@@ -601,4 +706,4 @@ public static class EndpointRouteExtensions
     }
 }
 
-public record ChatRequestDto(string Prompt, string? SystemPrompt = null, double? Temperature = null, int MaxTokens = 0);
+public record ChatRequestDto(string Prompt, string? SystemPrompt = null, double? Temperature = null, int MaxTokens = 0, string? SessionId = null);

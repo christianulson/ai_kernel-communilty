@@ -12,6 +12,7 @@ using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using KrnlAI.Core.Abstractions.Safety;
 using KrnlAI.Safety.Services;
+using KrnlAI.Sidecar.Services;
 
 namespace KrnlAI.Sidecar;
 
@@ -102,8 +103,25 @@ public static class ServiceCollectionExtensions
         // Memory cache for proxy fallback
         services.AddMemoryCache();
 
+        // ── Tool Services ──
+        services.AddSingleton<IConversationStore, InMemoryConversationStore>();
+        services.AddHttpClient("search")
+            .ConfigureHttpClient(c =>
+            {
+                c.DefaultRequestHeaders.UserAgent.ParseAdd("KrnlAI-Sidecar/1.0");
+                c.Timeout = TimeSpan.FromSeconds(15);
+            });
+        services.AddSingleton<ISearchService, SearchService>();
+
         // EmbeddedKrnlAI for local fallback when proxy is unavailable
         services.AddSingleton<IEmbeddedKrnlAI, EmbeddedKrnlAI>();
+
+        // Named HTTP client for LLM calls (chat bridge)
+        services.AddHttpClient("deepseek-chat")
+            .ConfigureHttpClient(c =>
+            {
+                c.Timeout = TimeSpan.FromSeconds(180);
+            });
 
         // KrnlAI API proxy (optional — for proxying to remote KrnlAI API)
         services.AddHttpClient("kernel")
