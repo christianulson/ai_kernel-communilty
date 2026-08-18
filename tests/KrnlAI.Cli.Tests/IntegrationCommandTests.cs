@@ -1,5 +1,6 @@
 namespace KrnlAI.Cli.Tests;
 
+[Collection("ProcessWorkingDirectory")]
 public sealed class IntegrationCommandTests
 {
     [Fact]
