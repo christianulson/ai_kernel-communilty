@@ -2,5 +2,9 @@
   "KrnlAICodeLensDisplayName": "Krnl-AI Explain CodeLens",
   "KrnlAICodeLensDescription": "Requests an AI explanation for the current code element",
   "SendSelectionToChatDisplayName": "Send Selection to Krnl-AI Chat",
-  "SendSelectionToChatTooltip": "Copies the selected code as an analysis prompt for the Krnl-AI chat"
+  "SendSelectionToChatTooltip": "Copies the selected code as an analysis prompt for the Krnl-AI chat",
+  "OpenChatCommandDisplayName": "Open Krnl-AI Chat",
+  "OpenChatCommandTooltip": "Opens the Krnl-AI chat tool window",
+  "OpenDashboardCommandDisplayName": "Open Krnl-AI Dashboard",
+  "OpenDashboardCommandTooltip": "Opens the Krnl-AI dashboard tool window"
 }
