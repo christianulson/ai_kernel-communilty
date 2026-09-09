@@ -1,4 +1,6 @@
 {
   "KrnlAICodeLensDisplayName": "Krnl-AI Explain CodeLens",
-  "KrnlAICodeLensDescription": "Requests an AI explanation for the current code element"
+  "KrnlAICodeLensDescription": "Requests an AI explanation for the current code element",
+  "SendSelectionToChatDisplayName": "Send Selection to Krnl-AI Chat",
+  "SendSelectionToChatTooltip": "Copies the selected code as an analysis prompt for the Krnl-AI chat"
 }
