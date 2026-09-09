@@ -2,6 +2,7 @@
   <Folder Name="/src/">
     <Project Path="src/KrnlAI.Cli/KrnlAI.Cli.csproj" />
     <Project Path="src/KrnlAI.Sidecar/KrnlAI.Sidecar.csproj" />
+    <Project Path="src/KrnlAI.VisualStudio.Extensibility/KrnlAI.VisualStudio.Extensibility.csproj" />
   </Folder>
   <Folder Name="/samples/">
     <Project Path="samples/custom-tool/KrnlAI.Sample.CustomTool/KrnlAI.Sample.CustomTool.csproj" />
@@ -16,5 +17,6 @@
     <Project Path="tests/KrnlAI.Sidecar.Tests/KrnlAI.Sidecar.Tests.csproj" />
     <Project Path="tests/KrnlAI.Desktop.Tests/KrnlAI.Desktop.Tests.csproj" />
     <Project Path="tests/KrnlAI.Community.Tests/KrnlAI.Community.Tests.csproj" />
+    <Project Path="tests/KrnlAI.VisualStudio.Extensibility.Tests/KrnlAI.VisualStudio.Extensibility.Tests.csproj" />
   </Folder>
 </Solution>
