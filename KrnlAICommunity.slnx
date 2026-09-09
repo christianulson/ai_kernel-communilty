@@ -2,6 +2,7 @@
   <Folder Name="/src/">
     <Project Path="src/KrnlAI.Cli/KrnlAI.Cli.csproj" />
     <Project Path="src/KrnlAI.Sidecar/KrnlAI.Sidecar.csproj" />
+    <Project Path="src/KrnlAI.VisualStudio.Extensibility.Core/KrnlAI.VisualStudio.Extensibility.Core.csproj" />
     <Project Path="src/KrnlAI.VisualStudio.Extensibility/KrnlAI.VisualStudio.Extensibility.csproj" />
   </Folder>
   <Folder Name="/samples/">
