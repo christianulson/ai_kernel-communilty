@@ -57,7 +57,7 @@ jobs:
       - name: Publish VS Code Extension
         if: startsWith(github.ref, 'refs/tags/v')
         env:
-          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+          VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
         run: |
           cd src/KrnlAI.VsCode
           npm install
