@@ -339,8 +339,13 @@ pub fn show_open_dialog() -> Result<Option<String>, String> {
 }
 
 #[tauri::command]
-pub fn get_deep_link(_app: tauri::AppHandle) -> Option<String> {
-    None
+pub fn get_deep_link(app: tauri::AppHandle) -> Option<String> {
+    use tauri_plugin_deep_link::DeepLinkExt;
+    app.deep_link().get_current()
+        .ok()
+        .and_then(|inner| inner)
+        .and_then(|urls| urls.into_iter().next())
+        .map(|url| url.to_string())
 }
 
 #[tauri::command]

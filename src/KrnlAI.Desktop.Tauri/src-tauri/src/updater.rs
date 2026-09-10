@@ -10,59 +10,31 @@ pub struct UpdateInfo {
     pub download_url: Option<String>,
 }
 
-/// Checks if an update is available by calling the Tauri updater plugin.
-/// Returns structured update info for the frontend to display.
+/// Checks if an update is available.
+/// The updater plugin is not configured (no endpoint/pubkey yet), so this
+/// reports "not configured" until an update server is provisioned.
 #[tauri::command]
 pub async fn check_for_updates(
     app_handle: tauri::AppHandle,
 ) -> Result<UpdateInfo, String> {
-    let current = env!("CARGO_PKG_VERSION").to_string();
-
-    let updater = tauri_plugin_updater::UpdaterExt::updater(&app_handle)
-        .map_err(|e| format!("Updater not available: {}", e))?;
-
-    match updater.check().await {
-        Ok(Some(update)) => Ok(UpdateInfo {
-            available: true,
-            version: Some(update.version.clone()),
-            current_version: current,
-            body: update.body.clone(),
-            download_url: None,
-        }),
-        Ok(None) => Ok(UpdateInfo {
-            available: false,
-            version: None,
-            current_version: current,
-            body: None,
-            download_url: None,
-        }),
-        Err(e) => Err(format!("Update check failed: {}", e)),
-    }
+    let _ = app_handle;
+    Ok(UpdateInfo {
+        available: false,
+        version: None,
+        current_version: env!("CARGO_PKG_VERSION").to_string(),
+        body: None,
+        download_url: None,
+    })
 }
 
-/// Performs the actual update download and install.
-/// The Tauri updater handles download, verification, and installation.
+/// Performs the update download and install.
+/// Reports "not configured" until an update endpoint is provisioned.
 #[tauri::command]
 pub async fn install_update(
     app_handle: tauri::AppHandle,
 ) -> Result<String, String> {
-    let updater = tauri_plugin_updater::UpdaterExt::updater(&app_handle)
-        .map_err(|e| format!("Updater not available: {}", e))?;
-
-    match updater.check().await {
-        Ok(Some(update)) => {
-            update
-                .download_and_install(
-                    |_chunk_length, _content_length| {},
-                    || {},
-                )
-                .await
-                .map_err(|e| format!("Download failed: {}", e))?;
-            Ok("Update installed. Restart the application to apply.".to_string())
-        }
-        Ok(None) => Err("No update available.".to_string()),
-        Err(e) => Err(format!("Update check failed: {}", e)),
-    }
+    let _ = app_handle;
+    Err("Updates are not configured for this build.".to_string())
 }
 
 #[cfg(test)]

@@ -34,7 +34,8 @@ env_logger = "0.11"
 open = "5"
 rfd = "0.15"
 tauri-plugin-single-instance = "2"
-tauri-plugin-updater = "2"
+# tauri-plugin-updater is intentionally disabled: no update endpoint/pubkey is
+# provisioned yet (check_for_updates/install_update report "not configured").
 tauri-plugin-clipboard-manager = "2"
 tauri-plugin-drag = "2"
 tauri-plugin-fs = "2"

@@ -30,7 +30,7 @@
     "active": true,
     "targets": "all",
     "icon": ["icons/icon.png"],
-    "externalBin": [],
+    "externalBin": ["binaries/krnlai-sidecar"],
     "copyright": "Copyright (c) 2026 Krnl-AI Team",
     "category": "DeveloperTool",
     "shortDescription": "Krnl-AI Desktop - Cognitive agent client",
