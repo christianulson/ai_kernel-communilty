@@ -22,7 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\KrnlAI.Sidecar\KrnlAI.Sidecar.csproj" />
-    <ProjectReference Include="..\..\..\tests\TestHelpers\TestHelpers.csproj" />
+    <ProjectReference Include="..\..\..\tests\TestHelpers\TestHelpers.csproj" Condition="Exists('..\..\..\tests\TestHelpers\TestHelpers.csproj')" />
   </ItemGroup>
 
 
