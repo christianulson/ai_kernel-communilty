@@ -111,7 +111,7 @@ public sealed class UpdateChecker
             KrnlLogger.Write($"Update download failed: {ex.Message}");
             ErrorOccurred?.Invoke($"Download failed: {ex.Message}");
             try { Process.Start(new ProcessStartInfo("https://github.com/krnlai/krnl-ai/releases/latest") { UseShellExecute = true }); }
-            catch { }
+            catch (Exception innerEx) { KrnlLogger.Write(innerEx); }
         }
         finally
         {
