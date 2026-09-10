@@ -15,7 +15,19 @@
   <ItemGroup>
     <EmbeddedResource Include="ToolWindows\ChatToolWindowContent.xaml" LogicalName="KrnlAI.VisualStudio.Extensibility.ToolWindows.ChatToolWindowContent.xaml" />
     <EmbeddedResource Include="ToolWindows\DashboardToolWindowContent.xaml" LogicalName="KrnlAI.VisualStudio.Extensibility.ToolWindows.DashboardToolWindowContent.xaml" />
+    <EmbeddedResource Include="ToolWindows\BacklogToolWindowContent.xaml" LogicalName="KrnlAI.VisualStudio.Extensibility.ToolWindows.BacklogToolWindowContent.xaml" />
+    <EmbeddedResource Include="ToolWindows\QAToolWindowContent.xaml" LogicalName="KrnlAI.VisualStudio.Extensibility.ToolWindows.QAToolWindowContent.xaml" />
+    <EmbeddedResource Include="ToolWindows\KanbanToolWindowContent.xaml" LogicalName="KrnlAI.VisualStudio.Extensibility.ToolWindows.KanbanToolWindowContent.xaml" />
+    <EmbeddedResource Include="ToolWindows\PoliciesToolWindowContent.xaml" LogicalName="KrnlAI.VisualStudio.Extensibility.ToolWindows.PoliciesToolWindowContent.xaml" />
+    <EmbeddedResource Include="ToolWindows\EpisodesToolWindowContent.xaml" LogicalName="KrnlAI.VisualStudio.Extensibility.ToolWindows.EpisodesToolWindowContent.xaml" />
+    <EmbeddedResource Include="ToolWindows\DebugToolWindowContent.xaml" LogicalName="KrnlAI.VisualStudio.Extensibility.ToolWindows.DebugToolWindowContent.xaml" />
     <Page Remove="ToolWindows\ChatToolWindowContent.xaml" />
     <Page Remove="ToolWindows\DashboardToolWindowContent.xaml" />
+    <Page Remove="ToolWindows\BacklogToolWindowContent.xaml" />
+    <Page Remove="ToolWindows\QAToolWindowContent.xaml" />
+    <Page Remove="ToolWindows\KanbanToolWindowContent.xaml" />
+    <Page Remove="ToolWindows\PoliciesToolWindowContent.xaml" />
+    <Page Remove="ToolWindows\EpisodesToolWindowContent.xaml" />
+    <Page Remove="ToolWindows\DebugToolWindowContent.xaml" />
   </ItemGroup>
 </Project>
