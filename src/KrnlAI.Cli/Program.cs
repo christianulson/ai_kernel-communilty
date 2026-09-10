@@ -5,7 +5,7 @@ using KrnlAI.Cli.Services;
 using Microsoft.Extensions.Hosting;
 using Spectre.Console;
 
-var apiBaseUrl = args.Contains("--endpoint") ? args[Array.IndexOf(args, "--endpoint") + 1] : "http://localhost:5235";
+var apiBaseUrl = EndpointOptionParser.TryResolve(args, out var resolved) ? resolved : EndpointOptionParser.DefaultEndpoint;
 
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((ctx, services) =>
@@ -20,9 +20,13 @@ var host = Host.CreateDefaultBuilder(args)
     })
     .Build();
 
-// Seed demo data
-var seeder = host.Services.GetRequiredService<CliSeeder>();
-await seeder.SeedAsync().ConfigureAwait(false);
+// Seed demo data (skipped for --help/--version invocations)
+var seedRequested = !args.Any(a => a is "--help" or "-h" or "--version");
+if (seedRequested)
+{
+    var seeder = host.Services.GetRequiredService<CliSeeder>();
+    await seeder.SeedAsync().ConfigureAwait(false);
+}
 
 var cliCtx = host.Services.GetRequiredService<CliContext>();
 var renderer = host.Services.GetRequiredService<ConsoleRenderer>();
@@ -116,14 +120,17 @@ root.Add(new ReviewCommand().Build());
 // Experiment management (Track B4)
 root.Add(new ExperimentCommand(cliCtx, renderer).Build());
 
-// Session management (Track B5)
-var sessionStore = host.Services.GetRequiredService<InMemorySessionStore>();
-var cognitiveSessionStore = host.Services.GetRequiredService<ISessionStore>();
-root.Add(new SessionCommand(console, sessionStore, cognitiveSessionStore).Build());
+// Session management (Track B5) - resolved on demand so a missing registration
+// does not break unrelated commands
+var sessionStore = host.Services.GetService<InMemorySessionStore>();
+var cognitiveSessionStore = host.Services.GetService<ISessionStore>();
+if (sessionStore is not null && cognitiveSessionStore is not null)
+    root.Add(new SessionCommand(console, sessionStore, cognitiveSessionStore).Build());
 
 // Lifecycle hooks management
-var lifecycleOrchestrator = host.Services.GetRequiredService<KrnlAI.Core.Services.Lifecycle.LifecycleOrchestrator>();
-root.Add(new LifecycleCommand(lifecycleOrchestrator, renderer).Build());
+var lifecycleOrchestrator = host.Services.GetService<KrnlAI.Core.Services.Lifecycle.LifecycleOrchestrator>();
+if (lifecycleOrchestrator is not null)
+    root.Add(new LifecycleCommand(lifecycleOrchestrator, renderer).Build());
 
 // Checkpoint management
 root.Add(new CheckpointCommand(cliCtx, renderer).Build());
