@@ -4,10 +4,10 @@
   "version": "0.1.0",
   "identifier": "com.krnlai.desktop",
   "build": {
-    "frontendDist": "../../../../webapp/apps/kernel-ui/dist",
+    "frontendDist": "./dist",
     "devUrl": "http://localhost:4200",
     "beforeDevCommand": "echo dev-server-already-running",
-    "beforeBuildCommand": "cd /d C:\\Projects\\ia_kernel\\webapp && npx nx run @krnl-ai/kernel-ui:build"
+    "beforeBuildCommand": "pwsh -NoProfile -File scripts/build-frontend.ps1"
   },
   "app": {
     "withGlobalTauri": false,
