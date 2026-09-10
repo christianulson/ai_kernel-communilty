@@ -9,6 +9,8 @@
 
 ## Visual Studio Extension
 
+- [ ] `[P1]` [ETA: 4h] Migracao para o novo SDK Extensibility concluida - ver docs/vsix-migration.md (perdas e itens futuros)
+
 - [ ] `[P2]` [ETA: 8h] Publicar KrnlAI.VisualStudio no VS Marketplace
 - [ ] `[P3]` [ETA: 4h] Suporte a .NET 10 no VS extension
 - [ ] `[P3]` [ETA: 6h] Testes de integração para VS extension

@@ -20,7 +20,7 @@ public static class SidecarCommunityServices
 
         services.AddSingleton<IEmbeddedKrnlAI>(sp =>
         {
-            var kernel = new EmbeddedKrnlAI(new EmbeddedKernelOptions
+var kernel = new EmbeddedKrnlAI(new EmbeddedKernelOptions
             {
                 StoreMode = configuration["Store:Mode"] ?? "Sqlite",
                 SqliteMode = configuration["Store:SqliteMode"] ?? "Hybrid",
@@ -29,8 +29,8 @@ public static class SidecarCommunityServices
                 SkillsStoreMode = configuration["Skills:StoreMode"] ?? "Document",
                 LLmProvider = configuration["LLM:Provider"] ?? "ollama"
             });
-            var hostLifetime = sp.GetRequiredService<Microsoft.Extensions.Hosting.IHostApplicationLifetime>();
-            hostLifetime.ApplicationStopping.Register(() => kernel.DisposeAsync().AsTask().GetAwaiter().GetResult());
+            // The DI container disposes the singleton (IAsyncDisposable) on shutdown;
+            // no manual ApplicationStopping callback is needed.
             return kernel;
         });
 

@@ -72,9 +72,24 @@ pub fn find_sidecar_binary() -> Result<String, Box<dyn std::error::Error>> {
 
     let sidecar_exe = if cfg!(target_os = "windows") { "KrnlAI.Sidecar.exe" } else { "KrnlAI.Sidecar" };
 
+    let triple_name = {
+        let arch = std::env::consts::ARCH;
+        let platform = if cfg!(target_os = "windows") {
+            "pc-windows-msvc"
+        } else if cfg!(target_os = "macos") {
+            "apple-darwin"
+        } else {
+            "unknown-linux-gnu"
+        };
+        let ext = if cfg!(target_os = "windows") { ".exe" } else { "" };
+        format!("krnlai-sidecar-{arch}-{platform}{ext}")
+    };
+
     let candidates = [
         exe_dir.join(sidecar_exe),
         exe_dir.join("binaries").join(sidecar_exe),
+        exe_dir.join(&triple_name),
+        exe_dir.join("binaries").join(&triple_name),
         std::path::PathBuf::from("../KrnlAI.Sidecar/bin/Release/net10.0/win-x64/publish").join(sidecar_exe),
         std::path::PathBuf::from("../KrnlAI.Sidecar/bin/Debug/net10.0").join(sidecar_exe),
         std::path::PathBuf::from("../KrnlAI.Sidecar/bin/Debug/net10.0/win-x64").join(sidecar_exe),

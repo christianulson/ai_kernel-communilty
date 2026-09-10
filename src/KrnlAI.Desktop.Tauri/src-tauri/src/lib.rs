@@ -23,13 +23,15 @@ pub fn run() {
         .plugin(tauri_plugin_deep_link::init())
         .plugin(tauri_plugin_autostart::init(
             tauri_plugin_autostart::MacosLauncher::LaunchAgent,
-            Some(vec!["--flag1"]),
+            None,
         ))
         .plugin(tauri_plugin_window_state::Builder::new().build())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_drag::init())
         .plugin(tauri_plugin_fs::init())
-        .plugin(tauri_plugin_updater::Builder::new().build())
+        // tauri-plugin-updater is intentionally not registered: no update endpoint is
+        // configured yet; check_for_updates/install_update report "not configured".
+        // .plugin(tauri_plugin_updater::Builder::new().build())
         // .plugin(tauri_plugin_authenticator::init()) // requires OpenSSL + Perl
         .manage(sidecar::SidecarManager::new())
         .manage(audio::AudioCapture::new())

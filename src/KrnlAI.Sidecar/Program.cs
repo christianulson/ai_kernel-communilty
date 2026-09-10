@@ -70,12 +70,8 @@ else
     app.MapSidecarEndpoints();
 }
 
-var port = "5001";
-for (var i = 0; i < args.Length; i++)
-{
-    if (args[i] == "--port" && i + 1 < args.Length) { port = args[i + 1]; break; }
-    if (args[i].StartsWith("--port=", StringComparison.OrdinalIgnoreCase)) { port = args[i]["--port=".Length..]; break; }
-}
+var configPort = builder.Configuration.GetValue<string>("Sidecar:Port");
+var port = PortOptionParser.Resolve(args, configPort).ToString();
 app.Urls.Clear();
 app.Urls.Add($"http://127.0.0.1:{port}");
 
@@ -85,15 +81,16 @@ app.Lifetime.ApplicationStarted.Register(() =>
     if (grpcArgs.Contains("--grpc"))
     {
         var grpc = app.Services.GetRequiredService<SidecarGrpcServer>();
-        _ = Task.Run(() => grpc.StartAsync(app.Lifetime.ApplicationStopped));
+        _ = StartGrpcServerAsync(grpc, app.Services.GetRequiredService<ILogger<Program>>());
     }
 
     var mode = sidecarMode;
     var auth = !string.IsNullOrEmpty(builder.Configuration.GetValue<string>("Sidecar:Auth:Token"));
     var proxy = !string.IsNullOrEmpty(builder.Configuration.GetValue<string>("Sidecar:KernelApi:BaseUrl"));
+    var version = typeof(Program).Assembly.GetName().Version?.ToString(3) ?? "0.0.0";
     Console.WriteLine($@"
 ╔══════════════════════════════════════════╗
-║     KrnlAI.Sidecar v1.0.0               ║
+║     KrnlAI.Sidecar v{version,-25}║
 ║     Mode: {mode,-31}║
 ║     Auth: {(auth ? "enabled" : "disabled"),-29}║
 ║     KrnlAI API: {(proxy ? "configured" : "unavailable"),-24}║
@@ -101,6 +98,18 @@ app.Lifetime.ApplicationStarted.Register(() =>
 ╚══════════════════════════════════════════╝");
 });
 app.Lifetime.ApplicationStopping.Register(() => Console.WriteLine("KrnlAI.Sidecar shutting down..."));
+
+async Task StartGrpcServerAsync(SidecarGrpcServer grpc, ILogger<Program> logger)
+{
+    try
+    {
+        await grpc.StartAsync(app.Lifetime.ApplicationStopped);
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "gRPC server stopped with an error");
+    }
+}
 
 await app.RunAsync().ConfigureAwait(false);
 
