@@ -1,4 +1,8 @@
 <Solution>
+  <Folder Name="/sdk/" />
+  <Folder Name="/sdk/dotnet/">
+    <Project Path="sdk/dotnet/KrnlAISdk.csproj" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/KrnlAI.Cli/KrnlAI.Cli.csproj" />
     <Project Path="src/KrnlAI.Sidecar/KrnlAI.Sidecar.csproj" />
@@ -19,5 +23,6 @@
     <Project Path="tests/KrnlAI.Desktop.Tests/KrnlAI.Desktop.Tests.csproj" />
     <Project Path="tests/KrnlAI.Community.Tests/KrnlAI.Community.Tests.csproj" />
     <Project Path="tests/KrnlAI.VisualStudio.Extensibility.Tests/KrnlAI.VisualStudio.Extensibility.Tests.csproj" />
+    <Project Path="tests/KrnlAISdk.Tests/KrnlAISdk.Tests.csproj" />
   </Folder>
 </Solution>

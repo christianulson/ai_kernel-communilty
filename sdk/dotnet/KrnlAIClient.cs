@@ -47,6 +47,9 @@ public class KrnlAIClient : IDisposable
             };
         }
 
+        if (string.IsNullOrWhiteSpace(responseBody))
+            throw new KrnlAIException("Empty response");
+
         return JsonSerializer.Deserialize<T>(responseBody, _jsonOptions)
             ?? throw new KrnlAIException("Empty response");
     }
