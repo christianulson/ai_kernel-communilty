@@ -33,6 +33,9 @@ public interface IKernelClientService
     /// <summary>Connects to the kernel endpoint, verifying health.</summary>
     Task<bool> ConnectAsync(string endpoint, CancellationToken ct = default);
 
+    /// <summary>Checks kernel health; returns false when unreachable.</summary>
+    Task<bool> CheckHealthAsync(CancellationToken ct = default);
+
     /// <summary>Runs an agent for the given goal.</summary>
     Task<AgentRunResponse> RunAgentAsync(string goal, AgentRunRequest? request = null, CancellationToken ct = default);
 
@@ -114,6 +117,24 @@ public sealed class KernelClientService : IKernelClientService, IDisposable
 
         State = ConnectionState.Failed;
         return false;
+    }
+
+    /// <inheritdoc/>
+    public async Task<bool> CheckHealthAsync(CancellationToken ct = default)
+    {
+        if (_client is null)
+            return false;
+
+        try
+        {
+            var health = await _client.HealthCheckAsync(ct);
+            return health.Ok;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Kernel health check failed");
+            return false;
+        }
     }
 
     /// <inheritdoc/>

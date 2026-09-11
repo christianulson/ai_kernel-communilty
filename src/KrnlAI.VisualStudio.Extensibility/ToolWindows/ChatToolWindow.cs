@@ -1,13 +1,17 @@
+using KrnlAI.VisualStudio.Extensibility.Core.Chat;
+using KrnlAI.VisualStudio.Extensibility.Core.Services;
 using Microsoft.VisualStudio.Extensibility;
 using Microsoft.VisualStudio.Extensibility.ToolWindows;
 using Microsoft.VisualStudio.RpcContracts.RemoteUI;
 
 namespace KrnlAI.VisualStudio.Extensibility.ToolWindows;
 
-/// <summary>Krnl-AI chat tool window (Remote UI).</summary>
+/// <summary>Krnl-AI chat tool window (Remote UI), connected to the kernel.</summary>
 [VisualStudioContribution]
 public sealed class ChatToolWindow : ToolWindow
 {
+    private readonly KernelClientService _kernel;
+    private readonly KernelMessageSink _sink;
     private readonly ChatToolWindowContent _content;
 
     /// <summary>Creates a new instance.</summary>
@@ -15,7 +19,10 @@ public sealed class ChatToolWindow : ToolWindow
         : base(extensibility)
     {
         Title = "Krnl-AI Chat";
-        _content = new ChatToolWindowContent();
+        _kernel = new KernelClientService(new HttpClient(), maxRetries: 2);
+        _sink = new KernelMessageSink(_kernel);
+        var session = new ChatSession(_sink);
+        _content = new ChatToolWindowContent(new ChatDataContext(session, _sink));
     }
 
     /// <inheritdoc/>
@@ -30,14 +37,20 @@ public sealed class ChatToolWindow : ToolWindow
         => Task.FromResult<IRemoteUserControl>(_content);
 
     /// <inheritdoc/>
-    public override Task InitializeAsync(CancellationToken cancellationToken)
-        => Task.CompletedTask;
+    public override async Task InitializeAsync(CancellationToken cancellationToken)
+    {
+        var endpoint = KernelEndpointResolver.Resolve(KernelRuntimeMode.LocalApi, null, 5001);
+        await _kernel.ConnectAsync(endpoint, cancellationToken);
+    }
 
     /// <inheritdoc/>
     protected override void Dispose(bool disposing)
     {
         if (disposing)
+        {
             _content.Dispose();
+            _kernel.Dispose();
+        }
 
         base.Dispose(disposing);
     }

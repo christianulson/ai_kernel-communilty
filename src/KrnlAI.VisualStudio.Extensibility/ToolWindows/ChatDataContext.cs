@@ -14,7 +14,7 @@ public sealed class ChatDataContext : NotifyPropertyChangedObject
     private string _input = string.Empty;
 
     /// <summary>Creates a new instance wrapping the given session.</summary>
-    public ChatDataContext(ChatSession session)
+    public ChatDataContext(ChatSession session, KernelMessageSink sink)
     {
         _session = session;
         Messages = new ObservableList<ChatMessage>(session.Messages);
@@ -28,6 +28,13 @@ public sealed class ChatDataContext : NotifyPropertyChangedObject
             Input = string.Empty;
             Messages.Add(new ChatMessage("user", text));
         });
+        sink.AssistantMessageReceived += OnAssistantMessage;
+    }
+
+    private void OnAssistantMessage(ChatMessage message)
+    {
+        _session.ReceiveMessage(message.Text);
+        Messages.Add(message);
     }
 
     /// <summary>User input text.</summary>
