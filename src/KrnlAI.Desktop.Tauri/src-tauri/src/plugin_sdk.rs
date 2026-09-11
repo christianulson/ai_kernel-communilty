@@ -1,4 +1,6 @@
-#![allow(dead_code)]
+use std::collections::HashMap;
+use std::path::PathBuf;
+
 /// -- Tauri Plugin SDK Architecture --
 ///
 /// This module defines the architecture for third-party Rust plugins
@@ -31,10 +33,6 @@
 /// filesystem = ["read:~/krnlai/data"]
 /// network = ["connect:api.github.com:443"]
 /// ```
-
-use std::collections::HashMap;
-use std::path::PathBuf;
-
 /// A plugin manifest
 #[derive(Debug, Clone, serde::Deserialize, serde::Serialize)]
 pub struct PluginManifest {
@@ -75,6 +73,34 @@ pub struct PluginHost {
     data_dir: PathBuf,
 }
 
+/// Built-in placeholder implementation registered when a manifest is loaded.
+/// Dynamic compilation via `libloading` is not implemented yet, so the host
+/// records the manifest as a registered plugin.
+struct BuiltinPlugin {
+    manifest: PluginManifest,
+    plugin_dir: PathBuf,
+    data_dir: PathBuf,
+}
+
+impl KrnlAIPlugin for BuiltinPlugin {
+    fn name(&self) -> &str {
+        &self.manifest.name
+    }
+
+    fn on_load(&self, ctx: PluginContext) -> Result<(), String> {
+        log::info!(
+            "Builtin plugin loaded from {} with data at {}",
+            ctx.plugin_dir.display(),
+            ctx.data_dir.display()
+        );
+        Ok(())
+    }
+
+    fn on_unload(&self) -> Result<(), String> {
+        Ok(())
+    }
+}
+
 impl PluginHost {
     pub fn new(app_data_dir: PathBuf) -> Self {
         Self {
@@ -100,8 +126,7 @@ impl PluginHost {
         discovered
     }
 
-    #[allow(unused_variables)]
-    pub fn load_plugin(&mut self, manifest_path: &PathBuf, app_handle: tauri::AppHandle) -> Result<(), String> {
+    pub fn load_plugin(&mut self, manifest_path: &PathBuf) -> Result<(), String> {
         let content = std::fs::read_to_string(manifest_path)
             .map_err(|e| format!("Failed to read manifest: {e}"))?;
 
@@ -109,12 +134,36 @@ impl PluginHost {
         let name = extract_field(&content, "name").unwrap_or_else(|| "unknown".to_string());
         let version = extract_field(&content, "version").unwrap_or_else(|| "0.0.0".to_string());
 
-        let plugin_dir = manifest_path.parent().unwrap_or(&self.plugin_dir).to_path_buf();
+        let plugin_dir = manifest_path
+            .parent()
+            .unwrap_or(&self.plugin_dir)
+            .to_path_buf();
         let data_dir = self.data_dir.join(&name);
 
-        std::fs::create_dir_all(&data_dir).map_err(|e| format!("Failed to create data dir: {e}"))?;
+        std::fs::create_dir_all(&data_dir)
+            .map_err(|e| format!("Failed to create data dir: {e}"))?;
 
-        log::info!("Plugin loaded: {} v{}", name, version);
+        let manifest = PluginManifest {
+            name: name.clone(),
+            version,
+            entry: String::new(),
+            permissions: PluginPermissions::default(),
+        };
+
+        self.plugins.insert(
+            name.clone(),
+            Box::new(BuiltinPlugin {
+                manifest,
+                plugin_dir,
+                data_dir,
+            }),
+        );
+
+        log::info!(
+            "Plugin loaded: {} ({} plugins registered)",
+            name,
+            self.plugins.len()
+        );
 
         Ok(())
     }
@@ -143,7 +192,6 @@ fn extract_field(content: &str, field: &str) -> Option<String> {
     None
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -164,7 +212,10 @@ mod tests {
     #[test]
     fn extract_field_parses_toml_values() {
         let content = "name = \"test-plugin\"\nversion = \"1.0.0\"\n";
-        assert_eq!(extract_field(content, "name"), Some("test-plugin".to_string()));
+        assert_eq!(
+            extract_field(content, "name"),
+            Some("test-plugin".to_string())
+        );
         assert_eq!(extract_field(content, "version"), Some("1.0.0".to_string()));
     }
 
@@ -172,8 +223,53 @@ mod tests {
     fn extract_field_returns_none_for_missing() {
         assert_eq!(extract_field("key = \"value\"", "missing"), None);
     }
+
+    #[test]
+    fn load_plugin_registers_and_lists() {
+        let dir = std::env::temp_dir().join(format!("krnlai-plugin-test-{}", std::process::id()));
+        let plugin_dir = dir.join("plugins").join("demo");
+        std::fs::create_dir_all(&plugin_dir).unwrap();
+        let manifest_path = plugin_dir.join("plugin.toml");
+        std::fs::write(&manifest_path, "name = \"demo\"\nversion = \"1.2.3\"\n").unwrap();
+
+        let mut host = PluginHost::new(dir.clone());
+        let result = host.load_plugin(&manifest_path);
+
+        assert!(result.is_ok());
+        assert!(host.list_plugins().contains(&"demo".to_string()));
+        assert!(host.plugin_dir.join("demo").exists() || host.data_dir.join("demo").exists());
+
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    #[test]
+    fn load_plugin_missing_manifest_returns_error() {
+        let dir =
+            std::env::temp_dir().join(format!("krnlai-plugin-missing-{}", std::process::id()));
+        let mut host = PluginHost::new(dir.clone());
+        let missing = dir.join("nope").join("plugin.toml");
+
+        let result = host.load_plugin(&missing);
+
+        assert!(result.is_err());
+
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    #[test]
+    fn unload_plugin_removes_registered_plugin() {
+        let dir = std::env::temp_dir().join(format!("krnlai-plugin-unload-{}", std::process::id()));
+        let plugin_dir = dir.join("plugins").join("demo");
+        std::fs::create_dir_all(&plugin_dir).unwrap();
+        let manifest_path = plugin_dir.join("plugin.toml");
+        std::fs::write(&manifest_path, "name = \"demo\"\n").unwrap();
+
+        let mut host = PluginHost::new(dir.clone());
+        host.load_plugin(&manifest_path).unwrap();
+
+        host.unload_plugin("demo").unwrap();
+        assert!(!host.list_plugins().contains(&"demo".to_string()));
+
+        std::fs::remove_dir_all(&dir).ok();
+    }
 }
-
-
-
-
