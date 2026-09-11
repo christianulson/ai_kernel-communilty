@@ -33,7 +33,21 @@
     <InternalsVisibleTo Include="KrnlAI.Cli.Tests" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Update="Microsoft.Playwright" ExcludeAssets="contentFiles" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Update=".playwright\**" Pack="false" />
+    <Content Update="playwright.ps1" Pack="false" />
+  </ItemGroup>
+  <!-- Playwright installer scripts are not packable inside a dotnet tool (NU5111).
+       Remove them from the publish output before NuGet collects the package files. -->
+  <Target Name="ExcludePlaywrightScriptsFromToolPack" AfterTargets="Publish" BeforeTargets="_GetPackageFiles;Pack">
+    <ItemGroup>
+      <_PlaywrightScriptsToRemove Include="$(PublishDir).playwright\**\*.ps1" />
+      <_PlaywrightScriptsToRemove Include="$(PublishDir)playwright.ps1" />
+    </ItemGroup>
+    <Delete Files="@(_PlaywrightScriptsToRemove)" ContinueOnError="true" />
+  </Target>
   <PropertyGroup>
     <NoWarn>$(NoWarn);NU1510</NoWarn>
   </PropertyGroup>

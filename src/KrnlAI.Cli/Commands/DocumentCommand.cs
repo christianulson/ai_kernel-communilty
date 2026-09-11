@@ -24,7 +24,7 @@ public sealed class DocumentCommand(CliContext ctx, ConsoleRenderer renderer)
 
     private Command BuildList()
     {
-        var limitOpt = new Option<int>("--limit", "Max results");
+        var limitOpt = new Option<int>("--limit") { Description = "Max results" };
         var cmd = new Command("list", "List ingested documents") { limitOpt };
         cmd.SetAction(async (ParseResult r, CancellationToken ct) =>
         {
@@ -79,7 +79,7 @@ public sealed class DocumentCommand(CliContext ctx, ConsoleRenderer renderer)
     private Command BuildSearch()
     {
         var queryArg = new Argument<string>("query") { Description = "Search query" };
-        var topKOpt = new Option<int>("--top-k", "Max results");
+        var topKOpt = new Option<int>("--top-k") { Description = "Max results" };
         var cmd = new Command("search", "Semantic search in documents") { queryArg, topKOpt };
         cmd.SetAction(async (ParseResult r, CancellationToken ct) =>
         {

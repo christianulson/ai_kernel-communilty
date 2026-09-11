@@ -83,6 +83,7 @@ public static class CliServiceExtensions
 
         // Report generator for benchmark command
         services.AddSingleton<ISafetyReportGenerator, Infrastructure.Reports.SafetyHtmlReportGenerator>();
+        services.AddSingleton<Infrastructure.Reports.SafetyScorecardCalculator>();
 
         // Plan/Act mode
         services.AddSingleton<IPlanArtifactStore, InMemoryPlanArtifactStore>();
