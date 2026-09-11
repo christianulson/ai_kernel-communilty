@@ -288,7 +288,7 @@ public class ServiceLocator : IDisposable, IAsyncDisposable
         if (_embeddedKernelLazy?.IsValueCreated == true)
         {
             try { _embeddedKernelLazy.Value.DisposeAsync().AsTask().ConfigureAwait(false).GetAwaiter().GetResult(); }
-            catch { /* best-effort disposal */ }
+            catch (Exception ex) { KrnlLogger.Write(ex); }
         }
         _provider?.Dispose();
     }

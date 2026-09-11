@@ -23,7 +23,7 @@
     <ProjectReference Include="..\..\src\KrnlAI.Desktop.Infrastructure\KrnlAI.Desktop.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\KrnlAI.Desktop.Core\KrnlAI.Desktop.Core.csproj" />
     <ProjectReference Include="..\..\..\src\KrnlAI.Evolution\KrnlAI.Evolution.csproj" />
-    <ProjectReference Include="..\..\..\tests\TestHelpers\TestHelpers.csproj" />
+    <ProjectReference Include="..\..\..\tests\TestHelpers\TestHelpers.csproj" Condition="Exists('..\..\..\tests\TestHelpers\TestHelpers.csproj')" />
   </ItemGroup>
 
 </Project>

@@ -214,3 +214,20 @@ export Cohere__ApiKey="your-api-key"
 ## License
 
 **MIT**. See [LICENSE](LICENSE).
+
+---
+
+## Repository Layout
+
+| Path | Description |
+|---|---|
+| `src/` | Extensions and tools: Visual Studio (classic VSIX + new Extensibility model), VS Code, Browser Extension, JetBrains, Tauri Desktop, CLI, Sidecar |
+| `sdk/` | SDKs: Python (`sdk/python`) and .NET (`sdk/dotnet`) |
+| `tests/` | Test projects |
+| `samples/` | Usage samples |
+| `docs/` | Documentation (including `docs/vsix-migration.md`) |
+| `obsidian/` | Local Obsidian vault with translated docs (`en/`, `pt-br/`) |
+| `WikiObsidian/` | Git submodule of the wiki repository (`ai_kernel-communilty.wiki`) — the published wiki content |
+
+> `obsidian/` (local vault) and `WikiObsidian/` (wiki submodule) overlap in content:
+> the submodule is the published wiki source; `obsidian/` is the working vault with translations.

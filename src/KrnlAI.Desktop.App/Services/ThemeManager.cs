@@ -33,7 +33,7 @@ public sealed class ThemeManager : IDisposable
                 else if (!shouldBeDark && isDark) _themeService.SetTheme("light");
             }
         }
-        catch { }
+        catch (Exception ex) { KrnlLogger.Write(ex); }
     }
 
     private void OnSystemPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)

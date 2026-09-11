@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using KrnlAI.Desktop.Core.Services;
 
 namespace KrnlAI.Desktop.App.Services;
 
@@ -50,6 +51,6 @@ public sealed class TemplateService
     private void Persist()
     {
         try { File.WriteAllText(_filePath, JsonSerializer.Serialize(_templates, JsonOpts)); }
-        catch { }
+        catch (Exception ex) { KrnlLogger.Write(ex); }
     }
 }

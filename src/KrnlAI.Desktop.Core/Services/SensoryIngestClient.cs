@@ -1,11 +1,14 @@
+using KrnlAI.Desktop.Core.Abstractions;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Logging;
 
 namespace KrnlAI.Desktop.Core.Services;
 
-public sealed class SensoryIngestClient(string hubUrl = "http://localhost:5000/hubs/sensory-ingestion",
+public sealed class SensoryIngestClient(string? hubUrl = null,
     ILogger<SensoryIngestClient>? logger = null) : IAsyncDisposable
 {
+    private readonly string _hubUrl = hubUrl
+        ?? ApiEndpointResolver.Resolve(null) + "/hubs/sensory-ingestion";
     private HubConnection? _connection;
 
     public bool IsConnected => _connection?.State == HubConnectionState.Connected;
@@ -13,7 +16,7 @@ public sealed class SensoryIngestClient(string hubUrl = "http://localhost:5000/h
     public async Task ConnectAsync(CancellationToken ct = default)
     {
         _connection = new HubConnectionBuilder()
-            .WithUrl(hubUrl)
+            .WithUrl(_hubUrl)
             .WithAutomaticReconnect()
             .Build();
 
@@ -30,7 +33,7 @@ public sealed class SensoryIngestClient(string hubUrl = "http://localhost:5000/h
         };
 
         await _connection.StartAsync(ct).ConfigureAwait(false);
-        logger?.LogInformation("SensoryIngestClient connected to {Hub}", hubUrl);
+        logger?.LogInformation("SensoryIngestClient connected to {Hub}", _hubUrl);
     }
 
     public async Task SendAudioFrameAsync(byte[] wavData, double intensity, string? transcription = null)

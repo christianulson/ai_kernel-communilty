@@ -470,7 +470,7 @@ public class ChatViewModel : ViewModelBase
                 if (string.IsNullOrEmpty(error) && !string.IsNullOrEmpty(narration))
                 {
                     try { _ = _kernelClient.SubmitFeedbackAsync(new FeedbackRequest("chat", 5, narration, "agent-response")); }
-                    catch { }
+                    catch (Exception ex) { KrnlLogger.Write(ex); }
                 }
 
                 if (!string.IsNullOrEmpty(narration))
