@@ -23,7 +23,8 @@ public sealed class SendSelectionToChatCommand : Command
     /// <inheritdoc/>
     public override CommandConfiguration CommandConfiguration => new("%SendSelectionToChatDisplayName%")
     {
-        TooltipText = "%SendSelectionToChatTooltip%"
+        TooltipText = "%SendSelectionToChatTooltip%",
+        Placements = new[] { CommandPlacement.KnownPlacements.ToolsMenu }
     };
 
     /// <inheritdoc/>
