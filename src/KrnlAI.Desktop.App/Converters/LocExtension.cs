@@ -22,8 +22,12 @@ public class LocExtension : MarkupExtension
             var service = ServiceLocatorAccess.GetLocalizationService();
             if (service != null)
             {
-                var value = service.GetString(Key);
-                if (!string.IsNullOrEmpty(value)) return value;
+                var source = new LocalizedStringValue(service, Key);
+                return new System.Windows.Data.Binding(nameof(LocalizedStringValue.Value))
+                {
+                    Source = source,
+                    Mode = System.Windows.Data.BindingMode.OneWay
+                };
             }
         }
         catch (Exception ex) { KrnlLogger.Write(ex); }
