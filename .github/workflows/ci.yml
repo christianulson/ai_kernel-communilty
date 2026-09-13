@@ -97,8 +97,23 @@ jobs:
           npm run build:bundle
           npx @vscode/vsce package --no-dependencies -o krnlai-vscode-gate.vsix
 
+  python-sdk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e "sdk/python[dev]"
+      - run: |
+          cd sdk/python
+          ruff check .
+      - run: |
+          cd sdk/python
+          pytest
+
   test-community:
-    needs: [desktop, vsix-extensibility, sidecar, tauri, browser-extension, vscode]
+    needs: [desktop, vsix-extensibility, sidecar, tauri, browser-extension, vscode, python-sdk]
     runs-on: windows-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

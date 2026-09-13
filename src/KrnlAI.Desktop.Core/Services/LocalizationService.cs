@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Text.Json;
 
 namespace KrnlAI.Desktop.Core.Services;
@@ -30,6 +31,31 @@ public interface ILocalizationService
     IEnumerable<string> GetAvailableCultures();
 }
 
+/// <summary>
+/// Observable localized string bound to an <see cref="ILocalizationService"/>;
+/// notifies on culture changes so bindings refresh automatically.
+/// </summary>
+public sealed class LocalizedStringValue : INotifyPropertyChanged
+{
+    private readonly ILocalizationService _service;
+    private readonly string _key;
+
+    /// <summary>Creates a new instance.</summary>
+    public LocalizedStringValue(ILocalizationService service, string key)
+    {
+        _service = service;
+        _key = key;
+        _service.CultureChanged += (_, _) =>
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Value)));
+    }
+
+    /// <summary>Localized value for the current culture.</summary>
+    public string Value => _service.GetString(_key);
+
+    /// <inheritdoc/>
+    public event PropertyChangedEventHandler? PropertyChanged;
+}
+
 public class LocalizationService : ILocalizationService
 {
     private string _currentCulture = "pt-BR";
@@ -42,7 +68,26 @@ public class LocalizationService : ILocalizationService
 
     public LocalizationService()
     {
+        _currentCulture = ResolveInitialCulture();
         LoadStrings(_currentCulture);
+    }
+
+    private static string ResolveInitialCulture()
+    {
+        var env = Environment.GetEnvironmentVariable("KRNL_LANG");
+        if (!string.IsNullOrWhiteSpace(env))
+        {
+            var normalized = env.Trim().ToLowerInvariant() switch
+            {
+                "pt" or "pt-br" => "pt-BR",
+                "en" or "en-us" => "en",
+                _ => null
+            };
+            if (normalized is not null)
+                return normalized;
+        }
+
+        return DefaultCulture;
     }
 
     public string GetString(string key)
