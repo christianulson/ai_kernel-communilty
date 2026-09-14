@@ -1,0 +1,25 @@
+name: Publish KrnlAI.Cli (NuGet)
+
+# Publishes the KrnlAI.Cli dotnet tool to nuget.org on cli-v* tags.
+# Requires the NUGET_API_KEY secret (see docs/cli-publish.md).
+
+on:
+  push:
+    tags: ['cli-v*']
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Pack the tool
+        run: |
+          dotnet pack src/KrnlAI.Cli/KrnlAI.Cli.csproj -c Release -p:SignAssembly=false -o nupkg
+          ls nupkg/*.nupkg
+      - name: Push to nuget.org
+        run: dotnet nuget push nupkg/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
