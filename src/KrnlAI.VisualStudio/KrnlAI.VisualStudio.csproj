@@ -34,10 +34,10 @@
     <PackageReference Include="Microsoft.VisualStudio.Utilities" Version="17.14.40264" />
     <PackageReference Include="Microsoft.VisualStudio.Language.StandardClassification" Version="17.14.249" />
     <PackageReference Include="System.Memory" Version="4.6.3" />
-    <PackageReference Include="System.Net.Http.Json" Version="10.0.9" />
-    <PackageReference Include="System.Text.Json" Version="10.0.9" />
+    <PackageReference Include="System.Net.Http.Json" Version="10.0.12" />
+    <PackageReference Include="System.Text.Json" Version="10.0.12" />
     <PackageReference Include="PolySharp" Version="1.16.0" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.9" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.12" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.*" />
   </ItemGroup>
   <ItemGroup>
