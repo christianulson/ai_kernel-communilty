@@ -68,7 +68,7 @@ public sealed class TuiSessionStoreTests : IDisposable
     [Fact]
     public async Task TuiSessionStore_DeleteSession_ShouldRemove()
     {
-        var store = new TuiSessionStore();
+        var store = CreateStore();
         await store.SaveAsync("delete me", []);
         var sessions = await store.ListAsync();
         var id = sessions[0].Id;
