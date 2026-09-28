@@ -14,6 +14,8 @@ public class SettingsViewModel : ViewModelBase, IDisposable
     private readonly ISettingsService _settingsService;
     private readonly IListeningService? _listeningService;
     private readonly IAudioPlayback _audioPlayback;
+    private readonly IAudioCapture? _audioCapture;
+    private readonly IVideoCapture? _videoCapture;
     private readonly IThemeService _themeService;
     private readonly ILogger<SettingsViewModel> _logger;
     private readonly System.Threading.Timer? _debounceTimer;
@@ -119,12 +121,15 @@ public class SettingsViewModel : ViewModelBase, IDisposable
     public ICommand ToggleThemeCommand { get; }
     public ICommand SaveHotkeysCommand { get; }
 
-    public SettingsViewModel(IKernelClient kernelClient, ISettingsService settingsService, IListeningService listeningService, IAudioPlayback audioPlayback, IThemeService themeService)
+    public SettingsViewModel(IKernelClient kernelClient, ISettingsService settingsService, IListeningService listeningService, IAudioPlayback audioPlayback, IThemeService themeService,
+        IAudioCapture? audioCapture = null, IVideoCapture? videoCapture = null)
     {
         _kernelClient = kernelClient;
         _settingsService = settingsService;
         _listeningService = listeningService;
         _audioPlayback = audioPlayback;
+        _audioCapture = audioCapture;
+        _videoCapture = videoCapture;
         _themeService = themeService;
         _themeService.ThemeChanged += OnExternalThemeChanged;
         _logger = ServiceLocator.Instance.GetLogger<SettingsViewModel>();

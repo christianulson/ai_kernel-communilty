@@ -39,10 +39,19 @@ public sealed class ExternalEvaluatorTests
     [Fact]
     public async Task AnthropicSafetyEvaluator_NoApiKey_ShouldReturnSkipped()
     {
-        var eval = new AnthropicSafetyEvaluator();
-        var result = await eval.EvaluateAsync("test prompt", "TEST-001");
-        Assert.Equal("skipped", result.RiskLevel);
-        Assert.False(result.Blocked);
+        var previous = Environment.GetEnvironmentVariable("ANTHROPIC_API_KEY");
+        Environment.SetEnvironmentVariable("ANTHROPIC_API_KEY", null);
+        try
+        {
+            var eval = new AnthropicSafetyEvaluator();
+            var result = await eval.EvaluateAsync("test prompt", "TEST-001");
+            Assert.Equal("skipped", result.RiskLevel);
+            Assert.False(result.Blocked);
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("ANTHROPIC_API_KEY", previous);
+        }
     }
 
     [Fact]
