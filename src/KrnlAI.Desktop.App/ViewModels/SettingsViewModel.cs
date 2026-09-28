@@ -196,9 +196,9 @@ public class SettingsViewModel : ViewModelBase, IDisposable
     public void LoadDevices()
     {
         Microphones.Clear(); Speakers.Clear(); Cameras.Clear();
-        try { foreach (var d in ServiceLocator.Instance.AudioCapture.GetAvailableDevices()) Microphones.Add(d); } catch (Exception ex) { _logger.LogError(ex, "LoadDevices (Microphones)"); }
+        try { foreach (var d in (_audioCapture ?? ServiceLocator.Instance.AudioCapture).GetAvailableDevices()) Microphones.Add(d); } catch (Exception ex) { _logger.LogError(ex, "LoadDevices (Microphones)"); }
         try { foreach (var d in _audioPlayback.GetAvailableDevices()) Speakers.Add(d); } catch (Exception ex) { _logger.LogError(ex, "LoadDevices (Speakers)"); }
-        try { foreach (var d in ServiceLocator.Instance.VideoCapture.GetAvailableDevices()) Cameras.Add(d); } catch (Exception ex) { _logger.LogError(ex, "LoadDevices (Cameras)"); }
+        try { foreach (var d in (_videoCapture ?? ServiceLocator.Instance.VideoCapture).GetAvailableDevices()) Cameras.Add(d); } catch (Exception ex) { _logger.LogError(ex, "LoadDevices (Cameras)"); }
         if (Microphones.Count > 0) SelectedMicrophone = Microphones[0];
         if (Speakers.Count > 0) SelectedSpeaker = Speakers[0];
         if (Cameras.Count > 0) SelectedCamera = Cameras[0];
