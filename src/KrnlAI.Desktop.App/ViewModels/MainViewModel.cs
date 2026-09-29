@@ -104,6 +104,7 @@ public class MainViewModel : ViewModelBase
     public ApprovalViewModel ApprovalVM { get; }
     public TemplatesViewModel TemplatesVM { get; }
     public CliViewModel CliVM { get; } = new();
+    public TerminalViewModel TerminalVM { get; } = new();
     public PluginCatalogViewModel PluginCatalogVM { get; } = new();
     public ExperimentsViewModel ExperimentsVM { get; }
     public InitWizardViewModel InitWizardVM { get; } = new();
@@ -540,13 +541,13 @@ OnPropertyChanged(nameof(IsSecurityVisible)); OnPropertyChanged(nameof(IsGoverna
         {
             var dialog = new Microsoft.Win32.SaveFileDialog { Filter = "Backup files (*.zip)|*.zip", FileName = $"krnlai-backup-{DateTime.Now:yyyyMMdd}.zip" };
             if (dialog.ShowDialog() == true)
-                await new BackupService().BackupAsync(dialog.FileName).ConfigureAwait(false);
+                await new BackupService().BackupAsync(dialog.FileName);
         });
         RestoreCommand = new AsyncRelayCommand(async () =>
         {
             var dialog = new Microsoft.Win32.OpenFileDialog { Filter = "Backup files (*.zip)|*.zip" };
             if (dialog.ShowDialog() == true)
-                await new BackupService().RestoreAsync(dialog.FileName).ConfigureAwait(false);
+                await new BackupService().RestoreAsync(dialog.FileName);
         });
         FeedbackCommand = new RelayCommand(() =>
         {
@@ -562,11 +563,11 @@ OnPropertyChanged(nameof(IsSecurityVisible)); OnPropertyChanged(nameof(IsGoverna
         ToggleCommandPaletteCommand = new RelayCommand(() => ShowCommandPalette = !ShowCommandPalette);
         ToggleLogsCommand = new RelayCommand(() => ShowLogs = !ShowLogs);
         ToggleKioskCommand = new RelayCommand(() => KioskMode = !KioskMode);
-        CheckUpdateCommand = new AsyncRelayCommand(async () => UpdateVersion = await new UpdateChecker().CheckForUpdatesAsync().ConfigureAwait(false));
+        CheckUpdateCommand = new AsyncRelayCommand(async () => UpdateVersion = await new UpdateChecker().CheckForUpdatesAsync());
         DownloadUpdateCommand = new AsyncRelayCommand(async () =>
         {
             if (UpdateVersion != null)
-                await new UpdateChecker().DownloadAndInstallAsync(UpdateVersion).ConfigureAwait(false);
+                await new UpdateChecker().DownloadAndInstallAsync(UpdateVersion);
         });
         StartSidecarCommand = new AsyncRelayCommand(async () =>
         {
@@ -624,8 +625,8 @@ OnPropertyChanged(nameof(IsSecurityVisible)); OnPropertyChanged(nameof(IsGoverna
     private async Task ToggleListeningAsync()
     {
         if (_listeningService == null) return;
-        if (IsListening) { await _listeningService.StopListeningAsync().ConfigureAwait(false); IsListening = false; StatusMessage = "Escuta parada"; }
-        else { await _listeningService.StartListeningAsync().ConfigureAwait(false); IsListening = true; StatusMessage = "Escutando..."; }
+        if (IsListening) { await _listeningService.StopListeningAsync(); IsListening = false; StatusMessage = "Escuta parada"; }
+        else { await _listeningService.StartListeningAsync(); IsListening = true; StatusMessage = "Escutando..."; }
     }
 
     private async Task CheckBackendHealthAsync()
@@ -649,7 +650,7 @@ OnPropertyChanged(nameof(IsSecurityVisible)); OnPropertyChanged(nameof(IsGoverna
         {
             try
             {
-                var isAvailable = await _kernelClient.CheckHealthAsync(t).ConfigureAwait(false);
+                var isAvailable = await _kernelClient.CheckHealthAsync(t);
                 UiThreadInvoker.Invoke(() =>
                 {
                     if (isAvailable != _previousBackendAvailable)
@@ -671,7 +672,7 @@ OnPropertyChanged(nameof(IsSecurityVisible)); OnPropertyChanged(nameof(IsGoverna
             }
             catch (OperationCanceledException) { break; }
             catch (Exception ex) { KrnlLogger.Write($"HealthCheck: {ex.Message}"); }
-            try { await Task.Delay(30000, t).ConfigureAwait(false); } catch (OperationCanceledException) { break; }
+            try { await Task.Delay(30000, t); } catch (OperationCanceledException) { break; }
         }
     }
 
@@ -707,7 +708,7 @@ OnPropertyChanged(nameof(IsSecurityVisible)); OnPropertyChanged(nameof(IsGoverna
             Sessions[i] = new ConversationSession(ActiveSession.Id, inputBox.Text, ActiveSession.CreatedAt);
             ActiveSession = Sessions[i];
         }
-        await Task.CompletedTask.ConfigureAwait(false);
+        await Task.CompletedTask;
     }
 
     private async Task AutoRefreshDashboardAsync()
@@ -719,10 +720,10 @@ OnPropertyChanged(nameof(IsSecurityVisible)); OnPropertyChanged(nameof(IsGoverna
         var t = _dashboardRefreshCts.Token;
         while (!t.IsCancellationRequested)
         {
-            try { await Task.Delay(30000, t).ConfigureAwait(false); } catch (OperationCanceledException) { break; }
+            try { await Task.Delay(30000, t); } catch (OperationCanceledException) { break; }
             if (IsBackendAvailable && !t.IsCancellationRequested)
             {
-                try { await DashVM.LoadDashboardDataAsync().ConfigureAwait(false); }
+                try { await DashVM.LoadDashboardDataAsync(); }
                 catch (Exception ex) { KrnlLogger.Write($"Dashboard refresh: {ex.Message}"); }
             }
         }
@@ -740,7 +741,7 @@ OnPropertyChanged(nameof(IsSecurityVisible)); OnPropertyChanged(nameof(IsGoverna
             {
                 if (IsBackendAvailable)
                 {
-                    var state = await _kernelClient.GetEmotionalStateAsync(UserId, t).ConfigureAwait(false);
+                    var state = await _kernelClient.GetEmotionalStateAsync(UserId, t);
                     if (state != null)
                     {
                         UiThreadInvoker.Invoke(() => EmotionalState = state);
@@ -749,7 +750,7 @@ OnPropertyChanged(nameof(IsSecurityVisible)); OnPropertyChanged(nameof(IsGoverna
             }
             catch (OperationCanceledException) { break; }
             catch (Exception ex) { KrnlLogger.Write($"Emotional poll: {ex.Message}"); }
-            try { await Task.Delay(15000, t).ConfigureAwait(false); } catch (OperationCanceledException) { break; }
+            try { await Task.Delay(15000, t); } catch (OperationCanceledException) { break; }
         }
     }
 

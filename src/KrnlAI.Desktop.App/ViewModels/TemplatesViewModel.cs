@@ -57,7 +57,7 @@ public class TemplatesViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            _allTemplates = await _kernelClient.TemplateListAsync().ConfigureAwait(false);
+            _allTemplates = await _kernelClient.TemplateListAsync();
             RefreshDisplay();
         }
         catch (Exception ex)
@@ -79,11 +79,11 @@ public class TemplatesViewModel : ViewModelBase
         {
             var request = new CreateTemplateRequest(NewTemplateName.Trim(), NewTemplateDescription.Trim(),
                 NewTemplateContent.Trim(), string.IsNullOrWhiteSpace(NewTemplateCategory) ? null : NewTemplateCategory.Trim());
-            await _kernelClient.TemplateCreateAsync(request).ConfigureAwait(false);
+            await _kernelClient.TemplateCreateAsync(request);
             NewTemplateName = "";
             NewTemplateDescription = "";
             NewTemplateContent = "";
-            await LoadTemplatesAsync().ConfigureAwait(false);
+            await LoadTemplatesAsync();
         }
         catch (Exception ex)
         {
@@ -101,8 +101,8 @@ public class TemplatesViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            await _kernelClient.TemplateDeleteAsync(templateId).ConfigureAwait(false);
-            await LoadTemplatesAsync().ConfigureAwait(false);
+            await _kernelClient.TemplateDeleteAsync(templateId);
+            await LoadTemplatesAsync();
         }
         catch (Exception ex)
         {
@@ -118,7 +118,7 @@ public class TemplatesViewModel : ViewModelBase
         try
         {
             var request = new RenderTemplateRequest([]);
-            var result = await _kernelClient.TemplateRenderAsync(templateId, request).ConfigureAwait(false);
+            var result = await _kernelClient.TemplateRenderAsync(templateId, request);
             if (result != null)
             {
                 if (result.Error != null)

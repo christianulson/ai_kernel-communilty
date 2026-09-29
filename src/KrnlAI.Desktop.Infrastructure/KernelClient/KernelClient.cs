@@ -7,12 +7,17 @@ namespace KrnlAI.Desktop.Infrastructure.KernelClient;
 
 public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IKernelClient
 {
+    // Screens own their error state. Only health probes intentionally use a fallback.
+    private static Task<T> ExecuteAsync<T>(Func<Task<T>> action, T fallback,
+        [System.Runtime.CompilerServices.CallerMemberName] string? caller = null) =>
+        SafeCall.ExecuteAsync(action, fallback, caller, propagateErrors: true);
+
     public void SetAuthToken(string? token) => tokenProvider.Token = token;
     public void SetTokens(string? token, string? refreshToken) => tokenProvider.SetTokens(token, refreshToken);
     public void SetBaseUrl(string baseUrl) => DynamicBaseUrlHandler.SetBaseUrl(baseUrl);
 
     public Task<Cts.AgentRunTransportResponse> RunAgentAsync(Cts.AgentRunTransportRequest request, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.RunAgentAsync(request, ct).ConfigureAwait(false);
             return new Cts.AgentRunTransportResponse(r.Narration, r.Command,
@@ -21,7 +26,7 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
         }, new Cts.AgentRunTransportResponse(null, null, null, null, null));
 
     public Task<byte[]> GenerateSpeechAsync(string text, string? language = null, string? voice = null, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GenerateSpeechAsync(new CoreModels.SpeechRequest(text, language ?? "pt-BR", voice), ct).ConfigureAwait(false);
             return !string.IsNullOrEmpty(r.Base64) ? Convert.FromBase64String(r.Base64) : [];
@@ -31,14 +36,14 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
         SafeCall.ExecuteAsync(async () => (await api.GetHealthAsync(ct).ConfigureAwait(false)).IsHealthy, false);
 
     public Task<string?> TranscribeAudioAsync(byte[] audioData, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.TranscribeAudioAsync(new CoreModels.TranscribeRequest(Convert.ToBase64String(audioData), "pt"), ct).ConfigureAwait(false);
             return r.Text;
         }, default(string?));
 
     public Task<CoreModels.LoginResponse> LoginAsync(CoreModels.LoginRequest request, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.LoginAsync(request, ct).ConfigureAwait(false);
             return new CoreModels.LoginResponse(
@@ -50,7 +55,7 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
         }, new CoreModels.LoginResponse(false));
 
     public Task<CoreModels.PolicyListResponse> GetPoliciesAsync(string? domain = null, int page = 1, int pageSize = 20, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetPoliciesAsync(page, pageSize, domain, ct).ConfigureAwait(false);
             return new CoreModels.PolicyListResponse(
@@ -59,7 +64,7 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
         }, new CoreModels.PolicyListResponse([], 0, page, pageSize));
 
     public Task<CoreModels.PolicyDetails?> GetPolicyAsync(string policyId, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetPolicyAsync(policyId, ct).ConfigureAwait(false);
             return new CoreModels.PolicyDetails(r.Id, r.Name, r.Domain, r.Version, r.Content ?? "", r.CreatedAt, r.UpdatedAt, r.IsActive,
@@ -67,24 +72,24 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
         }, default(CoreModels.PolicyDetails?));
 
     public Task<CoreModels.PolicyInfo?> CreatePolicyAsync(CoreModels.CreatePolicyRequest request, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.CreatePolicyAsync(request, ct).ConfigureAwait(false);
             return new CoreModels.PolicyInfo(r.Id, r.Name, r.Domain, r.Version, r.CreatedAt, r.UpdatedAt, r.IsActive);
         }, default(CoreModels.PolicyInfo?));
 
     public Task<CoreModels.PolicyInfo?> UpdatePolicyAsync(string policyId, CoreModels.UpdatePolicyRequest request, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.UpdatePolicyAsync(policyId, request, ct).ConfigureAwait(false);
             return new CoreModels.PolicyInfo(r.Id, r.Name, r.Domain, r.Version, r.CreatedAt, r.UpdatedAt, r.IsActive);
         }, default(CoreModels.PolicyInfo?));
 
     public Task<bool> DeletePolicyAsync(string policyId, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => { await api.DeletePolicyAsync(policyId, ct).ConfigureAwait(false); return true; }, false);
+        ExecuteAsync(async () => { await api.DeletePolicyAsync(policyId, ct).ConfigureAwait(false); return true; }, false);
 
     public Task<CoreModels.EpisodeSearchResult> SearchEpisodesAsync(CoreModels.EpisodeSearchRequest request, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.SearchEpisodesAsync(request.Query, request.GoalId, request.Status,
                 request.FromDate?.ToUniversalTime(), request.ToDate?.ToUniversalTime(), request.Page, request.PageSize, ct).ConfigureAwait(false);
@@ -94,7 +99,7 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
         }, new CoreModels.EpisodeSearchResult([], 0, request.Page, request.PageSize));
 
     public Task<CoreModels.EpisodeDetails?> GetEpisodeAsync(string episodeId, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetEpisodeAsync(episodeId, ct).ConfigureAwait(false);
             return new CoreModels.EpisodeDetails(r.Id, r.GoalId, r.Status, r.CreatedAt, r.FinishedAt, r.DurationMs, r.Outcome, r.SuccessRate, r.Summary,
@@ -102,7 +107,7 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
         }, default(CoreModels.EpisodeDetails?));
 
     public Task<CoreModels.MemorySearchResult> SearchMemoryAsync(string query, int topK = 10, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.SearchMemoryAsync(new MemorySearchRequestDto(query, topK), ct).ConfigureAwait(false);
             return new CoreModels.MemorySearchResult(
@@ -111,14 +116,14 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
         }, new CoreModels.MemorySearchResult([], 0, 0));
 
     public Task<CoreModels.MemoryIngestResult> IngestMemoryAsync(CoreModels.MemoryIngestRequest request, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.IngestMemoryAsync(request, ct).ConfigureAwait(false);
             return new CoreModels.MemoryIngestResult(r.Success, r.DocumentId, r.ChunksCreated, r.Error);
         }, new CoreModels.MemoryIngestResult(false, null, 0, null));
 
     public Task<CoreModels.MemoryMetrics?> GetMemoryMetricsAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetMemoryMetricsAsync(ct).ConfigureAwait(false);
             return new CoreModels.MemoryMetrics(r.TotalChunks, r.TotalDocuments, r.TotalSizeBytes,
@@ -126,7 +131,7 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
         }, default(CoreModels.MemoryMetrics?));
 
     public Task<CoreModels.WorkingMemorySummary?> GetWorkingMemoryAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetWorkingMemoryAsync(ct).ConfigureAwait(false);
             return new CoreModels.WorkingMemorySummary(r.ActiveSlots, r.MaxSlots,
@@ -134,7 +139,7 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
         }, default(CoreModels.WorkingMemorySummary?));
 
     public Task<CoreModels.AgentMetricsSummary?> GetMetricsSummaryAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetMetricsSummaryAsync(ct).ConfigureAwait(false);
             return new CoreModels.AgentMetricsSummary(r.TotalRuns, r.CompletedRuns, r.FailedRuns, r.AbortedRuns, r.SuccessRate, r.AvgLatencyMs, r.AvgCost,
@@ -142,21 +147,21 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
         }, default(CoreModels.AgentMetricsSummary?));
 
     public Task<CoreModels.AgentScorecard?> GetScorecardAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetScorecardAsync(ct).ConfigureAwait(false);
             return new CoreModels.AgentScorecard(r.Reliability, r.Efficiency, r.Safety, r.AntiLoop, r.Governance, r.Overall);
         }, default(CoreModels.AgentScorecard?));
 
     public Task<CoreModels.RuntimeSummary?> GetRuntimeSummaryAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetRuntimeSummaryAsync(ct).ConfigureAwait(false);
             return new CoreModels.RuntimeSummary(r.GatewayHealthy, r.KernelHealthy, r.KernelVersion, r.GatewayVersion, r.ActiveGoals, r.MemoryUsageBytes, r.Services ?? []);
         }, default(CoreModels.RuntimeSummary?));
 
     public Task<CoreModels.GoalListResponse> GetActiveGoalsAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetActiveGoalsAsync(ct).ConfigureAwait(false);
             return new CoreModels.GoalListResponse(
@@ -165,7 +170,7 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
         }, new CoreModels.GoalListResponse([], 0));
 
     public Task<CoreModels.GoalDetails?> GetGoalAsync(string goalId, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetGoalAsync(goalId, ct).ConfigureAwait(false);
             return new CoreModels.GoalDetails(r.GoalId, r.Description, r.Status, r.Priority, r.CreatedAt, r.CompletedAt, r.Deadline, r.SuccessRate,
@@ -174,7 +179,7 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
         }, default(CoreModels.GoalDetails?));
 
     public Task<CoreModels.GoalInfo?> CreateGoalAsync(CoreModels.CreateGoalRequest request, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.CreateGoalAsync(request, ct).ConfigureAwait(false);
             return new CoreModels.GoalInfo(r.GoalId, r.Description, r.Status, r.Priority, r.CreatedAt, r.CompletedAt, r.Deadline, r.SuccessRate, r.SubGoalCount, r.CompletedSubGoals);
@@ -185,18 +190,18 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
     public Task<bool> UpdateGoalStatusAsync(string goalId, string action, CancellationToken ct = default)
     {
         if (!_allowedGoalActions.Contains(action)) return Task.FromResult(false);
-        return SafeCall.ExecuteAsync(async () => { await api.UpdateGoalStatusAsync(goalId, action, ct).ConfigureAwait(false); return true; }, false);
+        return ExecuteAsync(async () => { await api.UpdateGoalStatusAsync(goalId, action, ct).ConfigureAwait(false); return true; }, false);
     }
 
     public Task<CoreModels.FeedbackResponse> SubmitFeedbackAsync(CoreModels.FeedbackRequest request, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.SubmitFeedbackAsync(request, ct).ConfigureAwait(false);
             return new CoreModels.FeedbackResponse(r.Success, r.FeedbackId, r.Message);
         }, new CoreModels.FeedbackResponse(false, null, null));
 
     public Task<CoreModels.CognitiveDashboardData?> GetCognitiveDashboardAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetCognitiveDashboardAsync(ct).ConfigureAwait(false);
             return new CoreModels.CognitiveDashboardData(r.OverallHealth,
@@ -206,17 +211,17 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
         }, default(CoreModels.CognitiveDashboardData?));
 
     public Task<CoreModels.UserProfile?> GetUserProfileAsync(string userId, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetUserProfileAsync(userId, ct).ConfigureAwait(false);
             return new CoreModels.UserProfile(r.UserId, r.Name, r.Email, r.Role, r.Preferences, r.CreatedAt);
         }, default(CoreModels.UserProfile?));
 
     public Task<bool> UpdateUserProfileAsync(CoreModels.UserProfile profile, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => { await api.UpdateUserProfileAsync(profile, ct).ConfigureAwait(false); return true; }, false);
+        ExecuteAsync(async () => { await api.UpdateUserProfileAsync(profile, ct).ConfigureAwait(false); return true; }, false);
 
     public Task<CoreModels.MultimodalSearchResult?> SearchMultimodalAsync(string query, int topK = 10, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.SearchMultimodalAsync(new CoreModels.MultimodalSearchRequest(query, topK), ct).ConfigureAwait(false);
             return new CoreModels.MultimodalSearchResult(query,
@@ -224,7 +229,7 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
         }, default(CoreModels.MultimodalSearchResult?));
 
     public Task<CoreModels.BenchmarkSummary?> GetBenchmarkSummaryAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetBenchmarkSummaryAsync(ct).ConfigureAwait(false);
             return new CoreModels.BenchmarkSummary(r.TotalSuites, r.TotalScenarios, r.OverallScore, r.AvgLatencyMs, r.AvgSuccessRate,
@@ -232,7 +237,7 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
         }, default(CoreModels.BenchmarkSummary?));
 
     public Task<CoreModels.CausalQueryResult?> GetCausalQueryAsync(string query, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetCausalCausesAsync(query, ct).ConfigureAwait(false);
             return new CoreModels.CausalQueryResult(query,
@@ -241,28 +246,28 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
         }, default(CoreModels.CausalQueryResult?));
 
     public Task<CoreModels.CausalPrediction?> GetCausalPredictionAsync(string action, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetCausalPredictAsync(action, ct).ConfigureAwait(false);
             return new CoreModels.CausalPrediction(r.Action, r.Outcome, r.Probability, r.ContributingFactors);
         }, default(CoreModels.CausalPrediction?));
 
     public Task<CoreModels.AffectiveState?> GetAffectiveStateAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetAffectiveStateAsync(ct).ConfigureAwait(false);
             return new CoreModels.AffectiveState(r.Valence, r.Arousal, r.PainLevel, r.RewardLevel, r.UpdatedAt);
         }, default(CoreModels.AffectiveState?));
 
     public Task<CoreModels.EmotionalState?> GetEmotionalStateAsync(string userId, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetEmotionalStateAsync(userId, ct).ConfigureAwait(false);
             return new CoreModels.EmotionalState(r.Valence, r.Arousal, r.Motivation, r.UpdatedAt);
         }, default(CoreModels.EmotionalState?));
 
     public Task<CoreModels.CrossSummaryData?> GetCrossSummaryAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetCrossSummaryAsync(ct).ConfigureAwait(false);
             return new CoreModels.CrossSummaryData(
@@ -272,7 +277,7 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
         }, default(CoreModels.CrossSummaryData?));
 
     public Task<CoreModels.MetricsByGoalData?> GetMetricsByGoalAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetMetricsByGoalAsync(ct).ConfigureAwait(false);
             return new CoreModels.MetricsByGoalData(
@@ -281,7 +286,7 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
         }, default(CoreModels.MetricsByGoalData?));
 
     public Task<CoreModels.PolicyVersionList?> GetPolicyVersionsAsync(string policyId, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetPolicyVersionsAsync(policyId, ct).ConfigureAwait(false);
             return new CoreModels.PolicyVersionList(
@@ -289,59 +294,59 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
         }, default(CoreModels.PolicyVersionList?));
 
     public Task<List<CoreModels.PolicyRollbackEntry>> GetPolicyRollbacksAsync(string policyId, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetPolicyRollbacksAsync(policyId, ct).ConfigureAwait(false);
             return [.. r.Select(x => new CoreModels.PolicyRollbackEntry(x.RollbackId, x.PolicyId, x.TargetVersion, x.PerformedBy, x.Reason, x.PerformedAt))];
         }, new List<CoreModels.PolicyRollbackEntry>());
 
     public Task<CoreModels.GoalCycleList?> GetGoalCyclesAsync(string goalId, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetGoalCyclesAsync(goalId, ct).ConfigureAwait(false);
             return new CoreModels.GoalCycleList([.. r.Select(c => new CoreModels.GoalCycleSummary(c.GoalId, c.Action, c.Status, c.Timestamp, c.DurationMs))]);
         }, default(CoreModels.GoalCycleList?));
 
     public Task<List<CoreModels.McpServerInfo>> GetMcpServersAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetMcpServersAsync(ct).ConfigureAwait(false);
             return [.. r.Select(s => new CoreModels.McpServerInfo(s.ServerId, s.Name, s.TransportType, s.Enabled, s.IsConnected, s.ToolCount, s.LastUsedAt))];
         }, new List<CoreModels.McpServerInfo>());
 
     public Task<bool> ToggleMcpServerAsync(string serverId, bool enabled, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => { await api.ToggleMcpServerAsync(serverId, new McpToggleRequest(enabled), ct).ConfigureAwait(false); return true; }, false);
+        ExecuteAsync(async () => { await api.ToggleMcpServerAsync(serverId, new McpToggleRequest(enabled), ct).ConfigureAwait(false); return true; }, false);
 
     public Task<List<Core.Models.DocumentInfo>> GetDocumentsAsync(int limit = 50, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetDocumentsAsync(limit, ct).ConfigureAwait(false);
             return [.. r.Select(d => new Core.Models.DocumentInfo(d.DocumentId, d.FileName, d.FileSize, d.Format, d.Status, d.ErrorMessage, d.ChunkCount, d.CreatedAt, d.CompletedAt))];
         }, new List<Core.Models.DocumentInfo>());
 
     public Task<Core.Models.DocumentInfo?> GetDocumentStatusAsync(string documentId, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var d = await api.GetDocumentStatusAsync(documentId, ct).ConfigureAwait(false);
             return new Core.Models.DocumentInfo(d.DocumentId, d.FileName, d.FileSize, d.Format, d.Status, d.ErrorMessage, d.ChunkCount, d.CreatedAt, d.CompletedAt);
         }, default(Core.Models.DocumentInfo?));
 
     public Task<Core.Models.ArchiveStats?> GetArchiveStatsAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetArchiveStatsAsync(ct).ConfigureAwait(false);
             return new Core.Models.ArchiveStats(r.Ok, r.TotalArchived, r.Stores ?? []);
         }, default(Core.Models.ArchiveStats?));
 
     public Task<Core.Models.VersionsInfo?> GetVersionsAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetVersionsAsync(ct).ConfigureAwait(false);
             return new Core.Models.VersionsInfo(r.DefaultVersion, r.SupportedVersions ?? [], r.LegacyUnversionedDeprecated, r.LegacySunsetDate);
         }, default(Core.Models.VersionsInfo?));
 
     public Task<Core.Models.ContractsResponse?> GetContractsAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetContractsAsync(ct).ConfigureAwait(false);
             var contracts = r.Contracts?.Select(c => new Core.Models.ContractEntry(c.Endpoint, c.ContractVersion, c.SupportedRange, c.Deprecated, c.State)).ToList() ?? [];
@@ -349,7 +354,7 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
         }, default(Core.Models.ContractsResponse?));
 
     public Task<Core.Models.ModelRegistryDetail?> GetModelRegistryAsync(string modelId, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetModelRegistryAsync(modelId, ct).ConfigureAwait(false);
             var models = r.Models?.Select(m => new Core.Models.ModelRegistryEntry(m.ModelId, m.ModelVersion, m.UseCase, m.Runtime, m.Status, m.ApprovedBy, m.CreatedAt, m.ActivatedAt)).ToList() ?? [];
@@ -358,7 +363,7 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
         }, default(Core.Models.ModelRegistryDetail?));
 
     public Task<Core.Models.ShareListResponse?> GetSharesAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetSharesAsync(ct).ConfigureAwait(false);
             var shares = r.Shares?.Select(s => new Core.Models.SessionShare(s.ShareCode, s.SessionId, s.AccessLevel, s.CreatedAt, s.ExpiresAt, s.AccessCount, s.IsRevoked)).ToList() ?? [];
@@ -366,21 +371,21 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
         }, default(Core.Models.ShareListResponse?));
 
     public Task<List<Core.Models.SnapshotInfo>> GetSnapshotsAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetSnapshotsAsync(ct).ConfigureAwait(false);
             return r.Select(s => new Core.Models.SnapshotInfo(s.SnapshotId, s.Label, s.CreatedAt, s.Size)).ToList();
         }, []);
 
     public Task<List<Core.Models.ObjectiveInfo>> GetObjectivesAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetObjectivesAsync(ct).ConfigureAwait(false);
             return r.Select(o => new Core.Models.ObjectiveInfo(o.ObjectiveId, o.Description, o.Status, o.Progress, o.Priority, o.Deadline)).ToList();
         }, []);
 
     public Task<Core.Models.ObjectiveDetail?> GetObjectiveDetailAsync(string id, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetObjectiveDetailAsync(id, ct).ConfigureAwait(false);
             return new Core.Models.ObjectiveDetail(r.ObjectiveId, r.Description, r.Status, r.Progress,
@@ -388,21 +393,21 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
         }, default(Core.Models.ObjectiveDetail?));
 
     public Task<List<Core.Models.InvestigationInfo>> GetInvestigationsAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetInvestigationsAsync(ct).ConfigureAwait(false);
             return r.Select(i => new Core.Models.InvestigationInfo(i.CaseId, i.Title, i.Status, i.EvidenceCount, i.CreatedAt)).ToList();
         }, []);
 
     public Task<List<Core.Models.McpServerInfo>> GetPluginsAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetMcpServersAsync(ct).ConfigureAwait(false);
             return r.Select(s => new Core.Models.McpServerInfo(s.ServerId, s.Name, s.TransportType, s.Enabled, s.IsConnected, s.ToolCount, s.LastUsedAt)).ToList();
         }, []);
 
     public Task<Core.Models.BenchmarkSummary?> GetSafetyReportAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetBenchmarkSummaryAsync(ct).ConfigureAwait(false);
             return new Core.Models.BenchmarkSummary(r.TotalSuites, r.TotalScenarios, r.OverallScore, r.AvgLatencyMs, r.AvgSuccessRate,
@@ -410,14 +415,14 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
         }, default(Core.Models.BenchmarkSummary?));
 
     public Task<List<Core.Models.ScheduledTask>> GetScheduledTasksAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => new List<Core.Models.ScheduledTask>(), []);
+        ExecuteAsync(async () => new List<Core.Models.ScheduledTask>(), []);
 
     public Task<List<Core.Models.MemoryMoment>> GetMemoryMomentsAsync(int limit = 20, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => new List<Core.Models.MemoryMoment>(), []);
+        ExecuteAsync(async () => new List<Core.Models.MemoryMoment>(), []);
 
     // Knowledge
     public Task<CoreModels.KnowledgeQueryResult?> KnowledgeAskAsync(string query, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.KnowledgeAskAsync(query, ct).ConfigureAwait(false);
             return new CoreModels.KnowledgeQueryResult(r.Query,
@@ -426,14 +431,14 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
         }, default(CoreModels.KnowledgeQueryResult?));
 
     public Task<CoreModels.KnowledgeStats?> KnowledgeStatsAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.KnowledgeStatsAsync(ct).ConfigureAwait(false);
             return new CoreModels.KnowledgeStats(r.TotalEntries, r.TotalSources, r.QueriesToday, r.LastIndexed);
         }, default(CoreModels.KnowledgeStats?));
 
     public Task<CoreModels.KnowledgeLearnResponse?> KnowledgeLearnAsync(string content, string source, string? category = null, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.KnowledgeLearnAsync(new KnowledgeLearnRequestDto(content, source, category), ct).ConfigureAwait(false);
             return new CoreModels.KnowledgeLearnResponse(r.Success, r.EntryId, r.Error);
@@ -441,14 +446,14 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
 
     // PIE
     public Task<CoreModels.PieInferResponse?> PieInferAsync(string premise, string? context = null, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.PieInferAsync(new PieInferRequestDto(premise, context), ct).ConfigureAwait(false);
             return new CoreModels.PieInferResponse(r.Conclusion, r.Confidence, r.SupportingEvidence);
         }, default(CoreModels.PieInferResponse?));
 
     public Task<CoreModels.PieChainResponse?> PieChainAsync(string initialPremise, int steps = 3, string? context = null, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.PieChainAsync(new PieChainRequestDto(initialPremise, steps, context), ct).ConfigureAwait(false);
             return new CoreModels.PieChainResponse(
@@ -456,14 +461,14 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
         }, default(CoreModels.PieChainResponse?));
 
     public Task<CoreModels.PieKnowledgeResponse?> PieKnowledgeAsync(string domain, string fact, double certainty = 1.0, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.PieKnowledgeAsync(new PieKnowledgeRequestDto(domain, fact, certainty), ct).ConfigureAwait(false);
             return new CoreModels.PieKnowledgeResponse(r.Success);
         }, default(CoreModels.PieKnowledgeResponse?));
 
     public Task<CoreModels.PieCoherenceData?> PieCoherenceAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.PieCoherenceAsync(ct).ConfigureAwait(false);
             return new CoreModels.PieCoherenceData(r.OverallCoherence,
@@ -471,7 +476,7 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
         }, default(CoreModels.PieCoherenceData?));
 
     public Task<List<CoreModels.PieTerm>> PieTermsAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.PieTermsAsync(ct).ConfigureAwait(false);
             return r.Select(t => new CoreModels.PieTerm(t.Id, t.Name, t.Description, t.OccurrenceCount)).ToList();
@@ -479,14 +484,14 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
 
     // Emotional history
     public Task<List<CoreModels.EmotionalHistoryEntry>> EmotionalHistoryAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.EmotionalHistoryAsync(ct).ConfigureAwait(false);
             return r.Select(e => new CoreModels.EmotionalHistoryEntry(e.Timestamp, e.Event, e.Valence, e.Arousal, e.Trigger)).ToList();
         }, []);
 
     public Task<bool> EmotionalEventAsync(string @event, string? trigger = null, double? valenceDelta = null, double? arousalDelta = null, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.EmotionalEventAsync(new EmotionalEventRequestDto(@event, trigger, valenceDelta, arousalDelta), ct).ConfigureAwait(false);
             return r.Success;
@@ -494,49 +499,49 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
 
     // Events
     public Task<List<CoreModels.EventInfo>> EventsRecentAsync(int take = 50, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.EventsRecentAsync(take, ct).ConfigureAwait(false);
             return r.Select(e => new CoreModels.EventInfo(e.EventId, e.Type, e.Description, e.Source, e.Timestamp, e.Metadata)).ToList();
         }, []);
 
     public Task<CoreModels.EventDetail?> EventDetailAsync(string eventId, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.EventDetailAsync(eventId, ct).ConfigureAwait(false);
             return new CoreModels.EventDetail(r.EventId, r.Type, r.Description, r.Source, r.Timestamp, r.Metadata, r.RelatedEntityId, r.RelatedEntityType);
         }, default(CoreModels.EventDetail?));
 
     public Task<List<CoreModels.EventInfo>> EventsByMomentAsync(string momentId, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.EventsByMomentAsync(momentId, ct).ConfigureAwait(false);
             return r.Select(e => new CoreModels.EventInfo(e.EventId, e.Type, e.Description, e.Source, e.Timestamp, e.Metadata)).ToList();
         }, []);
 
     public Task<List<Core.Models.ApprovalRequest>> GetPendingApprovalsAsync(string? role = null, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetPendingApprovalsAsync(role, ct).ConfigureAwait(false);
             return r.Select(MapApprovalRequest).ToList();
         }, []);
 
     public Task<Core.Models.ApprovalRequest?> GetApprovalDetailAsync(string requestId, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetApprovalDetailAsync(requestId, ct).ConfigureAwait(false);
             return MapApprovalRequest(r);
         }, default(Core.Models.ApprovalRequest?));
 
     public Task<Core.Models.ApprovalRequest?> ApproveRequestAsync(string requestId, string? comment = null, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.ApproveRequestAsync(requestId, new ApprovalActionDto(comment), ct).ConfigureAwait(false);
             return MapApprovalRequest(r);
         }, default(Core.Models.ApprovalRequest?));
 
     public Task<Core.Models.ApprovalRequest?> RejectRequestAsync(string requestId, string? comment = null, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.RejectRequestAsync(requestId, new ApprovalActionDto(comment), ct).ConfigureAwait(false);
             return MapApprovalRequest(r);
@@ -544,49 +549,49 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
 
     // Coding
     public Task<Core.Models.CodingResponse?> CodingExplainAsync(Core.Models.CodingRequest request, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => new Core.Models.CodingResponse(null, "Not implemented", false, null), default(Core.Models.CodingResponse?));
+        ExecuteAsync(async () => new Core.Models.CodingResponse(null, "Not implemented", false, null), default(Core.Models.CodingResponse?));
     public Task<Core.Models.CodingResponse?> CodingFixAsync(Core.Models.CodingRequest request, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => new Core.Models.CodingResponse(null, "Not implemented", false, null), default(Core.Models.CodingResponse?));
+        ExecuteAsync(async () => new Core.Models.CodingResponse(null, "Not implemented", false, null), default(Core.Models.CodingResponse?));
     public Task<Core.Models.CodingResponse?> CodingGenerateTestsAsync(Core.Models.CodingRequest request, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => new Core.Models.CodingResponse(null, "Not implemented", false, null), default(Core.Models.CodingResponse?));
+        ExecuteAsync(async () => new Core.Models.CodingResponse(null, "Not implemented", false, null), default(Core.Models.CodingResponse?));
     public Task<Core.Models.CodingResponse?> CodingReviewAsync(Core.Models.CodingRequest request, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => new Core.Models.CodingResponse(null, "Not implemented", false, null), default(Core.Models.CodingResponse?));
+        ExecuteAsync(async () => new Core.Models.CodingResponse(null, "Not implemented", false, null), default(Core.Models.CodingResponse?));
     public Task<Core.Models.CodingResponse?> CodingApplyDiffAsync(Core.Models.CodingRequest request, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => new Core.Models.CodingResponse(null, "Not implemented", false, null), default(Core.Models.CodingResponse?));
+        ExecuteAsync(async () => new Core.Models.CodingResponse(null, "Not implemented", false, null), default(Core.Models.CodingResponse?));
     public Task<Core.Models.CodingResponse?> CodingCompleteAsync(Core.Models.CodingRequest request, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => new Core.Models.CodingResponse(null, "Not implemented", false, null), default(Core.Models.CodingResponse?));
+        ExecuteAsync(async () => new Core.Models.CodingResponse(null, "Not implemented", false, null), default(Core.Models.CodingResponse?));
     public Task<Core.Models.CodingStatus?> GetCodingStatusAsync(string cycleId, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => new Core.Models.CodingStatus(cycleId, "unknown", null, 0, null, null, DateTime.UtcNow, null), default(Core.Models.CodingStatus?));
+        ExecuteAsync(async () => new Core.Models.CodingStatus(cycleId, "unknown", null, 0, null, null, DateTime.UtcNow, null), default(Core.Models.CodingStatus?));
 
     // Self-Improvement
     public Task<Core.Models.SelfImprovementStatus?> GetSelfImprovementStatusAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => new Core.Models.SelfImprovementStatus(false, false, DateTime.UtcNow, 0, 0, 0, [], []), default(Core.Models.SelfImprovementStatus?));
+        ExecuteAsync(async () => new Core.Models.SelfImprovementStatus(false, false, DateTime.UtcNow, 0, 0, 0, [], []), default(Core.Models.SelfImprovementStatus?));
 
     // Assistant (Threads)
     public Task<Core.Models.ThreadInfo?> CreateThreadAsync(string? title = null, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => new Core.Models.ThreadInfo(Guid.NewGuid().ToString("N"), title ?? "New Thread", DateTime.UtcNow, "active"), default(Core.Models.ThreadInfo?));
+        ExecuteAsync(async () => new Core.Models.ThreadInfo(Guid.NewGuid().ToString("N"), title ?? "New Thread", DateTime.UtcNow, "active"), default(Core.Models.ThreadInfo?));
     public Task<Core.Models.ThreadInfo?> GetThreadAsync(string threadId, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => new Core.Models.ThreadInfo(threadId, "Not implemented", DateTime.UtcNow, "active"), default(Core.Models.ThreadInfo?));
+        ExecuteAsync(async () => new Core.Models.ThreadInfo(threadId, "Not implemented", DateTime.UtcNow, "active"), default(Core.Models.ThreadInfo?));
     public Task<Core.Models.MessageInfo?> SendMessageAsync(string threadId, string content, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => new Core.Models.MessageInfo(Guid.NewGuid().ToString("N"), threadId, "user", content, DateTime.UtcNow, null), default(Core.Models.MessageInfo?));
+        ExecuteAsync(async () => new Core.Models.MessageInfo(Guid.NewGuid().ToString("N"), threadId, "user", content, DateTime.UtcNow, null), default(Core.Models.MessageInfo?));
     public Task<List<Core.Models.MessageInfo>> GetMessagesAsync(string threadId, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => new List<Core.Models.MessageInfo>(), []);
+        ExecuteAsync(async () => new List<Core.Models.MessageInfo>(), []);
     public Task<Core.Models.RunInfo?> CreateRunAsync(string threadId, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => new Core.Models.RunInfo(Guid.NewGuid().ToString("N"), threadId, "completed", null, DateTime.UtcNow, null, null), default(Core.Models.RunInfo?));
+        ExecuteAsync(async () => new Core.Models.RunInfo(Guid.NewGuid().ToString("N"), threadId, "completed", null, DateTime.UtcNow, null, null), default(Core.Models.RunInfo?));
     public Task<Core.Models.RunInfo?> GetRunAsync(string threadId, string runId, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => new Core.Models.RunInfo(runId, threadId, "completed", null, DateTime.UtcNow, null, null), default(Core.Models.RunInfo?));
+        ExecuteAsync(async () => new Core.Models.RunInfo(runId, threadId, "completed", null, DateTime.UtcNow, null, null), default(Core.Models.RunInfo?));
     public Task<bool> CancelRunAsync(string threadId, string runId, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => true, false);
+        ExecuteAsync(async () => true, false);
 
     // MCP Config
     public Task<Core.Models.McpServerConfig?> GetMcpServerConfigAsync(string serverId, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => new Core.Models.McpServerConfig(serverId, serverId, "stdio", "", null, null), default(Core.Models.McpServerConfig?));
+        ExecuteAsync(async () => new Core.Models.McpServerConfig(serverId, serverId, "stdio", "", null, null), default(Core.Models.McpServerConfig?));
     public Task<bool> UpdateMcpServerAsync(string serverId, Core.Models.McpServerConfig config, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => true, false);
+        ExecuteAsync(async () => true, false);
 
     // Plan
     public Task<CoreModels.PlanExecutionResult?> GetCurrentPlanAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetCognitiveDashboardAsync(ct).ConfigureAwait(false);
             if (r?.ActiveModules == null || r.ActiveModules.Count == 0)
@@ -605,11 +610,11 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
         }, default(CoreModels.PlanExecutionResult?));
 
     public Task<List<CoreModels.PlanStep>> GetPlanStepsAsync(string planId, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => new List<CoreModels.PlanStep>(), []);
+        ExecuteAsync(async () => new List<CoreModels.PlanStep>(), []);
 
     // Feedback History
     public Task<List<CoreModels.FeedbackHistoryEntry>> GetFeedbackHistoryAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => new List<CoreModels.FeedbackHistoryEntry>
+        ExecuteAsync(async () => new List<CoreModels.FeedbackHistoryEntry>
         {
             new("fb-demo-1", "ep-demo-1", 5, "Ótimo sistema!", "geral", DateTimeOffset.UtcNow.AddDays(-1)),
             new("fb-demo-2", "ep-demo-2", 4, "Bom desempenho", "performance", DateTimeOffset.UtcNow.AddDays(-2)),
@@ -617,11 +622,11 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
         }, []);
 
     public Task<CoreModels.FeedbackAverage?> GetFeedbackAverageAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => new CoreModels.FeedbackAverage(3, 4.0, 0, 0, 1, 1, 1), default(CoreModels.FeedbackAverage?));
+        ExecuteAsync(async () => new CoreModels.FeedbackAverage(3, 4.0, 0, 0, 1, 1, 1), default(CoreModels.FeedbackAverage?));
 
     // Episodic Memory
     public Task<CoreModels.EpisodicMemorySearchResult?> SearchEpisodicMemoryAsync(CoreModels.EpisodicMemorySearchRequest request, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.SearchEpisodesAsync(request.Query, null, request.Status,
                 request.FromDate, request.ToDate, 1, request.TopK, ct).ConfigureAwait(false);
@@ -633,54 +638,54 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
 
     // User Services
     public Task<List<Core.Models.UserServiceInfo>> GetUserServicesAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => new List<Core.Models.UserServiceInfo>(), []);
+        ExecuteAsync(() => api.GetUserServicesAsync(ct), []);
     public Task<bool> UpdateUserServiceAsync(string serviceType, Core.Models.UserServiceUpdateRequest request, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => true, false);
+        ExecuteAsync(async () => { await api.UpdateUserServiceAsync(serviceType, request, ct).ConfigureAwait(false); return true; }, false);
     public Task<bool> DeleteUserServiceAsync(string serviceType, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => true, false);
+        ExecuteAsync(async () => { await api.DeleteUserServiceAsync(serviceType, ct).ConfigureAwait(false); return true; }, false);
 
     // Cognitive Flow (Studio) — stub until backend endpoints exist
     public Task<Core.Models.CognitiveFlowResult?> CognitiveFlowExecuteAsync(Core.Models.FlowDefinition flow, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => new Core.Models.CognitiveFlowResult(false, null, "Not implemented via API"), default(Core.Models.CognitiveFlowResult?));
+        ExecuteAsync(async () => new Core.Models.CognitiveFlowResult(false, null, "Not implemented via API"), default(Core.Models.CognitiveFlowResult?));
     public Task<bool> CognitiveFlowSaveAsync(Core.Models.FlowDefinition flow, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => false, false);
+        ExecuteAsync(async () => false, false);
     public Task<Core.Models.FlowDefinition?> CognitiveFlowLoadAsync(string flowName, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => default(Core.Models.FlowDefinition?), default(Core.Models.FlowDefinition?));
+        ExecuteAsync(async () => default(Core.Models.FlowDefinition?), default(Core.Models.FlowDefinition?));
 
     // Templates
     public Task<List<CoreModels.TemplateInfo>> TemplateListAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetTemplatesAsync(ct).ConfigureAwait(false);
             return r.Select(t => new CoreModels.TemplateInfo(t.Id, t.Name, t.Description, t.Content, t.Category, t.Version, t.CreatedAt, t.UpdatedAt)).ToList();
         }, []);
 
     public Task<CoreModels.TemplateInfo?> TemplateGetAsync(string templateId, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetTemplateAsync(templateId, ct).ConfigureAwait(false);
             return new CoreModels.TemplateInfo(r.Id, r.Name, r.Description, r.Content, r.Category, r.Version, r.CreatedAt, r.UpdatedAt);
         }, default(CoreModels.TemplateInfo?));
 
     public Task<CoreModels.TemplateInfo?> TemplateCreateAsync(CoreModels.CreateTemplateRequest request, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.CreateTemplateAsync(request, ct).ConfigureAwait(false);
             return new CoreModels.TemplateInfo(r.Id, r.Name, r.Description, r.Content, r.Category, r.Version, r.CreatedAt, r.UpdatedAt);
         }, default(CoreModels.TemplateInfo?));
 
     public Task<CoreModels.TemplateInfo?> TemplateUpdateAsync(string templateId, CoreModels.UpdateTemplateRequest request, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.UpdateTemplateAsync(templateId, request, ct).ConfigureAwait(false);
             return new CoreModels.TemplateInfo(r.Id, r.Name, r.Description, r.Content, r.Category, r.Version, r.CreatedAt, r.UpdatedAt);
         }, default(CoreModels.TemplateInfo?));
 
     public Task<bool> TemplateDeleteAsync(string templateId, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => { await api.DeleteTemplateAsync(templateId, ct).ConfigureAwait(false); return true; }, false);
+        ExecuteAsync(async () => { await api.DeleteTemplateAsync(templateId, ct).ConfigureAwait(false); return true; }, false);
 
     public Task<CoreModels.TemplateRenderResult?> TemplateRenderAsync(string templateId, CoreModels.RenderTemplateRequest request, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.RenderTemplateAsync(templateId, request, ct).ConfigureAwait(false);
             return new CoreModels.TemplateRenderResult(r.RenderedContent, r.Error);
@@ -688,27 +693,27 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
 
     // Experiments
     public Task<List<CoreModels.ExperimentInfo>> ExperimentListAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetExperimentsAsync(ct).ConfigureAwait(false);
             return r.Select(e => new CoreModels.ExperimentInfo(e.Id, e.Name, e.Status, e.Description, e.CreatedAt, e.CompletedAt)).ToList();
         }, []);
 
     public Task<CoreModels.ExperimentInfo?> ExperimentStartAsync(CoreModels.StartExperimentRequest request, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.StartExperimentAsync(request, ct).ConfigureAwait(false);
             return new CoreModels.ExperimentInfo(r.Id, r.Name, r.Status, r.Description, r.CreatedAt, r.CompletedAt);
         }, default(CoreModels.ExperimentInfo?));
 
     public Task<bool> ExperimentCompleteAsync(string experimentId, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => { await api.CompleteExperimentAsync(experimentId, ct).ConfigureAwait(false); return true; }, false);
+        ExecuteAsync(async () => { await api.CompleteExperimentAsync(experimentId, ct).ConfigureAwait(false); return true; }, false);
 
     public Task<bool> ExperimentRecordMetricAsync(string experimentId, CoreModels.RecordMetricRequest request, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () => { await api.RecordMetricAsync(experimentId, request, ct).ConfigureAwait(false); return true; }, false);
+        ExecuteAsync(async () => { await api.RecordMetricAsync(experimentId, request, ct).ConfigureAwait(false); return true; }, false);
 
     public Task<CoreModels.ExperimentAnalysis?> ExperimentGetAnalysisAsync(string experimentId, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var r = await api.GetExperimentAnalysisAsync(experimentId, ct).ConfigureAwait(false);
             return new CoreModels.ExperimentAnalysis(r.ExperimentId, r.TotalMetrics, r.AvgValue, r.AvgLatencyMs, r.SuccessRate,
@@ -738,14 +743,14 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
 
     // Security
     public Task<List<CoreModels.SecurityIncident>> GetSecurityIncidentsAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var dtos = await api.GetSecurityIncidentsAsync(ct).ConfigureAwait(false);
             return dtos.Select(d => new CoreModels.SecurityIncident(d.Id, d.Description, d.Severity, d.Status, d.DetectedAt)).ToList();
         }, []);
 
     public Task<bool> ResolveSecurityAlertAsync(string alertId, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             await api.ResolveSecurityAlertAsync(alertId, ct).ConfigureAwait(false);
             return true;
@@ -753,14 +758,14 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
 
     // Governance
     public Task<List<CoreModels.GovernanceBudget>> GetAutonomyBudgetsAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var dtos = await api.GetAutonomyBudgetsAsync(ct).ConfigureAwait(false);
             return dtos.Select(d => new CoreModels.GovernanceBudget(d.Domain, d.BudgetUsed, d.BudgetLimit, d.IsExceeded)).ToList();
         }, []);
 
     public Task<CoreModels.GovernanceBudget?> GetApprovalMatrixAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var dto = await api.GetApprovalMatrixAsync(ct).ConfigureAwait(false);
             return new CoreModels.GovernanceBudget(dto.Domain, dto.BudgetUsed, dto.BudgetLimit, dto.IsExceeded);
@@ -768,14 +773,14 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
 
     // Notifications
     public Task<List<CoreModels.NotificationItem>> GetNotificationsAsync(CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var dtos = await api.GetNotificationsAsync(ct).ConfigureAwait(false);
             return dtos.Select(d => new CoreModels.NotificationItem(d.Id, d.Title, d.Message, d.Type, d.IsRead, d.CreatedAt)).ToList();
         }, []);
 
     public Task<bool> MarkNotificationReadAsync(string notificationId, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             await api.MarkNotificationReadAsync(notificationId, ct).ConfigureAwait(false);
             return true;
@@ -783,14 +788,14 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
 
     // Provenance
     public Task<List<CoreModels.ProvenanceEntry>> GetChainAsync(string entityId, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var dtos = await api.GetProvenanceChainAsync(entityId, ct).ConfigureAwait(false);
             return dtos.Select(d => new CoreModels.ProvenanceEntry(d.LinkId, d.EntityType, d.EntityId, d.Description, d.IsIntact, d.RecordedAt)).ToList();
         }, []);
 
     public Task<bool> VerifyChainAsync(string entityId, CancellationToken ct = default) =>
-        SafeCall.ExecuteAsync(async () =>
+        ExecuteAsync(async () =>
         {
             var dto = await api.VerifyProvenanceChainAsync(entityId, ct).ConfigureAwait(false);
             return dto.IsIntact;

@@ -96,6 +96,7 @@
                         <ItemsControl ItemsSource="{Binding EpisodesVM.EpisodeList}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
+                            <Button Style="{StaticResource GhostButton}" Padding="0" HorizontalContentAlignment="Stretch" Command="{Binding DataContext.EpisodesVM.SelectEpisodeCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding Id}" ToolTip="Abrir detalhes">
                                     <Border Padding="20,8" Margin="0,0,0,2"
                                             Background="Transparent" CornerRadius="12">
                                         <Grid>
@@ -122,7 +123,8 @@
                                                        Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"/>
                                         </Grid>
                                     </Border>
-                                </DataTemplate>
+                                </Button>
+                        </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </StackPanel>

@@ -50,7 +50,7 @@ public class ExperimentsViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            var items = await _kernelClient.ExperimentListAsync().ConfigureAwait(false);
+            var items = await _kernelClient.ExperimentListAsync();
             Experiments.Clear();
             foreach (var e in items) Experiments.Add(e);
         }
@@ -73,10 +73,10 @@ public class ExperimentsViewModel : ViewModelBase
         {
             var request = new StartExperimentRequest(NewExperimentName.Trim(),
                 string.IsNullOrWhiteSpace(NewExperimentDescription) ? null : NewExperimentDescription.Trim());
-            await _kernelClient.ExperimentStartAsync(request).ConfigureAwait(false);
+            await _kernelClient.ExperimentStartAsync(request);
             NewExperimentName = "";
             NewExperimentDescription = "";
-            await LoadExperimentsAsync().ConfigureAwait(false);
+            await LoadExperimentsAsync();
         }
         catch (Exception ex)
         {
@@ -94,8 +94,8 @@ public class ExperimentsViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            await _kernelClient.ExperimentCompleteAsync(experimentId).ConfigureAwait(false);
-            await LoadExperimentsAsync().ConfigureAwait(false);
+            await _kernelClient.ExperimentCompleteAsync(experimentId);
+            await LoadExperimentsAsync();
         }
         catch (Exception ex)
         {
@@ -110,7 +110,7 @@ public class ExperimentsViewModel : ViewModelBase
         try
         {
             var request = new RecordMetricRequest(metricName, value);
-            await _kernelClient.ExperimentRecordMetricAsync(experimentId, request).ConfigureAwait(false);
+            await _kernelClient.ExperimentRecordMetricAsync(experimentId, request);
         }
         catch (Exception ex)
         {
@@ -125,7 +125,7 @@ public class ExperimentsViewModel : ViewModelBase
         CurrentAnalysis = null;
         try
         {
-            CurrentAnalysis = await _kernelClient.ExperimentGetAnalysisAsync(experimentId).ConfigureAwait(false);
+            CurrentAnalysis = await _kernelClient.ExperimentGetAnalysisAsync(experimentId);
         }
         catch (Exception ex)
         {
@@ -139,7 +139,7 @@ public class ExperimentsViewModel : ViewModelBase
         var parts = param.Split('|');
         if (parts.Length < 3) return;
         if (double.TryParse(parts[2], out var value))
-            await RecordMetricAsync(parts[0], parts[1], value).ConfigureAwait(false);
+            await RecordMetricAsync(parts[0], parts[1], value);
     }
 
     public void ClearError() => ErrorMessage = "";

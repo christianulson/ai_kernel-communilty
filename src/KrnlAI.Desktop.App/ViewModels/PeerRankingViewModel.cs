@@ -121,13 +121,13 @@ public sealed class PeerRankingViewModel : ViewModelBase
     public Task LoadAsync(CancellationToken ct = default)
         => ExecuteBusyAsync(async () =>
         {
-            await ReloadPeersAsync(ct).ConfigureAwait(false);
-            await ReloadWeightsAsync(ct).ConfigureAwait(false);
-            await ReloadStrategyAsync(ct).ConfigureAwait(false);
+            await ReloadPeersAsync(ct);
+            await ReloadWeightsAsync(ct);
+            await ReloadStrategyAsync(ct);
 
             SelectedPeer ??= FilteredPeers.FirstOrDefault();
             if (SelectedPeer is not null)
-                await LoadHistoryAsync(SelectedPeer.NodeId, ct).ConfigureAwait(false);
+                await LoadHistoryAsync(SelectedPeer.NodeId, ct);
 
             StatusMessage = $"Peers carregados: {FilteredPeers.Count}.";
             ErrorMessage = string.Empty;
@@ -140,7 +140,7 @@ public sealed class PeerRankingViewModel : ViewModelBase
             if (string.IsNullOrWhiteSpace(nodeId))
                 return;
 
-            var history = await _service.GetHistoryAsync(nodeId, ct).ConfigureAwait(false);
+            var history = await _service.GetHistoryAsync(nodeId, ct);
             foreach (var item in history)
                 History.Add(item);
         });
@@ -148,8 +148,8 @@ public sealed class PeerRankingViewModel : ViewModelBase
     public Task SaveWeightsAsync(CancellationToken ct = default)
         => ExecuteBusyAsync(async () =>
         {
-            await _service.UpdateWeightsAsync(BuildWeights(), ct).ConfigureAwait(false);
-            await ReloadWeightsAsync(ct).ConfigureAwait(false);
+            await _service.UpdateWeightsAsync(BuildWeights(), ct);
+            await ReloadWeightsAsync(ct);
             StatusMessage = "Pesos atualizados.";
             ErrorMessage = string.Empty;
         });
@@ -157,8 +157,8 @@ public sealed class PeerRankingViewModel : ViewModelBase
     public Task SaveStrategyAsync(CancellationToken ct = default)
         => ExecuteBusyAsync(async () =>
         {
-            await _service.UpdateStrategyAsync(SelectedStrategy, ct).ConfigureAwait(false);
-            await ReloadStrategyAsync(ct).ConfigureAwait(false);
+            await _service.UpdateStrategyAsync(SelectedStrategy, ct);
+            await ReloadStrategyAsync(ct);
             StatusMessage = "Estratégia atualizada.";
             ErrorMessage = string.Empty;
         });
@@ -166,17 +166,17 @@ public sealed class PeerRankingViewModel : ViewModelBase
     public Task RecomputeAsync(CancellationToken ct = default)
         => ExecuteBusyAsync(async () =>
         {
-            var updated = await _service.RecomputeAsync(ct).ConfigureAwait(false);
+            var updated = await _service.RecomputeAsync(ct);
             StatusMessage = $"Recomputados {updated} peers.";
-            await ReloadPeersAsync(ct).ConfigureAwait(false);
+            await ReloadPeersAsync(ct);
             if (SelectedPeer is not null)
-                await LoadHistoryAsync(SelectedPeer.NodeId, ct).ConfigureAwait(false);
+                await LoadHistoryAsync(SelectedPeer.NodeId, ct);
             ErrorMessage = string.Empty;
         });
 
     private async Task ReloadPeersAsync(CancellationToken ct)
     {
-        var ranking = await _service.GetRankingAsync(ct).ConfigureAwait(false);
+        var ranking = await _service.GetRankingAsync(ct);
         _allPeers.Clear();
         _allPeers.AddRange(ranking);
         ApplyFilters();
@@ -184,7 +184,7 @@ public sealed class PeerRankingViewModel : ViewModelBase
 
     private async Task ReloadWeightsAsync(CancellationToken ct)
     {
-        var weights = await _service.GetWeightsAsync(ct).ConfigureAwait(false);
+        var weights = await _service.GetWeightsAsync(ct);
         SuccessRateWeight = weights.SuccessRateWeight;
         LatencyWeight = weights.LatencyWeight;
         AvailabilityWeight = weights.AvailabilityWeight;
@@ -195,7 +195,7 @@ public sealed class PeerRankingViewModel : ViewModelBase
 
     private async Task ReloadStrategyAsync(CancellationToken ct)
     {
-        var strategy = await _service.GetStrategyAsync(ct).ConfigureAwait(false);
+        var strategy = await _service.GetStrategyAsync(ct);
         AvailableStrategies.Clear();
         foreach (var item in strategy.AvailableStrategies)
             AvailableStrategies.Add(item);
@@ -231,7 +231,7 @@ public sealed class PeerRankingViewModel : ViewModelBase
         IsBusy = true;
         try
         {
-            await action().ConfigureAwait(false);
+            await action();
         }
         catch (Exception ex)
         {

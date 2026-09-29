@@ -6,6 +6,15 @@ namespace KrnlAI.Desktop.Infrastructure.Abstractions;
 
 public interface IGatewayApi
 {
+    [Get("/user/services")]
+    Task<List<Core.Models.UserServiceInfo>> GetUserServicesAsync(CancellationToken ct);
+
+    [Put("/user/services/{serviceType}")]
+    Task UpdateUserServiceAsync(string serviceType, [Body] Core.Models.UserServiceUpdateRequest request, CancellationToken ct);
+
+    [Delete("/user/services/{serviceType}")]
+    Task DeleteUserServiceAsync(string serviceType, CancellationToken ct);
+
     [Post("/agent/run")]
     Task<AgentRunResponseDto> RunAgentAsync([Body] AgentRunTransportRequest request, CancellationToken ct);
 

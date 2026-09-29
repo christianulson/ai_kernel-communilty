@@ -4,6 +4,7 @@
              xmlns:loc="clr-namespace:KrnlAI.Desktop.App.Converters">
     <ScrollViewer Padding="28" VerticalScrollBarVisibility="Auto">
         <StackPanel>
+            <Button Command="{Binding NotificationsVM.LoadCommand}" Content="Atualizar" Style="{StaticResource SecondaryButton}" HorizontalAlignment="Right" Margin="0,0,0,12"/>
             <TextBlock Text="{loc:Loc notifications_title}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,4"/>
             <TextBlock Text="{loc:Loc notifications_subtitle}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,20"/>
 

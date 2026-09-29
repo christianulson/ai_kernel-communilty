@@ -37,7 +37,7 @@ public class GovernanceViewModel : ViewModelBase
         try
         {
             if (ServiceLocator.Instance.CurrentMode == RunMode.Local) { ErrorMessage = "Indisponivel no modo Local"; return; }
-            Budgets = await _kernelClient.GetAutonomyBudgetsAsync().ConfigureAwait(false);
+            Budgets = await _kernelClient.GetAutonomyBudgetsAsync();
         }
         catch (Exception ex) { _logger.LogError(ex, "Failed to load governance"); ErrorMessage = ex.Message; }
         finally { IsLoading = false; }

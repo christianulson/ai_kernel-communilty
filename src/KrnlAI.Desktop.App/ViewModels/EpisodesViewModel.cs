@@ -19,12 +19,17 @@ public class EpisodesViewModel : ViewModelBase
     public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
     public bool HasNoData => !IsLoading && EpisodeList.Count == 0 && !HasError;
     public ICommand LoadEpisodesCommand { get; }
+    public ICommand SelectEpisodeCommand { get; }
     public ICommand ClearDetailCommand { get; }
 
     public EpisodesViewModel(IKernelClient kernelClient)
     {
         _kernelClient = kernelClient;
         LoadEpisodesCommand = new AsyncRelayCommand(LoadAsync);
+        SelectEpisodeCommand = new AsyncRelayCommand(async parameter =>
+        {
+            if (parameter is string id && !string.IsNullOrWhiteSpace(id)) await LoadDetailAsync(id);
+        });
         ClearDetailCommand = new RelayCommand(() => EpisodeDetail = null);
     }
 
@@ -36,7 +41,7 @@ public class EpisodesViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            var r = await _kernelClient.SearchEpisodesAsync(new EpisodeSearchRequest(Page: 1, PageSize: 50)).ConfigureAwait(false);
+            var r = await _kernelClient.SearchEpisodesAsync(new EpisodeSearchRequest(Page: 1, PageSize: 50));
             EpisodeList.Clear();
             if (r?.Episodes != null) foreach (var e in r.Episodes) EpisodeList.Add(e);
             OnPropertyChanged(nameof(HasNoData));
@@ -55,7 +60,7 @@ public class EpisodesViewModel : ViewModelBase
     {
         try
         {
-            var detail = await _kernelClient.GetEpisodeAsync(id).ConfigureAwait(false);
+            var detail = await _kernelClient.GetEpisodeAsync(id);
             if (detail != null) EpisodeDetail = detail;
         }
         catch (Exception ex)

@@ -36,7 +36,7 @@ public class BenchmarkViewModel : ViewModelBase
                 ErrorMessage = "Indisponível no modo Local";
                 return;
             }
-            Data = await _kernelClient.GetBenchmarkSummaryAsync().ConfigureAwait(false);
+            Data = await _kernelClient.GetBenchmarkSummaryAsync();
         }
         catch (Exception ex)
         {

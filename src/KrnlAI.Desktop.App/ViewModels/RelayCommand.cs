@@ -58,7 +58,7 @@ public class AsyncRelayCommand(Func<object?, Task> execute, Predicate<object?>? 
     {
         try
         {
-            await _execute(parameter).ConfigureAwait(false);
+            await _execute(parameter);
         }
         catch (Exception ex)
         {

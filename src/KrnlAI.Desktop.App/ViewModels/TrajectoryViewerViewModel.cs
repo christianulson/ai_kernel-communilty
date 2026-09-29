@@ -85,7 +85,7 @@ public sealed class TrajectoryViewerViewModel : ViewModelBase
         {
             if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return;
             if (Sessions.FirstOrDefault() is TrajectorySessionSummary s)
-                await LoadSessionAsync(s.Id).ConfigureAwait(false);
+                await LoadSessionAsync(s.Id);
         });
         if (ServiceLocator.Instance.CurrentMode != RunMode.Local)
             _ = LoadSessionsAsync();
@@ -100,9 +100,9 @@ public sealed class TrajectoryViewerViewModel : ViewModelBase
             if (!string.IsNullOrWhiteSpace(SearchText))
                 url += "&search=" + Uri.EscapeDataString(SearchText);
 
-            var response = await _http.GetAsync(url).ConfigureAwait(false);
+            var response = await _http.GetAsync(url);
             response.EnsureSuccessStatusCode();
-            var items = await response.Content.ReadFromJsonAsync<List<TrajectorySessionSummary>>().ConfigureAwait(false);
+            var items = await response.Content.ReadFromJsonAsync<List<TrajectorySessionSummary>>();
             Sessions.Clear();
             if (items != null)
                 foreach (var item in items) Sessions.Add(item);
@@ -118,9 +118,9 @@ public sealed class TrajectoryViewerViewModel : ViewModelBase
         if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return;
         try
         {
-            var response = await _http.GetAsync($"/api/trajectories/{sessionId}").ConfigureAwait(false);
+            var response = await _http.GetAsync($"/api/trajectories/{sessionId}");
             response.EnsureSuccessStatusCode();
-            var session = await response.Content.ReadFromJsonAsync<TrajectorySessionDetail>().ConfigureAwait(false);
+            var session = await response.Content.ReadFromJsonAsync<TrajectorySessionDetail>();
             SelectedSession = session;
             SelectedTabIndex = 0;
         }

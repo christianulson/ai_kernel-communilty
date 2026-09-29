@@ -44,7 +44,7 @@ public class ModelRegistryViewModel : ViewModelBase
                 ErrorMessage = "Indisponível no modo Local";
                 return;
             }
-            var detail = await _kernelClient.GetModelRegistryAsync(ModelId).ConfigureAwait(false);
+            var detail = await _kernelClient.GetModelRegistryAsync(ModelId);
             if (detail?.Models != null)
             {
                 Models.Clear();

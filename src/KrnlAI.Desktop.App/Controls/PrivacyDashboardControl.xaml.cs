@@ -20,7 +20,7 @@ public partial class PrivacyDashboardControl : UserControl
         {
             if (DataContext is PrivacyDashboardViewModel vm)
             {
-                await vm.LoadAsync().ConfigureAwait(false);
+                await vm.LoadAsync();
                 SyncSelection(vm.SelectedConsentLevel);
             }
         }

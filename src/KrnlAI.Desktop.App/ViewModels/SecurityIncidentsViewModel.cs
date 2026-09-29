@@ -40,7 +40,7 @@ public class SecurityIncidentsViewModel : ViewModelBase
         try
         {
             if (ServiceLocator.Instance.CurrentMode == RunMode.Local) { ErrorMessage = "Indisponivel no modo Local"; return; }
-            Incidents = await _kernelClient.GetSecurityIncidentsAsync().ConfigureAwait(false);
+            Incidents = await _kernelClient.GetSecurityIncidentsAsync();
         }
         catch (Exception ex) { _logger.LogError(ex, "Failed to load incidents"); ErrorMessage = ex.Message; }
         finally { IsLoading = false; }
@@ -50,8 +50,8 @@ public class SecurityIncidentsViewModel : ViewModelBase
     {
         try
         {
-            await _kernelClient.ResolveSecurityAlertAsync(id).ConfigureAwait(false);
-            await LoadAsync().ConfigureAwait(false);
+            await _kernelClient.ResolveSecurityAlertAsync(id);
+            await LoadAsync();
         }
         catch (Exception ex) { _logger.LogError(ex, "Failed to resolve {Id}", id); ErrorMessage = ex.Message; }
     }

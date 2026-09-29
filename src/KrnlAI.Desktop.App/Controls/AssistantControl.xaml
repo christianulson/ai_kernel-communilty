@@ -7,19 +7,19 @@
             <ColumnDefinition Width="280"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Border Grid.Column="0" Background="#B808111F" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,1,0" Padding="16">
+        <Border Grid.Column="0" Background="{DynamicResource PanelSoftBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,1,0" Padding="16">
             <StackPanel>
                 <TextBlock Text="🧠 Assistant" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,16"/>
                 <Button Command="{Binding AssistantVM.CreateThreadCommand}" Style="{StaticResource PrimaryButton}" Margin="0,0,0,12">Nova Thread</Button>
                 <ItemsControl ItemsSource="{Binding AssistantVM.Threads}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
+                            <Button Style="{StaticResource GhostButton}" Padding="0" HorizontalContentAlignment="Stretch" Command="{Binding DataContext.AssistantVM.SelectThreadCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding ThreadId}" ToolTip="Abrir detalhes">
                             <Border Padding="10,8" CornerRadius="12" Background="#14FFFFFF" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Margin="0,0,0,4" Cursor="Hand">
-                                <Border.InputBindings>
-                                    <MouseBinding MouseAction="LeftClick" Command="{Binding DataContext.AssistantVM.LoadThreadsCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"/>
-                                </Border.InputBindings>
+                                
                                 <TextBlock Text="{Binding Title}" FontSize="12" Foreground="{DynamicResource TextPrimaryBrush}"/>
                             </Border>
+                        </Button>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>

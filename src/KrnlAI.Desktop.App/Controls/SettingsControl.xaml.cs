@@ -17,7 +17,7 @@ public partial class SettingsControl : UserControl
             if (sender is CheckBox { DataContext: McpServerInfo server } check)
             {
                 if (DataContext is MainViewModel mainVm)
-                    await mainVm.SettingsVM.ToggleMcpServerAsync(server.ServerId, check.IsChecked ?? false).ConfigureAwait(false);
+                    await mainVm.SettingsVM.ToggleMcpServerAsync(server.ServerId, check.IsChecked ?? false);
             }
         }
         catch (Exception ex) { KrnlLogger.Write($"SettingsControl.OnMcpToggled: {ex.Message}"); }

@@ -15,7 +15,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <!-- ═══════════════════════════ SIDEBAR ═══════════════════════════ -->
-        <Border Grid.Column="0" Grid.RowSpan="2"                Background="#B808111F"                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,1,0">
+        <Border Grid.Column="0" Grid.RowSpan="2"                Background="{DynamicResource PanelSoftBrush}"                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,1,0">
             <Grid Margin="0,0,0,0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -112,7 +112,8 @@
                     </StackPanel>
                 </Border>
                 <!-- Navigation Menu -->
-                <StackPanel Grid.Row="3" Margin="12,8,12,0">
+                <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <StackPanel Margin="12,8,12,0">
                     <TextBlock Text="{loc:Loc sidebar_nav_title}" FontSize="10" FontWeight="Bold"                               Foreground="{DynamicResource TextSecondaryBrush}"                               Margin="4,0,0,8"/>
                     <Button Command="{Binding NavigateToChatCommand}" Style="{StaticResource NavButton}"                            Margin="0,0,0,2"
                             AutomationProperties.Name="Chat"
@@ -530,6 +531,7 @@
                         </StackPanel>
                     </Button>
                 </StackPanel>
+                </ScrollViewer>
                 <!-- Sessions -->
                 <Border Grid.Row="4" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0"                        Padding="12,12,12,8">
                     <StackPanel>
@@ -630,7 +632,7 @@
             <controls:ApiKeysControl Visibility="{Binding IsApiKeysVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:PeerRankingControl Visibility="{Binding IsPeerRankingVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:PrivacyControl Visibility="{Binding IsPrivacyVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
-            <controls:UserServicesControl Visibility="{Binding IsUserServicesVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:UserServicesControl DataContext="{Binding UserServicesVM}" Visibility="{Binding DataContext.IsUserServicesVisible, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:DocumentControl Visibility="{Binding IsDocumentsVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:ArchiveControl Visibility="{Binding IsArchiveVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:ModelRegistryControl Visibility="{Binding IsModelRegistryVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
@@ -673,10 +675,10 @@
             <controls:EpisodicMemoryControl Visibility="{Binding IsEpisodicMemoryVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:CreativityControl Visibility="{Binding IsCreativityVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <controls:CognitiveCycleControl Visibility="{Binding IsCognitiveCycleVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
-            <controls:SecurityIncidentsControl DataContext="{Binding SecurityVM}" Visibility="{Binding IsSecurityVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
-            <controls:GovernanceControl DataContext="{Binding GovernanceVM}" Visibility="{Binding IsGovernanceVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
-            <controls:NotificationsControl DataContext="{Binding NotificationsVM}" Visibility="{Binding IsNotificationsVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
-            <controls:ProvenanceControl DataContext="{Binding ProvenanceVM}" Visibility="{Binding IsProvenanceVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:SecurityIncidentsControl Visibility="{Binding IsSecurityVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:GovernanceControl Visibility="{Binding IsGovernanceVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:NotificationsControl Visibility="{Binding IsNotificationsVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <controls:ProvenanceControl Visibility="{Binding IsProvenanceVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <!-- Welcome Wizard Overlay -->
             <Border Visibility="{Binding ShowWelcomeWizard, Converter={StaticResource BoolToVisibilityConverter}}"
                     Panel.ZIndex="200" Background="#CC000000">

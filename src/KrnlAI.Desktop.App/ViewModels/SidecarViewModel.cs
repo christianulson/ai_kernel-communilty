@@ -98,12 +98,12 @@ public sealed class SidecarViewModel : ViewModelBase
             if (_mode == "enterprise" && !string.IsNullOrWhiteSpace(_gatewayEndpoint))
             {
                 using var testClient = new HttpClient { Timeout = TimeSpan.FromSeconds(5) };
-                var response = await testClient.GetAsync(_gatewayEndpoint.TrimEnd('/') + "/health").ConfigureAwait(false);
+                var response = await testClient.GetAsync(_gatewayEndpoint.TrimEnd('/') + "/health");
                 StatusMessage = response.IsSuccessStatusCode ? "Conexão OK" : $"Falha: HTTP {(int)response.StatusCode}";
             }
             else
             {
-                var response = await _http.GetAsync("/health").ConfigureAwait(false);
+                var response = await _http.GetAsync("/health");
                 StatusMessage = response.IsSuccessStatusCode ? "Conexão OK" : $"Falha: HTTP {(int)response.StatusCode}";
             }
         }
@@ -156,8 +156,8 @@ public sealed class SidecarViewModel : ViewModelBase
             var target = _mode == "enterprise" && !string.IsNullOrWhiteSpace(_gatewayEndpoint) ? _gatewayEndpoint : _http.BaseAddress?.ToString() ?? "http://localhost:5235";
             using var rpcClient = new HttpClient { Timeout = TimeSpan.FromSeconds(5) };
             var payload = new { jsonrpc = "2.0", method = "sidecar.health", @params = new { }, id = 1 };
-            var response = await rpcClient.PostAsJsonAsync(target.TrimEnd('/') + "/api/rpc", payload).ConfigureAwait(false);
-            var body = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            var response = await rpcClient.PostAsJsonAsync(target.TrimEnd('/') + "/api/rpc", payload);
+            var body = await response.Content.ReadAsStringAsync();
             StatusMessage = response.IsSuccessStatusCode ? $"RPC OK: {body[..Math.Min(body.Length, 100)]}" : $"RPC falhou: HTTP {(int)response.StatusCode}";
         }
         catch (Exception ex) { ErrorMessage = $"Erro RPC: {ex.Message}"; StatusMessage = "Falha"; }
@@ -172,7 +172,7 @@ public sealed class SidecarViewModel : ViewModelBase
             GatewayEndpoint = "";
             ApiKey = "";
             TenantId = "";
-            await SaveConfigAsync().ConfigureAwait(false);
+            await SaveConfigAsync();
             StatusMessage = "Resetado para modo community.";
             ErrorMessage = "";
         }

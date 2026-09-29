@@ -39,7 +39,7 @@ public class NotificationsViewModel : ViewModelBase
         try
         {
             if (ServiceLocator.Instance.CurrentMode == RunMode.Local) { ErrorMessage = "Indisponivel no modo Local"; return; }
-            Notifications = await _kernelClient.GetNotificationsAsync().ConfigureAwait(false);
+            Notifications = await _kernelClient.GetNotificationsAsync();
         }
         catch (Exception ex) { _logger.LogError(ex, "Failed to load notifications"); ErrorMessage = ex.Message; }
         finally { IsLoading = false; }
@@ -47,7 +47,7 @@ public class NotificationsViewModel : ViewModelBase
 
     public async Task MarkReadAsync(string id)
     {
-        try { await _kernelClient.MarkNotificationReadAsync(id).ConfigureAwait(false); await LoadAsync().ConfigureAwait(false); }
+        try { await _kernelClient.MarkNotificationReadAsync(id); await LoadAsync(); }
         catch (Exception ex) { _logger.LogError(ex, "Failed to mark read {Id}", id); ErrorMessage = ex.Message; }
     }
 }

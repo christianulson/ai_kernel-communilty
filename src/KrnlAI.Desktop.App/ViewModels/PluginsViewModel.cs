@@ -26,7 +26,7 @@ public class PluginsViewModel : ViewModelBase
     {
         _client = client; _logger = logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<PluginsViewModel>.Instance;
         LoadCommand = new AsyncRelayCommand(LoadAsync);
-        TogglePluginCommand = new AsyncRelayCommand(async p => { if (p is string id) await TogglePluginAsync(id).ConfigureAwait(false); });
+        TogglePluginCommand = new AsyncRelayCommand(async p => { if (p is string id) await TogglePluginAsync(id); });
     }
 
     public async Task LoadAsync()
@@ -35,7 +35,7 @@ public class PluginsViewModel : ViewModelBase
         try
         {
             if (ServiceLocator.Instance.CurrentMode == RunMode.Local) { ErrorMessage = "Indisponível no modo Local"; return; }
-            var r = await _client.GetPluginsAsync().ConfigureAwait(false);
+            var r = await _client.GetPluginsAsync();
             Plugins.Clear();
             if (r != null) foreach (var p in r) Plugins.Add(p);
             OnPropertyChanged(nameof(HasNoData));
@@ -46,7 +46,7 @@ public class PluginsViewModel : ViewModelBase
 
     private async Task TogglePluginAsync(string id)
     {
-        try { await _client.ToggleMcpServerAsync(id, true).ConfigureAwait(false); await LoadAsync().ConfigureAwait(false); }
+        try { await _client.ToggleMcpServerAsync(id, true); await LoadAsync(); }
         catch (Exception ex) { _logger.LogWarning(ex, "TogglePlugin failed"); }
     }
 }

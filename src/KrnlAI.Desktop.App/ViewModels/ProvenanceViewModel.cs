@@ -43,7 +43,7 @@ public class ProvenanceViewModel : ViewModelBase
         {
             if (ServiceLocator.Instance.CurrentMode == RunMode.Local) { ErrorMessage = "Indisponivel no modo Local"; return; }
             var entityId = SearchEntityId ?? "latest";
-            Entries = await _kernelClient.GetChainAsync(entityId).ConfigureAwait(false);
+            Entries = await _kernelClient.GetChainAsync(entityId);
         }
         catch (Exception ex) { _logger.LogError(ex, "Failed to load provenance"); ErrorMessage = ex.Message; }
         finally { IsLoading = false; }
@@ -53,7 +53,7 @@ public class ProvenanceViewModel : ViewModelBase
     {
         try
         {
-            IsIntact = await _kernelClient.VerifyChainAsync(entityId).ConfigureAwait(false);
+            IsIntact = await _kernelClient.VerifyChainAsync(entityId);
         }
         catch (Exception ex) { _logger.LogError(ex, "Failed to verify {Id}", entityId); ErrorMessage = ex.Message; }
     }

@@ -39,7 +39,7 @@ public class ArchiveViewModel : ViewModelBase
                 ErrorMessage = "Indisponível no modo Local";
                 return;
             }
-            Stats = await _kernelClient.GetArchiveStatsAsync().ConfigureAwait(false);
+            Stats = await _kernelClient.GetArchiveStatsAsync();
         }
         catch (Exception ex)
         {

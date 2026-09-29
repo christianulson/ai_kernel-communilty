@@ -46,7 +46,7 @@ public class ProfileViewModel : ViewModelBase
                 ErrorMessage = "Indisponível no modo Local";
                 return;
             }
-            var profile = await _kernelClient.GetUserProfileAsync(UserId).ConfigureAwait(false);
+            var profile = await _kernelClient.GetUserProfileAsync(UserId);
             if (profile != null)
             {
                 Name = profile.Name ?? "";
@@ -77,7 +77,7 @@ public class ProfileViewModel : ViewModelBase
         try
         {
             var profile = new UserProfile(UserId, Name, Email, Role, null, DateTime.UtcNow);
-            var success = await _kernelClient.UpdateUserProfileAsync(profile).ConfigureAwait(false);
+            var success = await _kernelClient.UpdateUserProfileAsync(profile);
             if (!success)
                 ErrorMessage = "Falha ao salvar perfil";
         }

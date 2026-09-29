@@ -5,7 +5,7 @@ using KrnlAI.Desktop.Core.Services;
 
 namespace KrnlAI.Desktop.App.Converters;
 
-[MarkupExtensionReturnType(typeof(string))]
+[MarkupExtensionReturnType(typeof(object))]
 public class LocExtension : MarkupExtension
 {
     public LocExtension() { }
@@ -23,11 +23,16 @@ public class LocExtension : MarkupExtension
             if (service != null)
             {
                 var source = new LocalizedStringValue(service, Key);
-                return new System.Windows.Data.Binding(nameof(LocalizedStringValue.Value))
+                var binding = new System.Windows.Data.Binding(nameof(LocalizedStringValue.Value))
                 {
                     Source = source,
                     Mode = System.Windows.Data.BindingMode.OneWay
                 };
+
+                // BindingBase.ProvideValue liga o binding ao alvo via IProvideValueTarget e
+                // devolve a BindingExpression. Retornar o Binding cru faz o loader de XAML
+                // tratá-lo como valor literal ("'Binding' is not a valid value for property").
+                return binding.ProvideValue(serviceProvider);
             }
         }
         catch (Exception ex) { KrnlLogger.Write(ex); }

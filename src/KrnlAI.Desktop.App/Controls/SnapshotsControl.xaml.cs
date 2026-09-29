@@ -15,7 +15,7 @@ public sealed partial class SnapshotsControl : UserControl
         try
         {
             if (DataContext is ViewModels.MainViewModel vm)
-                await vm.SnapshotsVM.LoadAsync().ConfigureAwait(false);
+                await vm.SnapshotsVM.LoadAsync();
         }
         catch (Exception ex) { KrnlLogger.Write($"SnapshotsControl.OnLoaded: {ex.Message}"); }
     }

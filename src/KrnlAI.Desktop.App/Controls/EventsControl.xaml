@@ -45,10 +45,9 @@
                         <ItemsControl ItemsSource="{Binding EventsVM.FilteredEvents}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
+                            <Button Style="{StaticResource GhostButton}" Padding="0" HorizontalContentAlignment="Stretch" Command="{Binding DataContext.EventsVM.SelectEventCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding EventId}" ToolTip="Abrir detalhes">
                                     <Border Padding="12,10" CornerRadius="12" Background="#14FFFFFF" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Margin="0,0,0,6" Cursor="Hand">
-                                        <Border.InputBindings>
-                                            <MouseBinding MouseAction="LeftClick" Command="{Binding DataContext.EventsVM.LoadRecentCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" />
-                                        </Border.InputBindings>
+                                        
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto"/>
@@ -65,7 +64,8 @@
                                             <TextBlock Grid.Column="2" Text="{Binding Timestamp, StringFormat=HH:mm:ss}" FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"/>
                                         </Grid>
                                     </Border>
-                                </DataTemplate>
+                                </Button>
+                        </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </StackPanel>
