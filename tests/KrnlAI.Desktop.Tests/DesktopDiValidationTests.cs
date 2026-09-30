@@ -93,6 +93,8 @@ public sealed class DesktopDiValidationTests
         services.AddSingleton<IAudioCapture>(_ => new AudioCaptureService(new SilentLogger<AudioCaptureService>()));
         services.AddSingleton<IAudioPlayback>(_ => new AudioPlaybackService(new SilentLogger<AudioPlaybackService>()));
         services.AddSingleton<IVideoCapture>(_ => new VideoCaptureService(new SilentLogger<VideoCaptureService>()));
+        services.AddSingleton<KrnlAI.Desktop.Core.Abstractions.ISpeechSynthesisService,
+            KrnlAI.Desktop.Infrastructure.Speech.WindowsSpeechSynthesisService>();
         services.AddSingleton<IListeningService>(sp => new ListeningService(
             sp.GetRequiredService<IAudioCapture>(),
             sp.GetRequiredService<IKernelAgentClient>(),

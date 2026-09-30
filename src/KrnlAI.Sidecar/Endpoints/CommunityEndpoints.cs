@@ -155,9 +155,35 @@ public static class CommunityEndpoints
 
 
 
+        app.MapGet("/initiatives", (IEmbeddedKrnlAI kernel) =>
+        {
+            var pending = kernel.DrainInitiatives();
+            return Results.Ok(new
+            {
+                ok = true,
+                initiatives = pending.Select(message => new
+                {
+                    id = message.MessageId,
+                    text = message.Text,
+                    urgency = message.Urgency,
+                    source = message.Source,
+                    createdAt = message.CreatedAt
+                })
+            });
+        });
+
+        app.MapPost("/feedback", async (FeedbackRequest body, IEmbeddedKrnlAI kernel, CancellationToken ct) =>
+        {
+            await kernel.RecordFeedbackAsync(body.ResponseText ?? string.Empty, body.Positive, ct).ConfigureAwait(false);
+            return Results.Ok(new { ok = true });
+        });
+
         app.MapHealthChecks("/health/ready", new HealthCheckOptions { Predicate = check => check.Tags.Contains("ready") });
         app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = check => check.Tags.Contains("live") });
 
         return app;
     }
 }
+
+/// <summary>Feedback do usuário sobre uma resposta do kernel.</summary>
+public sealed record FeedbackRequest(string? ResponseText, bool Positive);

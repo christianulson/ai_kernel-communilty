@@ -44,6 +44,18 @@ public sealed class FakeEmbeddedKrnlAI : IEmbeddedKrnlAI
         return Task.FromResult(true);
     }
 
+    public List<KrnlAI.Core.Abstractions.Autonomy.InitiativeMessage> PendingInitiatives { get; } = [];
+
+    public Task RecordFeedbackAsync(string responseText, bool positive, CancellationToken ct = default)
+        => Task.CompletedTask;
+
+    public IReadOnlyList<KrnlAI.Core.Abstractions.Autonomy.InitiativeMessage> DrainInitiatives()
+    {
+        var drained = PendingInitiatives.ToList();
+        PendingInitiatives.Clear();
+        return drained;
+    }
+
     public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 }
 

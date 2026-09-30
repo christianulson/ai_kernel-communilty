@@ -10,6 +10,7 @@ using KrnlAI.Desktop.App.Services;
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
 using KrnlAI.Desktop.Core.Services;
+using KrnlAI.Embedded.Abstractions;
 using KrnlAI.Embedded.Services;
 using SlashCommandInfo = KrnlAI.Desktop.App.Services.SlashCommandInfo;
 
@@ -18,7 +19,8 @@ namespace KrnlAI.Desktop.App.ViewModels;
 public class ChatViewModel : ViewModelBase
 {
     private readonly IKernelClient _kernelClient;
-    private EmbeddedKrnlAI? _embeddedKernel;
+    private IEmbeddedKrnlAI? _embeddedKernel;
+    private readonly System.Windows.Threading.DispatcherTimer? _initiativeTimer;
     private readonly IAudioCapture _audioCapture;
     private readonly IAudioPlayback _audioPlayback;
     private readonly IVideoCapture _videoCapture;
@@ -297,10 +299,12 @@ public class ChatViewModel : ViewModelBase
     public ICommand ShareConversationCommand { get; }
     public ICommand EditMessageCommand { get; }
     public ICommand DeleteMessageCommand { get; }
+    public ICommand SubmitFeedbackUpCommand { get; }
+    public ICommand SubmitFeedbackDownCommand { get; }
 
 
 
-    public ChatViewModel(IKernelClient kernelClient, IAudioCapture audioCapture, IAudioPlayback audioPlayback, IVideoCapture videoCapture, ILocalizationService localization, ISlashCommandExecutor slashHandler, ICognitiveStreamProvider cognitiveStream, ISessionPersistenceService? sessionStore = null, EmbeddedKrnlAI? embeddedKernel = null)
+    public ChatViewModel(IKernelClient kernelClient, IAudioCapture audioCapture, IAudioPlayback audioPlayback, IVideoCapture videoCapture, ILocalizationService localization, ISlashCommandExecutor slashHandler, ICognitiveStreamProvider cognitiveStream, ISessionPersistenceService? sessionStore = null, IEmbeddedKrnlAI? embeddedKernel = null)
     {
         _kernelClient = kernelClient;
         _embeddedKernel = embeddedKernel;
@@ -327,6 +331,23 @@ public class ChatViewModel : ViewModelBase
         ShareConversationCommand = new RelayCommand(ShareConversation);
         EditMessageCommand = new AsyncRelayCommand(async p => { if (p is string id) await EditMessageAsync(id); });
         DeleteMessageCommand = new RelayCommand(p => { if (p is string id) DeleteMessage(id); });
+        SubmitFeedbackUpCommand = new AsyncRelayCommand(p => SubmitFeedbackAsync(p, positive: true));
+        SubmitFeedbackDownCommand = new AsyncRelayCommand(p => SubmitFeedbackAsync(p, positive: false));
+
+        // Iniciativa: o kernel pode falar sem ser perguntado (somente em app WPF real).
+        try
+        {
+            if (System.Windows.Application.Current is not null)
+            {
+                _initiativeTimer = new System.Windows.Threading.DispatcherTimer
+                {
+                    Interval = TimeSpan.FromSeconds(10)
+                };
+                _initiativeTimer.Tick += async (_, _) => await PollInitiativesAsync();
+                _initiativeTimer.Start();
+            }
+        }
+        catch (Exception ex) { KrnlLogger.Write($"InitiativeTimer: {ex.Message}"); }
     }
 
     public ChatViewModel() : this(
@@ -374,7 +395,7 @@ public class ChatViewModel : ViewModelBase
         catch (Exception ex) { KrnlLogger.Write($"PersistMessages: {ex.Message}"); }
     }
 
-    private EmbeddedKrnlAI? GetOrCreateKernel()
+    private IEmbeddedKrnlAI? GetOrCreateKernel()
     {
         if (_embeddedKernel != null) return _embeddedKernel;
         if (ServiceLocator.Instance.CurrentMode != RunMode.Local) return null;
@@ -488,6 +509,61 @@ public class ChatViewModel : ViewModelBase
         {
             IsProcessing = false;
             _cognitiveStream.Disconnect();
+        }
+    }
+
+    /// <summary>
+    /// Registra feedback do usuário sobre uma resposta (👍/👎) como sinal de aprendizado do kernel.
+    /// </summary>
+    public async Task SubmitFeedbackAsync(object? parameter, bool positive)
+    {
+        if (parameter is not ChatMessage message || message.Role != MessageRole.Assistant)
+            return;
+
+        var kernel = GetOrCreateKernel();
+        if (kernel is null)
+            return;
+
+        try
+        {
+            await kernel.RecordFeedbackAsync(message.Content, positive).ConfigureAwait(false);
+        }
+        catch (Exception ex) { KrnlLogger.Write($"Feedback: {ex.Message}"); }
+    }
+
+    /// <summary>
+    /// Drena iniciativas do kernel (fala proativa sem prompt) e as exibe como mensagens.
+    /// </summary>
+    public async Task<int> PollInitiativesAsync()
+    {
+        var kernel = GetOrCreateKernel();
+        if (kernel is null)
+            return 0;
+
+        try
+        {
+            var initiatives = kernel.DrainInitiatives();
+            if (initiatives.Count == 0)
+                return 0;
+
+            foreach (var initiative in initiatives)
+            {
+                Messages.Add(new ChatMessage(
+                    Guid.NewGuid().ToString(),
+                    $"\U0001f4a1 {initiative.Text}",
+                    MessageRole.Assistant,
+                    DateTime.Now,
+                    MessageStatus.Completed,
+                    IsProactive: true));
+            }
+
+            PersistMessages();
+            return initiatives.Count;
+        }
+        catch (Exception ex)
+        {
+            KrnlLogger.Write($"Initiatives: {ex.Message}");
+            return 0;
         }
     }
 
@@ -728,6 +804,7 @@ public class ChatViewModel : ViewModelBase
     public void Cleanup()
     {
         if (IsCameraOn) StopCamera();
+        _initiativeTimer?.Stop();
         _cognitiveStream.OnEvent -= OnCognitiveEvent;
         _cognitiveStream.Disconnect();
         if (_embeddedKernel != null)

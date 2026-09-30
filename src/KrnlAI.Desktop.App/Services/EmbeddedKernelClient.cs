@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using Cts = KrnlAI.Contracts;
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
+using KrnlAI.Desktop.Core.Services;
 using KrnlAI.Embedded.Abstractions;
 using KrnlAI.Embedded.Models;
 
@@ -66,10 +67,12 @@ public sealed class EmbeddedKernelClient : IKernelClient
     ];
 
     private int _feedbackCount;
+    private readonly ISpeechSynthesisService? _speech;
 
-    public EmbeddedKernelClient(IEmbeddedKrnlAI kernel)
+    public EmbeddedKernelClient(IEmbeddedKrnlAI kernel, ISpeechSynthesisService? speech = null)
     {
         _kernel = kernel;
+        _speech = speech;
         SeedData();
         AddEvent("system", "Local mode started", "embedded");
         AddEvent("cognitive", "Thinking cycle", "kernel");
@@ -207,10 +210,22 @@ public sealed class EmbeddedKernelClient : IKernelClient
         => Task.FromResult(_episodes.GetValueOrDefault(episodeId));
 
     /// <summary>Generates speech from text. Returns a minimal RIFF/WAV header — no real TTS available in local mode.</summary>
-    public Task<byte[]> GenerateSpeechAsync(string text, string? language = null, string? voice = null, CancellationToken ct = default)
+    public async Task<byte[]> GenerateSpeechAsync(string text, string? language = null, string? voice = null, CancellationToken ct = default)
     {
+        if (_speech is not null)
+        {
+            try
+            {
+                var audio = await _speech.SynthesizeAsync(text, language, voice, ct).ConfigureAwait(false);
+                if (audio.Length > 0)
+                    return audio;
+            }
+            catch (Exception ex) { KrnlLogger.Write(ex); }
+        }
+
+        // Fallback histórico (header WAV mínimo) quando não há engine de voz local.
         var wavHeader = new byte[] { 0x52, 0x49, 0x46, 0x46, 0x24, 0x00, 0x00, 0x00, 0x57, 0x41, 0x56, 0x45, 0x66, 0x6D, 0x74, 0x20 };
-        return Task.FromResult(wavHeader);
+        return wavHeader;
     }
 
     /// <summary>Transcribes audio to text. Always returns an error message — STT requires a cloud engine.</summary>

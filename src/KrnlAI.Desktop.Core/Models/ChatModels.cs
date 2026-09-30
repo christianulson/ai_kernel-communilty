@@ -7,7 +7,8 @@ public record ChatMessage(
     DateTime Timestamp,
     MessageStatus Status = MessageStatus.Pending,
     string? ErrorMessage = null,
-    string? ImageBase64 = null
+    string? ImageBase64 = null,
+    bool IsProactive = false
 );
 
 public enum MessageRole

@@ -7,6 +7,7 @@ using KrnlAI.Desktop.Core.Services;
 using KrnlAI.Desktop.Infrastructure.Abstractions;
 using KrnlAI.Desktop.Infrastructure.KernelClient;
 using KrnlAI.Desktop.Infrastructure.Settings;
+using KrnlAI.Desktop.Infrastructure.Speech;
 using KrnlAI.Embedded.Abstractions;
 using KrnlAI.Embedded.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -64,6 +65,8 @@ internal static class ServiceLocatorRegistrations
         services.AddSingleton<IAudioCapture>(_ => new AudioCaptureService(loggerFactory.CreateLogger<AudioCaptureService>()));
         services.AddSingleton<IAudioPlayback>(_ => new AudioPlaybackService(loggerFactory.CreateLogger<AudioPlaybackService>()));
         services.AddSingleton<IVideoCapture>(_ => new VideoCaptureService(loggerFactory.CreateLogger<VideoCaptureService>()));
+        // Voz de saída local (Windows SAPI): disponível nos dois modos (fallback offline).
+        services.AddSingleton<ISpeechSynthesisService, WindowsSpeechSynthesisService>();
         var isLocal = mode == RunMode.Local;
         services.AddSingleton<IListeningService>(sp => new ListeningService(
             sp.GetRequiredService<IAudioCapture>(),
