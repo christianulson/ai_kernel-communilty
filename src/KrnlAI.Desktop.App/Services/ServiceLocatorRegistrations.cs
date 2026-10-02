@@ -74,7 +74,8 @@ internal static class ServiceLocatorRegistrations
             sp.GetRequiredService<IKernelSpeechClient>(),
             sp.GetRequiredService<IAudioPlayback>(),
             sp.GetRequiredService<ILogger<ListeningService>>(),
-            isLocalMode: isLocal));
+            isLocalMode: isLocal,
+            wakeWord: Environment.GetEnvironmentVariable("KRNL_WAKE_WORD")));
         services.AddSingleton<IThemeService, ThemeService>();
         var localizationService = new LocalizationService();
         services.AddSingleton<ILocalizationService>(localizationService);

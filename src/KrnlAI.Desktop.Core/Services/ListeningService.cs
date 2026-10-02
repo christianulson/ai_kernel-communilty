@@ -31,6 +31,7 @@ public class ListeningService : IListeningService
     public bool IsListening => _isListening;
 
     private readonly bool _isLocalMode;
+    private string? _wakeWord;
 
     public ListeningService(
         IAudioCapture audioCapture,
@@ -38,7 +39,8 @@ public class ListeningService : IListeningService
         IKernelSpeechClient kernelSpeechClient,
         IAudioPlayback audioPlayback,
         ILogger<ListeningService> logger,
-        bool isLocalMode = false)
+        bool isLocalMode = false,
+        string? wakeWord = null)
     {
         _audioCapture = audioCapture;
         _kernelAgentClient = kernelAgentClient;
@@ -46,8 +48,19 @@ public class ListeningService : IListeningService
         _audioPlayback = audioPlayback;
         _logger = logger;
         _isLocalMode = isLocalMode;
+        _wakeWord = string.IsNullOrWhiteSpace(wakeWord) ? null : wakeWord.Trim();
 
         _audioCapture.VoiceLevelChanged += OnVoiceLevelChanged;
+    }
+
+    /// <summary>Wake word ativa (null = qualquer fala é aceita).</summary>
+    public string? WakeWord => _wakeWord;
+
+    /// <summary>Define a wake word; null/vazio volta ao comportamento sem filtro.</summary>
+    public void SetWakeWord(string? wakeWord)
+    {
+        _wakeWord = string.IsNullOrWhiteSpace(wakeWord) ? null : wakeWord.Trim();
+        _logger.LogInformation("Wake word set to {WakeWord}", _wakeWord ?? "(disabled)");
     }
 
     public async Task StartListeningAsync(CancellationToken cancellationToken = default)
@@ -178,6 +191,23 @@ public class ListeningService : IListeningService
             {
                 transcribedText = transcription;
                 _logger.LogDebug("Transcription completed, length: {Len} chars", transcription.Length);
+            }
+
+            if (!string.IsNullOrWhiteSpace(_wakeWord) && !string.IsNullOrEmpty(transcribedText))
+            {
+                if (!WakeWordFilter.TryExtract(transcribedText, _wakeWord, out var command))
+                {
+                    _logger.LogDebug("Speech ignored (wake word '{WakeWord}' not present)", _wakeWord);
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(command))
+                {
+                    _logger.LogDebug("Wake word detected without command; awaiting instruction");
+                    return;
+                }
+
+                transcribedText = command;
             }
 
             var promptText = !string.IsNullOrEmpty(transcribedText)
