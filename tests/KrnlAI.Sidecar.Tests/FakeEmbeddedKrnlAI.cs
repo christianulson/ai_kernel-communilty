@@ -56,6 +56,12 @@ public sealed class FakeEmbeddedKrnlAI : IEmbeddedKrnlAI
         return drained;
     }
 
+    public Task<KrnlAI.Contracts.MindSnapshot> GetMindSnapshotAsync(
+        string? userId = null,
+        CancellationToken ct = default)
+        => Task.FromResult(new KrnlAI.Contracts.MindSnapshot(
+            [], [], [], "neutral", 0, 0, 0, DateTimeOffset.UtcNow));
+
     public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 }
 
