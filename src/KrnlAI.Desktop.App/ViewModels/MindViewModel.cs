@@ -17,6 +17,7 @@ public sealed class MindViewModel : ViewModelBase
     private double _arousal;
     private int _learnedProcedures;
     private bool _isLoading;
+    private string _growthSummary = string.Empty;
 
     public MindViewModel(IEmbeddedKrnlAI? kernel = null)
     {
@@ -58,6 +59,12 @@ public sealed class MindViewModel : ViewModelBase
         private set => SetProperty(ref _isLoading, value);
     }
 
+    public string GrowthSummary
+    {
+        get => _growthSummary;
+        private set => SetProperty(ref _growthSummary, value);
+    }
+
     public ICommand RefreshCommand { get; }
 
     /// <summary>
@@ -79,6 +86,7 @@ public sealed class MindViewModel : ViewModelBase
             Valence = snapshot.Valence;
             Arousal = snapshot.Arousal;
             LearnedProcedures = snapshot.LearnedProcedures;
+            GrowthSummary = snapshot.GrowthSummary;
         }
         catch (Exception ex)
         {
