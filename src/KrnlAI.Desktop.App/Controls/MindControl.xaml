@@ -79,6 +79,11 @@
                        Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,10,0,4"/>
             <TextBlock Text="{Binding GrowthSummary}" FontSize="13" TextWrapping="Wrap"
                        Foreground="{DynamicResource TextPrimaryBrush}"/>
+
+            <TextBlock Text="Foco de aprendizado" FontSize="12" FontWeight="SemiBold"
+                       Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,10,0,4"/>
+            <TextBlock Text="{Binding LearningFocus}" FontSize="13" TextWrapping="Wrap"
+                       Foreground="{DynamicResource TextPrimaryBrush}"/>
         </StackPanel>
     </Border>
 </UserControl>

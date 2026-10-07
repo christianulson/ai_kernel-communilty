@@ -37,6 +37,29 @@ public sealed class MindViewModelTests
     }
 
     [Fact]
+    public async Task LoadAsync_WithLearningFocus_ShouldPopulateFocus()
+    {
+        var kernel = new Mock<IEmbeddedKrnlAI>();
+        kernel
+            .Setup(k => k.GetMindSnapshotAsync(It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new MindSnapshot(
+                [],
+                [],
+                [],
+                "neutral",
+                0,
+                0,
+                0,
+                DateTimeOffset.UtcNow,
+                LearningFocus: "Improve safety (Safety)"));
+        var viewModel = new MindViewModel(kernel.Object);
+
+        await viewModel.LoadAsync();
+
+        Assert.Equal("Improve safety (Safety)", viewModel.LearningFocus);
+    }
+
+    [Fact]
     public async Task LoadAsync_WithoutKernel_ShouldNotThrow()
     {
         var viewModel = new MindViewModel();

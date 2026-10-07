@@ -18,6 +18,7 @@ public sealed class MindViewModel : ViewModelBase
     private int _learnedProcedures;
     private bool _isLoading;
     private string _growthSummary = string.Empty;
+    private string _learningFocus = string.Empty;
 
     public MindViewModel(IEmbeddedKrnlAI? kernel = null)
     {
@@ -65,6 +66,15 @@ public sealed class MindViewModel : ViewModelBase
         private set => SetProperty(ref _growthSummary, value);
     }
 
+    /// <summary>
+    /// Foco de aprendizado atual (sugestão de currículo ou tendência de evolução), quando disponível.
+    /// </summary>
+    public string LearningFocus
+    {
+        get => _learningFocus;
+        private set => SetProperty(ref _learningFocus, value);
+    }
+
     public ICommand RefreshCommand { get; }
 
     /// <summary>
@@ -87,6 +97,7 @@ public sealed class MindViewModel : ViewModelBase
             Arousal = snapshot.Arousal;
             LearnedProcedures = snapshot.LearnedProcedures;
             GrowthSummary = snapshot.GrowthSummary;
+            LearningFocus = snapshot.LearningFocus;
         }
         catch (Exception ex)
         {
