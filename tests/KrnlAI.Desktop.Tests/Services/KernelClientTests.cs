@@ -61,15 +61,14 @@ public class KernelClientTests
     }
 
     [Fact]
-    public async Task RunAgentAsync_WhenApiThrows_ReturnsNullNarration()
+    public Task RunAgentAsync_WhenApiThrows_ShouldPropagate()
     {
         var (client, apiMock, _) = CreateClient();
         apiMock.Setup(a => a.RunAgentAsync(It.IsAny<Cts.AgentRunTransportRequest>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("API down"));
 
-        var result = await client.RunAgentAsync(new Cts.AgentRunTransportRequest("Hi"));
-        Assert.Null(result.Narration);
-        Assert.Null(result.Error); // Error is not preserved; SafeCall logs it instead
+        return Assert.ThrowsAsync<InvalidOperationException>(
+            () => client.RunAgentAsync(new Cts.AgentRunTransportRequest("Hi")));
     }
 
     [Fact]
@@ -88,15 +87,14 @@ public class KernelClientTests
     }
 
     [Fact]
-    public async Task LoginAsync_WhenInvalid_ShouldReturnFailure()
+    public Task LoginAsync_WhenInvalid_ShouldPropagate()
     {
         var (client, apiMock, _) = CreateClient();
         apiMock.Setup(a => a.LoginAsync(It.IsAny<LoginRequest>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new HttpRequestException("401"));
 
-        var result = await client.LoginAsync(new LoginRequest("bad@email.com", "wrong"));
-        Assert.False(result.Success);
-        Assert.Null(result.Token);
+        return Assert.ThrowsAsync<HttpRequestException>(
+            () => client.LoginAsync(new LoginRequest("bad@email.com", "wrong")));
     }
 
     [Fact]
@@ -113,14 +111,13 @@ public class KernelClientTests
     }
 
     [Fact]
-    public async Task GetPoliciesAsync_WhenError_ShouldReturnEmpty()
+    public Task GetPoliciesAsync_WhenError_ShouldPropagate()
     {
         var (client, apiMock, _) = CreateClient();
         apiMock.Setup(a => a.GetPoliciesAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new HttpRequestException());
 
-        var result = await client.GetPoliciesAsync();
-        Assert.Empty(result.Policies);
+        return Assert.ThrowsAsync<HttpRequestException>(() => client.GetPoliciesAsync());
     }
 
     [Fact]
@@ -137,14 +134,13 @@ public class KernelClientTests
     }
 
     [Fact]
-    public async Task GetActiveGoalsAsync_WhenError_ShouldReturnEmpty()
+    public Task GetActiveGoalsAsync_WhenError_ShouldPropagate()
     {
         var (client, apiMock, _) = CreateClient();
         apiMock.Setup(a => a.GetActiveGoalsAsync(It.IsAny<CancellationToken>()))
             .ThrowsAsync(new HttpRequestException());
 
-        var result = await client.GetActiveGoalsAsync();
-        Assert.Empty(result.Goals);
+        return Assert.ThrowsAsync<HttpRequestException>(() => client.GetActiveGoalsAsync());
     }
 
     [Fact]
