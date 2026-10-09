@@ -252,10 +252,23 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetCognitiveDashboardAsync_ShouldReturnData()
     {
-        var result = await CreateSut().GetCognitiveDashboardAsync();
+        var kernel = CreateKernelMock();
+        kernel
+            .Setup(x => x.GetCognitiveDashboardAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new KrnlAI.Embedded.Models.EmbeddedCognitiveDashboard(
+                0.85,
+                [new KrnlAI.Embedded.Models.EmbeddedModuleHealth("Cognition", 0.9, "healthy")],
+                [new KrnlAI.Embedded.Models.EmbeddedCognitiveEvent("cycle_completed", "cycle done", "cognitive_cycle", DateTimeOffset.UtcNow)],
+                new KrnlAI.Embedded.Models.EmbeddedAutonomyStatus("full", [], DateTimeOffset.UtcNow),
+                "AgiL1 (achieved=True)"));
+        var sut = new EmbeddedKernelClient(kernel.Object);
+
+        var result = await sut.GetCognitiveDashboardAsync();
+
         Assert.NotNull(result);
-        Assert.Equal(82, result.OverallHealth);
+        Assert.Equal(85, result.OverallHealth);
         Assert.NotEmpty(result.ActiveModules);
+        Assert.Equal("full", result.Autonomy?.Level);
     }
 
     [Fact]

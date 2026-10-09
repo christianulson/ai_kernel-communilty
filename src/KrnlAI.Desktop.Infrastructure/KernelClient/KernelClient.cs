@@ -205,9 +205,17 @@ public class KernelClient(IGatewayApi api, AuthTokenProvider tokenProvider) : IK
         {
             var r = await api.GetCognitiveDashboardAsync(ct).ConfigureAwait(false);
             return new CoreModels.CognitiveDashboardData(r.OverallHealth,
-                r.ActiveModules?.Select(m => new CoreModels.CognitiveModule(m.Name, m.HealthScore, m.Status)).ToList() ?? [],
-                r.RecentEvents?.Select(e => new CoreModels.CognitiveEvent(e.Type, e.Description, e.Source, e.Timestamp)).ToList() ?? [],
-                r.Autonomy != null ? new CoreModels.AutonomyStatus(r.Autonomy.Level, r.Autonomy.LastUpdated, r.Autonomy.DomainConfidence) : null);
+                r.ActiveModules?.Select(m => new CoreModels.CognitiveModule(m.ModuleName, m.HealthScore, m.Status)).ToList() ?? [],
+                r.RecentEvents?.Select(e => new CoreModels.CognitiveEvent(e.EventType, e.Description, e.Source, e.Timestamp.UtcDateTime)).ToList() ?? [],
+                r.AutonomyStatus != null
+                    ? new CoreModels.AutonomyStatus(
+                        r.AutonomyStatus.CurrentLevel,
+                        r.AutonomyStatus.CapturedAt.UtcDateTime,
+                        r.AutonomyStatus.Domains?.ToDictionary(
+                            domain => domain.Domain,
+                            domain => domain.Confidence,
+                            StringComparer.Ordinal))
+                    : null);
         }, default(CoreModels.CognitiveDashboardData?));
 
     public Task<CoreModels.UserProfile?> GetUserProfileAsync(string userId, CancellationToken ct = default) =>

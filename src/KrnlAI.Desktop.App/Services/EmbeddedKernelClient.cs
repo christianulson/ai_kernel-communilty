@@ -290,11 +290,30 @@ public sealed class EmbeddedKernelClient : IKernelClient
         return _kernel.MoveKanbanCardAsync(goalId, MapGoalAction(action), cancellationToken);
     }
 
-    public Task<CognitiveDashboardData?> GetCognitiveDashboardAsync(CancellationToken ct = default)
-        => Task.FromResult<CognitiveDashboardData?>(new CognitiveDashboardData(82,
-            [new CognitiveModule("Local Engine", 85, "healthy"), new CognitiveModule("Memory", 78, "stable")],
-            [new CognitiveEvent("info", "Local mode active", "system", DateTime.UtcNow)],
-            new AutonomyStatus("full", DateTime.UtcNow, new Dictionary<string, double> { ["local"] = 0.92 })));
+    public async Task<CognitiveDashboardData?> GetCognitiveDashboardAsync(CancellationToken ct = default)
+    {
+        var dashboard = await _kernel.GetCognitiveDashboardAsync(ct).ConfigureAwait(false);
+
+        return new CognitiveDashboardData(
+            dashboard.OverallHealth * 100.0,
+            [.. dashboard.ActiveModules.Select(module =>
+                new CognitiveModule(module.ModuleName, module.HealthScore * 100.0, module.Status))],
+            [.. dashboard.RecentEvents.Select(cognitiveEvent =>
+                new CognitiveEvent(
+                    cognitiveEvent.EventType,
+                    cognitiveEvent.Description,
+                    cognitiveEvent.Source,
+                    cognitiveEvent.Timestamp.UtcDateTime))],
+            dashboard.Autonomy is null
+                ? null
+                : new AutonomyStatus(
+                    dashboard.Autonomy.CurrentLevel,
+                    dashboard.Autonomy.CapturedAt.UtcDateTime,
+                    dashboard.Autonomy.Domains.ToDictionary(
+                        domain => domain.Domain,
+                        domain => domain.Confidence,
+                        StringComparer.Ordinal)));
+    }
 
     public Task<MultimodalSearchResult?> SearchMultimodalAsync(string query, int topK = 10, CancellationToken ct = default)
         => Task.FromResult<MultimodalSearchResult?>(new MultimodalSearchResult(query, []));
