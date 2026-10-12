@@ -97,24 +97,36 @@ public class AgiDashboardViewModel : ViewModelBase, IDisposable
         try
         {
             var cognitive = await _kernelClient.GetCognitiveDashboardAsync();
+            var activeGoals = 0;
+            try
+            {
+                var goals = await _kernelClient.GetActiveGoalsAsync();
+                activeGoals = goals.Goals.Count;
+            }
+            catch (Exception ex)
+            {
+                KrnlLogger.Write($"AGI active goals: {ex.Message}");
+            }
+
             if (cognitive != null)
             {
                 UiThreadInvoker.Invoke(() =>
                 {
+                    var metrics = cognitive.Metrics;
                     WorldModelError = 1.0 - cognitive.OverallHealth / 100.0;
-                    LatentSize = cognitive.ActiveModules?.Count * 64 ?? 128;
-                    NumActions = cognitive.RecentEvents?.Count ?? 0;
-                    ActiveGoals = cognitive.Autonomy?.DomainConfidence?.Count ?? 0;
-                    CausalNodes = cognitive.ActiveModules?.Count ?? 0;
-                    CausalEdges = cognitive.RecentEvents?.Count ?? 0;
-                    DreamSteps = cognitive.ActiveModules?.Count * 10 ?? 0;
-                    LearningExperiences = cognitive.RecentEvents?.Count ?? 0;
-                    LearningErrorBefore = 0.45;
-                    LearningErrorAfter = 0.12;
-                    MetaLearningRate = 0.001;
-                    MetaBatchSize = 32;
-                    VisionAvailable = true;
-                    AudioAvailable = true;
+                    LatentSize = metrics?.LatentSize ?? 0;
+                    NumActions = metrics?.NumActions ?? 0;
+                    ActiveGoals = activeGoals;
+                    CausalNodes = metrics?.CausalNodes ?? 0;
+                    CausalEdges = metrics?.CausalEdges ?? 0;
+                    DreamSteps = metrics?.GrowthProcedures ?? 0;
+                    LearningExperiences = metrics?.GrowthDialogueTurns ?? 0;
+                    LearningErrorAfter = metrics is { FitnessReliable: true } ? metrics.FitnessRecentAverage : 0;
+                    LearningErrorBefore = LearningErrorAfter - (metrics?.FitnessDelta ?? 0);
+                    MetaLearningRate = metrics?.MetaLearningRate ?? 0;
+                    MetaBatchSize = metrics?.MetaBatchSize ?? 0;
+                    VisionAvailable = metrics?.VisionAvailable ?? false;
+                    AudioAvailable = metrics?.AudioAvailable ?? false;
                     BehaviorError = 1.0 - cognitive.OverallHealth / 100.0;
                     BehaviorDescription = cognitive.ActiveModules?.FirstOrDefault()?.Status ?? "unknown";
                     Status = "Carregado";

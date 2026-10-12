@@ -36,7 +36,26 @@ public record UserProfile(
 
 public record CognitiveDashboardData(
     double OverallHealth, List<CognitiveModule> ActiveModules,
-    List<CognitiveEvent> RecentEvents, AutonomyStatus? Autonomy
+    List<CognitiveEvent> RecentEvents, AutonomyStatus? Autonomy,
+    DashboardMetrics? Metrics = null
+);
+
+/// <summary>Métricas reais do runtime embarcado exibidas no dashboard AGI.</summary>
+public record DashboardMetrics(
+    int LatentSize,
+    int NumActions,
+    bool VisionAvailable,
+    bool AudioAvailable,
+    double FitnessRecentAverage,
+    double FitnessDelta,
+    bool FitnessReliable,
+    int CausalNodes,
+    int CausalEdges,
+    int GrowthDialogueTurns,
+    int GrowthProcedures,
+    int GrowthLearnedCommands,
+    double MetaLearningRate,
+    int MetaBatchSize
 );
 
 public record CognitiveModule(string Name, double HealthScore, string Status);

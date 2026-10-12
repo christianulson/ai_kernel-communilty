@@ -65,7 +65,13 @@ public sealed class FakeEmbeddedKrnlAI : IEmbeddedKrnlAI
     public Task<KrnlAI.Embedded.Models.EmbeddedCognitiveDashboard> GetCognitiveDashboardAsync(
         CancellationToken ct = default)
         => Task.FromResult(new KrnlAI.Embedded.Models.EmbeddedCognitiveDashboard(
-            0, [], [], null, "unknown"));
+            0, [], [], null, "unknown",
+            new KrnlAI.Embedded.Models.EmbeddedDashboardMetrics(
+                0, 0, false, false, 0, 0, false, 0, 0, 0, 0, 0, 0, 0)));
+
+    public Task<KrnlAI.Embedded.Models.EmbeddedBenchmarkSummary> GetBenchmarkSummaryAsync(
+        CancellationToken ct = default)
+        => Task.FromResult(new KrnlAI.Embedded.Models.EmbeddedBenchmarkSummary(0, 0, 0, 0, 0, []));
 
     public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 }

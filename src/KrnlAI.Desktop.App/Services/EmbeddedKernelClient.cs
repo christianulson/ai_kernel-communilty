@@ -312,15 +312,40 @@ public sealed class EmbeddedKernelClient : IKernelClient
                     dashboard.Autonomy.Domains.ToDictionary(
                         domain => domain.Domain,
                         domain => domain.Confidence,
-                        StringComparer.Ordinal)));
+                        StringComparer.Ordinal)),
+            new DashboardMetrics(
+                dashboard.Metrics.LatentSize,
+                dashboard.Metrics.NumActions,
+                dashboard.Metrics.VisionAvailable,
+                dashboard.Metrics.AudioAvailable,
+                dashboard.Metrics.FitnessRecentAverage,
+                dashboard.Metrics.FitnessDelta,
+                dashboard.Metrics.FitnessReliable,
+                dashboard.Metrics.CausalNodes,
+                dashboard.Metrics.CausalEdges,
+                dashboard.Metrics.GrowthDialogueTurns,
+                dashboard.Metrics.GrowthProcedures,
+                dashboard.Metrics.GrowthLearnedCommands,
+                dashboard.Metrics.MetaLearningRate,
+                dashboard.Metrics.MetaBatchSize));
     }
 
     public Task<MultimodalSearchResult?> SearchMultimodalAsync(string query, int topK = 10, CancellationToken ct = default)
         => Task.FromResult<MultimodalSearchResult?>(new MultimodalSearchResult(query, []));
 
-    public Task<BenchmarkSummary?> GetBenchmarkSummaryAsync(CancellationToken ct = default)
-        => Task.FromResult<BenchmarkSummary?>(new BenchmarkSummary(3, 12, 84.5, 95, 0.93,
-            [new BenchmarkSuite("Local Reasoning", 4, 86.0, 80, 0.95), new BenchmarkSuite("Memory Recall", 4, 82.0, 110, 0.90), new BenchmarkSuite("Policy Eval", 4, 85.5, 95, 0.94)]));
+    public async Task<BenchmarkSummary?> GetBenchmarkSummaryAsync(CancellationToken ct = default)
+    {
+        var summary = await _kernel.GetBenchmarkSummaryAsync(ct).ConfigureAwait(false);
+
+        return new BenchmarkSummary(
+            summary.TotalSuites,
+            summary.TotalScenarios,
+            summary.OverallScore,
+            summary.AvgLatencyMs,
+            summary.AvgSuccessRate,
+            [.. summary.Suites.Select(suite =>
+                new BenchmarkSuite(suite.Name, suite.Scenarios, suite.Score, suite.LatencyMs, suite.SuccessRate))]);
+    }
 
     /// <summary>Queries the causal graph. Returns empty results — causal inference requires a trained GNN model (cloud).</summary>
     public Task<CausalQueryResult?> GetCausalQueryAsync(string query, CancellationToken ct = default)
