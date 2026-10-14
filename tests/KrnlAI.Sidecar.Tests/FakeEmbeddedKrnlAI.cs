@@ -73,6 +73,19 @@ public sealed class FakeEmbeddedKrnlAI : IEmbeddedKrnlAI
         CancellationToken ct = default)
         => Task.FromResult(new KrnlAI.Embedded.Models.EmbeddedBenchmarkSummary(0, 0, 0, 0, 0, []));
 
+    public Task<IReadOnlyList<KrnlAI.Embedded.Models.EmbeddedSnapshotInfo>> GetSnapshotsAsync(
+        CancellationToken ct = default)
+        => Task.FromResult<IReadOnlyList<KrnlAI.Embedded.Models.EmbeddedSnapshotInfo>>([]);
+
+    public Task<KrnlAI.Embedded.Models.EmbeddedWorkingMemorySnapshot> GetWorkingMemorySnapshotAsync(
+        CancellationToken ct = default)
+        => Task.FromResult(new KrnlAI.Embedded.Models.EmbeddedWorkingMemorySnapshot(0, 0, [], 0, DateTimeOffset.UtcNow));
+
+    public Task<IReadOnlyList<KrnlAI.Embedded.Models.EmbeddedDocumentInfo>> GetDocumentsAsync(
+        int take = 50,
+        CancellationToken ct = default)
+        => Task.FromResult<IReadOnlyList<KrnlAI.Embedded.Models.EmbeddedDocumentInfo>>([]);
+
     public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 }
 

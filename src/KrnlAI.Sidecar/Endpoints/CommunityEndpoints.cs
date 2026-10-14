@@ -76,7 +76,25 @@ public static class CommunityEndpoints
             return Results.Ok(new { totalChunks = 0, totalDocuments = 0, totalSizeBytes = 0, bySource = new Dictionary<string, int>(), oldestEntry = (DateTime?)null, newestEntry = (DateTime?)null });
         });
 
-        app.MapGet("/memory/working", () => Results.Ok(new { activeSlots = 0, maxSlots = 0, slots = Array.Empty<object>() }));
+        app.MapGet("/memory/working", async (IEmbeddedKrnlAI kernel, CancellationToken ct) =>
+        {
+            var snapshot = await kernel.GetWorkingMemorySnapshotAsync(ct).ConfigureAwait(false);
+            return Results.Ok(new
+            {
+                activeSlots = snapshot.ActiveSlots,
+                maxSlots = snapshot.MaxSlots,
+                cognitiveLoad = snapshot.CognitiveLoad,
+                moment = snapshot.Moment,
+                slots = snapshot.Slots.Select(slot => new
+                {
+                    slotId = slot.SlotId,
+                    channelId = slot.ChannelId,
+                    summary = slot.Summary,
+                    relevance = slot.Relevance,
+                    urgency = slot.Urgency
+                })
+            });
+        });
 
         app.MapGet("/episodes/search", (ILogger<Program> logger) =>
         {
@@ -90,13 +108,96 @@ public static class CommunityEndpoints
             return Results.Ok(new { id, goalId = "community", status = "idle", createdAt = DateTime.UtcNow, finishedAt = (DateTime?)null, durationMs = (int?)null, outcome = (string?)null, successRate = (double?)null, summary = (string?)null, steps = Array.Empty<object>() });
         });
 
-        app.MapGet("/observability/runtime/summary", () => Results.Ok(new { gatewayHealthy = true, kernelHealthy = true, kernelVersion = "community", gatewayVersion = "sidecar-community", activeGoals = 0, memoryUsageBytes = 0L, services = new Dictionary<string, string> { ["mode"] = "community" } }));
+        app.MapGet("/observability/runtime/summary", async (IEmbeddedKrnlAI kernel, CancellationToken ct) =>
+        {
+            var goals = await kernel.GetKanbanGoalsAsync(ct).ConfigureAwait(false);
+            return Results.Ok(new
+            {
+                gatewayHealthy = true,
+                kernelHealthy = true,
+                kernelVersion = "community",
+                gatewayVersion = "sidecar-community",
+                activeGoals = goals.Count,
+                memoryUsageBytes = GC.GetTotalMemory(forceFullCollection: false),
+                services = new Dictionary<string, string> { ["mode"] = "community", ["provider"] = kernel.Provider }
+            });
+        });
 
-        app.MapGet("/goals/active", () => Results.Ok(new { goals = Array.Empty<object>(), totalCount = 0 }));
+        app.MapGet("/goals/active", async (IEmbeddedKrnlAI kernel, CancellationToken ct) =>
+        {
+            var goals = await kernel.GetKanbanGoalsAsync(ct).ConfigureAwait(false);
+            return Results.Ok(new
+            {
+                goals = goals.Select(goal => new
+                {
+                    id = goal.Id,
+                    description = goal.Description,
+                    status = goal.Status,
+                    priority = goal.Priority,
+                    createdAt = goal.CreatedAt,
+                    deadline = goal.Deadline
+                }),
+                totalCount = goals.Count
+            });
+        });
 
-        app.MapGet("/cognitive/dashboard", () => Results.Ok(new { overallHealth = 1.0, activeModules = Array.Empty<object>(), recentEvents = Array.Empty<object>(), autonomy = (object?)null }));
+        app.MapGet("/cognitive/dashboard", async (IEmbeddedKrnlAI kernel, CancellationToken ct) =>
+        {
+            var dashboard = await kernel.GetCognitiveDashboardAsync(ct).ConfigureAwait(false);
+            return Results.Ok(new
+            {
+                overallHealth = dashboard.OverallHealth,
+                activeModules = dashboard.ActiveModules.Select(module => new
+                {
+                    moduleName = module.ModuleName,
+                    healthScore = module.HealthScore,
+                    status = module.Status
+                }),
+                recentEvents = dashboard.RecentEvents.Select(cognitiveEvent => new
+                {
+                    eventType = cognitiveEvent.EventType,
+                    description = cognitiveEvent.Description,
+                    source = cognitiveEvent.Source,
+                    timestamp = cognitiveEvent.Timestamp
+                }),
+                autonomyStatus = dashboard.Autonomy is null
+                    ? null
+                    : new
+                    {
+                        currentLevel = dashboard.Autonomy.CurrentLevel,
+                        domains = dashboard.Autonomy.Domains.Select(domain => new
+                        {
+                            domain = domain.Domain,
+                            level = domain.Level,
+                            confidence = domain.Confidence
+                        }),
+                        recentDecisions = Array.Empty<object>(),
+                        capturedAt = dashboard.Autonomy.CapturedAt
+                    },
+                agiAsiLevel = dashboard.AgiAsiLevel
+            });
+        });
 
-        app.MapGet("/benchmark/summary", () => Results.Ok(new { totalSuites = 0, totalScenarios = 0, overallScore = 0.0, avgLatencyMs = 0.0, avgSuccessRate = 0.0, suites = Array.Empty<object>() }));
+        app.MapGet("/benchmark/summary", async (IEmbeddedKrnlAI kernel, CancellationToken ct) =>
+        {
+            var summary = await kernel.GetBenchmarkSummaryAsync(ct).ConfigureAwait(false);
+            return Results.Ok(new
+            {
+                totalSuites = summary.TotalSuites,
+                totalScenarios = summary.TotalScenarios,
+                overallScore = summary.OverallScore,
+                avgLatencyMs = summary.AvgLatencyMs,
+                avgSuccessRate = summary.AvgSuccessRate,
+                suites = summary.Suites.Select(suite => new
+                {
+                    name = suite.Name,
+                    scenarios = suite.Scenarios,
+                    score = suite.Score,
+                    latencyMs = suite.LatencyMs,
+                    successRate = suite.SuccessRate
+                })
+            });
+        });
 
         app.MapGet("/causal/causes", () => Results.Ok(new
         {
@@ -122,11 +223,38 @@ public static class CommunityEndpoints
 
         app.MapGet("/archive/stats", () => Results.Ok(new { ok = true, totalArchived = 5, stores = new[] { "memory", "policies", "episodes" } }));
 
-        app.MapGet("/snapshots", () => Results.Ok(new[] { new { snapshotId = "ss-1", label = "Initial state", createdAt = DateTime.UtcNow.AddDays(-7), size = 4096L } }));
+        app.MapGet("/snapshots", async (IEmbeddedKrnlAI kernel, CancellationToken ct) =>
+        {
+            var snapshots = await kernel.GetSnapshotsAsync(ct).ConfigureAwait(false);
+            return Results.Ok(snapshots.Select(snapshot => new
+            {
+                snapshotId = snapshot.SnapshotId,
+                label = snapshot.Label,
+                scope = snapshot.Scope,
+                reason = snapshot.Reason,
+                componentCount = snapshot.ComponentCount,
+                createdAt = snapshot.CreatedAt
+            }));
+        });
         app.MapGet("/objectives", () => Results.Ok(new[] { new { objectiveId = "obj-1", description = "Explore local mode", status = "active", progress = 0.6, priority = 3 } }));
         app.MapGet("/objectives/active", () => Results.Ok(new[] { new { objectiveId = "obj-1", description = "Explore local mode", status = "active", progress = 0.6, priority = 3 } }));
         app.MapGet("/investigations", () => Results.Ok(new[] { new { caseId = "inv-1", title = "System health check", status = "completed", evidenceCount = 8, createdAt = DateTime.UtcNow.AddHours(-2) } }));
-        app.MapGet("/api/documents", (int? limit) => Results.Ok(new[] { new { documentId = "doc-1", fileName = "README.md", fileSize = 2048L, format = "md", status = "processed", errorMessage = (string?)null, chunkCount = 3, createdAt = DateTime.UtcNow.AddDays(-7), completedAt = (DateTime?)DateTime.UtcNow } }));
+        app.MapGet("/api/documents", async (int? limit, IEmbeddedKrnlAI kernel, CancellationToken ct) =>
+        {
+            var documents = await kernel.GetDocumentsAsync(limit ?? 50, ct).ConfigureAwait(false);
+            return Results.Ok(documents.Select(document => new
+            {
+                documentId = document.DocumentId,
+                fileName = document.FileName,
+                fileSize = document.FileSize,
+                format = document.Format,
+                status = document.Status,
+                errorMessage = document.ErrorMessage,
+                chunkCount = document.ChunkCount,
+                createdAt = document.CreatedAt,
+                completedAt = document.CompletedAt
+            }));
+        });
 
         app.MapGet("/agent/status", () => Results.Ok(new { status = "idle", mode = "community" }));
         app.MapGet("/goals/list", () => Results.Ok(new { goals = Array.Empty<object>(), totalCount = 0 }));
