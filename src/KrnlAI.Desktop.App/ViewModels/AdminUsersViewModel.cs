@@ -36,14 +36,14 @@ public sealed class AdminUsersViewModel : ViewModelBase
 
     public async Task LoadAsync()
     {
-            if (ServiceLocator.Instance.CurrentMode == RunMode.Local) { StatusMessage = "Indisponível no modo Local"; return; }
+        if (ServiceLocator.Instance.CurrentMode == RunMode.Local) { StatusMessage = "Indisponível no modo Local"; return; }
         IsLoading = true;
         try
         {
             var api = ServiceLocator.Instance.AdminApi;
             if (api == null) { StatusMessage = "Admin API indisponível"; return; }
 
-            var users = await api.GetUsersAsync().ConfigureAwait(false);
+            var users = await api.GetUsersAsync();
             Users.Clear();
             foreach (var u in users) Users.Add(u);
             StatusMessage = $"{Users.Count} usuários carregados";
@@ -63,9 +63,9 @@ public sealed class AdminUsersViewModel : ViewModelBase
         {
             var api = ServiceLocator.Instance.AdminApi;
             if (api == null) return;
-            await api.UpdateUserStatusAsync(_selectedUser.Id, new UpdateStatusRequest(isActive)).ConfigureAwait(false);
+            await api.UpdateUserStatusAsync(_selectedUser.Id, new UpdateStatusRequest(isActive));
             StatusMessage = $"Usuário {_selectedUser.Name} {(isActive ? "ativado" : "suspenso")}";
-            await LoadAsync().ConfigureAwait(false);
+            await LoadAsync();
         }
         catch (Exception ex)
         {

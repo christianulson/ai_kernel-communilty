@@ -1,7 +1,6 @@
 using System.CommandLine;
 using System.Text.Json;
 using KrnlAI.Cli.Services;
-using KrnlAI.Cognition.Contracts;
 using Spectre.Console;
 
 namespace KrnlAI.Cli.Commands;
@@ -260,3 +259,4 @@ internal sealed class SessionCommand(
         return cmd;
     }
 }
+

@@ -1,5 +1,4 @@
 using System.CommandLine;
-using KrnlAI.Embedded;
 using KrnlAI.Cli.Tui;
 
 namespace KrnlAI.Cli.Commands;

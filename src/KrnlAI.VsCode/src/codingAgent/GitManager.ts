@@ -33,18 +33,22 @@ export class GitManager {
     }
 
     private _runGit(args: string[], timeoutMs = 30_000): Promise<GitResult> {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             const child = spawn('git', args, {
                 cwd: this._workspaceRoot,
                 timeout: timeoutMs,
-                windowsHide: true
+                windowsHide: true,
             });
 
             let output = '';
             let error = '';
 
-            child.stdout?.on('data', (data: Buffer) => { output += data.toString(); });
-            child.stderr?.on('data', (data: Buffer) => { error += data.toString(); });
+            child.stdout?.on('data', (data: Buffer) => {
+                output += data.toString();
+            });
+            child.stderr?.on('data', (data: Buffer) => {
+                error += data.toString();
+            });
 
             const timer = setTimeout(() => {
                 child.kill();
@@ -56,7 +60,7 @@ export class GitManager {
                 resolve({
                     success: code === 0,
                     output: output.trim(),
-                    error: error.trim() || undefined
+                    error: error.trim() || undefined,
                 });
             });
 
@@ -73,7 +77,7 @@ export class GitManager {
             if (pattern.test(trimmed)) {
                 return {
                     dangerous: true,
-                    reason: `Operação Git perigosa: ${pattern.source}. Requer aprovação manual.`
+                    reason: `Operação Git perigosa: ${pattern.source}. Requer aprovação manual.`,
                 };
             }
         }
@@ -106,10 +110,10 @@ export class GitManager {
 
         return result.output
             .split('\n')
-            .filter(b => b.trim())
-            .map(b => ({
+            .filter((b) => b.trim())
+            .map((b) => ({
                 current: b.startsWith('* '),
-                name: b.replace('* ', '').trim().replace('remotes/', '')
+                name: b.replace('* ', '').trim().replace('remotes/', ''),
             }));
     }
 
@@ -140,20 +144,20 @@ export class GitManager {
 
         return result.output
             .split('\n')
-            .filter(l => l.trim())
-            .map(l => ({
+            .filter((l) => l.trim())
+            .map((l) => ({
                 type: l.substring(0, 2).trim(),
-                file: l.substring(3).trim()
+                file: l.substring(3).trim(),
             }));
     }
 
     async push(remote = 'origin', branch?: string): Promise<GitResult> {
-        const actualBranch = branch || await this.getCurrentBranch();
+        const actualBranch = branch || (await this.getCurrentBranch());
         return this._runGit(['push', remote, actualBranch]);
     }
 
     async pushWithForce(remote = 'origin', branch?: string): Promise<GitResult> {
-        const actualBranch = branch || await this.getCurrentBranch();
+        const actualBranch = branch || (await this.getCurrentBranch());
         return this._runGit(['push', '--force', remote, actualBranch]);
     }
 

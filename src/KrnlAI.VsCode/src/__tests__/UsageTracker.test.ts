@@ -1,11 +1,20 @@
-jest.mock('vscode', () => ({
-    ExtensionContext: class {},
-    Memento: class {
-        private _data: any = {};
-        get(key: string, defaultVal?: any) { return this._data[key] ?? defaultVal ?? []; }
-        update(key: string, value: any) { this._data[key] = value; return Promise.resolve(); }
-    },
-}), { virtual: true });
+jest.mock(
+    'vscode',
+    () => ({
+        ExtensionContext: class {},
+        Memento: class {
+            private _data: any = {};
+            get(key: string, defaultVal?: any) {
+                return this._data[key] ?? defaultVal ?? [];
+            }
+            update(key: string, value: any) {
+                this._data[key] = value;
+                return Promise.resolve();
+            }
+        },
+    }),
+    { virtual: true },
+);
 
 import { UsageTracker } from '../services/UsageTracker';
 

@@ -198,6 +198,15 @@
   "settings_open_logs": "Open logs folder",
 
   "nav_approvals": "Approvals",
+  "nav_security": "Security & Incidents",
+  "nav_governance": "Governance",
+  "nav_notifications": "Notifications",
+  "nav_provenance": "Provenance",
+  "nav_features": "Feature Flags",
+  "nav_webhooks": "Webhooks",
+  "nav_quality": "QA Dashboard",
+
+  "security_title": "Security & Incidents",
   "approval_title": "Approvals",
   "approval_subtitle": "Pending human-in-the-loop approvals.",
   "approval_empty": "No pending approvals.",
@@ -207,6 +216,11 @@
   "approval_requested_by": "Requested by:",
   "approval_approve": "Approve",
   "approval_reject": "Reject",
+  "security_subtitle": "Monitor security incidents and alerts.",
+  "security_empty": "No security incidents.",
+  "security_incidents_list": "Incidents",
+  "security_severity": "Severity:",
+  "security_resolve": "Resolve",
   "refresh": "Refresh",
   "loading": "Loading..."
 }

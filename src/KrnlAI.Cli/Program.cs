@@ -2,12 +2,10 @@ using System.CommandLine;
 using KrnlAI.Cli.Abstractions;
 using KrnlAI.Cli.Commands;
 using KrnlAI.Cli.Services;
-using KrnlAI.Core.Services.Safety;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Spectre.Console;
 
-var apiBaseUrl = args.Contains("--endpoint") ? args[Array.IndexOf(args, "--endpoint") + 1] : "http://localhost:5235";
+var apiBaseUrl = EndpointOptionParser.TryResolve(args, out var resolved) ? resolved : EndpointOptionParser.DefaultEndpoint;
 
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((ctx, services) =>
@@ -22,9 +20,13 @@ var host = Host.CreateDefaultBuilder(args)
     })
     .Build();
 
-// Seed demo data
-var seeder = host.Services.GetRequiredService<CliSeeder>();
-await seeder.SeedAsync().ConfigureAwait(false);
+// Seed demo data (skipped for --help/--version invocations)
+var seedRequested = !args.Any(a => a is "--help" or "-h" or "--version");
+if (seedRequested)
+{
+    var seeder = host.Services.GetRequiredService<CliSeeder>();
+    await seeder.SeedAsync().ConfigureAwait(false);
+}
 
 var cliCtx = host.Services.GetRequiredService<CliContext>();
 var renderer = host.Services.GetRequiredService<ConsoleRenderer>();
@@ -55,28 +57,28 @@ root.Add(new InitCommand(templateEngine, console).Build());
 root.Add(new TemplatesCommand(templateEngine).Build());
 
 // Config command (Plano 14 - YAML Config)
-var managedSettingsChain = host.Services.GetService<KrnlAI.Core.Config.ManagedSettingsChain>();
+var managedSettingsChain = host.Services.GetService<KrnlAI.Configuration.Services.ManagedSettingsChain>();
 root.Add(new ConfigCommand(console, managedSettingsChain).Build());
 
 // Safety evaluation (Plano 4)
-var benchRunner = host.Services.GetRequiredService<SafetyBenchRunner>();
+var benchRunner = host.Services.GetRequiredService<ISafetyBenchRunner>();
 root.Add(new SecurityCommand(benchRunner, console).Build());
 
 // Benchmark (Plano 08 - Safety Benchmark)
-var reportGen = host.Services.GetRequiredService<KrnlAI.Core.Abstractions.Safety.ISafetyReportGenerator>();
+var reportGen = host.Services.GetRequiredService<ISafetyReportGenerator>();
 root.Add(new BenchmarkCommand(benchRunner, reportGen, console).Build());
 
 // Integration management (Plano 02 - Ecosystem)
 root.Add(new IntegrationCommand(console).Build());
 
 // Plugin management (Plano 37 - Plugin Ecosystem)
-var pluginLoader = host.Services.GetService<KrnlAI.Core.Abstractions.IAssemblyPluginLoader>();
-var pluginCatalog = host.Services.GetService<KrnlAI.Core.Abstractions.IPluginCatalog>();
-var pluginRegistry = host.Services.GetService<KrnlAI.Core.Abstractions.IPluginRegistryService>();
+var pluginLoader = host.Services.GetService<IAssemblyPluginLoader>();
+var pluginCatalog = host.Services.GetService<IPluginCatalog>();
+var pluginRegistry = host.Services.GetService<IPluginRegistryService>();
 root.Add(new PluginCommand(console, pluginLoader, pluginCatalog, pluginRegistry).Build());
 
 // MCP management (Track B2)
-var mcpServerHost = host.Services.GetService<KrnlAI.Core.Abstractions.Mcp.IMcpServerHost>();
+var mcpServerHost = host.Services.GetService<IMcpServerHost>();
 root.Add(new McpCommand(cliCtx, renderer, mcpServerHost).Build());
 
 // Plan/Act mode
@@ -118,16 +120,21 @@ root.Add(new ReviewCommand().Build());
 // Experiment management (Track B4)
 root.Add(new ExperimentCommand(cliCtx, renderer).Build());
 
-// Session management (Track B5)
-var sessionStore = host.Services.GetRequiredService<InMemorySessionStore>();
-var cognitiveSessionStore = host.Services.GetRequiredService<KrnlAI.Cognition.Contracts.ISessionStore>();
-root.Add(new SessionCommand(console, sessionStore, cognitiveSessionStore).Build());
+// Session management (Track B5) - resolved on demand so a missing registration
+// does not break unrelated commands
+var sessionStore = host.Services.GetService<InMemorySessionStore>();
+var cognitiveSessionStore = host.Services.GetService<ISessionStore>();
+if (sessionStore is not null && cognitiveSessionStore is not null)
+    root.Add(new SessionCommand(console, sessionStore, cognitiveSessionStore).Build());
 
 // Lifecycle hooks management
-var lifecycleOrchestrator = host.Services.GetRequiredService<KrnlAI.Core.Services.Lifecycle.LifecycleOrchestrator>();
-root.Add(new LifecycleCommand(lifecycleOrchestrator, renderer).Build());
+var lifecycleOrchestrator = host.Services.GetService<KrnlAI.Core.Services.Lifecycle.LifecycleOrchestrator>();
+if (lifecycleOrchestrator is not null)
+    root.Add(new LifecycleCommand(lifecycleOrchestrator, renderer).Build());
 
 // Checkpoint management
 root.Add(new CheckpointCommand(cliCtx, renderer).Build());
 
 return await root.Parse(args).InvokeAsync().ConfigureAwait(false);
+
+

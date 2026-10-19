@@ -14,9 +14,13 @@ export class DebugPanel {
         this._tracker = tracker;
         this._panel.webview.html = this._getHtml();
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
-        this._panel.webview.onDidReceiveMessage(msg => {
-            if (msg.type === 'switchTab') this._tab = msg.tab;
-        }, null, this._disposables);
+        this._panel.webview.onDidReceiveMessage(
+            (msg) => {
+                if (msg.type === 'switchTab') this._tab = msg.tab;
+            },
+            null,
+            this._disposables,
+        );
         this._refresh();
         this._updateInterval = setInterval(() => this._refresh(), 2000);
     }
@@ -27,9 +31,10 @@ export class DebugPanel {
             return;
         }
         const panel = vscode.window.createWebviewPanel(
-            'krnlai.debugTrace', 'Krnl-AI Debug Trace',
+            'krnlai.debugTrace',
+            'Krnl-AI Debug Trace',
             vscode.ViewColumn.Beside,
-            { enableScripts: true, retainContextWhenHidden: true }
+            { enableScripts: true, retainContextWhenHidden: true },
         );
         DebugPanel.currentPanel = new DebugPanel(panel, tracker ?? new OperationTracker());
     }
@@ -44,14 +49,13 @@ export class DebugPanel {
     private _computeStats(history: readonly OperationCall[]): string {
         if (history.length === 0) return 'No data.';
         const total = history.length;
-        const success = history.filter(o => o.state === OperationState.Completed).length;
-        const failed = history.filter(o => o.state === OperationState.Failed).length;
-        const running = history.filter(o => o.state === OperationState.Running).length;
+        const success = history.filter((o) => o.state === OperationState.Completed).length;
+        const failed = history.filter((o) => o.state === OperationState.Failed).length;
+        const running = history.filter((o) => o.state === OperationState.Running).length;
 
-        const completed = history.filter(o => o.state === OperationState.Completed && o.elapsedMs > 0);
-        const avgDuration = completed.length > 0
-            ? (completed.reduce((s, o) => s + o.elapsedMs, 0) / completed.length).toFixed(0)
-            : '—';
+        const completed = history.filter((o) => o.state === OperationState.Completed && o.elapsedMs > 0);
+        const avgDuration =
+            completed.length > 0 ? (completed.reduce((s, o) => s + o.elapsedMs, 0) / completed.length).toFixed(0) : '—';
 
         // Group by name
         const byName = new Map<string, { count: number; failed: number; avg: number }>();
@@ -104,8 +108,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; f
 </head>
 <body>
 <div class="tabs">
-  <button class="tab active" data-tab="trace" onclick="switchTab('trace')">📋 Trace</button>
-  <button class="tab" data-tab="stats" onclick="switchTab('stats')">📊 Stats</button>
+  <button class="tab active" data-tab="trace" id="tab-trace">📋 Trace</button>
+  <button class="tab" data-tab="stats" id="tab-stats">📊 Stats</button>
 </div>
 <div class="content">
   <div class="count" id="count">0 operations</div>
@@ -137,6 +141,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; f
             statsEl.textContent = msg.stats || 'No data.';
         }
     });
+    document.getElementById('tab-trace')!.addEventListener('click',()=>switchTab('trace'));
+    document.getElementById('tab-stats')!.addEventListener('click',()=>switchTab('stats'));
 }());
 </script>
 </body>

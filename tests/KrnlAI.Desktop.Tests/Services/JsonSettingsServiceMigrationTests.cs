@@ -1,5 +1,4 @@
 using System.Reflection;
-using KrnlAI.Desktop.Core.Models;
 using KrnlAI.Desktop.Infrastructure.Settings;
 
 namespace KrnlAI.Desktop.Tests.Services;

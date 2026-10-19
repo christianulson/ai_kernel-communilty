@@ -427,8 +427,15 @@ FodyWeavers.xsd
 *.msp
 
 .dotnet*/
+.gradle/
 
 doc/snapshots/
 .nx/
 # Obsidian vault cache
 docs/.obsidian/workspace*
+
+# Frontend build outputs (browser extension, tauri, sdk wheels)
+**/dist/
+sdk/python/dist/
+*.whl
+*.tar.gz

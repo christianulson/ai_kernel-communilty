@@ -104,6 +104,7 @@ public class MainViewModel : ViewModelBase
     public ApprovalViewModel ApprovalVM { get; }
     public TemplatesViewModel TemplatesVM { get; }
     public CliViewModel CliVM { get; } = new();
+    public TerminalViewModel TerminalVM { get; } = new();
     public PluginCatalogViewModel PluginCatalogVM { get; } = new();
     public ExperimentsViewModel ExperimentsVM { get; }
     public InitWizardViewModel InitWizardVM { get; } = new();
@@ -124,6 +125,10 @@ public class MainViewModel : ViewModelBase
     public EpisodicMemoryViewModel EpisodicMemoryVM { get; }
     public CreativityViewModel CreativityVM { get; }
     public CognitiveCycleViewModel CognitiveCycleVM { get; }
+    public SecurityIncidentsViewModel SecurityVM { get; }
+    public GovernanceViewModel GovernanceVM { get; }
+    public NotificationsViewModel NotificationsVM { get; }
+    public ProvenanceViewModel ProvenanceVM { get; }
 
     public ObservableCollection<MediaDevice> Microphones => SettingsVM.Microphones;
     public ObservableCollection<MediaDevice> Cameras => SettingsVM.Cameras;
@@ -154,7 +159,8 @@ public class MainViewModel : ViewModelBase
     private string _statusMessage = "Iniciando...";
     public string StatusMessage { get => _statusMessage; set => SetProperty(ref _statusMessage, value); }
     private string _currentScreen = "chat";
-    public string CurrentScreen { get => _currentScreen; set { if (SetProperty(ref _currentScreen, value)) { OnPropertyChanged(nameof(IsChatVisible)); OnPropertyChanged(nameof(IsDashboardVisible)); OnPropertyChanged(nameof(IsPoliciesVisible)); OnPropertyChanged(nameof(IsEpisodesVisible)); OnPropertyChanged(nameof(IsMemoryVisible)); OnPropertyChanged(nameof(IsSettingsVisible)); OnPropertyChanged(nameof(IsApiKeysVisible)); OnPropertyChanged(nameof(IsPeerRankingVisible)); OnPropertyChanged(nameof(IsPrivacyVisible)); OnPropertyChanged(nameof(IsUserServicesVisible)); OnPropertyChanged(nameof(IsBenchmarkVisible)); OnPropertyChanged(nameof(IsCausalVisible)); OnPropertyChanged(nameof(IsProfileVisible)); OnPropertyChanged(nameof(IsDocumentsVisible)); OnPropertyChanged(nameof(IsArchiveVisible)); OnPropertyChanged(nameof(IsModelRegistryVisible)); OnPropertyChanged(nameof(IsVersionsVisible)); OnPropertyChanged(nameof(IsSessionsVisible)); OnPropertyChanged(nameof(IsKanbanVisible)); OnPropertyChanged(nameof(IsTrajectoryVisible)); OnPropertyChanged(nameof(IsP2PPaymentsVisible)); OnPropertyChanged(nameof(IsDisputesVisible));             OnPropertyChanged(nameof(IsSidecarVisible)); OnPropertyChanged(nameof(IsMultimodalVisible)); OnPropertyChanged(nameof(IsObjectivesVisible)); OnPropertyChanged(nameof(IsInvestigationsVisible)); OnPropertyChanged(nameof(IsSnapshotsVisible)); OnPropertyChanged(nameof(IsAdminConfigVisible));             OnPropertyChanged(nameof(IsAdminUsersVisible)); OnPropertyChanged(nameof(IsMomentsVisible)); OnPropertyChanged(nameof(IsPluginsVisible)); OnPropertyChanged(nameof(IsSchedulerVisible)); OnPropertyChanged(nameof(IsTemplatesVisible)); OnPropertyChanged(nameof(IsApprovalVisible));                     OnPropertyChanged(nameof(IsCliVisible)); OnPropertyChanged(nameof(IsTerminalVisible)); OnPropertyChanged(nameof(IsPluginCatalogVisible)); OnPropertyChanged(nameof(IsExperimentVisible)); OnPropertyChanged(nameof(IsInitWizardVisible)); OnPropertyChanged(nameof(IsDebugVisible)); OnPropertyChanged(nameof(IsStudioVisible)); OnPropertyChanged(nameof(IsAgiVisible)); OnPropertyChanged(nameof(IsKnowledgeVisible)); OnPropertyChanged(nameof(IsPieVisible)); OnPropertyChanged(nameof(IsEmotionalVisible)); OnPropertyChanged(nameof(IsEventsVisible)); OnPropertyChanged(nameof(IsCodingVisible)); OnPropertyChanged(nameof(IsSelfImprovementVisible)); OnPropertyChanged(nameof(IsAssistantVisible)); OnPropertyChanged(nameof(IsMcpConfigVisible)); OnPropertyChanged(nameof(IsPlanVisible)); OnPropertyChanged(nameof(IsFeedbackVisible)); OnPropertyChanged(nameof(IsEpisodicMemoryVisible)); OnPropertyChanged(nameof(IsCreativityVisible)); OnPropertyChanged(nameof(IsCognitiveCycleVisible)); } } }
+    public string CurrentScreen { get => _currentScreen; set { if (SetProperty(ref _currentScreen, value)) { OnPropertyChanged(nameof(IsChatVisible)); OnPropertyChanged(nameof(IsDashboardVisible)); OnPropertyChanged(nameof(IsPoliciesVisible)); OnPropertyChanged(nameof(IsEpisodesVisible)); OnPropertyChanged(nameof(IsMemoryVisible)); OnPropertyChanged(nameof(IsSettingsVisible)); OnPropertyChanged(nameof(IsApiKeysVisible)); OnPropertyChanged(nameof(IsPeerRankingVisible)); OnPropertyChanged(nameof(IsPrivacyVisible)); OnPropertyChanged(nameof(IsUserServicesVisible)); OnPropertyChanged(nameof(IsBenchmarkVisible)); OnPropertyChanged(nameof(IsCausalVisible)); OnPropertyChanged(nameof(IsProfileVisible)); OnPropertyChanged(nameof(IsDocumentsVisible)); OnPropertyChanged(nameof(IsArchiveVisible)); OnPropertyChanged(nameof(IsModelRegistryVisible)); OnPropertyChanged(nameof(IsVersionsVisible)); OnPropertyChanged(nameof(IsSessionsVisible)); OnPropertyChanged(nameof(IsKanbanVisible)); OnPropertyChanged(nameof(IsTrajectoryVisible)); OnPropertyChanged(nameof(IsP2PPaymentsVisible)); OnPropertyChanged(nameof(IsDisputesVisible)); OnPropertyChanged(nameof(IsSidecarVisible)); OnPropertyChanged(nameof(IsMultimodalVisible)); OnPropertyChanged(nameof(IsObjectivesVisible)); OnPropertyChanged(nameof(IsInvestigationsVisible)); OnPropertyChanged(nameof(IsSnapshotsVisible)); OnPropertyChanged(nameof(IsAdminConfigVisible)); OnPropertyChanged(nameof(IsAdminUsersVisible)); OnPropertyChanged(nameof(IsMomentsVisible)); OnPropertyChanged(nameof(IsPluginsVisible)); OnPropertyChanged(nameof(IsSchedulerVisible)); OnPropertyChanged(nameof(IsTemplatesVisible)); OnPropertyChanged(nameof(IsApprovalVisible)); OnPropertyChanged(nameof(IsCliVisible)); OnPropertyChanged(nameof(IsTerminalVisible)); OnPropertyChanged(nameof(IsPluginCatalogVisible)); OnPropertyChanged(nameof(IsExperimentVisible)); OnPropertyChanged(nameof(IsInitWizardVisible)); OnPropertyChanged(nameof(IsDebugVisible)); OnPropertyChanged(nameof(IsStudioVisible)); OnPropertyChanged(nameof(IsAgiVisible)); OnPropertyChanged(nameof(IsKnowledgeVisible)); OnPropertyChanged(nameof(IsPieVisible)); OnPropertyChanged(nameof(IsEmotionalVisible)); OnPropertyChanged(nameof(IsEventsVisible)); OnPropertyChanged(nameof(IsCodingVisible)); OnPropertyChanged(nameof(IsSelfImprovementVisible)); OnPropertyChanged(nameof(IsAssistantVisible)); OnPropertyChanged(nameof(IsMcpConfigVisible)); OnPropertyChanged(nameof(IsPlanVisible)); OnPropertyChanged(nameof(IsFeedbackVisible)); OnPropertyChanged(nameof(IsEpisodicMemoryVisible)); OnPropertyChanged(nameof(IsCreativityVisible)); OnPropertyChanged(nameof(IsCognitiveCycleVisible)); 
+OnPropertyChanged(nameof(IsSecurityVisible)); OnPropertyChanged(nameof(IsGovernanceVisible)); OnPropertyChanged(nameof(IsNotificationsVisible)); OnPropertyChanged(nameof(IsProvenanceVisible)); } } }
     private bool _showWelcomeWizard = true;
     public bool ShowWelcomeWizard { get => _showWelcomeWizard; set => SetProperty(ref _showWelcomeWizard, value); }
     private bool _showSearch;
@@ -224,6 +230,10 @@ public class MainViewModel : ViewModelBase
     public bool IsEpisodicMemoryVisible => _currentScreen == "episodic-memory";
     public bool IsCreativityVisible => _currentScreen == "creativity";
     public bool IsCognitiveCycleVisible => _currentScreen == "cognitive-cycle";
+    public bool IsSecurityVisible => _currentScreen == "security";
+    public bool IsGovernanceVisible => _currentScreen == "governance";
+    public bool IsNotificationsVisible => _currentScreen == "notifications";
+    public bool IsProvenanceVisible => _currentScreen == "provenance";
 
     public AgentInfo? SelectedAgent { get; set; }
     private ConversationSession? _activeSession;
@@ -318,6 +328,10 @@ public class MainViewModel : ViewModelBase
     public ICommand NavigateToEpisodicMemoryCommand { get; }
     public ICommand NavigateToCreativityCommand { get; }
     public ICommand NavigateToCognitiveCycleCommand { get; }
+    public ICommand NavigateToSecurityCommand { get; }
+    public ICommand NavigateToGovernanceCommand { get; }
+    public ICommand NavigateToNotificationsCommand { get; }
+    public ICommand NavigateToProvenanceCommand { get; }
     public ICommand NavigateToProfileCommand { get; }
     public ICommand ToggleListeningCommand { get; }
     public ICommand LogoutCommand { get; }
@@ -368,7 +382,9 @@ public class MainViewModel : ViewModelBase
             new CodingViewModel(), new SelfImprovementViewModel(), new AssistantViewModel(), new McpConfigViewModel(),
             new TemplatesViewModel(), new ExperimentsViewModel(),
             new PlanViewModel(), new FeedbackViewModel(), new EpisodicMemoryViewModel(),
-            new CreativityViewModel(), new CognitiveCycleViewModel())
+            new CreativityViewModel(), new CognitiveCycleViewModel(),
+            new SecurityIncidentsViewModel(), new GovernanceViewModel(),
+            new NotificationsViewModel(), new ProvenanceViewModel())
     { }
 
     public MainViewModel(
@@ -392,7 +408,9 @@ public class MainViewModel : ViewModelBase
         CodingViewModel codingVM, SelfImprovementViewModel selfImprovementVM, AssistantViewModel assistantVM, McpConfigViewModel mcpConfigVM,
         TemplatesViewModel templatesVM, ExperimentsViewModel experimentsVM,
         PlanViewModel planVM, FeedbackViewModel feedbackVM, EpisodicMemoryViewModel episodicMemoryVM,
-        CreativityViewModel creativityVM, CognitiveCycleViewModel cognitiveCycleVM)
+        CreativityViewModel creativityVM, CognitiveCycleViewModel cognitiveCycleVM,
+        SecurityIncidentsViewModel securityVM, GovernanceViewModel governanceVM,
+        NotificationsViewModel notificationsVM, ProvenanceViewModel provenanceVM)
     {
         ChatVM = chatVM;
         DashVM = dashVM;
@@ -440,6 +458,10 @@ public class MainViewModel : ViewModelBase
         EpisodicMemoryVM = episodicMemoryVM;
         CreativityVM = creativityVM;
         CognitiveCycleVM = cognitiveCycleVM;
+        SecurityVM = securityVM;
+        GovernanceVM = governanceVM;
+        NotificationsVM = notificationsVM;
+        ProvenanceVM = provenanceVM;
 
         _kernelClient = kernelClient;
         _settingsService = settingsService;
@@ -509,19 +531,23 @@ public class MainViewModel : ViewModelBase
         NavigateToEpisodicMemoryCommand = new RelayCommand(() => CurrentScreen = "episodic-memory");
         NavigateToCreativityCommand = new RelayCommand(() => CurrentScreen = "creativity");
         NavigateToCognitiveCycleCommand = new RelayCommand(() => CurrentScreen = "cognitive-cycle");
+        NavigateToSecurityCommand = new RelayCommand(() => CurrentScreen = "security");
+        NavigateToGovernanceCommand = new RelayCommand(() => CurrentScreen = "governance");
+        NavigateToNotificationsCommand = new RelayCommand(() => CurrentScreen = "notifications");
+        NavigateToProvenanceCommand = new RelayCommand(() => CurrentScreen = "provenance");
         ToggleListeningCommand = new AsyncRelayCommand(ToggleListeningAsync);
         LogoutCommand = new RelayCommand(ExecuteLogout);
         BackupCommand = new AsyncRelayCommand(async () =>
         {
             var dialog = new Microsoft.Win32.SaveFileDialog { Filter = "Backup files (*.zip)|*.zip", FileName = $"krnlai-backup-{DateTime.Now:yyyyMMdd}.zip" };
             if (dialog.ShowDialog() == true)
-                await new BackupService().BackupAsync(dialog.FileName).ConfigureAwait(false);
+                await new BackupService().BackupAsync(dialog.FileName);
         });
         RestoreCommand = new AsyncRelayCommand(async () =>
         {
             var dialog = new Microsoft.Win32.OpenFileDialog { Filter = "Backup files (*.zip)|*.zip" };
             if (dialog.ShowDialog() == true)
-                await new BackupService().RestoreAsync(dialog.FileName).ConfigureAwait(false);
+                await new BackupService().RestoreAsync(dialog.FileName);
         });
         FeedbackCommand = new RelayCommand(() =>
         {
@@ -537,11 +563,11 @@ public class MainViewModel : ViewModelBase
         ToggleCommandPaletteCommand = new RelayCommand(() => ShowCommandPalette = !ShowCommandPalette);
         ToggleLogsCommand = new RelayCommand(() => ShowLogs = !ShowLogs);
         ToggleKioskCommand = new RelayCommand(() => KioskMode = !KioskMode);
-        CheckUpdateCommand = new AsyncRelayCommand(async () => UpdateVersion = await new UpdateChecker().CheckForUpdatesAsync().ConfigureAwait(false));
+        CheckUpdateCommand = new AsyncRelayCommand(async () => UpdateVersion = await new UpdateChecker().CheckForUpdatesAsync());
         DownloadUpdateCommand = new AsyncRelayCommand(async () =>
         {
             if (UpdateVersion != null)
-                await new UpdateChecker().DownloadAndInstallAsync(UpdateVersion).ConfigureAwait(false);
+                await new UpdateChecker().DownloadAndInstallAsync(UpdateVersion);
         });
         StartSidecarCommand = new AsyncRelayCommand(async () =>
         {
@@ -599,8 +625,8 @@ public class MainViewModel : ViewModelBase
     private async Task ToggleListeningAsync()
     {
         if (_listeningService == null) return;
-        if (IsListening) { await _listeningService.StopListeningAsync().ConfigureAwait(false); IsListening = false; StatusMessage = "Escuta parada"; }
-        else { await _listeningService.StartListeningAsync().ConfigureAwait(false); IsListening = true; StatusMessage = "Escutando..."; }
+        if (IsListening) { await _listeningService.StopListeningAsync(); IsListening = false; StatusMessage = "Escuta parada"; }
+        else { await _listeningService.StartListeningAsync(); IsListening = true; StatusMessage = "Escutando..."; }
     }
 
     private async Task CheckBackendHealthAsync()
@@ -624,7 +650,7 @@ public class MainViewModel : ViewModelBase
         {
             try
             {
-                var isAvailable = await _kernelClient.CheckHealthAsync(t).ConfigureAwait(false);
+                var isAvailable = await _kernelClient.CheckHealthAsync(t);
                 UiThreadInvoker.Invoke(() =>
                 {
                     if (isAvailable != _previousBackendAvailable)
@@ -646,7 +672,7 @@ public class MainViewModel : ViewModelBase
             }
             catch (OperationCanceledException) { break; }
             catch (Exception ex) { KrnlLogger.Write($"HealthCheck: {ex.Message}"); }
-            try { await Task.Delay(30000, t).ConfigureAwait(false); } catch (OperationCanceledException) { break; }
+            try { await Task.Delay(30000, t); } catch (OperationCanceledException) { break; }
         }
     }
 
@@ -658,7 +684,8 @@ public class MainViewModel : ViewModelBase
         var dialog = new System.Windows.Window
         {
             Title = "Renomear conversa",
-            Width = 400, Height = 180,
+            Width = 400,
+            Height = 180,
             WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner,
             Owner = window,
             WindowStyle = System.Windows.WindowStyle.ToolWindow,
@@ -667,9 +694,9 @@ public class MainViewModel : ViewModelBase
             Topmost = true
         };
         var stack = new System.Windows.Controls.StackPanel { Margin = new System.Windows.Thickness(16) };
-        stack.Children.Add(new System.Windows.Controls.TextBlock { Text = "Novo nome:", Margin = new System.Windows.Thickness(0,0,0,8), FontSize = 13 });
+        stack.Children.Add(new System.Windows.Controls.TextBlock { Text = "Novo nome:", Margin = new System.Windows.Thickness(0, 0, 0, 8), FontSize = 13 });
         var inputBox = new System.Windows.Controls.TextBox { Text = ActiveSession.Title, Height = 36, FontSize = 14 };
-        var confirmBtn = new System.Windows.Controls.Button { Content = "Salvar", Height = 36, Width = 100, Margin = new System.Windows.Thickness(0,12,0,0), HorizontalAlignment = System.Windows.HorizontalAlignment.Right };
+        var confirmBtn = new System.Windows.Controls.Button { Content = "Salvar", Height = 36, Width = 100, Margin = new System.Windows.Thickness(0, 12, 0, 0), HorizontalAlignment = System.Windows.HorizontalAlignment.Right };
         stack.Children.Add(inputBox);
         stack.Children.Add(confirmBtn);
         dialog.Content = stack;
@@ -681,7 +708,7 @@ public class MainViewModel : ViewModelBase
             Sessions[i] = new ConversationSession(ActiveSession.Id, inputBox.Text, ActiveSession.CreatedAt);
             ActiveSession = Sessions[i];
         }
-        await Task.CompletedTask.ConfigureAwait(false);
+        await Task.CompletedTask;
     }
 
     private async Task AutoRefreshDashboardAsync()
@@ -693,10 +720,10 @@ public class MainViewModel : ViewModelBase
         var t = _dashboardRefreshCts.Token;
         while (!t.IsCancellationRequested)
         {
-            try { await Task.Delay(30000, t).ConfigureAwait(false); } catch (OperationCanceledException) { break; }
+            try { await Task.Delay(30000, t); } catch (OperationCanceledException) { break; }
             if (IsBackendAvailable && !t.IsCancellationRequested)
             {
-                try { await DashVM.LoadDashboardDataAsync().ConfigureAwait(false); }
+                try { await DashVM.LoadDashboardDataAsync(); }
                 catch (Exception ex) { KrnlLogger.Write($"Dashboard refresh: {ex.Message}"); }
             }
         }
@@ -714,7 +741,7 @@ public class MainViewModel : ViewModelBase
             {
                 if (IsBackendAvailable)
                 {
-                    var state = await _kernelClient.GetEmotionalStateAsync(UserId, t).ConfigureAwait(false);
+                    var state = await _kernelClient.GetEmotionalStateAsync(UserId, t);
                     if (state != null)
                     {
                         UiThreadInvoker.Invoke(() => EmotionalState = state);
@@ -723,7 +750,7 @@ public class MainViewModel : ViewModelBase
             }
             catch (OperationCanceledException) { break; }
             catch (Exception ex) { KrnlLogger.Write($"Emotional poll: {ex.Message}"); }
-            try { await Task.Delay(15000, t).ConfigureAwait(false); } catch (OperationCanceledException) { break; }
+            try { await Task.Delay(15000, t); } catch (OperationCanceledException) { break; }
         }
     }
 

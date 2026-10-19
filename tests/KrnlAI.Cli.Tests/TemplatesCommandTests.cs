@@ -1,6 +1,4 @@
 using KrnlAI.Cli.Abstractions;
-using KrnlAI.Cli.Commands;
-using KrnlAI.Cli.Services;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace KrnlAI.Cli.Tests;

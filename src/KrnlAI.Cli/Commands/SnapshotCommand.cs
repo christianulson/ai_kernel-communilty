@@ -1,6 +1,5 @@
 using System.CommandLine;
 using KrnlAI.Cli.Services;
-using KrnlAI.Core.Services.Memory;
 using Spectre.Console;
 
 namespace KrnlAI.Cli.Commands;
@@ -36,7 +35,8 @@ public sealed class SnapshotCommand(CliContext ctx, ConsoleRenderer renderer)
 
         var labelOpt = new Option<string>("--label")
         {
-            Description = "Snapshot label", DefaultValueFactory = _ => $"cli-snapshot-{DateTimeOffset.UtcNow:yyyyMMddHHmmss}"
+            Description = "Snapshot label",
+            DefaultValueFactory = _ => $"cli-snapshot-{DateTimeOffset.UtcNow:yyyyMMddHHmmss}"
         };
         var scopeOpt = new Option<string>("--scope")
         {
@@ -45,7 +45,8 @@ public sealed class SnapshotCommand(CliContext ctx, ConsoleRenderer renderer)
         };
         var reasonOpt = new Option<string>("--reason")
         {
-            Description = "Reason for snapshot", DefaultValueFactory = _ => "manual"
+            Description = "Reason for snapshot",
+            DefaultValueFactory = _ => "manual"
         };
         var create = new Command("create", "Create a snapshot")
         {

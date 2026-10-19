@@ -2,14 +2,13 @@ using System.CommandLine;
 using System.Text.Json;
 using KrnlAI.Cli.Abstractions;
 using KrnlAI.Cli.Services;
-using KrnlAI.Core.Abstractions.Safety;
-using KrnlAI.Core.Services.Safety;
+using KrnlAI.Safety.Services;
 using Spectre.Console;
 
 namespace KrnlAI.Cli.Commands;
 
 public sealed class BenchmarkCommand(
-    SafetyBenchRunner benchRunner,
+    ISafetyBenchRunner benchRunner,
     ISafetyReportGenerator reportGenerator,
     IAnsiConsole console)
 {
@@ -149,7 +148,11 @@ public sealed class BenchmarkCommand(
                     total = result.TotalScenarios,
                     categories = result.Categories.Select(c => new
                     {
-                        c.Category, c.Total, c.Passed, c.Failed, c.PassRate
+                        c.Category,
+                        c.Total,
+                        c.Passed,
+                        c.Failed,
+                        c.PassRate
                     })
                 },
                 competitors = externalResults,
@@ -205,3 +208,4 @@ public sealed class BenchmarkCommand(
         return cmd;
     }
 }
+

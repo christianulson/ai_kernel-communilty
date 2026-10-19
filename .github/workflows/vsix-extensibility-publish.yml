@@ -1,0 +1,37 @@
+name: Publish VSIX (new Extensibility model)
+
+# Builds the new-model VSIX and uploads it as a release artifact.
+# The Visual Studio Marketplace has no official CLI for automatic publishing;
+# after this workflow produces the .vsix, publish it via
+# https://marketplace.visualstudio.com/manage (Krnl-AI publisher) — requires
+# the marketplace publisher account. When an automation token becomes available,
+# add a publish step with the appropriate secret here.
+
+on:
+  push:
+    tags: ['vsix-v*']
+
+jobs:
+  build:
+    runs-on: windows-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Build new-model extension
+        run: dotnet build src/KrnlAI.VisualStudio.Extensibility/KrnlAI.VisualStudio.Extensibility.csproj --configuration Release -p:SignAssembly=false
+      - name: Locate VSIX artifact
+        id: vsix
+        shell: pwsh
+        run: |
+          $vsix = Get-ChildItem "src/KrnlAI.VisualStudio.Extensibility/bin/Release/net8.0" -Filter *.vsix | Select-Object -First 1
+          if (-not $vsix) { throw "No .vsix produced by the build" }
+          "path=$($vsix.FullName)" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "name=$($vsix.Name)" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+      - uses: actions/upload-artifact@v4
+        with:
+          name: krnlai-vsix
+          path: ${{ steps.vsix.outputs.path }}

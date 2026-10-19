@@ -5,29 +5,33 @@ function mockPanel() {
         webview: {
             html: '',
             onDidReceiveMessage: jest.fn(),
-            postMessage: jest.fn()
+            postMessage: jest.fn(),
         },
         onDidDispose: jest.fn(),
         reveal: jest.fn(),
-        dispose: jest.fn()
+        dispose: jest.fn(),
     };
 }
 
-jest.mock('vscode', () => ({
-    window: {
-        createWebviewPanel: jest.fn(),
-        showInformationMessage: jest.fn(),
-        showErrorMessage: jest.fn()
-    },
-    workspace: {
-        getConfiguration: jest.fn(() => ({
-            get: jest.fn((_key: string, defaultVal?: any) => defaultVal)
-        }))
-    },
-    ViewColumn: { Beside: 2, One: 1 },
-    Disposable: jest.fn(),
-    EventEmitter: jest.fn(() => ({ event: jest.fn(), fire: jest.fn() }))
-}), { virtual: true });
+jest.mock(
+    'vscode',
+    () => ({
+        window: {
+            createWebviewPanel: jest.fn(),
+            showInformationMessage: jest.fn(),
+            showErrorMessage: jest.fn(),
+        },
+        workspace: {
+            getConfiguration: jest.fn(() => ({
+                get: jest.fn((_key: string, defaultVal?: any) => defaultVal),
+            })),
+        },
+        ViewColumn: { Beside: 2, One: 1 },
+        Disposable: jest.fn(),
+        EventEmitter: jest.fn(() => ({ event: jest.fn(), fire: jest.fn() })),
+    }),
+    { virtual: true },
+);
 
 describe('PluginCatalogPanel', () => {
     beforeEach(() => {
@@ -40,8 +44,10 @@ describe('PluginCatalogPanel', () => {
         const { PluginCatalogPanel } = require('../panels/pluginCatalogPanel');
         PluginCatalogPanel.createOrShow();
         expect(vscode.window.createWebviewPanel).toHaveBeenCalledWith(
-            'krnlai.pluginCatalog', 'Krnl-AI - Plugin Catalog',
-            expect.any(Number), expect.objectContaining({ enableScripts: true })
+            'krnlai.pluginCatalog',
+            'Krnl-AI - Plugin Catalog',
+            expect.any(Number),
+            expect.objectContaining({ enableScripts: true }),
         );
     });
 
@@ -77,9 +83,7 @@ describe('PluginCatalogPanel', () => {
         PluginCatalogPanel.createOrShow();
         const onMessage = panel.webview.onDidReceiveMessage.mock.calls[0][0];
         await onMessage({ type: 'load' });
-        expect(panel.webview.postMessage).toHaveBeenCalledWith(
-            expect.objectContaining({ type: 'plugins' })
-        );
+        expect(panel.webview.postMessage).toHaveBeenCalledWith(expect.objectContaining({ type: 'plugins' }));
     });
 
     it('should handle install message', async () => {

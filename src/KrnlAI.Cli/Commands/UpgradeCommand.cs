@@ -151,7 +151,10 @@ public sealed class UpgradeCommand
                 {
                     FileName = "dotnet",
                     Arguments = $"tool update -g {NuGetPackageId} --version {version}",
-                    UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true, CreateNoWindow = true,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true,
                 }
             };
             process.Start();
@@ -172,7 +175,10 @@ public sealed class UpgradeCommand
                 {
                     FileName = "dotnet",
                     Arguments = $"tool install -g {NuGetPackageId} --version {previousVersion}",
-                    UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true, CreateNoWindow = true,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true,
                 }
             };
             process.Start();

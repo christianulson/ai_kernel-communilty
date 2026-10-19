@@ -1,6 +1,5 @@
 using Spectre.Console;
-using KrnlAI.Core.Abstractions;
-using KrnlAI.Core.Services.Neural;
+using KrnlAI.Neural;
 
 namespace KrnlAI.Cli.Services;
 
@@ -81,9 +80,12 @@ public sealed class TuiEngine(IQLearningService? ql = null, MultiAgentOrchestrat
             var domain = agent?.Domain ?? "?";
             var icons = new Dictionary<string, string>
             {
-                ["attention"] = "[yellow]focus[/]", ["memory"] = "[blue]store[/]",
-                ["planning"] = "[cyan]plan[/]", ["safety"] = "[green]guard[/]",
-                ["reasoning"] = "[purple]think[/]", ["execution"] = "[red]act[/]",
+                ["attention"] = "[yellow]focus[/]",
+                ["memory"] = "[blue]store[/]",
+                ["planning"] = "[cyan]plan[/]",
+                ["safety"] = "[green]guard[/]",
+                ["reasoning"] = "[purple]think[/]",
+                ["execution"] = "[red]act[/]",
                 ["metacognition"] = "[silver]meta[/]"
             };
             table.AddRow(id, domain, icons.GetValueOrDefault(domain, "[dim]idle[/]"));
@@ -118,3 +120,4 @@ public sealed class TuiEngine(IQLearningService? ql = null, MultiAgentOrchestrat
         return new Panel(new Markup(string.Join("\n", events))).Header("Events");
     }
 }
+

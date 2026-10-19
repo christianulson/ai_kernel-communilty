@@ -79,15 +79,13 @@ public sealed class TrajectoryViewerViewModel : ViewModelBase
     public TrajectoryViewerViewModel(ILogger<TrajectoryViewerViewModel>? logger = null)
     {
         _logger = logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<TrajectoryViewerViewModel>.Instance;
-        var settings = ServiceLocator.Instance.SettingsService.LoadSettings();
-        var baseUrl = settings.ApiEndpoint ?? settings.ApiBaseUrl ?? Environment.GetEnvironmentVariable("KRNL__API_BASE_URL") ?? "http://localhost:5235";
-        _http = new HttpClient { BaseAddress = new Uri(baseUrl), Timeout = TimeSpan.FromSeconds(10) };
+        _http = ServiceLocator.Instance.CreateApiClient();
         RefreshCommand = new AsyncRelayCommand(LoadSessionsAsync);
         LoadSessionCommand = new AsyncRelayCommand(async () =>
         {
             if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return;
             if (Sessions.FirstOrDefault() is TrajectorySessionSummary s)
-                await LoadSessionAsync(s.Id).ConfigureAwait(false);
+                await LoadSessionAsync(s.Id);
         });
         if (ServiceLocator.Instance.CurrentMode != RunMode.Local)
             _ = LoadSessionsAsync();
@@ -102,9 +100,9 @@ public sealed class TrajectoryViewerViewModel : ViewModelBase
             if (!string.IsNullOrWhiteSpace(SearchText))
                 url += "&search=" + Uri.EscapeDataString(SearchText);
 
-            var response = await _http.GetAsync(url).ConfigureAwait(false);
+            var response = await _http.GetAsync(url);
             response.EnsureSuccessStatusCode();
-            var items = await response.Content.ReadFromJsonAsync<List<TrajectorySessionSummary>>().ConfigureAwait(false);
+            var items = await response.Content.ReadFromJsonAsync<List<TrajectorySessionSummary>>();
             Sessions.Clear();
             if (items != null)
                 foreach (var item in items) Sessions.Add(item);
@@ -120,9 +118,9 @@ public sealed class TrajectoryViewerViewModel : ViewModelBase
         if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return;
         try
         {
-            var response = await _http.GetAsync($"/api/trajectories/{sessionId}").ConfigureAwait(false);
+            var response = await _http.GetAsync($"/api/trajectories/{sessionId}");
             response.EnsureSuccessStatusCode();
-            var session = await response.Content.ReadFromJsonAsync<TrajectorySessionDetail>().ConfigureAwait(false);
+            var session = await response.Content.ReadFromJsonAsync<TrajectorySessionDetail>();
             SelectedSession = session;
             SelectedTabIndex = 0;
         }

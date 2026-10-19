@@ -1,6 +1,3 @@
-using KrnlAI.Core.Abstractions;
-using KrnlAI.Core.Services.Memory;
-
 namespace KrnlAI.Cli.Services;
 
 public sealed class CliSeeder(IMomentStore momentStore, IMomentClassifierStore classifierStore)
@@ -51,3 +48,4 @@ public sealed class CliSeeder(IMomentStore momentStore, IMomentClassifierStore c
             await classifierStore.StoreAsync(c, CancellationToken.None).ConfigureAwait(false);
     }
 }
+

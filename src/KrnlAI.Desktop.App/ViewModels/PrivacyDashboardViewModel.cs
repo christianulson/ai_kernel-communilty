@@ -88,7 +88,7 @@ public sealed class PrivacyDashboardViewModel : ViewModelBase
     public Task LoadAsync(CancellationToken ct = default)
         => ExecuteBusyAsync(async () =>
         {
-            var state = await _service.GetConsentAsync(ct).ConfigureAwait(false);
+            var state = await _service.GetConsentAsync(ct);
             ApplyState(state);
             StatusMessage = "Consentimento carregado.";
         });
@@ -96,7 +96,7 @@ public sealed class PrivacyDashboardViewModel : ViewModelBase
     public Task SaveAsync(CancellationToken ct = default)
         => ExecuteBusyAsync(async () =>
         {
-            var state = await _service.SetConsentAsync(SelectedConsentLevel, ct).ConfigureAwait(false);
+            var state = await _service.SetConsentAsync(SelectedConsentLevel, ct);
             ApplyState(state);
             StatusMessage = "Consentimento atualizado.";
         });
@@ -104,14 +104,14 @@ public sealed class PrivacyDashboardViewModel : ViewModelBase
     public Task RequestExportAsync(CancellationToken ct = default)
         => ExecuteBusyAsync(async () =>
         {
-            var result = await _service.RequestExportAsync(ct).ConfigureAwait(false);
+            var result = await _service.RequestExportAsync(ct);
             StatusMessage = result.Message;
         });
 
     public Task RequestDeletionAsync(CancellationToken ct = default)
         => ExecuteBusyAsync(async () =>
         {
-            var result = await _service.RequestDeletionAsync(ct).ConfigureAwait(false);
+            var result = await _service.RequestDeletionAsync(ct);
             StatusMessage = result.Message;
         });
 
@@ -149,7 +149,7 @@ public sealed class PrivacyDashboardViewModel : ViewModelBase
         IsBusy = true;
         try
         {
-            await action().ConfigureAwait(false);
+            await action();
         }
         catch (Exception ex)
         {

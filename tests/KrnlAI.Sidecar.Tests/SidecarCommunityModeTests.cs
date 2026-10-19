@@ -1,5 +1,6 @@
-using KrnlAI.Contracts.Contracts;
+using KrnlAI.Contracts;
 using Microsoft.AspNetCore.Mvc.Testing;
+using System.Text.Json;
 
 namespace KrnlAI.Sidecar.Tests;
 
@@ -14,6 +15,59 @@ public sealed class SidecarCommunityModeTests(CommunitySidecarWebAppFactory fact
 
         response.Should().NotBeNull();
         response!["mode"].ToString().Should().Be("community");
+    }
+
+    [Fact]
+    public async Task CognitiveDashboard_CommunityMode_ShouldReturnRealKernelData()
+    {
+        var response = await _client.GetFromJsonAsync<JsonElement>("/cognitive/dashboard", TestContext.Current.CancellationToken);
+
+        response.GetProperty("overallHealth").GetDouble().Should().BeGreaterThanOrEqualTo(0);
+        response.GetProperty("activeModules").GetArrayLength().Should().BeGreaterThan(0);
+        response.GetProperty("agiAsiLevel").GetString().Should().Contain("AgiL");
+    }
+
+    [Fact]
+    public async Task BenchmarkSummary_CommunityMode_ShouldReturnRealEvalSuite()
+    {
+        var response = await _client.GetFromJsonAsync<JsonElement>("/benchmark/summary", TestContext.Current.CancellationToken);
+
+        response.GetProperty("totalSuites").GetInt32().Should().BeGreaterThan(0);
+        response.GetProperty("suites").GetArrayLength().Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public async Task RuntimeSummary_CommunityMode_ShouldReportRealMemory()
+    {
+        var response = await _client.GetFromJsonAsync<JsonElement>("/observability/runtime/summary", TestContext.Current.CancellationToken);
+
+        response.GetProperty("memoryUsageBytes").GetInt64().Should().BeGreaterThan(0);
+        response.GetProperty("services").GetProperty("provider").GetString().Should().NotBeNullOrWhiteSpace();
+    }
+
+    [Fact]
+    public async Task WorkingMemory_CommunityMode_ShouldReturnRealSnapshot()
+    {
+        var response = await _client.GetFromJsonAsync<JsonElement>("/memory/working", TestContext.Current.CancellationToken);
+
+        response.GetProperty("maxSlots").GetInt32().Should().BeGreaterThan(0);
+        response.GetProperty("slots").ValueKind.Should().Be(JsonValueKind.Array);
+    }
+
+    [Fact]
+    public async Task Snapshots_CommunityMode_ShouldReturnArray()
+    {
+        var response = await _client.GetFromJsonAsync<JsonElement>("/snapshots", TestContext.Current.CancellationToken);
+
+        response.ValueKind.Should().Be(JsonValueKind.Array);
+    }
+
+    [Fact]
+    public async Task Documents_CommunityMode_ShouldReturnArray()
+    {
+        var response = await _client.GetFromJsonAsync<JsonElement>("/api/documents?limit=10", TestContext.Current.CancellationToken);
+
+        response.ValueKind.Should().Be(JsonValueKind.Array);
     }
 
     [Fact]

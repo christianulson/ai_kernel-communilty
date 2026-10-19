@@ -1,7 +1,6 @@
 using System.CommandLine;
 using System.Net.Http.Json;
 using System.Text.Json;
-using KrnlAI.Core.Abstractions;
 using Spectre.Console;
 
 namespace KrnlAI.Cli.Commands;
@@ -340,3 +339,4 @@ public sealed class PluginCommand(
         _ => "DotNetAssembly"
     };
 }
+

@@ -24,7 +24,7 @@ export class EditorContextProvider {
     }
 
     getVisibleFiles(): string[] {
-        return vscode.window.visibleTextEditors.map(e => e.document.uri.fsPath);
+        return vscode.window.visibleTextEditors.map((e) => e.document.uri.fsPath);
     }
 
     getWorkspaceDiagnostics(): { message: string; severity: string; source?: string }[] {
@@ -40,9 +40,13 @@ export class EditorContextProvider {
             for (const d of diags) {
                 result.push({
                     message: d.message,
-                    severity: d.severity === vscode.DiagnosticSeverity.Error ? 'error'
-                        : d.severity === vscode.DiagnosticSeverity.Warning ? 'warning' : 'info',
-                    source: d.source
+                    severity:
+                        d.severity === vscode.DiagnosticSeverity.Error
+                            ? 'error'
+                            : d.severity === vscode.DiagnosticSeverity.Warning
+                              ? 'warning'
+                              : 'info',
+                    source: d.source,
                 });
             }
         }

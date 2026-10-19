@@ -14,12 +14,20 @@ export class EpisodesPanel {
         this._nonce = Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10);
         this._panel.webview.html = this._getHtml();
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
-        this._panel.webview.onDidReceiveMessage(msg => this._handle(msg), null, this._disposables);
+        this._panel.webview.onDidReceiveMessage((msg) => this._handle(msg), null, this._disposables);
     }
 
     static createOrShow() {
-        if (EpisodesPanel.currentPanel) { EpisodesPanel.currentPanel._panel.reveal(); return; }
-        const panel = vscode.window.createWebviewPanel('krnlai.episodes', 'Krnl-AI - Episódios', vscode.ViewColumn.Beside, { enableScripts: true, retainContextWhenHidden: true });
+        if (EpisodesPanel.currentPanel) {
+            EpisodesPanel.currentPanel._panel.reveal();
+            return;
+        }
+        const panel = vscode.window.createWebviewPanel(
+            'krnlai.episodes',
+            'Krnl-AI - Episódios',
+            vscode.ViewColumn.Beside,
+            { enableScripts: true, retainContextWhenHidden: true },
+        );
         EpisodesPanel.currentPanel = new EpisodesPanel(panel);
     }
 
@@ -34,7 +42,9 @@ export class EpisodesPanel {
         }
     }
 
-    private _getHtml(): string { const nonce = this._nonce; return `<!DOCTYPE html>
+    private _getHtml(): string {
+        const nonce = this._nonce;
+        return `<!DOCTYPE html>
 <html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'nonce-${nonce}'; script-src 'nonce-${nonce}';">
 <title>Episódios</title>
@@ -50,7 +60,7 @@ button{padding:8px 16px;background:var(--vscode-button-background);color:var(--v
 #detail{display:none}
 </style></head><body>
 <h1>📜 Episódios</h1><p>Histórico de execuções do agente.</p>
-<button onclick="loadList()">↻ Atualizar</button>
+<button id="btn-refresh">↻ Atualizar</button>
 <div class="grid"><div id="list"></div><div id="detail"></div></div>
 <script nonce="${nonce}">(function(){
 const vscode=acquireVsCodeApi(),list=document.getElementById('list')!,detail=document.getElementById('detail')!;vscode.postMessage({type:'load'});
@@ -67,8 +77,13 @@ const r2=document.createElement('div');r2.className='row';r2.textContent='Status
 const r3=document.createElement('div');r3.className='row';r3.textContent='Duração: '+(m.episode.durationMs||'-')+'ms';detail.appendChild(r3);
 if(m.episode.steps)m.episode.steps.forEach((s:any)=>{const d2=document.createElement('div');d2.className='step';
 d2.textContent=(s.ok?'✔ ':'✖ ')+(s.label||'')+': '+(s.detail||'');detail.appendChild(d2);});}});
-function loadList(){detail.style.display='none';vscode.postMessage({type:'load'});}
-})();</script></body></html>`; }
+document.getElementById('btn-refresh')!.addEventListener('click',()=>{detail.style.display='none';vscode.postMessage({type:'load'});});
+})();</script></body></html>`;
+    }
 
-    public dispose() { EpisodesPanel.currentPanel = undefined; this._panel.dispose(); while (this._disposables.length) this._disposables.pop()!.dispose(); }
+    public dispose() {
+        EpisodesPanel.currentPanel = undefined;
+        this._panel.dispose();
+        while (this._disposables.length) this._disposables.pop()!.dispose();
+    }
 }

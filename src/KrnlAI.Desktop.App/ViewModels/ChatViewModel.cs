@@ -4,13 +4,14 @@ using System.Text.Json;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using Cts = KrnlAI.Contracts.Contracts;
+using Cts = KrnlAI.Contracts;
 using KrnlAI.Desktop.App.Controls;
 using KrnlAI.Desktop.App.Services;
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
 using KrnlAI.Desktop.Core.Services;
-using KrnlAI.Embedded;
+using KrnlAI.Embedded.Abstractions;
+using KrnlAI.Embedded.Services;
 using SlashCommandInfo = KrnlAI.Desktop.App.Services.SlashCommandInfo;
 
 namespace KrnlAI.Desktop.App.ViewModels;
@@ -18,7 +19,8 @@ namespace KrnlAI.Desktop.App.ViewModels;
 public class ChatViewModel : ViewModelBase
 {
     private readonly IKernelClient _kernelClient;
-    private EmbeddedKrnlAI? _embeddedKernel;
+    private IEmbeddedKrnlAI? _embeddedKernel;
+    private readonly System.Windows.Threading.DispatcherTimer? _initiativeTimer;
     private readonly IAudioCapture _audioCapture;
     private readonly IAudioPlayback _audioPlayback;
     private readonly IVideoCapture _videoCapture;
@@ -297,10 +299,12 @@ public class ChatViewModel : ViewModelBase
     public ICommand ShareConversationCommand { get; }
     public ICommand EditMessageCommand { get; }
     public ICommand DeleteMessageCommand { get; }
+    public ICommand SubmitFeedbackUpCommand { get; }
+    public ICommand SubmitFeedbackDownCommand { get; }
 
 
 
-    public ChatViewModel(IKernelClient kernelClient, IAudioCapture audioCapture, IAudioPlayback audioPlayback, IVideoCapture videoCapture, ILocalizationService localization, ISlashCommandExecutor slashHandler, ICognitiveStreamProvider cognitiveStream, ISessionPersistenceService? sessionStore = null, EmbeddedKrnlAI? embeddedKernel = null)
+    public ChatViewModel(IKernelClient kernelClient, IAudioCapture audioCapture, IAudioPlayback audioPlayback, IVideoCapture videoCapture, ILocalizationService localization, ISlashCommandExecutor slashHandler, ICognitiveStreamProvider cognitiveStream, ISessionPersistenceService? sessionStore = null, IEmbeddedKrnlAI? embeddedKernel = null)
     {
         _kernelClient = kernelClient;
         _embeddedKernel = embeddedKernel;
@@ -325,8 +329,25 @@ public class ChatViewModel : ViewModelBase
         ExportConversationCommand = new AsyncRelayCommand(ExportConversationAsync);
         ExportPdfCommand = new AsyncRelayCommand(ExportPdfAsync);
         ShareConversationCommand = new RelayCommand(ShareConversation);
-        EditMessageCommand = new AsyncRelayCommand(async p => { if (p is string id) await EditMessageAsync(id).ConfigureAwait(false); });
+        EditMessageCommand = new AsyncRelayCommand(async p => { if (p is string id) await EditMessageAsync(id); });
         DeleteMessageCommand = new RelayCommand(p => { if (p is string id) DeleteMessage(id); });
+        SubmitFeedbackUpCommand = new AsyncRelayCommand(p => SubmitFeedbackAsync(p, positive: true));
+        SubmitFeedbackDownCommand = new AsyncRelayCommand(p => SubmitFeedbackAsync(p, positive: false));
+
+        // Iniciativa: o kernel pode falar sem ser perguntado (somente em app WPF real).
+        try
+        {
+            if (System.Windows.Application.Current is not null)
+            {
+                _initiativeTimer = new System.Windows.Threading.DispatcherTimer
+                {
+                    Interval = TimeSpan.FromSeconds(10)
+                };
+                _initiativeTimer.Tick += async (_, _) => await PollInitiativesAsync();
+                _initiativeTimer.Start();
+            }
+        }
+        catch (Exception ex) { KrnlLogger.Write($"InitiativeTimer: {ex.Message}"); }
     }
 
     public ChatViewModel() : this(
@@ -374,7 +395,7 @@ public class ChatViewModel : ViewModelBase
         catch (Exception ex) { KrnlLogger.Write($"PersistMessages: {ex.Message}"); }
     }
 
-    private EmbeddedKrnlAI? GetOrCreateKernel()
+    private IEmbeddedKrnlAI? GetOrCreateKernel()
     {
         if (_embeddedKernel != null) return _embeddedKernel;
         if (ServiceLocator.Instance.CurrentMode != RunMode.Local) return null;
@@ -392,7 +413,7 @@ public class ChatViewModel : ViewModelBase
         // Check for slash command
         if (text.StartsWith("/"))
         {
-            var cmdResult = await _slashHandler.ExecuteAsync(text).ConfigureAwait(false);
+            var cmdResult = await _slashHandler.ExecuteAsync(text);
             InputText = "";
             if (cmdResult == "CLEAR_CONVERSATION")
             {
@@ -440,7 +461,7 @@ public class ChatViewModel : ViewModelBase
 
             if (GetOrCreateKernel() is { } kernel)
             {
-                var result = await kernel.RunAsync(text ?? "").ConfigureAwait(false);
+                var result = await kernel.RunAsync(text ?? "");
 
                 Messages.Add(new ChatMessage(
                     Guid.NewGuid().ToString(),
@@ -454,7 +475,7 @@ public class ChatViewModel : ViewModelBase
                 var response = await _kernelClient.RunAgentAsync(new Cts.AgentRunTransportRequest(
                     Prompt: text ?? "",
                     ImageBytes: imageBytes,
-                    ImageFormat: imageBytes != null ? "jpeg" : null)).ConfigureAwait(false);
+                    ImageFormat: imageBytes != null ? "jpeg" : null));
 
                 var narration = response?.Narration;
                 var error = response?.Error;
@@ -470,13 +491,13 @@ public class ChatViewModel : ViewModelBase
                 if (string.IsNullOrEmpty(error) && !string.IsNullOrEmpty(narration))
                 {
                     try { _ = _kernelClient.SubmitFeedbackAsync(new FeedbackRequest("chat", 5, narration, "agent-response")); }
-                    catch { }
+                    catch (Exception ex) { KrnlLogger.Write(ex); }
                 }
 
                 if (!string.IsNullOrEmpty(narration))
                 {
-                    var audio = await _kernelClient.GenerateSpeechAsync(narration).ConfigureAwait(false);
-                    if (_isTtsEnabled && audio.Length > 0) await _audioPlayback.PlayAsync(audio).ConfigureAwait(false);
+                    var audio = await _kernelClient.GenerateSpeechAsync(narration);
+                    if (_isTtsEnabled && audio.Length > 0) await _audioPlayback.PlayAsync(audio);
                 }
             }
         }
@@ -488,6 +509,61 @@ public class ChatViewModel : ViewModelBase
         {
             IsProcessing = false;
             _cognitiveStream.Disconnect();
+        }
+    }
+
+    /// <summary>
+    /// Registra feedback do usuário sobre uma resposta (👍/👎) como sinal de aprendizado do kernel.
+    /// </summary>
+    public async Task SubmitFeedbackAsync(object? parameter, bool positive)
+    {
+        if (parameter is not ChatMessage message || message.Role != MessageRole.Assistant)
+            return;
+
+        var kernel = GetOrCreateKernel();
+        if (kernel is null)
+            return;
+
+        try
+        {
+            await kernel.RecordFeedbackAsync(message.Content, positive).ConfigureAwait(false);
+        }
+        catch (Exception ex) { KrnlLogger.Write($"Feedback: {ex.Message}"); }
+    }
+
+    /// <summary>
+    /// Drena iniciativas do kernel (fala proativa sem prompt) e as exibe como mensagens.
+    /// </summary>
+    public async Task<int> PollInitiativesAsync()
+    {
+        var kernel = GetOrCreateKernel();
+        if (kernel is null)
+            return 0;
+
+        try
+        {
+            var initiatives = kernel.DrainInitiatives();
+            if (initiatives.Count == 0)
+                return 0;
+
+            foreach (var initiative in initiatives)
+            {
+                Messages.Add(new ChatMessage(
+                    Guid.NewGuid().ToString(),
+                    $"\U0001f4a1 {initiative.Text}",
+                    MessageRole.Assistant,
+                    DateTime.Now,
+                    MessageStatus.Completed,
+                    IsProactive: true));
+            }
+
+            PersistMessages();
+            return initiatives.Count;
+        }
+        catch (Exception ex)
+        {
+            KrnlLogger.Write($"Initiatives: {ex.Message}");
+            return 0;
         }
     }
 
@@ -529,9 +605,14 @@ public class ChatViewModel : ViewModelBase
             {
                 Icon = evt.Type switch
                 {
-                    "StepStarted" => "▶", "StepCompleted" => "✅", "ToolCalled" => "🔧",
-                    "Thought" => "💭", "SafetyCheck" => "🛡️", "Error" => "❌",
-                    "CycleCompleted" => "🏁", _ => "•"
+                    "StepStarted" => "▶",
+                    "StepCompleted" => "✅",
+                    "ToolCalled" => "🔧",
+                    "Thought" => "💭",
+                    "SafetyCheck" => "🛡️",
+                    "Error" => "❌",
+                    "CycleCompleted" => "🏁",
+                    _ => "•"
                 },
                 StepName = evt.StepName,
                 Content = evt.Content
@@ -544,12 +625,12 @@ public class ChatViewModel : ViewModelBase
     {
         if (IsCapturingAudio)
         {
-            var audioData = await _audioCapture.StopCaptureAndGetAudioAsync().ConfigureAwait(false);
+            var audioData = await _audioCapture.StopCaptureAndGetAudioAsync();
             IsCapturingAudio = false;
 
             if (audioData.Length > 0 && _kernelClient != null)
             {
-                var transcription = await _kernelClient.TranscribeAudioAsync(audioData).ConfigureAwait(false);
+                var transcription = await _kernelClient.TranscribeAudioAsync(audioData);
                 if (!string.IsNullOrEmpty(transcription))
                 {
                     InputText = (InputText + " " + transcription).Trim();
@@ -558,7 +639,7 @@ public class ChatViewModel : ViewModelBase
         }
         else
         {
-            await _audioCapture.StartCaptureAsync().ConfigureAwait(false);
+            await _audioCapture.StartCaptureAsync();
             IsCapturingAudio = true;
         }
     }
@@ -576,7 +657,7 @@ public class ChatViewModel : ViewModelBase
             if (devices.Count > 0)
             {
                 _videoCapture.FrameCaptured += OnFrameCaptured;
-                await _videoCapture.StartCaptureAsync(devices[0].Id).ConfigureAwait(false);
+                await _videoCapture.StartCaptureAsync(devices[0].Id);
                 IsCameraOn = true;
             }
         }
@@ -603,7 +684,7 @@ public class ChatViewModel : ViewModelBase
     {
         if (_lastFrameJpeg == null) return;
         StopCamera();
-        await SendMessageAsync().ConfigureAwait(false);
+        await SendMessageAsync();
     }
 
     private void DismissCameraPreview()
@@ -654,7 +735,7 @@ public class ChatViewModel : ViewModelBase
             Messages[idx] = msg with { Content = newContent };
             PersistMessages();
         }
-        await Task.CompletedTask.ConfigureAwait(false);
+        await Task.CompletedTask;
     }
 
     private void DeleteMessage(string messageId)
@@ -685,7 +766,7 @@ public class ChatViewModel : ViewModelBase
             foreach (var m in Messages)
                 html.AppendLine($"<div class='msg {m.Role.ToString().ToLower()}'><strong>{m.Role}:</strong> {System.Net.WebUtility.HtmlEncode(m.Content ?? "")}</div>");
             html.AppendLine("</body></html>");
-            await File.WriteAllTextAsync(dialog.FileName, html.ToString()).ConfigureAwait(false);
+            await File.WriteAllTextAsync(dialog.FileName, html.ToString());
         }
         catch (Exception ex) { KrnlLogger.Write($"ExportPdf: {ex.Message}"); }
     }
@@ -709,12 +790,12 @@ public class ChatViewModel : ViewModelBase
                 csv.AppendLine("Timestamp,Role,Content,ImageBase64");
                 foreach (var m in Messages)
                     csv.AppendLine($"\"{m.Timestamp:O}\",\"{m.Role}\",\"{m.Content?.Replace("\"", "\"\"")}\",\"{m.ImageBase64 ?? ""}\"");
-                await File.WriteAllTextAsync(dialog.FileName, csv.ToString()).ConfigureAwait(false);
+                await File.WriteAllTextAsync(dialog.FileName, csv.ToString());
             }
             else
             {
                 var json = JsonSerializer.Serialize(Messages.ToList(), new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
-                await File.WriteAllTextAsync(dialog.FileName, json).ConfigureAwait(false);
+                await File.WriteAllTextAsync(dialog.FileName, json);
             }
         }
         catch (Exception ex) { KrnlLogger.Write($"Export: {ex.Message}"); }
@@ -723,6 +804,7 @@ public class ChatViewModel : ViewModelBase
     public void Cleanup()
     {
         if (IsCameraOn) StopCamera();
+        _initiativeTimer?.Stop();
         _cognitiveStream.OnEvent -= OnCognitiveEvent;
         _cognitiveStream.Disconnect();
         if (_embeddedKernel != null)

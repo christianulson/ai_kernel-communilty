@@ -1,4 +1,3 @@
-using KrnlAI.Contracts.Contracts;
 using KrnlAI.Embedded.Abstractions;
 
 namespace KrnlAI.Sidecar.Rpc;

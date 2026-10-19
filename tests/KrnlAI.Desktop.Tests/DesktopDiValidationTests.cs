@@ -1,8 +1,6 @@
 using KrnlAI.Desktop.App.Services;
-using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Services;
 using KrnlAI.Desktop.Infrastructure.Abstractions;
-using KrnlAI.Desktop.Infrastructure.KernelClient;
 using KrnlAI.Desktop.Infrastructure.Settings;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -28,7 +26,8 @@ public sealed class DesktopDiValidationTests
         "IEpisodeClient", "IGoalClient", "IMemoryClient", "IPolicyClient",
         "ISnapshotClient", "IObjectiveClient", "IInvestigationClient",
         "ICognitiveStreamProvider", "ISlashCommandExecutor",
-        "IApprovalClient"
+        "IApprovalClient", "ISecurityClient", "IGovernanceClient",
+        "INotificationClient", "IProvenanceClient"
     ];
 
     [Fact]
@@ -94,6 +93,8 @@ public sealed class DesktopDiValidationTests
         services.AddSingleton<IAudioCapture>(_ => new AudioCaptureService(new SilentLogger<AudioCaptureService>()));
         services.AddSingleton<IAudioPlayback>(_ => new AudioPlaybackService(new SilentLogger<AudioPlaybackService>()));
         services.AddSingleton<IVideoCapture>(_ => new VideoCaptureService(new SilentLogger<VideoCaptureService>()));
+        services.AddSingleton<KrnlAI.Desktop.Core.Abstractions.ISpeechSynthesisService,
+            KrnlAI.Desktop.Infrastructure.Speech.WindowsSpeechSynthesisService>();
         services.AddSingleton<IListeningService>(sp => new ListeningService(
             sp.GetRequiredService<IAudioCapture>(),
             sp.GetRequiredService<IKernelAgentClient>(),

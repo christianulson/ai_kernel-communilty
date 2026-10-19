@@ -46,7 +46,7 @@ export class AgenticLoopManager {
         editManager?: ApplyEditManager,
         terminalManager?: TerminalManager,
         gitManager?: GitManager,
-        approvalGate?: ApprovalGate
+        approvalGate?: ApprovalGate,
     ) {
         this._client = client;
         this._editManager = editManager || new ApplyEditManager();
@@ -82,8 +82,12 @@ export class AgenticLoopManager {
             if (this._isComplete(planResult)) {
                 addStep({ type: 'complete', description: 'Tarefa concluída', success: true });
                 return {
-                    task, iterations: iteration, completed: true, steps, changes,
-                    durationMs: Date.now() - startTime
+                    task,
+                    iterations: iteration,
+                    completed: true,
+                    steps,
+                    changes,
+                    durationMs: Date.now() - startTime,
                 };
             }
 
@@ -111,11 +115,17 @@ export class AgenticLoopManager {
 
                 case 'edit': {
                     const step = addStep({
-                        type: 'edit', description: `Editando ${action.file}`, file: action.file,
-                        content: action.content
+                        type: 'edit',
+                        description: `Editando ${action.file}`,
+                        file: action.file,
+                        content: action.content,
                     });
 
-                    if (!currentContext.activeFile && currentContext.content && currentContext.activeFile !== action.file) {
+                    if (
+                        !currentContext.activeFile &&
+                        currentContext.content &&
+                        currentContext.activeFile !== action.file
+                    ) {
                         try {
                             const existingContent = await this._readFile(action.file!);
                             currentContext.content = existingContent;
@@ -131,7 +141,7 @@ export class AgenticLoopManager {
                         filePath: action.file!,
                         originalContent: currentContext.content || '',
                         newContent: action.content || '',
-                        label: `Iteração ${iteration}`
+                        label: `Iteração ${iteration}`,
                     };
 
                     const approved = await this._editManager.applyWithDiff(fileChange, this._approvalGate);
@@ -148,7 +158,9 @@ export class AgenticLoopManager {
 
                 case 'run': {
                     const step = addStep({
-                        type: 'run', description: `Executando: ${action.command}`, command: action.command
+                        type: 'run',
+                        description: `Executando: ${action.command}`,
+                        command: action.command,
                     });
 
                     if (!this._terminalManager) {
@@ -162,7 +174,7 @@ export class AgenticLoopManager {
                         if (this._approvalGate) {
                             const decision = await this._approvalGate.requestApproval(
                                 `Executar comando: ${action.command}`,
-                                [check.reason || 'Comando não está na allowlist']
+                                [check.reason || 'Comando não está na allowlist'],
                             );
                             if (decision === 'rejected') {
                                 step.success = false;
@@ -185,7 +197,7 @@ export class AgenticLoopManager {
                             type: 'think',
                             description: `Comando falhou (exit ${result.exitCode}). Planejando correção...`,
                             success: true,
-                            result: result.stderr
+                            result: result.stderr,
                         });
                     }
                     break;
@@ -193,13 +205,12 @@ export class AgenticLoopManager {
 
                 case 'search': {
                     const step = addStep({
-                        type: 'search', description: `Buscando: ${action.query}`
+                        type: 'search',
+                        description: `Buscando: ${action.query}`,
                     });
                     try {
-                        const files = await vscode.workspace.findFiles(
-                            action.query || '**/*', undefined, 10
-                        );
-                        step.result = files.map(f => f.fsPath).join('\n');
+                        const files = await vscode.workspace.findFiles(action.query || '**/*', undefined, 10);
+                        step.result = files.map((f) => f.fsPath).join('\n');
                         step.success = true;
                     } catch (err: any) {
                         step.success = false;
@@ -213,21 +224,24 @@ export class AgenticLoopManager {
         }
 
         return {
-            task, iterations: iteration, completed: false, steps, changes,
+            task,
+            iterations: iteration,
+            completed: false,
+            steps,
+            changes,
             error: `Máximo de ${MAX_ITERATIONS} iterações atingido`,
-            durationMs: Date.now() - startTime
+            durationMs: Date.now() - startTime,
         };
     }
 
-    private async _planNextStep(
-        task: string,
-        context: EditorContext,
-        previousSteps: LoopStep[]
-    ): Promise<string> {
+    private async _planNextStep(task: string, context: EditorContext, previousSteps: LoopStep[]): Promise<string> {
         const recentSteps = previousSteps.slice(-5);
-        const historyStr = recentSteps.map(s =>
-            `[${s.type}] ${s.description}${s.success === false ? ' (FALHOU)' : ''}${s.result ? `\n  Resultado: ${s.result.substring(0, 200)}` : ''}`
-        ).join('\n');
+        const historyStr = recentSteps
+            .map(
+                (s) =>
+                    `[${s.type}] ${s.description}${s.success === false ? ' (FALHOU)' : ''}${s.result ? `\n  Resultado: ${s.result.substring(0, 200)}` : ''}`,
+            )
+            .join('\n');
 
         const prompt = [
             `## Task`,
@@ -263,7 +277,13 @@ export class AgenticLoopManager {
         return plan.includes('COMPLETE') || plan.includes('complete') || plan.trim() === '';
     }
 
-    private _parseAction(plan: string): { type: 'read' | 'edit' | 'run' | 'search'; file?: string; command?: string; content?: string; query?: string } | null {
+    private _parseAction(plan: string): {
+        type: 'read' | 'edit' | 'run' | 'search';
+        file?: string;
+        command?: string;
+        content?: string;
+        query?: string;
+    } | null {
         const lines = plan.split('\n');
         let actionType = '';
         let details = '';
@@ -346,7 +366,7 @@ export class AgenticLoopManager {
                 diags.push({
                     message: d.message,
                     severity: d.severity === vscode.DiagnosticSeverity.Error ? 'error' : 'warning',
-                    source: d.source
+                    source: d.source,
                 });
             }
         }

@@ -20,8 +20,12 @@ public class VideoCallViewModel : ViewModelBase, IDisposable
     public string VideoCallState { get => _state; set { SetProperty(ref _state, value); OnPropertyChanged(nameof(VideoCallStateText)); } }
     public string VideoCallStateText => _state switch
     {
-        "Connecting" => "Conectando...", "Ringing" => "Chamando...", "Connected" => "Em chamada",
-        "Ended" => "Encerrada", "Failed" => "Falhou", _ => "Pronto"
+        "Connecting" => "Conectando...",
+        "Ringing" => "Chamando...",
+        "Connected" => "Em chamada",
+        "Ended" => "Encerrada",
+        "Failed" => "Falhou",
+        _ => "Pronto"
     };
     public bool IsVideoCallMuted { get => _muted; set => SetProperty(ref _muted, value); }
     public bool IsVideoCallCameraOn { get => _cameraOn; set => SetProperty(ref _cameraOn, value); }
@@ -50,7 +54,7 @@ public class VideoCallViewModel : ViewModelBase, IDisposable
 
     private async Task ToggleCallAsync()
     {
-        if (IsInVideoCall) { await EndCallAsync().ConfigureAwait(false); return; }
+        if (IsInVideoCall) { await EndCallAsync(); return; }
         if (_webRtc == null) { VideoCallState = "Failed"; return; }
 
         IsVideoCallMuted = false;
@@ -61,12 +65,12 @@ public class VideoCallViewModel : ViewModelBase, IDisposable
         var baseUrl = settings.ApiEndpoint ?? settings.ApiBaseUrl ?? "http://localhost:5235";
         var signalingUrl = baseUrl.TrimEnd('/') + "/signaling/webrtc";
 
-        var initialized = await _webRtc.InitializeAsync(signalingUrl, "stun.l.google.com:19302").ConfigureAwait(false);
+        var initialized = await _webRtc.InitializeAsync(signalingUrl, "stun.l.google.com:19302");
         if (!initialized) { VideoCallState = "Failed"; return; }
 
         if (!string.IsNullOrWhiteSpace(RemotePeerId))
         {
-            var connected = await _webRtc.ConnectToPeerAsync(RemotePeerId).ConfigureAwait(false);
+            var connected = await _webRtc.ConnectToPeerAsync(RemotePeerId);
             if (!connected) VideoCallState = "Failed";
         }
     }
@@ -74,10 +78,10 @@ public class VideoCallViewModel : ViewModelBase, IDisposable
     private async Task EndCallAsync()
     {
         if (_webRtc == null) return;
-        await _webRtc.DisconnectAsync().ConfigureAwait(false);
+        await _webRtc.DisconnectAsync();
         IsInVideoCall = false;
         VideoCallState = "Ended";
-        await Task.Delay(1500).ConfigureAwait(false);
+        await Task.Delay(1500);
         VideoCallState = "Idle";
     }
 

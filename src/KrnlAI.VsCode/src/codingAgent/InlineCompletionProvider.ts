@@ -3,8 +3,46 @@ import { CompletionCache } from './CompletionCache';
 
 const MAX_CONTEXT_LINES = 80;
 const MAX_FILE_SIZE = 100_000;
-const TRIGGER_CHARS = new Set(['.', ' ', '\n', '\t', '(', ')', '{', '}', '[', ']', ';', ':', '=', '+', '-', '*', '/', '>', '<', '!', '~', '&', '|', '%', ',']);
-const BLOCKED_PATHS = ['node_modules', '.git', 'bin', 'obj', 'dist', 'build', '.next', '.nuxt', 'venv', '.venv', '__pycache__'];
+const TRIGGER_CHARS = new Set([
+    '.',
+    ' ',
+    '\n',
+    '\t',
+    '(',
+    ')',
+    '{',
+    '}',
+    '[',
+    ']',
+    ';',
+    ':',
+    '=',
+    '+',
+    '-',
+    '*',
+    '/',
+    '>',
+    '<',
+    '!',
+    '~',
+    '&',
+    '|',
+    '%',
+    ',',
+]);
+const BLOCKED_PATHS = [
+    'node_modules',
+    '.git',
+    'bin',
+    'obj',
+    'dist',
+    'build',
+    '.next',
+    '.nuxt',
+    'venv',
+    '.venv',
+    '__pycache__',
+];
 
 let _currentSuggestion: string | null = null;
 
@@ -15,7 +53,7 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
 
     constructor(
         private readonly _getBaseUrl: () => string,
-        cache?: CompletionCache
+        cache?: CompletionCache,
     ) {
         this._cache = cache || new CompletionCache();
     }
@@ -44,7 +82,7 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
             if (!nextWordMatch) return;
 
             const nextWord = nextWordMatch[1];
-            editor.edit(builder => {
+            editor.edit((builder) => {
                 builder.insert(cursorPos, nextWord);
             });
 
@@ -64,7 +102,7 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
 
     private _isBlockedPath(filePath: string): boolean {
         const normalized = filePath.replace(/\\/g, '/');
-        return BLOCKED_PATHS.some(p => normalized.includes(`/${p}/`) || normalized.startsWith(`${p}/`));
+        return BLOCKED_PATHS.some((p) => normalized.includes(`/${p}/`) || normalized.startsWith(`${p}/`));
     }
 
     private _getContextHash(document: vscode.TextDocument, position: vscode.Position): string {
@@ -79,7 +117,7 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
         document: vscode.TextDocument,
         position: vscode.Position,
         context: vscode.InlineCompletionContext,
-        token: vscode.CancellationToken
+        token: vscode.CancellationToken,
     ): Promise<vscode.InlineCompletionItem[] | undefined> {
         const filePath = document.uri.fsPath;
 
@@ -87,7 +125,10 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
         if (document.getText().length > MAX_FILE_SIZE) return undefined;
 
         const contextHash = this._getContextHash(document, position);
-        if (contextHash === this._lastContextHash && context.triggerKind === vscode.InlineCompletionTriggerKind.Automatic) {
+        if (
+            contextHash === this._lastContextHash &&
+            context.triggerKind === vscode.InlineCompletionTriggerKind.Automatic
+        ) {
             this._lastContextHash = contextHash;
             return undefined;
         }
@@ -99,7 +140,7 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
 
         const cached = this._cache.get(prefix, language);
         if (cached) {
-            return cached.map(text => new vscode.InlineCompletionItem(text));
+            return cached.map((text) => new vscode.InlineCompletionItem(text));
         }
 
         if (this._pendingRequest) {
@@ -124,7 +165,7 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
                 this._cache.set(prefix, language, response.completions);
                 // Store the first suggestion for partial accept
                 _currentSuggestion = response.completions[0];
-                return response.completions.map(text => new vscode.InlineCompletionItem(text));
+                return response.completions.map((text) => new vscode.InlineCompletionItem(text));
             } else {
                 _currentSuggestion = null;
             }
@@ -143,7 +184,7 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
         prefix: string,
         language: string,
         filePath: string,
-        signal: AbortSignal
+        signal: AbortSignal,
     ): Promise<{ completions: string[] } | null> {
         const url = `${this._getBaseUrl()}/api/coding/complete`;
 
@@ -153,9 +194,9 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
             body: JSON.stringify({
                 codeContext: prefix.substring(Math.max(0, prefix.length - 2000)),
                 language,
-                filePath
+                filePath,
             }),
-            signal
+            signal,
         });
 
         if (!response.ok) return null;

@@ -13,19 +13,20 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.16.0" />
+    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.19.1" />
     <PackageReference Include="OpenTelemetry.Exporter.Prometheus.AspNetCore" Version="1.15.3-beta.1" />
-    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.16.0" />
-    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.15.2" />
-    <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.15.1" />
-    <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.15.1" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.19.1" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.19.0" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.19.0" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.19.0" />
     <PackageReference Include="StreamJsonRpc" Version="2.25.29" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.2" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
   </ItemGroup>
+
+
 
   <!-- Modo 1: Submodule (ProjectReference) -->
   <ItemGroup Condition="Exists('..\..\..\src\KrnlAI.Core\KrnlAI.Core.csproj')">
-    <ProjectReference Include="..\..\..\src\KrnlAI.Core\KrnlAI.Core.csproj" />
     <ProjectReference Include="..\..\..\src\KrnlAI.Infrastructure\KrnlAI.Infrastructure.csproj" />
     <ProjectReference Include="..\..\..\src\KrnlAI.Contracts\KrnlAI.Contracts.csproj" />
     <ProjectReference Include="..\..\..\src\KrnlAI.Embedded\KrnlAI.Embedded.csproj" />

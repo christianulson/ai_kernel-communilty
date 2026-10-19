@@ -1,6 +1,3 @@
-using KrnlAI.Desktop.App.ViewModels;
-using KrnlAI.Desktop.Core.Abstractions;
-using KrnlAI.Desktop.Core.Models;
 using Moq;
 
 namespace KrnlAI.Desktop.Tests.ViewModels;
@@ -80,7 +77,7 @@ public sealed class UserServicesViewModelTests
 
         var loadTask = vm.LoadAsync();
         Assert.True(vm.IsLoading);
-        tcs.SetResult(new List<UserServiceInfo>());
+        tcs.SetResult([]);
         await loadTask;
         Assert.False(vm.IsLoading);
     }

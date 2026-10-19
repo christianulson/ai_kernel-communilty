@@ -1,5 +1,3 @@
-using KrnlAI.Desktop.App.ViewModels;
-
 namespace KrnlAI.Desktop.Tests.ViewModels;
 
 public class ViewModelBaseTests
@@ -52,7 +50,7 @@ public class ViewModelBaseTests
     public void SetProperty_ShouldReturnTrueWhenChanged()
     {
         var vm = new TestViewModel();
-        
+
         vm.Name = "First";
         Assert.Equal("First", vm.Name);
     }

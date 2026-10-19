@@ -1,6 +1,5 @@
-using KrnlAI.Core.Abstractions;
-using KrnlAI.Embedded;
 using KrnlAI.Embedded.Abstractions;
+using KrnlAI.Embedded.Models;
 
 namespace KrnlAI.Sidecar.Tests;
 
@@ -45,5 +44,48 @@ public sealed class FakeEmbeddedKrnlAI : IEmbeddedKrnlAI
         return Task.FromResult(true);
     }
 
+    public List<KrnlAI.Core.Abstractions.Autonomy.InitiativeMessage> PendingInitiatives { get; } = [];
+
+    public Task RecordFeedbackAsync(string responseText, bool positive, CancellationToken ct = default)
+        => Task.CompletedTask;
+
+    public IReadOnlyList<KrnlAI.Core.Abstractions.Autonomy.InitiativeMessage> DrainInitiatives()
+    {
+        var drained = PendingInitiatives.ToList();
+        PendingInitiatives.Clear();
+        return drained;
+    }
+
+    public Task<KrnlAI.Contracts.MindSnapshot> GetMindSnapshotAsync(
+        string? userId = null,
+        CancellationToken ct = default)
+        => Task.FromResult(new KrnlAI.Contracts.MindSnapshot(
+            [], [], [], "neutral", 0, 0, 0, DateTimeOffset.UtcNow));
+
+    public Task<KrnlAI.Embedded.Models.EmbeddedCognitiveDashboard> GetCognitiveDashboardAsync(
+        CancellationToken ct = default)
+        => Task.FromResult(new KrnlAI.Embedded.Models.EmbeddedCognitiveDashboard(
+            0, [], [], null, "unknown",
+            new KrnlAI.Embedded.Models.EmbeddedDashboardMetrics(
+                0, 0, false, false, 0, 0, false, 0, 0, 0, 0, 0, 0, 0)));
+
+    public Task<KrnlAI.Embedded.Models.EmbeddedBenchmarkSummary> GetBenchmarkSummaryAsync(
+        CancellationToken ct = default)
+        => Task.FromResult(new KrnlAI.Embedded.Models.EmbeddedBenchmarkSummary(0, 0, 0, 0, 0, []));
+
+    public Task<IReadOnlyList<KrnlAI.Embedded.Models.EmbeddedSnapshotInfo>> GetSnapshotsAsync(
+        CancellationToken ct = default)
+        => Task.FromResult<IReadOnlyList<KrnlAI.Embedded.Models.EmbeddedSnapshotInfo>>([]);
+
+    public Task<KrnlAI.Embedded.Models.EmbeddedWorkingMemorySnapshot> GetWorkingMemorySnapshotAsync(
+        CancellationToken ct = default)
+        => Task.FromResult(new KrnlAI.Embedded.Models.EmbeddedWorkingMemorySnapshot(0, 0, [], 0, DateTimeOffset.UtcNow));
+
+    public Task<IReadOnlyList<KrnlAI.Embedded.Models.EmbeddedDocumentInfo>> GetDocumentsAsync(
+        int take = 50,
+        CancellationToken ct = default)
+        => Task.FromResult<IReadOnlyList<KrnlAI.Embedded.Models.EmbeddedDocumentInfo>>([]);
+
     public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 }
+

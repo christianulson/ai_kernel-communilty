@@ -10,7 +10,7 @@ describe('AutoReviewUI', () => {
                 details: ['Editing line 42'],
                 timestamp: Date.now(),
                 deadline: Date.now() + 30000,
-                status: 'pending'
+                status: 'pending',
             };
             const msg = formatApprovalMessage(approval);
             expect(msg.type).toBe('approval');

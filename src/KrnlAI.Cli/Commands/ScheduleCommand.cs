@@ -1,6 +1,5 @@
 using System.CommandLine;
 using KrnlAI.Cli.Services;
-using KrnlAI.Core.Abstractions;
 using Spectre.Console;
 
 namespace KrnlAI.Cli.Commands;
@@ -29,3 +28,4 @@ public sealed class ScheduleCommand(CliContext ctx, IAnsiConsole console)
         return cmd;
     }
 }
+

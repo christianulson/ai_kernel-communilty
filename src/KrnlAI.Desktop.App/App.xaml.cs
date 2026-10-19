@@ -49,9 +49,8 @@ public partial class App : Application
         }
 
         _mainWindow = new MainWindow();
-        _mainWindow.DataContext = new ViewModels.MainViewModel();
         _mainWindow.LogoutRequested += OnLogoutRequested;
-        
+
         if (!double.IsNaN(settings.WindowLeft) && !double.IsNaN(settings.WindowTop))
         {
             var screenWidth = SystemParameters.PrimaryScreenWidth;
@@ -64,7 +63,7 @@ public partial class App : Application
         if (settings.WindowWidth > 0) _mainWindow.Width = settings.WindowWidth;
         if (settings.WindowHeight > 0) _mainWindow.Height = settings.WindowHeight;
         if (settings.WindowMaximized) _mainWindow.WindowState = WindowState.Maximized;
-        
+
         _mainWindow.Closing += (s, args) =>
         {
             var currentSettings = settingsService.LoadSettings();
@@ -119,14 +118,14 @@ public partial class App : Application
         var startListeningItem = new System.Windows.Controls.MenuItem { Header = "Iniciar Escuta" };
         startListeningItem.Click += async (s, args) =>
         {
-            await ServiceLocator.Instance.ListeningService.StartListeningAsync().ConfigureAwait(false);
+            await ServiceLocator.Instance.ListeningService.StartListeningAsync();
             _toast?.Show("Krnl-AI", "Escuta contínua iniciada", ToastType.Success);
         };
 
         var stopListeningItem = new System.Windows.Controls.MenuItem { Header = "Parar Escuta" };
         stopListeningItem.Click += async (s, args) =>
         {
-            await ServiceLocator.Instance.ListeningService.StopListeningAsync().ConfigureAwait(false);
+            await ServiceLocator.Instance.ListeningService.StopListeningAsync();
             _toast?.Show("Krnl-AI", "Escuta contínua parada", ToastType.Info);
         };
 

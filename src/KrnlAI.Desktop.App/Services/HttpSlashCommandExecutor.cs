@@ -8,9 +8,9 @@ public sealed class HttpSlashCommandExecutor : ISlashCommandExecutor
 {
     private readonly HttpClient _http;
 
-    public HttpSlashCommandExecutor(string baseUrl = "http://localhost:5235")
+    public HttpSlashCommandExecutor(HttpClient http)
     {
-        _http = new HttpClient { BaseAddress = new Uri(baseUrl.TrimEnd('/')), Timeout = TimeSpan.FromSeconds(30) };
+        _http = http;
     }
 
     public async Task<string> ExecuteAsync(string input, CancellationToken ct = default)

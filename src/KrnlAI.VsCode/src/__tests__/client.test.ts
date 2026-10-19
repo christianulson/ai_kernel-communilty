@@ -1,16 +1,20 @@
 import { KernelClient } from '../api/client';
 
 // Mock vscode
-jest.mock('vscode', () => ({
-    workspace: {
-        getConfiguration: jest.fn()
-    }
-}), { virtual: true });
+jest.mock(
+    'vscode',
+    () => ({
+        workspace: {
+            getConfiguration: jest.fn(),
+        },
+    }),
+    { virtual: true },
+);
 
 const mockGetConfiguration = (overrides: Record<string, any> = {}) => {
     const vscode = require('vscode');
     vscode.workspace.getConfiguration.mockReturnValue({
-        get: (key: string, defaultVal?: any) => overrides[key] ?? defaultVal
+        get: (key: string, defaultVal?: any) => overrides[key] ?? defaultVal,
     });
 };
 
@@ -18,7 +22,7 @@ const mockFetch = (response: any, ok = true) => {
     (global as any).fetch = jest.fn().mockResolvedValue({
         ok,
         headers: { get: () => 'application/json' },
-        json: jest.fn().mockResolvedValue(response)
+        json: jest.fn().mockResolvedValue(response),
     });
 };
 
@@ -71,8 +75,9 @@ describe('KernelClient', () => {
 
         it('should send prompt in request body', async () => {
             const fetchMock = jest.fn().mockResolvedValue({
-                ok: true, headers: { get: () => 'application/json' },
-                json: jest.fn().mockResolvedValue({})
+                ok: true,
+                headers: { get: () => 'application/json' },
+                json: jest.fn().mockResolvedValue({}),
             });
             (global as any).fetch = fetchMock;
 
@@ -86,7 +91,14 @@ describe('KernelClient', () => {
     // ── getScorecard ──
     describe('getScorecard()', () => {
         it('should return scorecard data', async () => {
-            const data = { reliability: 0.95, efficiency: 0.88, safety: 0.99, antiLoop: 0.92, governance: 0.85, overall: 0.92 };
+            const data = {
+                reliability: 0.95,
+                efficiency: 0.88,
+                safety: 0.99,
+                antiLoop: 0.92,
+                governance: 0.85,
+                overall: 0.92,
+            };
             mockFetch(data);
             const result = await new KernelClient().getScorecard();
             expect(result).toEqual(data);
@@ -101,7 +113,9 @@ describe('KernelClient', () => {
     // ── getPolicies ──
     describe('getPolicies()', () => {
         it('should return policies list', async () => {
-            const policies = [{ id: 'p1', name: 'Pol 1', domain: 'http', version: '1.0', createdAt: '2024-01-01', isActive: true }];
+            const policies = [
+                { id: 'p1', name: 'Pol 1', domain: 'http', version: '1.0', createdAt: '2024-01-01', isActive: true },
+            ];
             mockFetch({ policies });
             const result = await new KernelClient().getPolicies();
             expect(result).toHaveLength(1);
@@ -109,7 +123,11 @@ describe('KernelClient', () => {
         });
 
         it('should pass domain filter', async () => {
-            const fetchMock = jest.fn().mockResolvedValue({ ok: true, headers: { get: () => 'application/json' }, json: jest.fn().mockResolvedValue({ policies: [] }) });
+            const fetchMock = jest.fn().mockResolvedValue({
+                ok: true,
+                headers: { get: () => 'application/json' },
+                json: jest.fn().mockResolvedValue({ policies: [] }),
+            });
             (global as any).fetch = fetchMock;
             await new KernelClient().getPolicies('security');
             expect(fetchMock.mock.calls[0][0]).toContain('domain=security');
@@ -139,7 +157,13 @@ describe('KernelClient', () => {
     // ── getEpisode ──
     describe('getEpisode()', () => {
         it('should return episode detail', async () => {
-            const detail = { id: 'e1', goalId: 'g1', status: 'completed', createdAt: '2024-01-01', steps: [{ label: 'Step 1', detail: 'OK', ok: true }] };
+            const detail = {
+                id: 'e1',
+                goalId: 'g1',
+                status: 'completed',
+                createdAt: '2024-01-01',
+                steps: [{ label: 'Step 1', detail: 'OK', ok: true }],
+            };
             mockFetch(detail);
             const result = await new KernelClient().getEpisode('e1');
             expect(result?.goalId).toBe('g1');
@@ -163,7 +187,11 @@ describe('KernelClient', () => {
         });
 
         it('should POST memory search using the shared runtime contract', async () => {
-            const fetchMock = jest.fn().mockResolvedValue({ ok: true, headers: { get: () => 'application/json' }, json: jest.fn().mockResolvedValue({ hits: [], totalCount: 0 }) });
+            const fetchMock = jest.fn().mockResolvedValue({
+                ok: true,
+                headers: { get: () => 'application/json' },
+                json: jest.fn().mockResolvedValue({ hits: [], totalCount: 0 }),
+            });
             (global as any).fetch = fetchMock;
             await new KernelClient().searchMemory('test query with spaces');
             expect(fetchMock.mock.calls[0][0]).toContain('/memory/search');
@@ -262,8 +290,8 @@ describe('KernelClient', () => {
                 expect.stringContaining('/api/coding/explain'),
                 expect.objectContaining({
                     method: 'POST',
-                    body: expect.stringContaining('const x = 1;')
-                })
+                    body: expect.stringContaining('const x = 1;'),
+                }),
             );
         });
 
@@ -349,7 +377,7 @@ describe('KernelClient', () => {
             expect(result).toBe(true);
             expect(global.fetch).toHaveBeenCalledWith(
                 expect.stringContaining('/admin/plugins/catalog/test-plugin/install'),
-                expect.objectContaining({ method: 'POST' })
+                expect.objectContaining({ method: 'POST' }),
             );
         });
 
@@ -371,7 +399,7 @@ describe('KernelClient', () => {
             expect(result.systemInfo).toEqual({ os: 'test' });
             expect(global.fetch).toHaveBeenCalledWith(
                 expect.stringContaining('/api/diagnostics/run'),
-                expect.objectContaining({ method: 'POST' })
+                expect.objectContaining({ method: 'POST' }),
             );
         });
 
@@ -398,6 +426,276 @@ describe('KernelClient', () => {
             mockFetchError();
             const result = await new KernelClient().suggestFix('code');
             expect(result).toBeNull();
+        });
+    });
+
+    // ── Backlog ──
+    describe('getBacklogItems()', () => {
+        it('should return list on success', async () => {
+            const items = [
+                {
+                    id: 'B-001',
+                    title: 'Test',
+                    description: '',
+                    status: 'Pending',
+                    priority: 'Medium',
+                    dependencies: [],
+                    tags: [],
+                },
+            ];
+            mockFetch(items);
+            const result = await new KernelClient().getBacklogItems();
+            expect(result).toEqual(items);
+        });
+
+        it('should pass status filter', async () => {
+            const items = [
+                {
+                    id: 'B-002',
+                    title: 'Test',
+                    description: '',
+                    status: 'InProgress',
+                    priority: 'High',
+                    dependencies: [],
+                    tags: [],
+                },
+            ];
+            mockFetch(items);
+            await new KernelClient().getBacklogItems('InProgress');
+            const calls = (global as any).fetch.mock.calls;
+            expect(calls[0][0]).toContain('status=InProgress');
+        });
+
+        it('should return null on error', async () => {
+            mockFetchError();
+            expect(await new KernelClient().getBacklogItems()).toBeNull();
+        });
+    });
+
+    describe('getBacklogItem()', () => {
+        it('should return item on success', async () => {
+            const item = {
+                id: 'B-001',
+                title: 'Test',
+                description: '',
+                status: 'Pending',
+                priority: 'Medium',
+                dependencies: [],
+                tags: [],
+            };
+            mockFetch(item);
+            const result = await new KernelClient().getBacklogItem('B-001');
+            expect(result).toEqual(item);
+        });
+
+        it('should return null on error', async () => {
+            mockFetchError();
+            expect(await new KernelClient().getBacklogItem('B-999')).toBeNull();
+        });
+    });
+
+    describe('createBacklogItem()', () => {
+        it('should POST and return created item', async () => {
+            const created = {
+                id: 'B-003',
+                title: 'New',
+                description: 'Desc',
+                status: 'Pending',
+                priority: 'Low',
+                dependencies: [],
+                tags: [],
+            };
+            mockFetch(created);
+            const result = await new KernelClient().createBacklogItem({
+                title: 'New',
+                description: 'Desc',
+                priority: 'Low',
+            });
+            expect(result).toEqual(created);
+        });
+
+        it('should return null on error', async () => {
+            mockFetchError();
+            const result = await new KernelClient().createBacklogItem({ title: 'X', priority: 'Low' });
+            expect(result).toBeNull();
+        });
+    });
+
+    describe('updateBacklogStatus()', () => {
+        it('should PATCH and return updated item', async () => {
+            const updated = {
+                id: 'B-001',
+                title: 'Test',
+                description: '',
+                status: 'InProgress',
+                priority: 'Medium',
+                dependencies: [],
+                tags: [],
+            };
+            mockFetch(updated);
+            const result = await new KernelClient().updateBacklogStatus('B-001', 'InProgress');
+            expect(result).toEqual(updated);
+        });
+
+        it('should return null on error', async () => {
+            mockFetchError();
+            expect(await new KernelClient().updateBacklogStatus('B-999', 'Done')).toBeNull();
+        });
+    });
+
+    describe('deleteBacklogItem()', () => {
+        it('should return true on success', async () => {
+            mockFetch(null, true);
+            const result = await new KernelClient().deleteBacklogItem('B-001');
+            expect(result).toBe(true);
+        });
+
+        it('should return false on error', async () => {
+            mockFetchError();
+            expect(await new KernelClient().deleteBacklogItem('B-001')).toBe(false);
+        });
+    });
+
+    // ── QA ──
+    describe('runQATest()', () => {
+        it('should POST and return run', async () => {
+            const run = { id: 'QA-001', targetType: 'Smoke', status: 'Running', steps: [], results: '', evidence: [] };
+            mockFetch(run);
+            const result = await new KernelClient().runQATest({
+                targetType: 'Smoke',
+                endpoint: 'http://localhost',
+                timeoutSeconds: 30,
+            });
+            expect(result).toEqual(run);
+        });
+
+        it('should return null on error', async () => {
+            mockFetchError();
+            expect(
+                await new KernelClient().runQATest({ targetType: 'Api', endpoint: 'http://test', timeoutSeconds: 10 }),
+            ).toBeNull();
+        });
+    });
+
+    describe('getQARuns()', () => {
+        it('should return list on success', async () => {
+            const runs = [
+                { id: 'QA-001', targetType: 'Smoke', status: 'Passed', steps: [], results: 'OK', evidence: [] },
+            ];
+            mockFetch(runs);
+            expect(await new KernelClient().getQARuns()).toEqual(runs);
+        });
+
+        it('should return null on error', async () => {
+            mockFetchError();
+            expect(await new KernelClient().getQARuns()).toBeNull();
+        });
+    });
+
+    describe('getQARun()', () => {
+        it('should return run on success', async () => {
+            const run = { id: 'QA-001', targetType: 'Smoke', status: 'Passed', steps: [], results: 'OK', evidence: [] };
+            mockFetch(run);
+            expect(await new KernelClient().getQARun('QA-001')).toEqual(run);
+        });
+
+        it('should return null on error', async () => {
+            mockFetchError();
+            expect(await new KernelClient().getQARun('QA-999')).toBeNull();
+        });
+    });
+
+    describe('getQARunEvidence()', () => {
+        it('should return evidence on success', async () => {
+            mockFetch(['output.log', 'screenshot.png']);
+            expect(await new KernelClient().getQARunEvidence('QA-001')).toEqual(['output.log', 'screenshot.png']);
+        });
+
+        it('should return null on error', async () => {
+            mockFetchError();
+            expect(await new KernelClient().getQARunEvidence('QA-999')).toBeNull();
+        });
+    });
+
+    // ── Loop Execution ──
+    describe('startLoop()', () => {
+        it('should POST and return execution', async () => {
+            const exec = {
+                id: 'L-001',
+                itemId: 'B-001',
+                itemType: 'Backend',
+                iterations: 1,
+                currentStep: 0,
+                status: 'Running',
+                baselineRef: null,
+                steps: [],
+            };
+            mockFetch(exec);
+            const result = await new KernelClient().startLoop('B-001');
+            expect(result).toEqual(exec);
+        });
+
+        it('should return null on error', async () => {
+            mockFetchError();
+            expect(await new KernelClient().startLoop('B-999')).toBeNull();
+        });
+    });
+
+    describe('getLoopStatus()', () => {
+        it('should return execution on success', async () => {
+            const exec = {
+                id: 'L-001',
+                itemId: 'B-001',
+                itemType: 'Backend',
+                iterations: 1,
+                currentStep: 0,
+                status: 'Running',
+                baselineRef: null,
+                steps: [],
+            };
+            mockFetch(exec);
+            expect(await new KernelClient().getLoopStatus('L-001')).toEqual(exec);
+        });
+
+        it('should return null on error', async () => {
+            mockFetchError();
+            expect(await new KernelClient().getLoopStatus('L-999')).toBeNull();
+        });
+    });
+
+    describe('getLoopIterations()', () => {
+        it('should return list on success', async () => {
+            const execs = [
+                {
+                    id: 'L-001',
+                    itemId: 'B-001',
+                    itemType: 'Backend',
+                    iterations: 1,
+                    currentStep: 0,
+                    status: 'Passed',
+                    baselineRef: null,
+                    steps: [],
+                },
+            ];
+            mockFetch(execs);
+            expect(await new KernelClient().getLoopIterations('B-001')).toEqual(execs);
+        });
+
+        it('should return null on error', async () => {
+            mockFetchError();
+            expect(await new KernelClient().getLoopIterations('B-999')).toBeNull();
+        });
+    });
+
+    describe('cancelLoop()', () => {
+        it('should return true on success', async () => {
+            mockFetch(null, true);
+            expect(await new KernelClient().cancelLoop('L-001')).toBe(true);
+        });
+
+        it('should return false on error', async () => {
+            mockFetchError();
+            expect(await new KernelClient().cancelLoop('L-001')).toBe(false);
         });
     });
 });

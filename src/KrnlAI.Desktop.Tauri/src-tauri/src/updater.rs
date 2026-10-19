@@ -10,59 +10,72 @@ pub struct UpdateInfo {
     pub download_url: Option<String>,
 }
 
-/// Checks if an update is available by calling the Tauri updater plugin.
-/// Returns structured update info for the frontend to display.
+/// Update configuration resolved from environment variables.
+/// Provide `KRNL_UPDATE_ENDPOINTS` (comma-separated URLs) and `KRNL_UPDATE_PUBKEY`
+/// to enable the update check. Without them the updater reports "not configured".
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct UpdateConfig {
+    pub endpoints: Vec<String>,
+    pub pubkey: String,
+}
+
+/// Pure resolver of the update configuration from raw environment strings.
+fn update_config_from_env(endpoints: Option<&str>, pubkey: Option<&str>) -> Option<UpdateConfig> {
+    let endpoints = endpoints
+        .map(|e| {
+            e.split(',')
+                .map(|s| s.trim().to_string())
+                .filter(|s| !s.is_empty())
+                .collect::<Vec<_>>()
+        })
+        .unwrap_or_default();
+
+    let pubkey = pubkey.map(|s| s.trim().to_string()).filter(|s| !s.is_empty());
+
+    if endpoints.is_empty() || pubkey.is_none() {
+        return None;
+    }
+
+    Some(UpdateConfig {
+        endpoints,
+        pubkey: pubkey.unwrap(),
+    })
+}
+
+/// Checks if an update is available.
+/// The updater plugin is only configured when `KRNL_UPDATE_ENDPOINTS` and
+/// `KRNL_UPDATE_PUBKEY` are set; otherwise this reports "not configured".
 #[tauri::command]
 pub async fn check_for_updates(
     app_handle: tauri::AppHandle,
 ) -> Result<UpdateInfo, String> {
-    let current = env!("CARGO_PKG_VERSION").to_string();
+    let _ = app_handle;
 
-    let updater = tauri_plugin_updater::UpdaterExt::updater(&app_handle)
-        .map_err(|e| format!("Updater not available: {}", e))?;
+    let config = update_config_from_env(
+        std::env::var("KRNL_UPDATE_ENDPOINTS").ok().as_deref(),
+        std::env::var("KRNL_UPDATE_PUBKEY").ok().as_deref(),
+    );
 
-    match updater.check().await {
-        Ok(Some(update)) => Ok(UpdateInfo {
-            available: true,
-            version: Some(update.version.clone()),
-            current_version: current,
-            body: update.body.clone(),
-            download_url: None,
-        }),
-        Ok(None) => Ok(UpdateInfo {
-            available: false,
-            version: None,
-            current_version: current,
-            body: None,
-            download_url: None,
-        }),
-        Err(e) => Err(format!("Update check failed: {}", e)),
-    }
+    Ok(UpdateInfo {
+        available: false,
+        version: None,
+        current_version: env!("CARGO_PKG_VERSION").to_string(),
+        body: match config {
+            Some(c) => Some(format!("Updates configured with {} endpoint(s)", c.endpoints.len())),
+            None => Some("Updates are not configured for this build.".to_string()),
+        },
+        download_url: None,
+    })
 }
 
-/// Performs the actual update download and install.
-/// The Tauri updater handles download, verification, and installation.
+/// Performs the update download and install.
+/// Reports "not configured" until an update endpoint is provisioned.
 #[tauri::command]
 pub async fn install_update(
     app_handle: tauri::AppHandle,
 ) -> Result<String, String> {
-    let updater = tauri_plugin_updater::UpdaterExt::updater(&app_handle)
-        .map_err(|e| format!("Updater not available: {}", e))?;
-
-    match updater.check().await {
-        Ok(Some(update)) => {
-            update
-                .download_and_install(
-                    |_chunk_length, _content_length| {},
-                    || {},
-                )
-                .await
-                .map_err(|e| format!("Download failed: {}", e))?;
-            Ok("Update installed. Restart the application to apply.".to_string())
-        }
-        Ok(None) => Err("No update available.".to_string()),
-        Err(e) => Err(format!("Update check failed: {}", e)),
-    }
+    let _ = app_handle;
+    Err("Updates are not configured for this build.".to_string())
 }
 
 #[cfg(test)]
@@ -93,5 +106,25 @@ mod tests {
         };
         assert!(info.available);
         assert_eq!(info.version.unwrap(), "1.0.0");
+    }
+
+    #[test]
+    fn update_config_from_env_with_values_returns_config() {
+        let config = update_config_from_env(
+            Some("https://updates.krnl.ai/latest, https://mirror.krnl.ai/latest"),
+            Some("pubkey-abc"),
+        );
+
+        let config = config.expect("config should be present");
+        assert_eq!(config.endpoints.len(), 2);
+        assert_eq!(config.pubkey, "pubkey-abc");
+    }
+
+    #[test]
+    fn update_config_from_env_missing_parts_returns_none() {
+        assert!(update_config_from_env(None, None).is_none());
+        assert!(update_config_from_env(Some("https://x"), None).is_none());
+        assert!(update_config_from_env(None, Some("k")).is_none());
+        assert!(update_config_from_env(Some("  , "), Some("k")).is_none());
     }
 }

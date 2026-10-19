@@ -14,6 +14,8 @@ public class SettingsViewModel : ViewModelBase, IDisposable
     private readonly ISettingsService _settingsService;
     private readonly IListeningService? _listeningService;
     private readonly IAudioPlayback _audioPlayback;
+    private readonly IAudioCapture? _audioCapture;
+    private readonly IVideoCapture? _videoCapture;
     private readonly IThemeService _themeService;
     private readonly ILogger<SettingsViewModel> _logger;
     private readonly System.Threading.Timer? _debounceTimer;
@@ -32,7 +34,14 @@ public class SettingsViewModel : ViewModelBase, IDisposable
             }
             if (SetProperty(ref _apiEndpoint, value))
             {
-                if (_kernelClient != null) _kernelClient.SetBaseUrl(value);
+                if (_kernelClient != null)
+                {
+                    // Tokens are scoped to the endpoint that issued them. Never carry them to a new host.
+                    _kernelClient.SetTokens(null, null);
+                    _kernelClient.SetBaseUrl(value);
+                    var settings = _settingsService.LoadSettings();
+                    _settingsService.SaveSettings(settings with { AuthToken = null, RefreshToken = null, IsAuthenticated = false });
+                }
                 _debounceTimer?.Change(DebounceMs, Timeout.Infinite);
             }
         }
@@ -112,12 +121,15 @@ public class SettingsViewModel : ViewModelBase, IDisposable
     public ICommand ToggleThemeCommand { get; }
     public ICommand SaveHotkeysCommand { get; }
 
-    public SettingsViewModel(IKernelClient kernelClient, ISettingsService settingsService, IListeningService listeningService, IAudioPlayback audioPlayback, IThemeService themeService)
+    public SettingsViewModel(IKernelClient kernelClient, ISettingsService settingsService, IListeningService listeningService, IAudioPlayback audioPlayback, IThemeService themeService,
+        IAudioCapture? audioCapture = null, IVideoCapture? videoCapture = null)
     {
         _kernelClient = kernelClient;
         _settingsService = settingsService;
         _listeningService = listeningService;
         _audioPlayback = audioPlayback;
+        _audioCapture = audioCapture;
+        _videoCapture = videoCapture;
         _themeService = themeService;
         _themeService.ThemeChanged += OnExternalThemeChanged;
         _logger = ServiceLocator.Instance.GetLogger<SettingsViewModel>();
@@ -149,7 +161,8 @@ public class SettingsViewModel : ViewModelBase, IDisposable
         ServiceLocator.Instance.SettingsService,
         ServiceLocator.Instance.ListeningService,
         ServiceLocator.Instance.AudioPlayback,
-        ServiceLocator.Instance.ThemeSvc) { }
+        ServiceLocator.Instance.ThemeSvc)
+    { }
 
     private void OnExternalThemeChanged(object? sender, string themeName)
     {
@@ -183,9 +196,9 @@ public class SettingsViewModel : ViewModelBase, IDisposable
     public void LoadDevices()
     {
         Microphones.Clear(); Speakers.Clear(); Cameras.Clear();
-        try { foreach (var d in ServiceLocator.Instance.AudioCapture.GetAvailableDevices()) Microphones.Add(d); } catch (Exception ex) { _logger.LogError(ex, "LoadDevices (Microphones)"); }
+        try { foreach (var d in (_audioCapture ?? ServiceLocator.Instance.AudioCapture).GetAvailableDevices()) Microphones.Add(d); } catch (Exception ex) { _logger.LogError(ex, "LoadDevices (Microphones)"); }
         try { foreach (var d in _audioPlayback.GetAvailableDevices()) Speakers.Add(d); } catch (Exception ex) { _logger.LogError(ex, "LoadDevices (Speakers)"); }
-        try { foreach (var d in ServiceLocator.Instance.VideoCapture.GetAvailableDevices()) Cameras.Add(d); } catch (Exception ex) { _logger.LogError(ex, "LoadDevices (Cameras)"); }
+        try { foreach (var d in (_videoCapture ?? ServiceLocator.Instance.VideoCapture).GetAvailableDevices()) Cameras.Add(d); } catch (Exception ex) { _logger.LogError(ex, "LoadDevices (Cameras)"); }
         if (Microphones.Count > 0) SelectedMicrophone = Microphones[0];
         if (Speakers.Count > 0) SelectedSpeaker = Speakers[0];
         if (Cameras.Count > 0) SelectedCamera = Cameras[0];
@@ -196,11 +209,20 @@ public class SettingsViewModel : ViewModelBase, IDisposable
         var s = _settingsService.LoadSettings();
         _settingsService.SaveSettings(s with
         {
-            SelectedMicrophoneId = SelectedMicrophone?.Id, SelectedCameraId = SelectedCamera?.Id,
-            SelectedSpeakerId = SelectedSpeaker?.Id, ApiBaseUrl = _apiEndpoint, ApiEndpoint = _apiEndpoint,
-            SpeakerVolume = _speakerVol, VoiceDetectionThreshold = _vadThreshold, SilenceDurationMs = _silenceMs,
-            Theme = IsDarkTheme ? "dark" : "light", AuthToken = s.AuthToken, Username = s.Username,
-            IsAuthenticated = s.IsAuthenticated, AutoDarkMode = _autoDarkMode, ChatFontSize = _chatFontSize
+            SelectedMicrophoneId = SelectedMicrophone?.Id,
+            SelectedCameraId = SelectedCamera?.Id,
+            SelectedSpeakerId = SelectedSpeaker?.Id,
+            ApiBaseUrl = _apiEndpoint,
+            ApiEndpoint = _apiEndpoint,
+            SpeakerVolume = _speakerVol,
+            VoiceDetectionThreshold = _vadThreshold,
+            SilenceDurationMs = _silenceMs,
+            Theme = IsDarkTheme ? "dark" : "light",
+            AuthToken = s.AuthToken,
+            Username = s.Username,
+            IsAuthenticated = s.IsAuthenticated,
+            AutoDarkMode = _autoDarkMode,
+            ChatFontSize = _chatFontSize
         });
     }
 
@@ -210,15 +232,15 @@ public class SettingsViewModel : ViewModelBase, IDisposable
         if (ServiceLocator.Instance.CurrentMode == RunMode.Local)
         {
             DeviceTestStatus = "Indisponível no modo Local";
-            await Task.Delay(1500).ConfigureAwait(false);
+            await Task.Delay(1500);
             DeviceTestStatus = "";
             return;
         }
         DeviceTestStatus = "Testando...";
-        var a = _kernelClient != null ? await _kernelClient.GenerateSpeechAsync("Teste").ConfigureAwait(false) : [];
-        if (a.Length > 0) await _audioPlayback.PlayAsync(a).ConfigureAwait(false);
+        var a = _kernelClient != null ? await _kernelClient.GenerateSpeechAsync("Teste") : [];
+        if (a.Length > 0) await _audioPlayback.PlayAsync(a);
         DeviceTestStatus = "OK";
-        await Task.Delay(1500).ConfigureAwait(false);
+        await Task.Delay(1500);
         DeviceTestStatus = "";
     }
     private async Task TestMicAsync()
@@ -226,24 +248,24 @@ public class SettingsViewModel : ViewModelBase, IDisposable
         if (ServiceLocator.Instance.CurrentMode == RunMode.Local)
         {
             DeviceTestStatus = "Teste local (sem transcrição)";
-            await ServiceLocator.Instance.AudioCapture.StartCaptureAsync(SelectedMicrophone?.Id).ConfigureAwait(false);
-            await Task.Delay(2000).ConfigureAwait(false);
-            await ServiceLocator.Instance.AudioCapture.StopCaptureAsync().ConfigureAwait(false);
+            await ServiceLocator.Instance.AudioCapture.StartCaptureAsync(SelectedMicrophone?.Id);
+            await Task.Delay(2000);
+            await ServiceLocator.Instance.AudioCapture.StopCaptureAsync();
             DeviceTestStatus = "OK";
-            await Task.Delay(1500).ConfigureAwait(false);
+            await Task.Delay(1500);
             DeviceTestStatus = "";
             return;
         }
         DeviceTestStatus = "Gravando...";
-        await ServiceLocator.Instance.AudioCapture.StartCaptureAsync(SelectedMicrophone?.Id).ConfigureAwait(false);
-        await Task.Delay(2000).ConfigureAwait(false);
-        await ServiceLocator.Instance.AudioCapture.StopCaptureAsync().ConfigureAwait(false);
+        await ServiceLocator.Instance.AudioCapture.StartCaptureAsync(SelectedMicrophone?.Id);
+        await Task.Delay(2000);
+        await ServiceLocator.Instance.AudioCapture.StopCaptureAsync();
         DeviceTestStatus = "OK";
-        await Task.Delay(1500).ConfigureAwait(false);
+        await Task.Delay(1500);
         DeviceTestStatus = "";
     }
-    private async Task TestCamAsync() { DeviceTestStatus = "Testando..."; try { var c = ServiceLocator.Instance.VideoCapture.GetAvailableDevices(); DeviceTestStatus = c.Any() ? $"Câmera: {c[0].Name}" : "Nenhuma"; } catch { DeviceTestStatus = "Erro"; } await Task.Delay(1500).ConfigureAwait(false); DeviceTestStatus = ""; }
-    private async Task TestRtcAsync() { DeviceTestStatus = "Não implementado (WebRTC)"; await Task.Delay(1500).ConfigureAwait(false); DeviceTestStatus = ""; }
+    private async Task TestCamAsync() { DeviceTestStatus = "Testando..."; try { var c = ServiceLocator.Instance.VideoCapture.GetAvailableDevices(); DeviceTestStatus = c.Any() ? $"Câmera: {c[0].Name}" : "Nenhuma"; } catch { DeviceTestStatus = "Erro"; } await Task.Delay(1500); DeviceTestStatus = ""; }
+    private async Task TestRtcAsync() { DeviceTestStatus = "Não implementado (WebRTC)"; await Task.Delay(1500); DeviceTestStatus = ""; }
 
     // --- MCP Servers ---
     public ObservableCollection<McpServerInfo> McpServers { get; } = [];
@@ -254,7 +276,7 @@ public class SettingsViewModel : ViewModelBase, IDisposable
         if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return;
         try
         {
-            var servers = await _kernelClient.GetMcpServersAsync().ConfigureAwait(false);
+            var servers = await _kernelClient.GetMcpServersAsync();
             UiThreadInvoker.Invoke(() =>
             {
                 McpServers.Clear();
@@ -268,7 +290,7 @@ public class SettingsViewModel : ViewModelBase, IDisposable
     {
         if (_kernelClient == null) return;
         if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return;
-        var ok = await _kernelClient.ToggleMcpServerAsync(serverId, enabled).ConfigureAwait(false);
-        if (ok) await LoadMcpServersAsync().ConfigureAwait(false);
+        var ok = await _kernelClient.ToggleMcpServerAsync(serverId, enabled);
+        if (ok) await LoadMcpServersAsync();
     }
 }

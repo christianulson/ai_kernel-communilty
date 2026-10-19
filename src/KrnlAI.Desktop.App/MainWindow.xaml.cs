@@ -17,7 +17,7 @@ public partial class MainWindow : Window
     public event EventHandler? LogoutRequested;
 
     private readonly MainViewModel? _vm;
-    private EventHandler? _logoutHandler;
+    private readonly EventHandler? _logoutHandler;
 
     public MainWindow()
     {

@@ -41,8 +41,8 @@
                         Click="OnSuspendClick"/>
             </StackPanel>
 
-            <ItemsControl ItemsSource="{Binding AdminUsersVM.Users}">
-                <ItemsControl.ItemTemplate>
+            <ListBox ItemsSource="{Binding AdminUsersVM.Users}" SelectedItem="{Binding AdminUsersVM.SelectedUser, Mode=TwoWay}" HorizontalContentAlignment="Stretch">
+                <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Border Background="{DynamicResource PanelBrush}" CornerRadius="12"
                                 BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
@@ -79,8 +79,8 @@
                             </Grid>
                         </Border>
                     </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                </ListBox.ItemTemplate>
+            </ListBox>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

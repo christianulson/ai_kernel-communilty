@@ -1,9 +1,6 @@
-using System.CommandLine;
-using KrnlAI.Cli.Commands;
-using Spectre.Console.Testing;
-
 namespace KrnlAI.Cli.Tests;
 
+[Collection("ProcessWorkingDirectory")]
 public sealed class ConfigCommandTests
 {
     [Fact]

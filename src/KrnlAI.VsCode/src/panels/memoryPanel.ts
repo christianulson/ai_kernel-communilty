@@ -14,19 +14,29 @@ export class MemoryPanel {
         this._nonce = Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10);
         this._panel.webview.html = this._getHtml();
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
-        this._panel.webview.onDidReceiveMessage(msg => this._handle(msg), null, this._disposables);
+        this._panel.webview.onDidReceiveMessage((msg) => this._handle(msg), null, this._disposables);
     }
 
     static createOrShow() {
-        if (MemoryPanel.currentPanel) { MemoryPanel.currentPanel._panel.reveal(); return; }
-        const panel = vscode.window.createWebviewPanel('krnlai.memory', 'Krnl-AI - Memória', vscode.ViewColumn.Beside, { enableScripts: true, retainContextWhenHidden: true });
+        if (MemoryPanel.currentPanel) {
+            MemoryPanel.currentPanel._panel.reveal();
+            return;
+        }
+        const panel = vscode.window.createWebviewPanel('krnlai.memory', 'Krnl-AI - Memória', vscode.ViewColumn.Beside, {
+            enableScripts: true,
+            retainContextWhenHidden: true,
+        });
         MemoryPanel.currentPanel = new MemoryPanel(panel);
     }
 
     private async _handle(msg: any) {
         if (msg.type === 'search') {
             const result = await this._client.searchMemory(msg.query);
-            this._panel.webview.postMessage({ type: 'results', hits: result?.hits || [], total: result?.totalCount || 0 });
+            this._panel.webview.postMessage({
+                type: 'results',
+                hits: result?.hits || [],
+                total: result?.totalCount || 0,
+            });
         }
         if (msg.type === 'metrics') {
             const metrics = await this._client.getMemoryMetrics();
@@ -34,7 +44,9 @@ export class MemoryPanel {
         }
     }
 
-    private _getHtml(): string { const nonce = this._nonce; return `<!DOCTYPE html>
+    private _getHtml(): string {
+        const nonce = this._nonce;
+        return `<!DOCTYPE html>
 <html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'nonce-${nonce}'; script-src 'nonce-${nonce}';">
 <title>Memória</title>
@@ -54,9 +66,9 @@ button{padding:8px 16px;background:var(--vscode-button-background);color:var(--v
 #search-page,#metrics-page{display:none}
 </style></head><body>
 <h1>🧠 Memória</h1><p>Busca semântica e métricas.</p>
-<div class="tabs"><div class="tab active" id="tab-search" onclick="showTab('search')">🔍 Busca</div><div class="tab" id="tab-metrics" onclick="showTab('metrics')">📊 Métricas</div></div>
-<div id="search-page"><div class="search-area"><input id="query" placeholder="Digite sua busca..." /><button onclick="search()">Buscar</button></div><div id="results"></div></div>
-<div id="metrics-page"><button onclick="loadMetrics()">↻ Atualizar</button>
+<div class="tabs"><div class="tab active" id="tab-search">🔍 Busca</div><div class="tab" id="tab-metrics">📊 Métricas</div></div>
+<div id="search-page"><div class="search-area"><input id="query" placeholder="Digite sua busca..." /><button id="btn-search">Buscar</button></div><div id="results"></div></div>
+<div id="metrics-page"><button id="btn-load-metrics">↻ Atualizar</button>
 <div class="metrics-grid"><div class="metric"><div class="val" id="m-chunks">--</div><div class="lbl">Chunks</div></div>
 <div class="metric"><div class="val" id="m-docs">--</div><div class="lbl">Documentos</div></div>
 <div class="metric"><div class="val" id="m-size">--</div><div class="lbl">Bytes</div></div></div></div>
@@ -77,8 +89,17 @@ function search(){const q=(document.getElementById('query')as HTMLInputElement).
 function loadMetrics(){vscode.postMessage({type:'metrics'});}
 function showTab(t){['search','metrics'].forEach(x=>{const e=document.getElementById('tab-'+x)!;e.className=x===t?'tab active':'tab';document.getElementById(x+'-page')!.style.display=x===t?'block':'none';});
 if(t==='metrics')loadMetrics();}
+document.getElementById('tab-search')!.addEventListener('click',()=>showTab('search'));
+document.getElementById('tab-metrics')!.addEventListener('click',()=>showTab('metrics'));
+document.getElementById('btn-search')!.addEventListener('click',search);
+document.getElementById('btn-load-metrics')!.addEventListener('click',loadMetrics);
 showTab('search');
-})();</script></body></html>`; }
+})();</script></body></html>`;
+    }
 
-    public dispose() { MemoryPanel.currentPanel = undefined; this._panel.dispose(); while (this._disposables.length) this._disposables.pop()!.dispose(); }
+    public dispose() {
+        MemoryPanel.currentPanel = undefined;
+        this._panel.dispose();
+        while (this._disposables.length) this._disposables.pop()!.dispose();
+    }
 }

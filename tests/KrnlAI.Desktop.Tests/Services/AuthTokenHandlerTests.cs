@@ -1,6 +1,3 @@
-using System.Net;
-using KrnlAI.Desktop.Infrastructure.KernelClient;
-
 namespace KrnlAI.Desktop.Tests.Services;
 
 public class AuthTokenHandlerTests
@@ -66,6 +63,36 @@ public class AuthTokenHandlerTests
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Equal(1, callCount);
         Assert.Equal("refreshed-token", tokenProvider.Token);
+    }
+
+    [Fact]
+    public async Task SendAsync_On401ForPost_ShouldNotRetryNonIdempotentRequest()
+    {
+        var tokenProvider = new AuthTokenProvider
+        {
+            Token = "expired-token",
+            RefreshToken = "valid-refresh-token"
+        };
+        var refreshCalled = false;
+        var handler = new AuthTokenHandler(tokenProvider, _ =>
+        {
+            refreshCalled = true;
+            return Task.FromResult<string?>("refreshed-token");
+        })
+        {
+            InnerHandler = new TestMessageHandler(HttpStatusCode.Unauthorized)
+        };
+
+        using var httpClient = new HttpClient(handler);
+        using var request = new HttpRequestMessage(HttpMethod.Post, "http://localhost/api/action")
+        {
+            Content = new StringContent("{}")
+        };
+
+        var response = await httpClient.SendAsync(request);
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        Assert.False(refreshCalled);
     }
 
     [Fact]

@@ -1,4 +1,4 @@
-using KrnlAI.Contracts.Contracts;
+using KrnlAI.Contracts;
 namespace KrnlAI.Sidecar.Tests;
 
 public sealed class AgentRunEndpointTests(SidecarWebAppFactory factory) : IClassFixture<SidecarWebAppFactory>

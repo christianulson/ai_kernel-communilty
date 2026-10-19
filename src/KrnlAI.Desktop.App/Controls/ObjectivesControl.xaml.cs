@@ -15,7 +15,7 @@ public sealed partial class ObjectivesControl : UserControl
         try
         {
             if (DataContext is ViewModels.MainViewModel vm)
-                await vm.ObjectivesVM.LoadAsync().ConfigureAwait(false);
+                await vm.ObjectivesVM.LoadAsync();
         }
         catch (Exception ex) { KrnlLogger.Write($"ObjectivesControl.OnLoaded: {ex.Message}"); }
     }

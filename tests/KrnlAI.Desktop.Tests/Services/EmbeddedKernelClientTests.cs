@@ -1,9 +1,8 @@
-using KrnlAI.Core.Abstractions;
-using Cts = KrnlAI.Contracts.Contracts;
+using KrnlAI.Contracts.Vector;
+using Cts = KrnlAI.Contracts;
 using KrnlAI.Desktop.App.Services;
-using KrnlAI.Desktop.Core.Models;
-using KrnlAI.Embedded;
 using KrnlAI.Embedded.Abstractions;
+using KrnlAI.Embedded.Models;
 using Moq;
 
 namespace KrnlAI.Desktop.Tests.Services;
@@ -253,19 +252,53 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetCognitiveDashboardAsync_ShouldReturnData()
     {
-        var result = await CreateSut().GetCognitiveDashboardAsync();
+        var kernel = CreateKernelMock();
+        kernel
+            .Setup(x => x.GetCognitiveDashboardAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new KrnlAI.Embedded.Models.EmbeddedCognitiveDashboard(
+                0.85,
+                [new KrnlAI.Embedded.Models.EmbeddedModuleHealth("Cognition", 0.9, "healthy")],
+                [new KrnlAI.Embedded.Models.EmbeddedCognitiveEvent("cycle_completed", "cycle done", "cognitive_cycle", DateTimeOffset.UtcNow)],
+                new KrnlAI.Embedded.Models.EmbeddedAutonomyStatus("full", [], DateTimeOffset.UtcNow),
+                "AgiL1 (achieved=True)",
+                new KrnlAI.Embedded.Models.EmbeddedDashboardMetrics(
+                    64, 10, false, false, 0.72, 0.05, true, 3, 4, 20, 12, 2, 0.001, 32)));
+        var sut = new EmbeddedKernelClient(kernel.Object);
+
+        var result = await sut.GetCognitiveDashboardAsync();
+
         Assert.NotNull(result);
-        Assert.Equal(82, result.OverallHealth);
+        Assert.Equal(85, result.OverallHealth);
         Assert.NotEmpty(result.ActiveModules);
+        Assert.Equal("full", result.Autonomy?.Level);
+        Assert.NotNull(result.Metrics);
+        Assert.Equal(64, result.Metrics!.LatentSize);
+        Assert.Equal(10, result.Metrics.NumActions);
+        Assert.False(result.Metrics.VisionAvailable);
+        Assert.Equal(0.72, result.Metrics.FitnessRecentAverage);
     }
 
     [Fact]
-    public async Task GetBenchmarkSummaryAsync_ShouldReturnData()
+    public async Task GetBenchmarkSummaryAsync_ShouldMapRealEvalSuite()
     {
-        var result = await CreateSut().GetBenchmarkSummaryAsync();
+        var kernel = CreateKernelMock();
+        kernel
+            .Setup(x => x.GetBenchmarkSummaryAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new KrnlAI.Embedded.Models.EmbeddedBenchmarkSummary(
+                2, 7, 0.81, 0, 0.5,
+                [
+                    new KrnlAI.Embedded.Models.EmbeddedBenchmarkSuite("Memory", 4, 0.9, 0, 1.0),
+                    new KrnlAI.Embedded.Models.EmbeddedBenchmarkSuite("Reasoning", 3, 0.72, 0, 0.0),
+                ]));
+        var sut = new EmbeddedKernelClient(kernel.Object);
+
+        var result = await sut.GetBenchmarkSummaryAsync();
+
         Assert.NotNull(result);
-        Assert.Equal(3, result.TotalSuites);
-        Assert.NotEmpty(result.Suites);
+        Assert.Equal(2, result.TotalSuites);
+        Assert.Equal(7, result.TotalScenarios);
+        Assert.Equal(0.81, result.OverallScore);
+        Assert.Contains(result.Suites, suite => suite.Name == "Memory" && suite.SuccessRate == 1.0);
     }
 
     // ────────────────────────────── Goals ──────────────────────────────
@@ -806,8 +839,18 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task GetSafetyReportAsync_ShouldDelegateToBenchmark()
     {
-        var result = await CreateSut().GetSafetyReportAsync();
+        var kernel = CreateKernelMock();
+        kernel
+            .Setup(x => x.GetBenchmarkSummaryAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new KrnlAI.Embedded.Models.EmbeddedBenchmarkSummary(
+                1, 3, 0.95, 0, 1.0,
+                [new KrnlAI.Embedded.Models.EmbeddedBenchmarkSuite("Safety", 3, 0.95, 0, 1.0)]));
+        var sut = new EmbeddedKernelClient(kernel.Object);
+
+        var result = await sut.GetSafetyReportAsync();
+
         Assert.NotNull(result);
+        Assert.Equal(1, result.TotalSuites);
     }
 
     // ────────────────────────────── Scheduled Tasks / Memory Moments ──────────────────────────────
@@ -970,7 +1013,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task UpdateUserServiceAsync_ShouldReturnTrue()
     {
-        var request = new UserServiceUpdateRequest(new Dictionary<string, string>(), true);
+        var request = new UserServiceUpdateRequest([], true);
         var result = await CreateSut().UpdateUserServiceAsync("slack", request);
         Assert.True(result);
     }
@@ -1104,7 +1147,7 @@ public sealed class EmbeddedKernelClientTests
     [Fact]
     public async Task TemplateRenderAsync_NotFound_ShouldReturnError()
     {
-        var result = await CreateSut().TemplateRenderAsync("x", new RenderTemplateRequest(new()));
+        var result = await CreateSut().TemplateRenderAsync("x", new RenderTemplateRequest([]));
         Assert.NotNull(result);
         Assert.Null(result.RenderedContent);
         Assert.NotNull(result.Error);
@@ -1199,3 +1242,4 @@ public sealed class EmbeddedKernelClientTests
         Assert.Equal("test", result.Services["provider"]);
     }
 }
+

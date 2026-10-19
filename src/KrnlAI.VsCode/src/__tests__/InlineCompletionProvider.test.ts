@@ -2,12 +2,26 @@ import { InlineCompletionProvider } from '../codingAgent/InlineCompletionProvide
 import { CompletionCache } from '../codingAgent/CompletionCache';
 
 // Mock vscode types
-jest.mock('vscode', () => ({
-    InlineCompletionItem: jest.fn().mockImplementation((text: string) => ({ text })),
-    InlineCompletionTriggerKind: { Automatic: 0, Explicit: 1 },
-    Position: class { constructor(line: number, character: number) { (this as any).line = line; (this as any).character = character; } },
-    Range: class { constructor(startLine: number, startChar: number, endLine: number, endChar: number) { (this as any).start = { line: startLine, character: startChar }; (this as any).end = { line: endLine, character: endChar }; } },
-}), { virtual: true });
+jest.mock(
+    'vscode',
+    () => ({
+        InlineCompletionItem: jest.fn().mockImplementation((text: string) => ({ text })),
+        InlineCompletionTriggerKind: { Automatic: 0, Explicit: 1 },
+        Position: class {
+            constructor(line: number, character: number) {
+                (this as any).line = line;
+                (this as any).character = character;
+            }
+        },
+        Range: class {
+            constructor(startLine: number, startChar: number, endLine: number, endChar: number) {
+                (this as any).start = { line: startLine, character: startChar };
+                (this as any).end = { line: endLine, character: endChar };
+            }
+        },
+    }),
+    { virtual: true },
+);
 
 // Mock fetch
 const mockFetch = jest.fn();
@@ -36,7 +50,7 @@ function createMockDocument(overrides: any = {}): any {
         validateRange: jest.fn(),
         validatePosition: jest.fn(),
         save: jest.fn(),
-        ...overrides
+        ...overrides,
     };
 }
 
@@ -75,28 +89,22 @@ describe('InlineCompletionProvider', () => {
             fileName: '/workspace/node_modules/pkg/index.js',
             languageId: 'javascript',
         });
-        const result = await provider.provideInlineCompletionItems(
-            blockedDoc as any, mockPos, mockContext, mockToken
-        );
+        const result = await provider.provideInlineCompletionItems(blockedDoc as any, mockPos, mockContext, mockToken);
         expect(result).toBeUndefined();
     });
 
     it('InlineCompletionProvider_LargeFile_ShouldReturnUndefined', async () => {
         const largeDoc = createMockDocument({
-            getText: jest.fn().mockReturnValue('x'.repeat(200_000))
+            getText: jest.fn().mockReturnValue('x'.repeat(200_000)),
         });
-        const result = await provider.provideInlineCompletionItems(
-            largeDoc as any, mockPos, mockContext, mockToken
-        );
+        const result = await provider.provideInlineCompletionItems(largeDoc as any, mockPos, mockContext, mockToken);
         expect(result).toBeUndefined();
     });
 
     it('InlineCompletionProvider_CacheHit_ShouldReturnCachedWithoutFetch', async () => {
         cache.set('function hello() {\n  ', 'typescript', ['return "world";']);
 
-        const result = await provider.provideInlineCompletionItems(
-            mockDoc as any, mockPos, mockContext, mockToken
-        );
+        const result = await provider.provideInlineCompletionItems(mockDoc as any, mockPos, mockContext, mockToken);
 
         expect(result).toBeDefined();
         expect(result!.length).toBe(1);
@@ -109,9 +117,7 @@ describe('InlineCompletionProvider', () => {
             json: async () => ({ completions: ['return "hello";', 'console.log("hi");'] }),
         });
 
-        const result = await provider.provideInlineCompletionItems(
-            mockDoc as any, mockPos, mockContext, mockToken
-        );
+        const result = await provider.provideInlineCompletionItems(mockDoc as any, mockPos, mockContext, mockToken);
 
         expect(mockFetch).toHaveBeenCalledTimes(1);
         expect(mockFetch).toHaveBeenCalledWith(
@@ -119,7 +125,7 @@ describe('InlineCompletionProvider', () => {
             expect.objectContaining({
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-            })
+            }),
         );
         expect(result).toBeDefined();
         expect(result!.length).toBe(2);
@@ -128,18 +134,14 @@ describe('InlineCompletionProvider', () => {
     it('InlineCompletionProvider_BackendError_ShouldReturnUndefined', async () => {
         mockFetch.mockResolvedValueOnce({ ok: false });
 
-        const result = await provider.provideInlineCompletionItems(
-            mockDoc as any, mockPos, mockContext, mockToken
-        );
+        const result = await provider.provideInlineCompletionItems(mockDoc as any, mockPos, mockContext, mockToken);
         expect(result).toBeUndefined();
     });
 
     it('InlineCompletionProvider_NetworkError_ShouldReturnUndefined', async () => {
         mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
-        const result = await provider.provideInlineCompletionItems(
-            mockDoc as any, mockPos, mockContext, mockToken
-        );
+        const result = await provider.provideInlineCompletionItems(mockDoc as any, mockPos, mockContext, mockToken);
         expect(result).toBeUndefined();
     });
 
@@ -149,9 +151,7 @@ describe('InlineCompletionProvider', () => {
             json: async () => ({ completions: ['return 42;'] }),
         });
 
-        await provider.provideInlineCompletionItems(
-            mockDoc as any, mockPos, mockContext, mockToken
-        );
+        await provider.provideInlineCompletionItems(mockDoc as any, mockPos, mockContext, mockToken);
 
         const cached = cache.get('function hello() {\n  ', 'typescript');
         expect(cached).toEqual(['return 42;']);

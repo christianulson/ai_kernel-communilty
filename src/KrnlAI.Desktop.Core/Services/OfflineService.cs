@@ -1,5 +1,5 @@
 using System.Collections.Concurrent;
-using KrnlAI.Contracts.Contracts;
+using KrnlAI.Contracts;
 
 namespace KrnlAI.Desktop.Core.Services;
 

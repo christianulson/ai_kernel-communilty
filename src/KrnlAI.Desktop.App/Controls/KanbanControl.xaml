@@ -9,7 +9,7 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Resources/Styles/KanbanStyles.xaml"/>
+                <ResourceDictionary Source="/KrnlAI.Desktop;component/Resources/Styles/KanbanStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>

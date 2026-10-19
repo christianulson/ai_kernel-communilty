@@ -6,7 +6,7 @@ namespace KrnlAI.Desktop.Core.Services;
 
 public class AudioCaptureService(ILogger<AudioCaptureService> logger, int maxAudioBufferSize = 10 * 1024 * 1024) : IAudioCapture
 {
-    private NAudio.Wave.WaveInEvent? _waveIn;
+    private NAudio.Wave.WaveIn? _waveIn;
     private readonly List<byte> _audioBuffer = [];
     private bool _isCapturing;
     private string? _selectedDeviceId;
@@ -34,7 +34,7 @@ public class AudioCaptureService(ILogger<AudioCaptureService> logger, int maxAud
 
         var deviceNumber = GetDeviceNumber(deviceId);
 
-        _waveIn = new NAudio.Wave.WaveInEvent
+        _waveIn = new NAudio.Wave.WaveIn
         {
             WaveFormat = new NAudio.Wave.WaveFormat(_sampleRate, _bitsPerSample, _channels),
             DeviceNumber = deviceNumber,

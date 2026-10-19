@@ -3,35 +3,50 @@ const mockStopDebugging = jest.fn();
 const mockAddBreakpoints = jest.fn();
 const mockRemoveBreakpoints = jest.fn();
 
-jest.mock('vscode', () => ({
-    debug: {
-        startDebugging: mockStartDebugging,
-        stopDebugging: mockStopDebugging,
-        addBreakpoints: mockAddBreakpoints,
-        removeBreakpoints: mockRemoveBreakpoints,
-        onDidStartDebugSession: jest.fn(),
-        onDidTerminateDebugSession: jest.fn(),
-        get breakpoints() { return []; },
-    },
-    workspace: {
-        workspaceFolders: [{ uri: { fsPath: '/test' } }],
-    },
-    SourceBreakpoint: class {
-        constructor(public location: any) {}
-    },
-    Location: class {
-        constructor(public uri: any, public range: any) {}
-    },
-    Position: class {
-        constructor(public line: number, public character: number) {}
-    },
-    Range: class {
-        constructor(public start: any, public end: any) {}
-    },
-    Uri: {
-        file: (path: string) => ({ fsPath: path, path }),
-    },
-}), { virtual: true });
+jest.mock(
+    'vscode',
+    () => ({
+        debug: {
+            startDebugging: mockStartDebugging,
+            stopDebugging: mockStopDebugging,
+            addBreakpoints: mockAddBreakpoints,
+            removeBreakpoints: mockRemoveBreakpoints,
+            onDidStartDebugSession: jest.fn(),
+            onDidTerminateDebugSession: jest.fn(),
+            get breakpoints() {
+                return [];
+            },
+        },
+        workspace: {
+            workspaceFolders: [{ uri: { fsPath: '/test' } }],
+        },
+        SourceBreakpoint: class {
+            constructor(public location: any) {}
+        },
+        Location: class {
+            constructor(
+                public uri: any,
+                public range: any,
+            ) {}
+        },
+        Position: class {
+            constructor(
+                public line: number,
+                public character: number,
+            ) {}
+        },
+        Range: class {
+            constructor(
+                public start: any,
+                public end: any,
+            ) {}
+        },
+        Uri: {
+            file: (path: string) => ({ fsPath: path, path }),
+        },
+    }),
+    { virtual: true },
+);
 
 import { DebugManager, DebugState } from '../services/DebugManager';
 
@@ -96,7 +111,7 @@ describe('DebugManager', () => {
     it('StateChanged_ShouldFireOnLaunch', async () => {
         mockStartDebugging.mockResolvedValue(true);
         let captured: DebugState | null = null;
-        manager.onDidChangeState(s => captured = s);
+        manager.onDidChangeState((s) => (captured = s));
 
         await manager.launch();
 
@@ -108,7 +123,7 @@ describe('DebugManager', () => {
         await manager.launch();
 
         let captured: DebugState | null = null;
-        manager.onDidChangeState(s => captured = s);
+        manager.onDidChangeState((s) => (captured = s));
         await manager.stop();
 
         expect(captured).toBe(DebugState.Stopped);

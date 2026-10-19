@@ -30,13 +30,13 @@ public record AppSettings
     public string? Username { get; init; }
     public DateTime? TokenExpiresAt { get; init; }
     public bool IsAuthenticated { get; init; }
-    
+
     public double WindowLeft { get; init; } = double.NaN;
     public double WindowTop { get; init; } = double.NaN;
     public double WindowWidth { get; init; } = 1200;
     public double WindowHeight { get; init; } = 800;
     public bool WindowMaximized { get; init; }
-    
+
     public string Theme { get; init; } = "dark";
     public bool? AutoDarkMode { get; init; }
     public int ChatFontSize { get; init; } = 14;

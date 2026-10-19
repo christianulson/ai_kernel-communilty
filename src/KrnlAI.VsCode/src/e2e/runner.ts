@@ -12,8 +12,10 @@ async function main() {
             extensionTestsPath: path.join(testApp, 'suites'),
             launchArgs: [
                 '--disable-extensions',
-                '--user-data-dir', path.join(testApp, '.vscode-test-userdata'),
-                '--locale', 'en',
+                '--user-data-dir',
+                path.join(testApp, '.vscode-test-userdata'),
+                '--locale',
+                'en',
             ],
         });
     } catch (err) {

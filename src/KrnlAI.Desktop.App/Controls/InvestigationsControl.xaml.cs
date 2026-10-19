@@ -15,7 +15,7 @@ public sealed partial class InvestigationsControl : UserControl
         try
         {
             if (DataContext is ViewModels.MainViewModel vm)
-                await vm.InvestigationsVM.LoadAsync().ConfigureAwait(false);
+                await vm.InvestigationsVM.LoadAsync();
         }
         catch (Exception ex) { KrnlLogger.Write($"InvestigationsControl.OnLoaded: {ex.Message}"); }
     }

@@ -13,22 +13,69 @@ concurrency:
 jobs:
   desktop:
     runs-on: windows-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
       - run: dotnet build src/KrnlAI.Desktop.App/KrnlAI.Desktop.App.csproj --configuration Release
-      - run: dotnet test src/KrnlAI.Desktop.Tests/KrnlAI.Desktop.Tests.csproj --configuration Release
+      - run: dotnet test tests/KrnlAI.Desktop.Tests/KrnlAI.Desktop.Tests.csproj --configuration Release
+
+  vsix-extensibility:
+    runs-on: windows-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - run: dotnet build src/KrnlAI.VisualStudio.Extensibility/KrnlAI.VisualStudio.Extensibility.csproj --configuration Release
+      - run: dotnet test tests/KrnlAI.VisualStudio.Extensibility.Tests/KrnlAI.VisualStudio.Extensibility.Tests.csproj --configuration Release
 
   sidecar:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
       - run: dotnet build src/KrnlAI.Sidecar/KrnlAI.Sidecar.csproj --configuration Release
+      - run: dotnet test tests/KrnlAI.Sidecar.Tests/KrnlAI.Sidecar.Tests.csproj --configuration Release
+
+  tauri:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build sidecar for externalBin
+        run: |
+          dotnet publish src/KrnlAI.Sidecar/KrnlAI.Sidecar.csproj -r linux-x64 --self-contained -c Release -p:SignAssembly=false -o src/KrnlAI.Desktop.Tauri/src-tauri/binaries
+          cp src/KrnlAI.Desktop.Tauri/src-tauri/binaries/KrnlAI.Sidecar src/KrnlAI.Desktop.Tauri/src-tauri/binaries/krnlai-sidecar-x86_64-unknown-linux-gnu
+      - name: Cargo test
+        run: cargo test --manifest-path src/KrnlAI.Desktop.Tauri/src-tauri/Cargo.toml
+
+  browser-extension:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          cd src/KrnlAI.BrowserExtension
+          npm ci
+          npm run lint
+          npm run build
 
   vscode:
     runs-on: ubuntu-latest
@@ -36,7 +83,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
       - run: |
           cd src/KrnlAI.VsCode
           npm ci
@@ -44,11 +91,32 @@ jobs:
       - run: |
           cd src/KrnlAI.VsCode
           npx jest --ci
+      - name: Package VS Code extension (gate)
+        run: |
+          cd src/KrnlAI.VsCode
+          npm run build:bundle
+          npx @vscode/vsce package --no-dependencies -o krnlai-vscode-gate.vsix
+
+  python-sdk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e "sdk/python[dev]"
+      - run: |
+          cd sdk/python
+          ruff check .
+      - run: |
+          cd sdk/python
+          pytest
 
   test-community:
-    needs: [desktop, sidecar, vscode]
+    needs: [desktop, vsix-extensibility, sidecar, tauri, browser-extension, vscode, python-sdk]
     runs-on: windows-latest
-    continue-on-error: true
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4

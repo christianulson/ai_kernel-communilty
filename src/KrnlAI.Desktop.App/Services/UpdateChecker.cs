@@ -75,8 +75,8 @@ public sealed class UpdateChecker
             }
 
             var totalBytes = response.Content.Headers.ContentLength ?? -1;
-            await using var fs = new System.IO.FileStream(installerPath, System.IO.FileMode.Create, System.IO.FileAccess.Write, System.IO.FileShare.None);
-            await using var stream = (await response.Content.ReadAsStreamAsync().ConfigureAwait(false));
+            using var fs = new System.IO.FileStream(installerPath, System.IO.FileMode.Create, System.IO.FileAccess.Write, System.IO.FileShare.None);
+            using var stream = (await response.Content.ReadAsStreamAsync().ConfigureAwait(false));
 
             var buffer = new byte[81920];
             long bytesRead = 0;
@@ -111,7 +111,7 @@ public sealed class UpdateChecker
             KrnlLogger.Write($"Update download failed: {ex.Message}");
             ErrorOccurred?.Invoke($"Download failed: {ex.Message}");
             try { Process.Start(new ProcessStartInfo("https://github.com/krnlai/krnl-ai/releases/latest") { UseShellExecute = true }); }
-            catch { }
+            catch (Exception innerEx) { KrnlLogger.Write(innerEx); }
         }
         finally
         {

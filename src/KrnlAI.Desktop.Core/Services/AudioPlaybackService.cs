@@ -6,7 +6,7 @@ namespace KrnlAI.Desktop.Core.Services;
 
 public class AudioPlaybackService(ILogger<AudioPlaybackService> logger) : IAudioPlayback
 {
-    private NAudio.Wave.WaveOutEvent? _waveOut;
+    private NAudio.Wave.WaveOut? _waveOut;
     private NAudio.Wave.WaveFileReader? _waveReader;
     private MemoryStream? _audioStream;
     private string? _selectedDeviceId;
@@ -31,7 +31,7 @@ public class AudioPlaybackService(ILogger<AudioPlaybackService> logger) : IAudio
 
             var deviceNumber = GetDeviceNumber(_selectedDeviceId);
 
-            _waveOut = new NAudio.Wave.WaveOutEvent
+            _waveOut = new NAudio.Wave.WaveOut
             {
                 DeviceNumber = deviceNumber
             };

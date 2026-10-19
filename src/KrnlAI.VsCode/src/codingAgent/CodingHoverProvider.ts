@@ -19,7 +19,7 @@ export class CodingHoverProvider implements vscode.HoverProvider {
     async provideHover(
         document: vscode.TextDocument,
         position: vscode.Position,
-        token: vscode.CancellationToken
+        token: vscode.CancellationToken,
     ): Promise<vscode.Hover | undefined> {
         const range = document.getWordRangeAtPosition(position);
         if (!range) return undefined;
@@ -49,9 +49,9 @@ export class CodingHoverProvider implements vscode.HoverProvider {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     prompt: `Explain this ${document.languageId} symbol briefly (1-2 sentences):\n\nContext:\`\`\`${document.languageId}\n${contextCode}\n\`\`\`\n\nSymbol: ${symbol}`,
-                    mode: 'gateway'
+                    mode: 'gateway',
                 }),
-                signal: AbortSignal.timeout(5000)
+                signal: AbortSignal.timeout(5000),
             });
 
             if (!response.ok) return undefined;
@@ -76,7 +76,7 @@ export class CodingHoverProvider implements vscode.HoverProvider {
     private _isBlocked(filePath: string): boolean {
         const normalized = filePath.replace(/\\/g, '/');
         const blocked = ['node_modules', '.git', 'bin', 'obj', 'dist', 'build', '.next', 'venv', '__pycache__'];
-        return blocked.some(p => normalized.includes(`/${p}/`));
+        return blocked.some((p) => normalized.includes(`/${p}/`));
     }
 
     private _checkCache(key: string, symbol: string): vscode.Hover | undefined {

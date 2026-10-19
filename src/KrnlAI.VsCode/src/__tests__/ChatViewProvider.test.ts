@@ -1,41 +1,45 @@
-jest.mock('vscode', () => {
-    const pushSubs: any[] = [];
-    return {
-        window: {
-            createWebviewPanel: jest.fn(() => ({
-                webview: {
-                    html: '',
-                    onDidReceiveMessage: jest.fn(),
-                    postMessage: jest.fn()
-                },
-                onDidDispose: jest.fn(cb => pushSubs.push(cb)),
-                reveal: jest.fn(),
-                dispose: jest.fn()
-            })),
-            activeTextEditor: undefined,
-            visibleTextEditors: [],
-            onDidChangeActiveTextEditor: jest.fn(() => ({ dispose: jest.fn() })),
-            showInformationMessage: jest.fn()
-        },
-        workspace: {
-            getConfiguration: jest.fn(() => ({ get: jest.fn() })),
-            onDidChangeConfiguration: jest.fn(() => ({ dispose: jest.fn() })),
-            openTextDocument: jest.fn()
-        },
-        languages: {
-            getDiagnostics: jest.fn(() => []),
-            onDidChangeDiagnostics: jest.fn(() => ({ dispose: jest.fn() })),
-            registerCodeLensProvider: jest.fn(() => ({ dispose: jest.fn() }))
-        },
-        commands: { registerCommand: jest.fn() },
-        EventEmitter: jest.fn(() => ({ event: jest.fn() })),
-        TreeItem: jest.fn(),
-        TreeItemCollapsibleState: { None: 0 },
-        Disposable: jest.fn(() => ({ dispose: jest.fn() })),
-        StatusBarAlignment: { Right: 1 },
-        ViewColumn: { Beside: 2 }
-    };
-}, { virtual: true });
+jest.mock(
+    'vscode',
+    () => {
+        const pushSubs: any[] = [];
+        return {
+            window: {
+                createWebviewPanel: jest.fn(() => ({
+                    webview: {
+                        html: '',
+                        onDidReceiveMessage: jest.fn(),
+                        postMessage: jest.fn(),
+                    },
+                    onDidDispose: jest.fn((cb) => pushSubs.push(cb)),
+                    reveal: jest.fn(),
+                    dispose: jest.fn(),
+                })),
+                activeTextEditor: undefined,
+                visibleTextEditors: [],
+                onDidChangeActiveTextEditor: jest.fn(() => ({ dispose: jest.fn() })),
+                showInformationMessage: jest.fn(),
+            },
+            workspace: {
+                getConfiguration: jest.fn(() => ({ get: jest.fn() })),
+                onDidChangeConfiguration: jest.fn(() => ({ dispose: jest.fn() })),
+                openTextDocument: jest.fn(),
+            },
+            languages: {
+                getDiagnostics: jest.fn(() => []),
+                onDidChangeDiagnostics: jest.fn(() => ({ dispose: jest.fn() })),
+                registerCodeLensProvider: jest.fn(() => ({ dispose: jest.fn() })),
+            },
+            commands: { registerCommand: jest.fn() },
+            EventEmitter: jest.fn(() => ({ event: jest.fn() })),
+            TreeItem: jest.fn(),
+            TreeItemCollapsibleState: { None: 0 },
+            Disposable: jest.fn(() => ({ dispose: jest.fn() })),
+            StatusBarAlignment: { Right: 1 },
+            ViewColumn: { Beside: 2 },
+        };
+    },
+    { virtual: true },
+);
 
 import { ChatViewProvider } from '../chat/ChatViewProvider';
 
@@ -45,7 +49,7 @@ describe('ChatViewProvider', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         mockClient = {
-            runAgent: jest.fn().mockResolvedValue({ narration: 'response' })
+            runAgent: jest.fn().mockResolvedValue({ narration: 'response' }),
         };
         ChatViewProvider.currentPanel = undefined;
     });
@@ -99,9 +103,7 @@ describe('ChatViewProvider', () => {
             await msgHandler({ type: 'send', text: 'hello' });
 
             expect(mockClient.runAgent).toHaveBeenCalledWith('hello');
-            expect(mockWebview.postMessage).toHaveBeenCalledWith(
-                expect.objectContaining({ type: 'done' })
-            );
+            expect(mockWebview.postMessage).toHaveBeenCalledWith(expect.objectContaining({ type: 'done' }));
         });
 
         it('ShouldHandleApprovalResponse', async () => {
@@ -136,9 +138,7 @@ describe('ChatViewProvider', () => {
             const msgHandler = (panel as any)._handleMessage.bind(panel);
             await msgHandler({ type: 'getSlashCommands' });
 
-            expect(mockWebview.postMessage).toHaveBeenCalledWith(
-                expect.objectContaining({ type: 'slashCommands' })
-            );
+            expect(mockWebview.postMessage).toHaveBeenCalledWith(expect.objectContaining({ type: 'slashCommands' }));
         });
     });
 });

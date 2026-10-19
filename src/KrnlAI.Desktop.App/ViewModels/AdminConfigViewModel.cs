@@ -30,18 +30,18 @@ public sealed class AdminConfigViewModel : ViewModelBase
 
     public async Task LoadAsync()
     {
-            if (ServiceLocator.Instance.CurrentMode == RunMode.Local) { StatusMessage = "Indisponível no modo Local"; return; }
+        if (ServiceLocator.Instance.CurrentMode == RunMode.Local) { StatusMessage = "Indisponível no modo Local"; return; }
         IsLoading = true;
         try
         {
             var api = ServiceLocator.Instance.AdminApi;
             if (api == null) { StatusMessage = "Admin API indisponível"; return; }
 
-            var flags = await api.GetFeatureFlagsAsync().ConfigureAwait(false);
+            var flags = await api.GetFeatureFlagsAsync();
             FeatureFlags.Clear();
             foreach (var f in flags) FeatureFlags.Add(f);
 
-            var config = await api.GetConfigAsync().ConfigureAwait(false);
+            var config = await api.GetConfigAsync();
             ConfigEntries.Clear();
             foreach (var c in config) ConfigEntries.Add(c);
 

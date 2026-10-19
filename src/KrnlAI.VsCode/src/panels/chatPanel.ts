@@ -15,41 +15,62 @@ export class ChatPanel {
         this._nonce = Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10);
         this._panel.webview.html = this._getHtml();
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
-        this._panel.webview.onDidReceiveMessage(msg => this._handleMessage(msg), null, this._disposables);
+        this._panel.webview.onDidReceiveMessage((msg) => this._handleMessage(msg), null, this._disposables);
     }
 
     static createOrShow() {
-        if (ChatPanel.currentPanel) { ChatPanel.currentPanel._panel.reveal(vscode.ViewColumn.Beside); return; }
-        const panel = vscode.window.createWebviewPanel('krnlai.chat', 'Krnl-AI - Chat', vscode.ViewColumn.Beside, { enableScripts: true, retainContextWhenHidden: true });
+        if (ChatPanel.currentPanel) {
+            ChatPanel.currentPanel._panel.reveal(vscode.ViewColumn.Beside);
+            return;
+        }
+        const panel = vscode.window.createWebviewPanel('krnlai.chat', 'Krnl-AI - Chat', vscode.ViewColumn.Beside, {
+            enableScripts: true,
+            retainContextWhenHidden: true,
+        });
         ChatPanel.currentPanel = new ChatPanel(panel);
     }
 
     private async _handleMessage(msg: any) {
         if (msg.type === 'send') {
-            const response = await this._client.runAgent(msg.text);
-            this._panel.webview.postMessage({
-                type: 'response',
-                data: response.narration || response.error || 'Sem resposta',
-                error: response.error
-            });
+            let data = '';
+            let error = '';
+            try {
+                const result = await this._client.chat(msg.text);
+                if (result) {
+                    data = result.response ?? '';
+                } else {
+                    error = 'Servidor indisponível';
+                }
+            } catch (ex: any) {
+                error = ex.message;
+            }
+            this._panel.webview.postMessage({ type: 'response', data: data || error || 'Sem resposta', error });
         }
         if (msg.type === 'checkHealth') {
             const [status, emotional] = await Promise.all([
                 this._client.getStatusMessage(),
-                this._client.getEmotionalState()
+                this._client.getEmotionalState(),
             ]);
             const mood = emotional
-                ? (emotional.valence > 0.3
-                    ? (emotional.arousal < 0.4 ? '😌 Tranquilo' : '⚡ Animado')
+                ? emotional.valence > 0.3
+                    ? emotional.arousal < 0.4
+                        ? '😌 Tranquilo'
+                        : '⚡ Animado'
                     : emotional.valence < -0.3
-                        ? (emotional.arousal < 0.4 ? '😮‍💨 Cansado' : '😰 Tenso')
-                        : emotional.arousal >= 0.4 ? '🧐 Atento' : '😐 Neutro')
+                      ? emotional.arousal < 0.4
+                          ? '😮‍💨 Cansado'
+                          : '😰 Tenso'
+                      : emotional.arousal >= 0.4
+                        ? '🧐 Atento'
+                        : '😐 Neutro'
                 : '';
             this._panel.webview.postMessage({ type: 'health', status, mood });
         }
     }
 
-    private _getHtml(): string { const nonce = this._nonce; return `<!DOCTYPE html>
+    private _getHtml(): string {
+        const nonce = this._nonce;
+        return `<!DOCTYPE html>
 <html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'nonce-${nonce}'; script-src 'nonce-${nonce}';">
 <title>Krnl-AI Chat</title>
@@ -64,19 +85,28 @@ export class ChatPanel {
 </style></head><body>
 <div id="status">$(sync) Conectando...</div><div id="messages"></div>
 <div id="input-area"><input id="input" type="text" placeholder="Digite sua mensagem..." /><button id="send">Enviar</button></div>
-<script nonce="${nonce}">(function(){
-const vscode=acquireVsCodeApi(),msgDiv=document.getElementById('messages')!,input=document.getElementById('input')as HTMLInputElement,status=document.getElementById('status')!;
+ <script nonce="${nonce}">(function(){
+const vscode=acquireVsCodeApi();
+const msgDiv=document.getElementById('messages');
+const input=document.getElementById('input');
+const status=document.getElementById('status');
 vscode.postMessage({type:'checkHealth'});
-window.addEventListener('message',e=>{const m=e.data;
+window.addEventListener('message',function(e){var m=e.data;
 if(m.type==='health')status.textContent=m.mood?m.status+' · '+m.mood:m.status;
 if(m.type==='response'){addMsg(m.data,'assistant',m.error?'error':'');if(m.error)status.textContent='$(error) '+m.error;}
 });
-document.getElementById('send')!.onclick=send;input.onkeydown=e=>{if(e.key==='Enter')send();};
-function send(){const t=input.value.trim();if(!t)return;addMsg(t,'user');vscode.postMessage({type:'send',text:t});input.value='';status.textContent='$(sync) Processando...';}
-function addMsg(t,r,e){const d=document.createElement('div');d.className='msg '+r+' '+e;
-const l=document.createElement('div');l.className='msg-label';l.textContent=r==='user'?'Usuário':'Krnl-AI';d.appendChild(l);
-const c=document.createElement('div');c.textContent=t;d.appendChild(c);msgDiv.appendChild(d);d.scrollIntoView({behavior:'smooth'});}
-})();</script></body></html>`; }
+document.getElementById('send').onclick=send;
+input.onkeydown=function(e){if(e.key==='Enter')send();};
+function send(){var t=input.value.trim();if(!t)return;addMsg(t,'user');vscode.postMessage({type:'send',text:t});input.value='';status.textContent='$(sync) Processando...';}
+function addMsg(t,r,e){var d=document.createElement('div');d.className='msg '+r+' '+e;
+var l=document.createElement('div');l.className='msg-label';l.textContent=r==='user'?'Usuário':'Krnl-AI';d.appendChild(l);
+            var c=document.createElement('div');c.textContent=t;d.appendChild(c);msgDiv.appendChild(d);d.scrollIntoView({behavior:'smooth'});}
+})();</script></body></html>`;
+    }
 
-    public dispose() { ChatPanel.currentPanel = undefined; this._panel.dispose(); while (this._disposables.length) this._disposables.pop()!.dispose(); }
+    public dispose() {
+        ChatPanel.currentPanel = undefined;
+        this._panel.dispose();
+        while (this._disposables.length) this._disposables.pop()!.dispose();
+    }
 }

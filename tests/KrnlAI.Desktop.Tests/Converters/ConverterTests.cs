@@ -84,7 +84,7 @@ public class NullToVisibilityConverterTests
     [Fact]
     public void Convert_Null_ShouldBeCollapsed()
     {
-        var result =         _converter.Convert(null!, typeof(Visibility), null!, null!);
+        var result = _converter.Convert(null!, typeof(Visibility), null!, null!);
         Assert.Equal(Visibility.Collapsed, result);
     }
 

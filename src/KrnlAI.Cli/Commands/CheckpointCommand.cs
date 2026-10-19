@@ -1,6 +1,5 @@
 using System.CommandLine;
 using KrnlAI.Cli.Services;
-using KrnlAI.Core.Abstractions;
 
 namespace KrnlAI.Cli.Commands;
 
@@ -60,3 +59,4 @@ public sealed class CheckpointCommand(CliContext ctx, ConsoleRenderer renderer)
         return cmd;
     }
 }
+

@@ -1,6 +1,4 @@
 using KrnlAI.Cli.Abstractions;
-using KrnlAI.Cli.Commands;
-using Spectre.Console.Testing;
 
 namespace KrnlAI.Cli.Tests;
 

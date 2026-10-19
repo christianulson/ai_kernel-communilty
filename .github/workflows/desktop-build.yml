@@ -1,0 +1,57 @@
+name: Desktop Build (cross-platform)
+
+# Builds the Desktop (WPF) and Tauri sidecar on Windows/macOS/Ubuntu.
+# Signing is a future step (see docs/release-signing.md).
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  desktop:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            rid: win-x64
+            triple: krnlai-sidecar-x86_64-pc-windows-msvc.exe
+            exe: KrnlAI.Sidecar.exe
+          - os: macos-latest
+            rid: osx-x64
+            triple: krnlai-sidecar-x86_64-apple-darwin
+            exe: KrnlAI.Sidecar
+          - os: ubuntu-latest
+            rid: linux-x64
+            triple: krnlai-sidecar-x86_64-unknown-linux-gnu
+            exe: KrnlAI.Sidecar
+    runs-on: ${{ matrix.os }}
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Publish sidecar (self-contained)
+        run: dotnet publish src/KrnlAI.Sidecar/KrnlAI.Sidecar.csproj -r ${{ matrix.rid }} --self-contained -c Release -p:SignAssembly=false -o src/KrnlAI.Desktop.Tauri/src-tauri/binaries
+
+      - name: Rename sidecar for Tauri externalBin
+        shell: bash
+        run: cp "src/KrnlAI.Desktop.Tauri/src-tauri/binaries/${{ matrix.exe }}" "src/KrnlAI.Desktop.Tauri/src-tauri/binaries/${{ matrix.triple }}"
+
+      - name: Tauri cargo check
+        run: cargo check --manifest-path src/KrnlAI.Desktop.Tauri/src-tauri/Cargo.toml
+
+      - name: Desktop App build (Windows WPF)
+        if: matrix.os == 'windows-latest'
+        run: dotnet build src/KrnlAI.Desktop.App/KrnlAI.Desktop.App.csproj --configuration Release -p:SignAssembly=false
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sidecar-${{ matrix.os }}
+          path: src/KrnlAI.Desktop.Tauri/src-tauri/binaries/${{ matrix.triple }}

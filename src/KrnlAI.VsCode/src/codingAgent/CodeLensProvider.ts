@@ -12,7 +12,8 @@ export class CodeLensProvider implements vscode.CodeLensProvider {
         if (text.length > 50000) return [];
 
         const lenses: vscode.CodeLens[] = [];
-        const functionRegex = /(?:export\s+)?(?:async\s+)?function\s+(\w+)|(?:export\s+)?class\s+(\w+)|(?:export\s+)?const\s+(\w+)\s*=\s*(?:async\s*)?\(/g;
+        const functionRegex =
+            /(?:export\s+)?(?:async\s+)?function\s+(\w+)|(?:export\s+)?class\s+(\w+)|(?:export\s+)?const\s+(\w+)\s*=\s*(?:async\s*)?\(/g;
         let match: RegExpExecArray | null;
 
         while ((match = functionRegex.exec(text)) !== null) {
@@ -21,23 +22,29 @@ export class CodeLensProvider implements vscode.CodeLensProvider {
             const endPos = document.positionAt(match.index + match[0].length);
             const range = new vscode.Range(startPos, endPos);
 
-            lenses.push(new vscode.CodeLens(range, {
-                title: '$(light-bulb) Explain',
-                command: 'krnlai.coding.explain',
-                arguments: [name]
-            }));
+            lenses.push(
+                new vscode.CodeLens(range, {
+                    title: '$(light-bulb) Explain',
+                    command: 'krnlai.coding.explain',
+                    arguments: [name],
+                }),
+            );
 
-            lenses.push(new vscode.CodeLens(range, {
-                title: '$(beaker) Test',
-                command: 'krnlai.coding.test',
-                arguments: [name]
-            }));
+            lenses.push(
+                new vscode.CodeLens(range, {
+                    title: '$(beaker) Test',
+                    command: 'krnlai.coding.test',
+                    arguments: [name],
+                }),
+            );
 
-            lenses.push(new vscode.CodeLens(range, {
-                title: '$(search) Review',
-                command: 'krnlai.coding.review',
-                arguments: [name]
-            }));
+            lenses.push(
+                new vscode.CodeLens(range, {
+                    title: '$(search) Review',
+                    command: 'krnlai.coding.review',
+                    arguments: [name],
+                }),
+            );
         }
 
         return lenses;

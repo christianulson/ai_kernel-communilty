@@ -20,7 +20,7 @@ public class ExperimentViewModel : ViewModelBase
         RunCommand = new AsyncRelayCommand(async () =>
         {
             Status = "Executando experimento...";
-            await Task.Delay(2000).ConfigureAwait(false);
+            await Task.Delay(2000);
             Status = "Experimento concluído. Resultados salvos.";
         });
     }

@@ -1,8 +1,7 @@
-using KrnlAI.Core.Abstractions;
-using KrnlAI.Core.Model;
+using KrnlAI.Contracts;
 using KrnlAI.Desktop.App.Services;
 using CoreAbstractions = KrnlAI.Desktop.Core.Abstractions;
-using CoreCognitiveCycleEvent = KrnlAI.Core.Model.CognitiveCycleEvent;
+using CoreCognitiveCycleEvent = KrnlAI.Contracts.CognitiveCycleEvent;
 
 namespace KrnlAI.Desktop.Tests.Services;
 
@@ -149,3 +148,4 @@ public sealed class EmbeddedCognitiveStreamProviderTests
         private sealed class Subscription(Action onDispose) : IDisposable { public void Dispose() => onDispose(); }
     }
 }
+

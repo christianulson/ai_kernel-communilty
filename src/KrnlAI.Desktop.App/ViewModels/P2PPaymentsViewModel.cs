@@ -24,9 +24,7 @@ public sealed class P2PPaymentsViewModel : ViewModelBase
     public P2PPaymentsViewModel(ILogger<P2PPaymentsViewModel>? logger = null)
     {
         _logger = logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<P2PPaymentsViewModel>.Instance;
-        var settings = ServiceLocator.Instance.SettingsService.LoadSettings();
-        var baseUrl = settings.ApiEndpoint ?? settings.ApiBaseUrl ?? Environment.GetEnvironmentVariable("KRNL__API_BASE_URL") ?? "http://localhost:5235";
-        _http = new HttpClient { BaseAddress = new Uri(baseUrl), Timeout = TimeSpan.FromSeconds(10) };
+        _http = ServiceLocator.Instance.CreateApiClient();
         RefreshCommand = new AsyncRelayCommand(RefreshAsync);
     }
 
@@ -76,28 +74,30 @@ public sealed class P2PPaymentsViewModel : ViewModelBase
             var receiptsTask = _http.GetFromJsonAsync<List<P2PReceipt>>("/api/p2p/receipts");
             var batchesTask = _http.GetFromJsonAsync<List<P2PBatchDto>>("/api/p2p/batches");
             var summaryTask = _http.GetFromJsonAsync<P2PSummaryDto>("/api/p2p/summary");
-            await Task.WhenAll(receiptsTask, batchesTask, summaryTask).ConfigureAwait(false);
+            var receipts = await receiptsTask;
+            var batches = await batchesTask;
+            var summary = await summaryTask;
 
             Receipts.Clear();
-            if (receiptsTask.Result != null)
-                foreach (var r in receiptsTask.Result) Receipts.Add(r);
+            if (receipts != null)
+                foreach (var r in receipts) Receipts.Add(r);
 
             Batches.Clear();
-            if (batchesTask.Result != null)
+            if (batches != null)
             {
-                foreach (var b in batchesTask.Result)
+                foreach (var b in batches)
                 {
                     var batchReceipts = new ObservableCollection<P2PReceipt>(b.Receipts ?? []);
                     Batches.Add(new P2PBatch(b.BatchId, batchReceipts, b.TotalCents, b.Status ?? "unknown", b.CreatedAt));
                 }
             }
 
-            if (summaryTask.Result != null)
+            if (summary != null)
             {
-                _earnedCents = summaryTask.Result.EarnedCents;
-                _spentCents = summaryTask.Result.SpentCents;
-                _pendingCents = summaryTask.Result.PendingCents;
-                PendingReceiptCount = summaryTask.Result.PendingCount;
+                _earnedCents = summary.EarnedCents;
+                _spentCents = summary.SpentCents;
+                _pendingCents = summary.PendingCents;
+                PendingReceiptCount = summary.PendingCount;
             }
 
             OnPropertyChanged(nameof(EarnedFormatted));
@@ -119,7 +119,7 @@ public sealed class P2PPaymentsViewModel : ViewModelBase
         try
         {
             if (ServiceLocator.Instance.CurrentMode == RunMode.Api)
-                await _http.PostAsJsonAsync("/api/p2p/mode", new { mode = _selectedMode }).ConfigureAwait(false);
+                await _http.PostAsJsonAsync("/api/p2p/mode", new { mode = _selectedMode });
         }
         catch (Exception ex)
         {

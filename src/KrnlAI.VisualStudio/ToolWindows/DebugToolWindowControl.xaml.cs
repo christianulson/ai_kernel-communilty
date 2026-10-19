@@ -1,4 +1,5 @@
 #pragma warning disable VSTHRD001 // Dispatcher is appropriate for WPF tool windows
+#pragma warning disable VSTHRD100
 
 using System.Windows;
 using System.Windows.Controls;
@@ -11,6 +12,7 @@ public partial class DebugToolWindowControl : UserControl
 {
     private VsOperationTracker? _tracker;
     private readonly System.Threading.CancellationTokenSource _cts = new();
+    private readonly IBacklogService _backlog = new BacklogService();
     private const int MaxItems = 200;
 
     public DebugToolWindowControl()
@@ -29,6 +31,7 @@ public partial class DebugToolWindowControl : UserControl
         }
         Unloaded += OnUnloaded;
         RefreshDisplay();
+        _ = LoadLoopsAsync();
     }
 
     private void OnUnloaded(object sender, RoutedEventArgs e)
@@ -38,6 +41,7 @@ public partial class DebugToolWindowControl : UserControl
             _tracker.OperationCompleted -= OnOperationCompleted;
         }
         _tracker = null;
+        if (_backlog is IDisposable d) d.Dispose();
     }
 
     private void OnOperationCompleted(VsOperationCall op)
@@ -151,6 +155,82 @@ public partial class DebugToolWindowControl : UserControl
     {
         RefreshDisplay();
         StatusText.Text = "Refreshed";
+    }
+
+    private async void OnLoopRefresh(object sender, RoutedEventArgs e)
+    {
+        await LoadLoopsAsync();
+    }
+
+    private async System.Threading.Tasks.Task LoadLoopsAsync()
+    {
+        LoopStatusText.Text = "Loading...";
+        LoopRefreshButton.IsEnabled = false;
+
+        try
+        {
+            var items = await _backlog.GetItemsAsync();
+            if (items is null || items.Count == 0)
+            {
+                LoopList.ItemsSource = null;
+                LoopCountText.Text = "0 items";
+                LoopStatusText.Text = "No data";
+                return;
+            }
+
+            var loopItems = items.Select(item => new
+            {
+                item.Id,
+                item.Title,
+                item.Status,
+                StatusColor = GetLoopStatusBrush(item.Status),
+                Steps = GenerateLoopSteps(item.Status)
+            }).ToList();
+
+            LoopList.ItemsSource = loopItems;
+            LoopCountText.Text = $"{loopItems.Count} items";
+            LoopStatusText.Text = $"Loaded ({loopItems.Count} items)";
+        }
+        catch (Exception ex)
+        {
+            LoopStatusText.Text = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            LoopRefreshButton.IsEnabled = true;
+        }
+    }
+
+    private static List<object> GenerateLoopSteps(string status)
+    {
+        return new List<object>
+        {
+            new { Icon = status == "Pending" ? "⏳" : "✅", Label = "Pending", Detail = "(waiting)" },
+            new { Icon = status == "InProgress" ? "🔄" : (IsPastOrCurrent("InProgress", status) ? "✅" : "⏳"), Label = "In Progress", Detail = IsPastOrCurrent("InProgress", status) ? "" : "(pending)" },
+            new { Icon = status == "Review" ? "👁" : (IsPastOrCurrent("Review", status) ? "✅" : "⏳"), Label = "Review", Detail = IsPastOrCurrent("Review", status) ? "" : "(pending)" },
+            new { Icon = status == "Done" ? "✅" : "⏳", Label = "Done", Detail = status == "Done" ? "(completed)" : "(pending)" },
+        };
+    }
+
+    private static bool IsPastOrCurrent(string checkStatus, string currentStatus)
+    {
+        var order = new List<string> { "Pending", "InProgress", "Review", "Done", "Cancelled" };
+        var checkIdx = order.IndexOf(checkStatus);
+        var currentIdx = order.IndexOf(currentStatus);
+        return currentIdx >= checkIdx;
+    }
+
+    private static SolidColorBrush GetLoopStatusBrush(string status)
+    {
+        return status switch
+        {
+            "Pending" => new SolidColorBrush(Color.FromRgb(102, 102, 102)),
+            "InProgress" => new SolidColorBrush(Color.FromRgb(0, 120, 212)),
+            "Review" => new SolidColorBrush(Color.FromRgb(255, 140, 0)),
+            "Done" => new SolidColorBrush(Color.FromRgb(46, 160, 67)),
+            "Cancelled" => new SolidColorBrush(Color.FromRgb(136, 136, 136)),
+            _ => new SolidColorBrush(Color.FromRgb(102, 102, 102)),
+        };
     }
 
     private static string FormatDetail(VsOperationCall op)

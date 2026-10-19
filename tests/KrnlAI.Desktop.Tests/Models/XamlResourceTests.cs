@@ -37,6 +37,9 @@ public class XamlResourceTests
             foreach (Match m in Regex.Matches(content, @"ResourceDictionary\s+Source=""([^""]+)"""))
             {
                 var relPath = m.Groups[1].Value.TrimStart('/');
+                var componentIndex = relPath.IndexOf(";component/", StringComparison.OrdinalIgnoreCase);
+                if (componentIndex >= 0)
+                    relPath = relPath[(componentIndex + ";component/".Length)..];
                 var dictPath = Path.GetFullPath(Path.Combine(AppRoot, relPath));
                 if (File.Exists(dictPath))
                     extraDicts.Add(dictPath);

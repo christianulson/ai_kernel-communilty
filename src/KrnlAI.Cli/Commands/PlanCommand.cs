@@ -1,8 +1,6 @@
 using System.CommandLine;
 using KrnlAI.Cli.Services;
 using KrnlAI.Cognition.Runtime;
-using KrnlAI.Core.Abstractions;
-using KrnlAI.Core.Model;
 
 namespace KrnlAI.Cli.Commands;
 
@@ -56,7 +54,7 @@ public sealed class PlanCommand(CliContext ctx, ConsoleRenderer renderer)
         cmd.Add(applyCmd);
 
         // plan mode --set <plan|act>
-        var setOption = new Option<string>("--set", "Mode to set: plan|act|idle");
+        var setOption = new Option<string>("--set") { Description = "Mode to set: plan|act|idle" };
         var modeCmd = new Command("mode", "Set the current mode") { setOption };
         modeCmd.SetAction((ParseResult r, CancellationToken ct) =>
         {
@@ -75,8 +73,8 @@ public sealed class PlanCommand(CliContext ctx, ConsoleRenderer renderer)
         cmd.Add(modeCmd);
 
         // plan model --plan <model> --act <model>
-        var planModelOption = new Option<string>("--plan", "Model for Plan mode");
-        var actModelOption = new Option<string>("--act", "Model for Act mode");
+        var planModelOption = new Option<string>("--plan") { Description = "Model for Plan mode" };
+        var actModelOption = new Option<string>("--act") { Description = "Model for Act mode" };
         var modelCmd = new Command("model", "Configure models for Plan and Act modes") { planModelOption, actModelOption };
         modelCmd.SetAction((ParseResult r, CancellationToken ct) =>
         {
@@ -100,3 +98,4 @@ public sealed class PlanCommand(CliContext ctx, ConsoleRenderer renderer)
         return cmd;
     }
 }
+

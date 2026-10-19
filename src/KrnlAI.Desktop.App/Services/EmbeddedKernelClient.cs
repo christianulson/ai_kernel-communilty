@@ -1,10 +1,10 @@
 using System.Collections.Concurrent;
-using System.Linq;
-using Cts = KrnlAI.Contracts.Contracts;
+using Cts = KrnlAI.Contracts;
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
-using KrnlAI.Embedded;
+using KrnlAI.Desktop.Core.Services;
 using KrnlAI.Embedded.Abstractions;
+using KrnlAI.Embedded.Models;
 
 namespace KrnlAI.Desktop.App.Services;
 
@@ -67,10 +67,12 @@ public sealed class EmbeddedKernelClient : IKernelClient
     ];
 
     private int _feedbackCount;
+    private readonly ISpeechSynthesisService? _speech;
 
-    public EmbeddedKernelClient(IEmbeddedKrnlAI kernel)
+    public EmbeddedKernelClient(IEmbeddedKrnlAI kernel, ISpeechSynthesisService? speech = null)
     {
         _kernel = kernel;
+        _speech = speech;
         SeedData();
         AddEvent("system", "Local mode started", "embedded");
         AddEvent("cognitive", "Thinking cycle", "kernel");
@@ -208,10 +210,22 @@ public sealed class EmbeddedKernelClient : IKernelClient
         => Task.FromResult(_episodes.GetValueOrDefault(episodeId));
 
     /// <summary>Generates speech from text. Returns a minimal RIFF/WAV header — no real TTS available in local mode.</summary>
-    public Task<byte[]> GenerateSpeechAsync(string text, string? language = null, string? voice = null, CancellationToken ct = default)
+    public async Task<byte[]> GenerateSpeechAsync(string text, string? language = null, string? voice = null, CancellationToken ct = default)
     {
+        if (_speech is not null)
+        {
+            try
+            {
+                var audio = await _speech.SynthesizeAsync(text, language, voice, ct).ConfigureAwait(false);
+                if (audio.Length > 0)
+                    return audio;
+            }
+            catch (Exception ex) { KrnlLogger.Write(ex); }
+        }
+
+        // Fallback histórico (header WAV mínimo) quando não há engine de voz local.
         var wavHeader = new byte[] { 0x52, 0x49, 0x46, 0x46, 0x24, 0x00, 0x00, 0x00, 0x57, 0x41, 0x56, 0x45, 0x66, 0x6D, 0x74, 0x20 };
-        return Task.FromResult(wavHeader);
+        return wavHeader;
     }
 
     /// <summary>Transcribes audio to text. Always returns an error message — STT requires a cloud engine.</summary>
@@ -276,18 +290,62 @@ public sealed class EmbeddedKernelClient : IKernelClient
         return _kernel.MoveKanbanCardAsync(goalId, MapGoalAction(action), cancellationToken);
     }
 
-    public Task<CognitiveDashboardData?> GetCognitiveDashboardAsync(CancellationToken ct = default)
-        => Task.FromResult<CognitiveDashboardData?>(new CognitiveDashboardData(82,
-            [new CognitiveModule("Local Engine", 85, "healthy"), new CognitiveModule("Memory", 78, "stable")],
-            [new CognitiveEvent("info", "Local mode active", "system", DateTime.UtcNow)],
-            new AutonomyStatus("full", DateTime.UtcNow, new Dictionary<string, double> { ["local"] = 0.92 })));
+    public async Task<CognitiveDashboardData?> GetCognitiveDashboardAsync(CancellationToken ct = default)
+    {
+        var dashboard = await _kernel.GetCognitiveDashboardAsync(ct).ConfigureAwait(false);
+
+        return new CognitiveDashboardData(
+            dashboard.OverallHealth * 100.0,
+            [.. dashboard.ActiveModules.Select(module =>
+                new CognitiveModule(module.ModuleName, module.HealthScore * 100.0, module.Status))],
+            [.. dashboard.RecentEvents.Select(cognitiveEvent =>
+                new CognitiveEvent(
+                    cognitiveEvent.EventType,
+                    cognitiveEvent.Description,
+                    cognitiveEvent.Source,
+                    cognitiveEvent.Timestamp.UtcDateTime))],
+            dashboard.Autonomy is null
+                ? null
+                : new AutonomyStatus(
+                    dashboard.Autonomy.CurrentLevel,
+                    dashboard.Autonomy.CapturedAt.UtcDateTime,
+                    dashboard.Autonomy.Domains.ToDictionary(
+                        domain => domain.Domain,
+                        domain => domain.Confidence,
+                        StringComparer.Ordinal)),
+            new DashboardMetrics(
+                dashboard.Metrics.LatentSize,
+                dashboard.Metrics.NumActions,
+                dashboard.Metrics.VisionAvailable,
+                dashboard.Metrics.AudioAvailable,
+                dashboard.Metrics.FitnessRecentAverage,
+                dashboard.Metrics.FitnessDelta,
+                dashboard.Metrics.FitnessReliable,
+                dashboard.Metrics.CausalNodes,
+                dashboard.Metrics.CausalEdges,
+                dashboard.Metrics.GrowthDialogueTurns,
+                dashboard.Metrics.GrowthProcedures,
+                dashboard.Metrics.GrowthLearnedCommands,
+                dashboard.Metrics.MetaLearningRate,
+                dashboard.Metrics.MetaBatchSize));
+    }
 
     public Task<MultimodalSearchResult?> SearchMultimodalAsync(string query, int topK = 10, CancellationToken ct = default)
         => Task.FromResult<MultimodalSearchResult?>(new MultimodalSearchResult(query, []));
 
-    public Task<BenchmarkSummary?> GetBenchmarkSummaryAsync(CancellationToken ct = default)
-        => Task.FromResult<BenchmarkSummary?>(new BenchmarkSummary(3, 12, 84.5, 95, 0.93,
-            [new BenchmarkSuite("Local Reasoning", 4, 86.0, 80, 0.95), new BenchmarkSuite("Memory Recall", 4, 82.0, 110, 0.90), new BenchmarkSuite("Policy Eval", 4, 85.5, 95, 0.94)]));
+    public async Task<BenchmarkSummary?> GetBenchmarkSummaryAsync(CancellationToken ct = default)
+    {
+        var summary = await _kernel.GetBenchmarkSummaryAsync(ct).ConfigureAwait(false);
+
+        return new BenchmarkSummary(
+            summary.TotalSuites,
+            summary.TotalScenarios,
+            summary.OverallScore,
+            summary.AvgLatencyMs,
+            summary.AvgSuccessRate,
+            [.. summary.Suites.Select(suite =>
+                new BenchmarkSuite(suite.Name, suite.Scenarios, suite.Score, suite.LatencyMs, suite.SuccessRate))]);
+    }
 
     /// <summary>Queries the causal graph. Returns empty results — causal inference requires a trained GNN model (cloud).</summary>
     public Task<CausalQueryResult?> GetCausalQueryAsync(string query, CancellationToken ct = default)
@@ -441,6 +499,30 @@ public sealed class EmbeddedKernelClient : IKernelClient
 
     public Task<List<MemoryMoment>> GetMemoryMomentsAsync(int limit = 20, CancellationToken ct = default)
         => Task.FromResult(_memoryMoments.Take(limit).ToList());
+
+    // ───── Security (stub) ─────
+    public Task<List<SecurityIncident>> GetSecurityIncidentsAsync(CancellationToken ct = default)
+        => Task.FromResult<List<SecurityIncident>>([]);
+    public Task<bool> ResolveSecurityAlertAsync(string alertId, CancellationToken ct = default)
+        => Task.FromResult(true);
+
+    // ───── Governance (stub) ─────
+    public Task<List<GovernanceBudget>> GetAutonomyBudgetsAsync(CancellationToken ct = default)
+        => Task.FromResult<List<GovernanceBudget>>([]);
+    public Task<GovernanceBudget?> GetApprovalMatrixAsync(CancellationToken ct = default)
+        => Task.FromResult<GovernanceBudget?>(null);
+
+    // ───── Notifications (stub) ─────
+    public Task<List<NotificationItem>> GetNotificationsAsync(CancellationToken ct = default)
+        => Task.FromResult<List<NotificationItem>>([]);
+    public Task<bool> MarkNotificationReadAsync(string notificationId, CancellationToken ct = default)
+        => Task.FromResult(true);
+
+    // ───── Provenance (stub) ─────
+    public Task<List<ProvenanceEntry>> GetChainAsync(string entityId, CancellationToken ct = default)
+        => Task.FromResult<List<ProvenanceEntry>>([]);
+    public Task<bool> VerifyChainAsync(string entityId, CancellationToken ct = default)
+        => Task.FromResult(true);
 
     // Plan
     public Task<PlanExecutionResult?> GetCurrentPlanAsync(CancellationToken ct = default)

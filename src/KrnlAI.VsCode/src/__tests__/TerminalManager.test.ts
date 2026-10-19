@@ -1,15 +1,19 @@
-jest.mock('vscode', () => ({
-    window: {
-        createTerminal: jest.fn().mockReturnValue({
-            show: jest.fn(),
-            sendText: jest.fn(),
-            dispose: jest.fn(),
-        }),
-    },
-    workspace: {
-        workspaceFolders: [{ uri: { fsPath: '/workspace' } }],
-    },
-}), { virtual: true });
+jest.mock(
+    'vscode',
+    () => ({
+        window: {
+            createTerminal: jest.fn().mockReturnValue({
+                show: jest.fn(),
+                sendText: jest.fn(),
+                dispose: jest.fn(),
+            }),
+        },
+        workspace: {
+            workspaceFolders: [{ uri: { fsPath: '/workspace' } }],
+        },
+    }),
+    { virtual: true },
+);
 
 import { TerminalManager } from '../codingAgent/TerminalManager';
 

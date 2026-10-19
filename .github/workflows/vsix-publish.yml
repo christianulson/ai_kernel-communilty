@@ -21,7 +21,7 @@ jobs:
         run: npm ci
 
       - name: Compile extension
-        run: npm run compile
+        run: npm run build:bundle
 
       - name: Package VSIX
         run: npx @vscode/vsce package -o krnlai-vscode.vsix

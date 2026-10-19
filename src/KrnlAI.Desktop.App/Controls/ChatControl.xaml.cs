@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 namespace KrnlAI.Desktop.App.Controls;
+
 public partial class ChatControl : UserControl
 {
     public ChatControl()
@@ -29,7 +30,9 @@ public partial class ChatControl : UserControl
             {
                 var window = new Window
                 {
-                    Title = "Preview", Width = 800, Height = 600,
+                    Title = "Preview",
+                    Width = 800,
+                    Height = 600,
                     WindowStartupLocation = WindowStartupLocation.CenterOwner,
                     Owner = Window.GetWindow(this),
                     Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(8, 17, 31)),
@@ -49,7 +52,7 @@ public partial class ChatControl : UserControl
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop) && e.Data.GetData(DataFormats.FileDrop) is string[] files && files.Length > 0)
             {
-                var content = await File.ReadAllTextAsync(files[0]).ConfigureAwait(false);
+                var content = await File.ReadAllTextAsync(files[0]);
                 if (DataContext is ViewModels.MainViewModel mainVm && mainVm.ChatVM != null)
                 {
                     mainVm.ChatVM.InputText = $"{mainVm.ChatVM.InputText}[file: {Path.GetFileName(files[0])}]\n{content[..Math.Min(content.Length, 2000)]}";
@@ -68,7 +71,7 @@ public partial class ChatControl : UserControl
                 var chatVm = mainVm.ChatVM;
 
                 chatVm.CognitiveDataChanged += OnCognitiveDataChanged;
-                await chatVm.ConnectCognitiveStreamAsync().ConfigureAwait(false);
+                await chatVm.ConnectCognitiveStreamAsync();
             }
         }
         catch (Exception ex) { Core.Services.KrnlLogger.Write($"ChatControl.OnLoaded: {ex.Message}"); }

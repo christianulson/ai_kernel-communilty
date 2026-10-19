@@ -29,6 +29,7 @@ public class AssistantViewModel : ViewModelBase
     public ICommand SendMessageCommand { get; }
     public ICommand CreateRunCommand { get; }
     public ICommand LoadThreadsCommand { get; }
+    public ICommand SelectThreadCommand { get; }
     public ICommand ClearErrorCommand { get; }
 
     public AssistantViewModel(IKernelClient kernelClient)
@@ -37,23 +38,27 @@ public class AssistantViewModel : ViewModelBase
         CreateThreadCommand = new AsyncRelayCommand(async param =>
         {
             var title = param as string;
-            await CreateThreadAsync(title).ConfigureAwait(false);
+            await CreateThreadAsync(title);
         });
         SendMessageCommand = new AsyncRelayCommand(async param =>
         {
             if (param is string content && !string.IsNullOrWhiteSpace(content) && ActiveThread != null)
             {
                 Content = content;
-                await SendMessageAsync(ActiveThread.ThreadId, content).ConfigureAwait(false);
-                Content = "";
+                await SendMessageAsync(ActiveThread.ThreadId, content);
+                if (!HasError) Content = "";
             }
         });
         CreateRunCommand = new AsyncRelayCommand(async param =>
         {
             if (param is string threadId)
-                await CreateRunAsync(threadId).ConfigureAwait(false);
+                await CreateRunAsync(threadId);
         });
-        LoadThreadsCommand = new AsyncRelayCommand(async _ => await LoadThreadsAsync().ConfigureAwait(false));
+        LoadThreadsCommand = new AsyncRelayCommand(async _ => await LoadThreadsAsync());
+        SelectThreadCommand = new AsyncRelayCommand(async parameter =>
+        {
+            if (parameter is string id && !string.IsNullOrWhiteSpace(id)) await SelectThreadAsync(id);
+        });
         ClearErrorCommand = new RelayCommand(_ => ErrorMessage = "");
     }
 
@@ -64,7 +69,7 @@ public class AssistantViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            var thread = await _kernelClient.CreateThreadAsync(title).ConfigureAwait(false);
+            var thread = await _kernelClient.CreateThreadAsync(title);
             if (thread != null)
             {
                 Threads.Add(thread);
@@ -82,11 +87,11 @@ public class AssistantViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            var thread = await _kernelClient.GetThreadAsync(threadId).ConfigureAwait(false);
+            var thread = await _kernelClient.GetThreadAsync(threadId);
             if (thread != null)
             {
                 ActiveThread = thread;
-                var messages = await _kernelClient.GetMessagesAsync(threadId).ConfigureAwait(false);
+                var messages = await _kernelClient.GetMessagesAsync(threadId);
                 Messages.Clear();
                 foreach (var m in messages) Messages.Add(m);
             }
@@ -104,7 +109,7 @@ public class AssistantViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            var message = await _kernelClient.SendMessageAsync(threadId, content).ConfigureAwait(false);
+            var message = await _kernelClient.SendMessageAsync(threadId, content);
             if (message != null) Messages.Add(message);
         }
         catch (Exception ex)
@@ -122,7 +127,7 @@ public class AssistantViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            ActiveRun = await _kernelClient.CreateRunAsync(threadId).ConfigureAwait(false);
+            ActiveRun = await _kernelClient.CreateRunAsync(threadId);
         }
         catch (Exception ex)
         {
@@ -135,7 +140,7 @@ public class AssistantViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            ActiveRun = await _kernelClient.GetRunAsync(threadId, runId).ConfigureAwait(false);
+            ActiveRun = await _kernelClient.GetRunAsync(threadId, runId);
         }
         catch (Exception ex)
         {

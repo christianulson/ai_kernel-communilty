@@ -14,13 +14,13 @@ export interface ChatMessage {
 export function createMessage(
     role: ChatMessage['role'],
     content: string,
-    metadata?: ChatMessage['metadata']
+    metadata?: ChatMessage['metadata'],
 ): ChatMessage {
     return {
         id: `msg_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
         role,
         content,
         timestamp: Date.now(),
-        metadata
+        metadata,
     };
 }

@@ -1,11 +1,20 @@
-jest.mock('vscode', () => ({
-    ExtensionContext: class {},
-    Memento: class {
-        private _data: any = {};
-        get(key: string, defaultVal?: any) { return this._data[key] ?? defaultVal ?? []; }
-        update(key: string, value: any) { this._data[key] = value; return Promise.resolve(); }
-    },
-}), { virtual: true });
+jest.mock(
+    'vscode',
+    () => ({
+        ExtensionContext: class {},
+        Memento: class {
+            private _data: any = {};
+            get(key: string, defaultVal?: any) {
+                return this._data[key] ?? defaultVal ?? [];
+            }
+            update(key: string, value: any) {
+                this._data[key] = value;
+                return Promise.resolve();
+            }
+        },
+    }),
+    { virtual: true },
+);
 
 import { SessionManager, ChatSession } from '../services/SessionManager';
 
@@ -95,7 +104,7 @@ describe('SessionManager', () => {
             createdAt: Date.now(),
             updatedAt: Date.now(),
             messageCount: 1,
-            messages: [createMockMessage('user', 'imported msg', 1)]
+            messages: [createMockMessage('user', 'imported msg', 1)],
         });
         const result = await manager.importSession(json);
         expect(result).not.toBeNull();
@@ -117,7 +126,11 @@ describe('SessionManager', () => {
 
     it('SessionManager_AutoSave_WithExistingId_ShouldUpdate', async () => {
         const id = await manager.autoSave('existing', [createMockMessage('user', 'first', 1)]);
-        const id2 = await manager.autoSave('existing', [createMockMessage('user', 'first', 1), createMockMessage('assistant', 'response', 2)], id);
+        const id2 = await manager.autoSave(
+            'existing',
+            [createMockMessage('user', 'first', 1), createMockMessage('assistant', 'response', 2)],
+            id,
+        );
         expect(id2).toBe(id);
         const loaded = await manager.loadSession(id);
         expect(loaded!.messageCount).toBe(2);

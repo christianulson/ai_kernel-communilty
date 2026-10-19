@@ -1,6 +1,6 @@
 using System.Net.Http;
 using System.Net.Http.Headers;
-using KrnlAI.Core.Model;
+using KrnlAI.Contracts;
 using KrnlAI.Core.Services;
 using KrnlAI.Desktop.Core.Abstractions;
 using KrnlAI.Desktop.Core.Models;
@@ -11,13 +11,15 @@ using KrnlAI.Desktop.Infrastructure.KernelClient;
 using KrnlAI.Desktop.Infrastructure.Settings;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using KrnlAI.Embedded;
 using KrnlAI.Embedded.Abstractions;
+using KrnlAI.Embedded.Models;
+using KrnlAI.Embedded.Services;
 
 namespace KrnlAI.Desktop.App.Services;
 
 public class ServiceLocator : IDisposable, IAsyncDisposable
 {
+    private const string DesktopApiClientName = "DesktopApi";
     private static ServiceLocator? _instance;
     private static readonly object _lock = new();
     public static ServiceLocator Instance
@@ -57,6 +59,11 @@ public class ServiceLocator : IDisposable, IAsyncDisposable
     public Func<WebRtcService> WebRtcServiceFactory => () => new WebRtcService(GetLogger<WebRtcService>());
     public IThemeService ThemeSvc => _provider.GetRequiredService<IThemeService>();
 
+    /// <summary>Creates a client that always uses the current trusted API endpoint and authentication pipeline.</summary>
+    public HttpClient CreateApiClient() => CurrentMode == RunMode.Api
+        ? _provider.GetRequiredService<IHttpClientFactory>().CreateClient(DesktopApiClientName)
+        : new HttpClient { BaseAddress = new Uri("http://localhost:5235"), Timeout = TimeSpan.FromSeconds(30) };
+
     /// <summary>
     /// Creates the embedded kernel options used by Desktop local AI mode.
     /// </summary>
@@ -88,51 +95,15 @@ public class ServiceLocator : IDisposable, IAsyncDisposable
                 : RunMode.Api;
 
             var loggerFactory = LoggerFactory.Create(b => b.SetMinimumLevel(LogLevel.Information));
-
             var settingsService = new JsonSettingsService();
-            var settings = settingsService.LoadSettings();
-            var baseUrl = Environment.GetEnvironmentVariable("KRNL__API_BASE_URL")
-                           ?? settings.ApiEndpoint
-                           ?? settings.ApiBaseUrl
-                           ?? "http://localhost:5235";
+            var (settings, baseUrl) = ServiceLocatorRegistrations.LoadAppSettings(settingsService);
 
             var services = new ServiceCollection();
-            services.AddSingleton(loggerFactory);
-            services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
-            services.AddSingleton<ISettingsService>(settingsService);
-            services.AddSingleton<ISessionPersistenceService>(_ => new SessionPersistenceService());
-
-        if (CurrentMode == RunMode.Local)
-        {
-            RegisterLocalMode(services, loggerFactory);
-        }
-        else
-            {
-            RegisterApiMode(services, loggerFactory, baseUrl, settings);
-        }
-
-            services.AddSingleton<IAudioCapture>(_ => new AudioCaptureService(loggerFactory.CreateLogger<AudioCaptureService>()));
-            services.AddSingleton<IAudioPlayback>(_ => new AudioPlaybackService(loggerFactory.CreateLogger<AudioPlaybackService>()));
-            services.AddSingleton<IVideoCapture>(_ => new VideoCaptureService(loggerFactory.CreateLogger<VideoCaptureService>()));
-            var isLocal = CurrentMode == RunMode.Local;
-            services.AddSingleton<IListeningService>(sp => new ListeningService(
-                sp.GetRequiredService<IAudioCapture>(),
-                sp.GetRequiredService<IKernelAgentClient>(),
-                sp.GetRequiredService<IKernelSpeechClient>(),
-                sp.GetRequiredService<IAudioPlayback>(),
-                sp.GetRequiredService<ILogger<ListeningService>>(),
-                isLocalMode: isLocal));
-            services.AddSingleton<IThemeService, ThemeService>();
-            var localizationService = new LocalizationService();
-            services.AddSingleton<ILocalizationService>(localizationService);
-            ServiceLocatorAccess.SetLocalizationService(localizationService);
-            services.AddSingleton<ThemeManager>();
-            services.AddSingleton(new HttpClient { BaseAddress = new Uri(baseUrl), Timeout = TimeSpan.FromSeconds(30) });
-            services.AddSingleton<KanbanService>();
-
-            _provider = services.BuildServiceProvider();
-
-            _provider.GetRequiredService<ThemeManager>();
+            ServiceLocatorRegistrations.RegisterBaseServices(services, loggerFactory, settingsService);
+            ServiceLocatorRegistrations.RegisterByMode(
+                services, CurrentMode, loggerFactory, baseUrl, settings, _embeddedKernelLazy?.Value);
+ServiceLocatorRegistrations.RegisterSharedServices(services, CurrentMode, loggerFactory, baseUrl);
+            _provider = ServiceLocatorRegistrations.BuildProvider(services);
 
             if (CurrentMode == RunMode.Api
                 && (!string.IsNullOrEmpty(settings.AuthToken) || !string.IsNullOrEmpty(settings.RefreshToken)))
@@ -144,121 +115,6 @@ public class ServiceLocator : IDisposable, IAsyncDisposable
         {
             KrnlLogger.Write(ex);
             throw;
-        }
-    }
-
-    private void RegisterLocalMode(ServiceCollection services, ILoggerFactory loggerFactory)
-    {
-        var kernel = EmbeddedKernel ?? throw new InvalidOperationException("Embedded kernel is not available.");
-        services.AddSingleton<IEmbeddedKrnlAI>(kernel);
-        services.AddSingleton<IKernelClient, EmbeddedKernelClient>();
-        services.AddSingleton<IBackendApi>(sp => sp.GetRequiredService<IKernelClient>());
-        services.AddSingleton<IKernelAgentClient>(sp => sp.GetRequiredService<IKernelClient>());
-        services.AddSingleton<IKernelSpeechClient>(sp => sp.GetRequiredService<IKernelClient>());
-        services.AddSingleton<IApiKeyManagementService, NullApiKeyManagementService>();
-        services.AddSingleton<IPeerRankingManagementService, NullPeerRankingManagementService>();
-        services.AddSingleton<ITelemetryPrivacyService, NullTelemetryPrivacyService>();
-
-        services.AddSingleton<ISlashCommandExecutor>(
-            sp => new EmbeddedSlashCommandExecutor(sp.GetRequiredService<IEmbeddedKrnlAI>()));
-
-        var cognitiveStreamer = kernel.CognitiveStreamer ?? new CognitiveStreamer(
-            loggerFactory.CreateLogger<CognitiveStreamer>(),
-            new CognitiveStreamConfig());
-        services.AddSingleton<ICognitiveStreamProvider>(
-            _ => new EmbeddedCognitiveStreamProvider(cognitiveStreamer));
-        services.AddSingleton<IAdminApi, NullAdminApi>();
-    }
-
-    private void RegisterApiMode(ServiceCollection services, ILoggerFactory loggerFactory, string baseUrl, AppSettings settings)
-    {
-        services.AddSingleton<AuthTokenProvider>();
-        services.AddSingleton<DynamicBaseUrlHandler>();
-        DynamicBaseUrlHandler.SetBaseUrl(baseUrl);
-
-        var refreshHttpClient = new HttpClient(new DynamicBaseUrlHandler
-        {
-            InnerHandler = new HttpClientHandler()
-        })
-        { Timeout = TimeSpan.FromSeconds(30) };
-
-        services.AddTransient<AuthTokenHandler>(sp =>
-        {
-            var tokenProvider = sp.GetRequiredService<AuthTokenProvider>();
-            return new AuthTokenHandler(tokenProvider, async ct =>
-            {
-                try
-                {
-                    var refreshRequest = new HttpRequestMessage(HttpMethod.Post, "/auth/refresh");
-                    if (tokenProvider.RefreshToken != null)
-                    {
-                        var json = System.Text.Json.JsonSerializer.Serialize(
-                            new RefreshTokenRequest(tokenProvider.RefreshToken));
-                        refreshRequest.Content = new StringContent(json,
-                            System.Text.Encoding.UTF8, "application/json");
-                    }
-                    if (!string.IsNullOrEmpty(tokenProvider.Token))
-                        refreshRequest.Headers.Authorization =
-                            new AuthenticationHeaderValue("Bearer", tokenProvider.Token);
-
-                    var refreshResponse = await refreshHttpClient.SendAsync(refreshRequest, ct).ConfigureAwait(false);
-                    if (!refreshResponse.IsSuccessStatusCode) return null;
-
-                    var body = await refreshResponse.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-                    var result = System.Text.Json.JsonSerializer
-                        .Deserialize<RefreshTokenResponseDto>(body);
-                    if (!string.IsNullOrEmpty(result?.RefreshToken))
-                        tokenProvider.RefreshToken = result.RefreshToken;
-                    return result?.Token;
-                }
-                catch { return null; }
-            });
-        });
-
-        services.AddRefitClient<IGatewayApi>()
-            .ConfigureHttpClient(c => { c.BaseAddress = new Uri("http://localhost"); c.Timeout = TimeSpan.FromSeconds(60); })
-            .AddHttpMessageHandler<DynamicBaseUrlHandler>()
-            .AddHttpMessageHandler<AuthTokenHandler>();
-        services.AddSingleton<IKernelClient, KernelClient>();
-        services.AddSingleton<IBackendApi>(sp => sp.GetRequiredService<IKernelClient>());
-        services.AddSingleton<IKernelAgentClient>(sp => sp.GetRequiredService<IKernelClient>());
-        services.AddSingleton<IKernelSpeechClient>(sp => sp.GetRequiredService<IKernelClient>());
-        services.AddSingleton<IApiKeyManagementService>(sp =>
-            new HttpApiKeyManagementService(new HttpClient(new AuthTokenHandler(sp.GetRequiredService<AuthTokenProvider>()))
-            {
-                BaseAddress = new Uri(baseUrl),
-                Timeout = TimeSpan.FromSeconds(30)
-            }));
-        services.AddSingleton<IPeerRankingManagementService>(sp =>
-            new HttpPeerRankingManagementService(new HttpClient(new AuthTokenHandler(sp.GetRequiredService<AuthTokenProvider>()))
-            {
-                BaseAddress = new Uri(baseUrl),
-                Timeout = TimeSpan.FromSeconds(30)
-            }));
-        services.AddSingleton<ITelemetryPrivacyService>(sp =>
-            new HttpTelemetryPrivacyService(new HttpClient(new AuthTokenHandler(sp.GetRequiredService<AuthTokenProvider>()))
-            {
-                BaseAddress = new Uri(baseUrl),
-                Timeout = TimeSpan.FromSeconds(30)
-            }));
-
-        services.AddSingleton<ISlashCommandExecutor>(
-            _ => new HttpSlashCommandExecutor(baseUrl));
-        services.AddSingleton<ICognitiveStreamProvider>(
-            _ => new HttpCognitiveStreamProvider(baseUrl));
-
-        services.AddRefitClient<IAdminApi>()
-            .ConfigureHttpClient(c => { c.BaseAddress = new Uri("http://localhost"); c.Timeout = TimeSpan.FromSeconds(30); })
-            .AddHttpMessageHandler<DynamicBaseUrlHandler>()
-            .AddHttpMessageHandler<AuthTokenHandler>();
-    }
-
-    public static void ConfigureForTests(IServiceProvider provider)
-    {
-        lock (_lock)
-        {
-            _instance?.Dispose();
-            _instance = new ServiceLocator(provider);
         }
     }
 
@@ -285,7 +141,7 @@ public class ServiceLocator : IDisposable, IAsyncDisposable
         if (_embeddedKernelLazy?.IsValueCreated == true)
         {
             try { _embeddedKernelLazy.Value.DisposeAsync().AsTask().ConfigureAwait(false).GetAwaiter().GetResult(); }
-            catch { /* best-effort disposal */ }
+            catch (Exception ex) { KrnlLogger.Write(ex); }
         }
         _provider?.Dispose();
     }

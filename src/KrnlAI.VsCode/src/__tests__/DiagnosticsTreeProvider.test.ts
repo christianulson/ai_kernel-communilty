@@ -2,24 +2,28 @@ import { KernelClient } from '../api/client';
 
 const mockFire = jest.fn();
 
-jest.mock('vscode', () => ({
-    window: {
-        registerTreeDataProvider: jest.fn()
-    },
-    workspace: {
-        getConfiguration: jest.fn(() => ({
-            get: jest.fn((key: string, defaultVal?: any) => defaultVal)
-        }))
-    },
-    EventEmitter: jest.fn(() => ({
-        event: jest.fn(),
-        fire: mockFire
-    })),
-    TreeItem: jest.fn().mockImplementation(function (this: any, label: string) {
-        this.label = label;
+jest.mock(
+    'vscode',
+    () => ({
+        window: {
+            registerTreeDataProvider: jest.fn(),
+        },
+        workspace: {
+            getConfiguration: jest.fn(() => ({
+                get: jest.fn((key: string, defaultVal?: any) => defaultVal),
+            })),
+        },
+        EventEmitter: jest.fn(() => ({
+            event: jest.fn(),
+            fire: mockFire,
+        })),
+        TreeItem: jest.fn().mockImplementation(function (this: any, label: string) {
+            this.label = label;
+        }),
+        TreeItemCollapsibleState: { None: 0 },
     }),
-    TreeItemCollapsibleState: { None: 0 }
-}), { virtual: true });
+    { virtual: true },
+);
 
 describe('DiagnosticsTreeProvider', () => {
     beforeEach(() => {
@@ -39,7 +43,7 @@ describe('DiagnosticsTreeProvider', () => {
         const item = provider.getTreeItem({
             label: 'API Status',
             description: '✅ Online',
-            contextValue: 'ok'
+            contextValue: 'ok',
         });
         expect(item.label).toBe('API Status');
         expect(item.description).toBe('✅ Online');
@@ -67,10 +71,10 @@ describe('DiagnosticsTreeProvider', () => {
         (global as any).fetch = jest.fn().mockResolvedValue({
             ok: true,
             headers: { get: () => 'application/json' },
-            json: jest.fn().mockResolvedValue({ status: 'ok', ts: '2024-01-01', version: '1.0' })
+            json: jest.fn().mockResolvedValue({ status: 'ok', ts: '2024-01-01', version: '1.0' }),
         });
         const provider = new DiagnosticsTreeProvider(client);
-        await new Promise(r => setTimeout(r, 10));
+        await new Promise((r) => setTimeout(r, 10));
         expect(mockFire).toHaveBeenCalled();
         const children = provider.getChildren();
         expect(children.some((c: any) => c.description.includes('Online'))).toBe(true);
@@ -81,7 +85,7 @@ describe('DiagnosticsTreeProvider', () => {
         const client = new KernelClient();
         (global as any).fetch = jest.fn().mockRejectedValue(new Error('fail'));
         const provider = new DiagnosticsTreeProvider(client);
-        await new Promise(r => setTimeout(r, 10));
+        await new Promise((r) => setTimeout(r, 10));
         const children = provider.getChildren();
         expect(children.some((c: any) => c.description.includes('Unreachable'))).toBe(true);
     });

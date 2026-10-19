@@ -1,11 +1,8 @@
 using System.CommandLine;
-using KrnlAI.Embedded;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Spectre.Console;
 
 namespace KrnlAI.Cli.Commands;
@@ -16,7 +13,8 @@ public sealed class ServeCommand
     {
         var portOpt = new Option<int>("--port")
         {
-            Description = "HTTP port", DefaultValueFactory = _ => 5100
+            Description = "HTTP port",
+            DefaultValueFactory = _ => 5100
         };
         var modelOpt = new Option<string>("--model")
         {

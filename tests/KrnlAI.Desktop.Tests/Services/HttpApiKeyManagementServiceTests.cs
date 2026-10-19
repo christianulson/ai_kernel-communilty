@@ -1,6 +1,5 @@
 using System.Net.Http.Json;
 using KrnlAI.Desktop.App.Services;
-using KrnlAI.Desktop.Core.Models;
 
 namespace KrnlAI.Desktop.Tests.Services;
 

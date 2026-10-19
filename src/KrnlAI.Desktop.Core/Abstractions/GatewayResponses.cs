@@ -57,10 +57,12 @@ public sealed record GoalCycleDto(string Action, string Status, int DurationMs, 
 
 public sealed record FeedbackResultDto(bool Success, string? FeedbackId, string? Message);
 
-public sealed record CognitiveDashboardDto(double OverallHealth, List<CognitiveModuleDto>? ActiveModules, List<CognitiveEventDto>? RecentEvents, AutonomyStatusDto? Autonomy);
-public sealed record CognitiveModuleDto(string Name, double HealthScore, string Status);
-public sealed record CognitiveEventDto(string Type, string Description, string Source, DateTime Timestamp);
-public sealed record AutonomyStatusDto(string Level, DateTime LastUpdated, Dictionary<string, double>? DomainConfidence);
+public sealed record CognitiveDashboardDto(double OverallHealth, List<CognitiveModuleDto>? ActiveModules, List<CognitiveEventDto>? RecentEvents, AutonomyStatusDto? AutonomyStatus, DateTimeOffset? LastUpdated);
+public sealed record CognitiveModuleDto(string ModuleName, double HealthScore, string Status);
+public sealed record CognitiveEventDto(string EventType, string Description, string Source, DateTimeOffset Timestamp);
+public sealed record AutonomyStatusDto(string CurrentLevel, List<AutonomyDomainDto>? Domains, List<AutonomyDecisionDto>? RecentDecisions, DateTimeOffset CapturedAt);
+public sealed record AutonomyDomainDto(string Domain, string Level, double Confidence);
+public sealed record AutonomyDecisionDto(string Decision, string Domain, double Confidence, DateTimeOffset Timestamp);
 
 public sealed record UserProfileDto(string UserId, string? Name, string? Email, string? Role, Dictionary<string, string>? Preferences, DateTime? CreatedAt);
 

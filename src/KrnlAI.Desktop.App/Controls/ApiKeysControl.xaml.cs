@@ -17,7 +17,7 @@ public partial class ApiKeysControl : UserControl
         try
         {
             if (DataContext is MainViewModel vm)
-                await vm.ApiKeysVM.LoadAsync().ConfigureAwait(false);
+                await vm.ApiKeysVM.LoadAsync();
         }
         catch (Exception ex) { KrnlLogger.Write($"ApiKeysControl.OnLoaded: {ex.Message}"); }
     }
@@ -48,7 +48,7 @@ public partial class ApiKeysControl : UserControl
             if (confirm != MessageBoxResult.Yes)
                 return;
 
-            await vm.ApiKeysVM.RevokeAsync(keyId).ConfigureAwait(false);
+            await vm.ApiKeysVM.RevokeAsync(keyId);
         }
         catch (Exception ex) { KrnlLogger.Write($"ApiKeysControl.OnRevokeClicked: {ex.Message}"); }
     }

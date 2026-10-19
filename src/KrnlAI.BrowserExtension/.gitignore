@@ -1,0 +1,9 @@
+# Browser extension build output
+dist/
+# Node
+node_modules/
+# Playwright
+playwright-report/
+test-results/
+# Logs
+*.log

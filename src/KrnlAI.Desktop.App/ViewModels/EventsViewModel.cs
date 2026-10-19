@@ -24,6 +24,7 @@ public class EventsViewModel : ViewModelBase
     public ObservableCollection<EventInfo> FilteredEvents { get; } = [];
 
     public ICommand LoadRecentCommand { get; }
+    public ICommand SelectEventCommand { get; }
     public ICommand LoadByMomentCommand { get; }
     public ICommand ClearErrorCommand { get; }
 
@@ -31,10 +32,14 @@ public class EventsViewModel : ViewModelBase
     {
         _kernelClient = kernelClient;
         LoadRecentCommand = new AsyncRelayCommand(LoadRecentEventsAsync);
+        SelectEventCommand = new AsyncRelayCommand(async parameter =>
+        {
+            if (parameter is string id && !string.IsNullOrWhiteSpace(id)) await LoadEventDetailAsync(id);
+        });
         LoadByMomentCommand = new AsyncRelayCommand(async () =>
         {
             if (!string.IsNullOrWhiteSpace(MomentId))
-                await LoadEventsByMomentAsync(MomentId).ConfigureAwait(false);
+                await LoadEventsByMomentAsync(MomentId);
         });
         ClearErrorCommand = new RelayCommand(() => ErrorMessage = "");
     }
@@ -47,7 +52,7 @@ public class EventsViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            var events = await _kernelClient.EventsRecentAsync(50).ConfigureAwait(false);
+            var events = await _kernelClient.EventsRecentAsync(50);
             Events.Clear();
             foreach (var e in events) Events.Add(e);
             ApplyFilter();
@@ -67,7 +72,7 @@ public class EventsViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            SelectedEvent = await _kernelClient.EventDetailAsync(eventId).ConfigureAwait(false);
+            SelectedEvent = await _kernelClient.EventDetailAsync(eventId);
         }
         catch (Exception ex)
         {
@@ -81,7 +86,7 @@ public class EventsViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            var events = await _kernelClient.EventsByMomentAsync(momentId).ConfigureAwait(false);
+            var events = await _kernelClient.EventsByMomentAsync(momentId);
             Events.Clear();
             foreach (var e in events) Events.Add(e);
             ApplyFilter();

@@ -1,5 +1,5 @@
 using KrnlAI.Desktop.Core.Models;
-using KrnlAI.Embedded;
+using KrnlAI.Embedded.Services;
 
 namespace KrnlAI.Desktop.App.Services;
 

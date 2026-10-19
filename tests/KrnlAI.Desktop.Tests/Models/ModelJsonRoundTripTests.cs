@@ -1,6 +1,5 @@
 using System.Text.Json;
-using Cts = KrnlAI.Contracts.Contracts;
-using KrnlAI.Desktop.Core.Models;
+using Cts = KrnlAI.Contracts;
 using CoreModels = KrnlAI.Desktop.Core.Models;
 
 namespace KrnlAI.Desktop.Tests.Models;

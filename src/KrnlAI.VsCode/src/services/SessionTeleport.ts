@@ -76,7 +76,9 @@ export class SessionTeleport implements vscode.Disposable {
         const url = `${this._relayUrl}/api/v1/session-teleport/${encodeURIComponent(sessionId)}/claim`;
         const response = await fetch(url, { method: 'POST' });
         if (!response.ok) {
-            throw new Error(`SessionTeleport: claim failed for ${sessionId} — ${response.status} ${response.statusText}`);
+            throw new Error(
+                `SessionTeleport: claim failed for ${sessionId} — ${response.status} ${response.statusText}`,
+            );
         }
         return (await response.json()) as TeleportSession;
     }
@@ -89,7 +91,9 @@ export class SessionTeleport implements vscode.Disposable {
             body: JSON.stringify(session),
         });
         if (!response.ok) {
-            throw new Error(`SessionTeleport: push failed for ${session.sessionId} — ${response.status} ${response.statusText}`);
+            throw new Error(
+                `SessionTeleport: push failed for ${session.sessionId} — ${response.status} ${response.statusText}`,
+            );
         }
     }
 
@@ -244,8 +248,9 @@ export class SessionTeleport implements vscode.Disposable {
 
     private async tryLoadSignalR(): Promise<SignalRModule | null> {
         try {
-            const importModule = new Function('moduleName', 'return import(moduleName)') as
-                (moduleName: string) => Promise<unknown>;
+            const importModule = new Function('moduleName', 'return import(moduleName)') as (
+                moduleName: string,
+            ) => Promise<unknown>;
             const mod = await importModule('@microsoft/signalr');
             return this.isSignalRModule(mod) ? mod : null;
         } catch {
@@ -254,8 +259,10 @@ export class SessionTeleport implements vscode.Disposable {
     }
 
     private isSignalRModule(value: unknown): value is SignalRModule {
-        return typeof value === 'object'
-            && value !== null
-            && typeof (value as { HubConnectionBuilder?: unknown }).HubConnectionBuilder === 'function';
+        return (
+            typeof value === 'object' &&
+            value !== null &&
+            typeof (value as { HubConnectionBuilder?: unknown }).HubConnectionBuilder === 'function'
+        );
     }
 }

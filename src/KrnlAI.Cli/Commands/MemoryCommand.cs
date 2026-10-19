@@ -1,6 +1,5 @@
 using System.CommandLine;
 using KrnlAI.Cli.Services;
-using KrnlAI.Core.Services.Memory;
 using Spectre.Console;
 
 namespace KrnlAI.Cli.Commands;
@@ -15,7 +14,8 @@ public sealed class MemoryCommand(CliContext ctx, ConsoleRenderer renderer)
         var queryArg = new Argument<string[]>("query") { Description = "Search query (optional)", Arity = ArgumentArity.ZeroOrMore };
         var takeOpt = new Option<int>("--take")
         {
-            Description = "Max results", DefaultValueFactory = _ => 10
+            Description = "Max results",
+            DefaultValueFactory = _ => 10
         };
         var categoryOpt = new Option<string>("--category")
         {
@@ -108,3 +108,4 @@ public sealed class MemoryCommand(CliContext ctx, ConsoleRenderer renderer)
         return cmd;
     }
 }
+

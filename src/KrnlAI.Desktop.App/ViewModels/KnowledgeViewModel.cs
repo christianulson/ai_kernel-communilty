@@ -40,7 +40,7 @@ public class KnowledgeViewModel : ViewModelBase
             var parts = p.Split('|');
             var content = parts.Length > 0 ? parts[0].Trim() : "";
             var source = parts.Length > 1 ? parts[1].Trim() : "manual";
-            var (_, error) = await LearnAsync(content, source).ConfigureAwait(false);
+            var (_, error) = await LearnAsync(content, source);
             if (error != null) ErrorMessage = error;
         });
     }
@@ -54,7 +54,7 @@ public class KnowledgeViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            var r = await _kernelClient.KnowledgeAskAsync(Query).ConfigureAwait(false);
+            var r = await _kernelClient.KnowledgeAskAsync(Query);
             Results.Clear();
             if (r?.Hits != null)
                 foreach (var h in r.Hits)
@@ -75,7 +75,7 @@ public class KnowledgeViewModel : ViewModelBase
         ErrorMessage = "";
         try
         {
-            Stats = await _kernelClient.KnowledgeStatsAsync().ConfigureAwait(false);
+            Stats = await _kernelClient.KnowledgeStatsAsync();
         }
         catch (Exception ex)
         {
@@ -88,7 +88,7 @@ public class KnowledgeViewModel : ViewModelBase
         IsLearning = true;
         try
         {
-            var r = await _kernelClient.KnowledgeLearnAsync(content, source, category).ConfigureAwait(false);
+            var r = await _kernelClient.KnowledgeLearnAsync(content, source, category);
             if (r?.Success == true) return (true, null);
             return (false, r?.Error ?? "Falha ao aprender");
         }

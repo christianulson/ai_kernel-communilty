@@ -43,7 +43,7 @@ public class ObjectivesViewModel : ViewModelBase
                 ErrorMessage = "Indisponível no modo Local";
                 return;
             }
-            var r = await _client.GetObjectivesAsync().ConfigureAwait(false);
+            var r = await _client.GetObjectivesAsync();
             Objectives.Clear();
             if (r != null) { foreach (var o in r) Objectives.Add(o); }
             OnPropertyChanged(nameof(HasNoData));
@@ -61,7 +61,7 @@ public class ObjectivesViewModel : ViewModelBase
         if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return;
         try
         {
-            SelectedObjective = await _client.GetObjectiveDetailAsync(id).ConfigureAwait(false);
+            SelectedObjective = await _client.GetObjectiveDetailAsync(id);
         }
         catch (Exception ex)
         {

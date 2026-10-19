@@ -1,23 +1,10 @@
-using KrnlAI.Anticipation;
-using KrnlAI.Core.Abstractions;
-using KrnlAI.Core.Abstractions.Mcp;
-using KrnlAI.Core.Abstractions.Safety;
-using KrnlAI.Core.Services.ExperimentTracking;
-using KrnlAI.Core.Services.Memory;
-using KrnlAI.Core.Services.ModelRegistry;
-using KrnlAI.Core.Services.Safety;
-using KrnlAI.Executive;
-using KrnlAI.Infrastructure;
 using KrnlAI.Infrastructure.InMemory;
-using KrnlAI.LLMGateway.Core.Abstractions;
-using KrnlAI.LLMGateway.Core.Services.Goals;
-using KrnlAI.LLMGateway.Core.Services.Governance;
-using KrnlAI.Memory;
-using KrnlAI.Snapshot;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Options;
+using KrnlAI.Infrastructure.InMemory.FromSnapshot;
+using KrnlAI.LLMGateway.Core.Services.Execution;
+using KrnlAI.LLMGateway.Core.Services.Safety;
+using KrnlAI.Safety.Services;
+using KrnlAI.Cognition;
+using KrnlAI.DI;
 
 namespace KrnlAI.Cli.Services;
 
@@ -25,6 +12,7 @@ public static class CliServiceExtensions
 {
     public static IServiceCollection AddCliServices(this IServiceCollection services)
     {
+        services.AddKrnlAIServices();
         services.AddSingleton<CliContext>();
         services.AddSingleton<IMomentStore, InMemoryMomentStore>();
         services.AddSingleton<IMomentClassifierStore, InMemoryMomentClassifierStore>();
@@ -45,7 +33,7 @@ public static class CliServiceExtensions
                 sp.GetRequiredService<IExecutiveModeSelector>(),
                 sp.GetRequiredService<ILogger<ExecutiveController>>()));
         services.AddSingleton<IAnticipationStore, InMemoryAnticipationStore>();
-        services.AddSingleton<IProspectiveMemoryStore, InMemoryProspectiveMemoryStore>();
+        services.AddSingleton<IProspectiveMemoryStore, KrnlAI.Infrastructure.InMemory.FromAnticipation.InMemoryProspectiveMemoryStore>();
         services.AddSingleton<IProspectiveMemoryService>(sp =>
             new ProspectiveMemoryService(
                 sp.GetRequiredService<IProspectiveMemoryStore>(),
@@ -95,6 +83,7 @@ public static class CliServiceExtensions
 
         // Report generator for benchmark command
         services.AddSingleton<ISafetyReportGenerator, Infrastructure.Reports.SafetyHtmlReportGenerator>();
+        services.AddSingleton<Infrastructure.Reports.SafetyScorecardCalculator>();
 
         // Plan/Act mode
         services.AddSingleton<IPlanArtifactStore, InMemoryPlanArtifactStore>();
@@ -112,3 +101,4 @@ public static class CliServiceExtensions
         return services;
     }
 }
+

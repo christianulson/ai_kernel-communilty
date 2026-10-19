@@ -108,13 +108,16 @@ describe('OperationTracker', () => {
     it('MultipleOperations_ShouldAllBeInHistory', () => {
         const tracker = new OperationTracker();
         {
-            using a = tracker.start('first'); a.setResult('a');
+            using a = tracker.start('first');
+            a.setResult('a');
         }
         {
-            using b = tracker.start('second'); b.setResult('b');
+            using b = tracker.start('second');
+            b.setResult('b');
         }
         {
-            using c = tracker.start('third'); c.setResult('c');
+            using c = tracker.start('third');
+            c.setResult('c');
         }
 
         expect(tracker.history).toHaveLength(3);
@@ -126,7 +129,8 @@ describe('OperationTracker', () => {
     it('Clear_ShouldRemoveAllOperations', () => {
         const tracker = new OperationTracker();
         {
-            using op = tracker.start('op'); op.setResult('ok');
+            using op = tracker.start('op');
+            op.setResult('ok');
         }
         expect(tracker.history).toHaveLength(1);
 
@@ -139,13 +143,16 @@ describe('OperationTracker', () => {
         {
             using parent = tracker.start('parent');
             {
-                using c1 = parent.startChild('child1'); c1.setResult('r1');
+                using c1 = parent.startChild('child1');
+                c1.setResult('r1');
             }
             {
-                using c2 = parent.startChild('child2'); c2.setResult('r2');
+                using c2 = parent.startChild('child2');
+                c2.setResult('r2');
             }
             {
-                using c3 = parent.startChild('child3'); c3.setResult('r3');
+                using c3 = parent.startChild('child3');
+                c3.setResult('r3');
             }
             parent.setResult('done');
         }

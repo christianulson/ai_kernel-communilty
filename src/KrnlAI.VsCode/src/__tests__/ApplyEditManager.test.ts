@@ -1,43 +1,47 @@
 import { ApplyEditManager, FileChange } from '../codingAgent/ApplyEditManager';
 
 // Mock vscode
-jest.mock('vscode', () => ({
-    Uri: {
-        file: jest.fn().mockImplementation((path: string) => ({ fsPath: path, path })),
-    },
-    Range: jest.fn().mockImplementation((startLine: any, startChar: any, endLine: any, endChar: any) => ({
-        start: { line: startLine, character: startChar },
-        end: { line: endLine, character: endChar },
-    })),
-    WorkspaceEdit: jest.fn().mockImplementation(() => ({
-        replace: jest.fn(),
-    })),
-    window: {
-        showInformationMessage: jest.fn(),
-        showErrorMessage: jest.fn(),
-        showTextDocument: jest.fn(),
-    },
-    commands: {
-        executeCommand: jest.fn(),
-    },
-    workspace: {
-        openTextDocument: jest.fn().mockImplementation((uriOrContent: any) => {
-            if (typeof uriOrContent === 'object' && uriOrContent.fsPath) {
+jest.mock(
+    'vscode',
+    () => ({
+        Uri: {
+            file: jest.fn().mockImplementation((path: string) => ({ fsPath: path, path })),
+        },
+        Range: jest.fn().mockImplementation((startLine: any, startChar: any, endLine: any, endChar: any) => ({
+            start: { line: startLine, character: startChar },
+            end: { line: endLine, character: endChar },
+        })),
+        WorkspaceEdit: jest.fn().mockImplementation(() => ({
+            replace: jest.fn(),
+        })),
+        window: {
+            showInformationMessage: jest.fn(),
+            showErrorMessage: jest.fn(),
+            showTextDocument: jest.fn(),
+        },
+        commands: {
+            executeCommand: jest.fn(),
+        },
+        workspace: {
+            openTextDocument: jest.fn().mockImplementation((uriOrContent: any) => {
+                if (typeof uriOrContent === 'object' && uriOrContent.fsPath) {
+                    return Promise.resolve({
+                        uri: uriOrContent,
+                        getText: () => 'original content',
+                        positionAt: (offset: number) => ({ line: 0, character: offset }),
+                    });
+                }
                 return Promise.resolve({
-                    uri: uriOrContent,
-                    getText: () => 'original content',
+                    uri: { fsPath: '/tmp/diff', path: '/tmp/diff' },
+                    getText: () => uriOrContent?.content || '',
                     positionAt: (offset: number) => ({ line: 0, character: offset }),
                 });
-            }
-            return Promise.resolve({
-                uri: { fsPath: '/tmp/diff', path: '/tmp/diff' },
-                getText: () => uriOrContent?.content || '',
-                positionAt: (offset: number) => ({ line: 0, character: offset }),
-            });
-        }),
-        applyEdit: jest.fn().mockResolvedValue(true),
-    },
-}), { virtual: true });
+            }),
+            applyEdit: jest.fn().mockResolvedValue(true),
+        },
+    }),
+    { virtual: true },
+);
 
 describe('ApplyEditManager', () => {
     let manager: ApplyEditManager;
@@ -105,18 +109,13 @@ describe('ApplyEditManager', () => {
     });
 
     it('ApplyEditManager_ShowDiff_ShouldOpenDiffView', async () => {
-        await manager.showDiff(
-            '/workspace/src/app.ts',
-            'const x = 1;',
-            'const x = 2;',
-            'Correção'
-        );
+        await manager.showDiff('/workspace/src/app.ts', 'const x = 1;', 'const x = 2;', 'Correção');
         const { commands } = require('vscode');
         expect(commands.executeCommand).toHaveBeenCalledWith(
             'vscode.diff',
             expect.any(Object),
             expect.any(Object),
-            'Correção: app.ts'
+            'Correção: app.ts',
         );
     });
 
@@ -128,7 +127,7 @@ describe('ApplyEditManager', () => {
             'vscode.diff',
             expect.any(Object),
             expect.any(Object),
-            expect.stringContaining('Correção')
+            expect.stringContaining('Correção'),
         );
         const { workspace } = require('vscode');
         expect(workspace.applyEdit).toHaveBeenCalledTimes(1);

@@ -1,6 +1,5 @@
 using System.CommandLine;
 using KrnlAI.Cli.Services;
-using KrnlAI.Core.Abstractions;
 using KrnlAI.Core.Services.Lifecycle;
 
 namespace KrnlAI.Cli.Commands;
@@ -50,3 +49,4 @@ public sealed class LifecycleCommand(LifecycleOrchestrator orchestrator, Console
 
     private sealed record HookListItem(string EventType, string HookType, string Priority);
 }
+

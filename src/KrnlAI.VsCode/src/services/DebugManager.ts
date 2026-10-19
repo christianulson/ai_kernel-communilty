@@ -74,29 +74,44 @@ export class DebugManager {
 
     async stepOver(ct?: AbortSignal): Promise<void> {
         using op = this._tracker.start('debug.step_over');
-        if (this._state === DebugState.Stopped) { op.setError('Debugger is not running'); return; }
+        if (this._state === DebugState.Stopped) {
+            op.setError('Debugger is not running');
+            return;
+        }
         try {
             await vscode.commands.executeCommand('workbench.action.debug.stepOver');
             op.setResult('Step over executed');
-        } catch (ex: any) { op.setError(ex.message ?? String(ex)); }
+        } catch (ex: any) {
+            op.setError(ex.message ?? String(ex));
+        }
     }
 
     async stepInto(ct?: AbortSignal): Promise<void> {
         using op = this._tracker.start('debug.step_into');
-        if (this._state === DebugState.Stopped) { op.setError('Debugger is not running'); return; }
+        if (this._state === DebugState.Stopped) {
+            op.setError('Debugger is not running');
+            return;
+        }
         try {
             await vscode.commands.executeCommand('workbench.action.debug.stepInto');
             op.setResult('Step into executed');
-        } catch (ex: any) { op.setError(ex.message ?? String(ex)); }
+        } catch (ex: any) {
+            op.setError(ex.message ?? String(ex));
+        }
     }
 
     async continue(ct?: AbortSignal): Promise<void> {
         using op = this._tracker.start('debug.continue');
-        if (this._state === DebugState.Stopped) { op.setError('Debugger is not running'); return; }
+        if (this._state === DebugState.Stopped) {
+            op.setError('Debugger is not running');
+            return;
+        }
         try {
             await vscode.commands.executeCommand('workbench.action.debug.continue');
             op.setResult('Continue executed');
-        } catch (ex: any) { op.setError(ex.message ?? String(ex)); }
+        } catch (ex: any) {
+            op.setError(ex.message ?? String(ex));
+        }
     }
 
     async setBreakpoint(filePath: string, lineNumber: number, ct?: AbortSignal): Promise<boolean> {
@@ -104,10 +119,7 @@ export class DebugManager {
 
         try {
             const bp = new vscode.SourceBreakpoint(
-                new vscode.Location(
-                    vscode.Uri.file(filePath),
-                    new vscode.Position(lineNumber - 1, 0)
-                )
+                new vscode.Location(vscode.Uri.file(filePath), new vscode.Position(lineNumber - 1, 0)),
             );
             vscode.debug.addBreakpoints([bp]);
             op.setResult('Set');
@@ -122,7 +134,7 @@ export class DebugManager {
         using op = this._tracker.start('debug.breakpoint.remove', `${filePath}:${lineNumber}`);
 
         try {
-            const bps = vscode.debug.breakpoints.filter(bp => {
+            const bps = vscode.debug.breakpoints.filter((bp) => {
                 if (bp instanceof vscode.SourceBreakpoint) {
                     const loc = bp.location;
                     return loc.uri.fsPath === filePath && loc.range.start.line === lineNumber - 1;

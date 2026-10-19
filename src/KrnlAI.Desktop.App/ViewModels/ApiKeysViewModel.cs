@@ -118,7 +118,7 @@ public sealed class ApiKeysViewModel : ViewModelBase
     public Task LoadAsync(CancellationToken ct = default)
         => ExecuteBusyAsync(async () =>
         {
-            await ReloadAsync(ct).ConfigureAwait(false);
+            await ReloadAsync(ct);
             StatusMessage = BuildStatusMessage(Summary);
             ErrorMessage = string.Empty;
         });
@@ -130,12 +130,12 @@ public sealed class ApiKeysViewModel : ViewModelBase
                 throw new InvalidOperationException("Nome da chave é obrigatório.");
 
             var ttl = TimeSpan.FromDays(TtlDaysInput <= 0 ? 30 : TtlDaysInput);
-            var created = await _service.CreateAsync(new ApiKeyCreationRequest(NameInput.Trim(), ttl, SelectedScope), ct).ConfigureAwait(false);
+            var created = await _service.CreateAsync(new ApiKeyCreationRequest(NameInput.Trim(), ttl, SelectedScope), ct);
             CreatedFullKey = created.FullKey;
             CreatedName = created.Name;
             CreatedWarning = created.Warning;
             CreatedExpiresAt = created.ExpiresAt;
-            await ReloadAsync(ct).ConfigureAwait(false);
+            await ReloadAsync(ct);
             StatusMessage = "Chave criada. Copie o valor agora.";
             ErrorMessage = string.Empty;
         });
@@ -143,8 +143,8 @@ public sealed class ApiKeysViewModel : ViewModelBase
     public Task RevokeAsync(string keyId, CancellationToken ct = default)
         => ExecuteBusyAsync(async () =>
         {
-            await _service.RevokeAsync(keyId, ct).ConfigureAwait(false);
-            await ReloadAsync(ct).ConfigureAwait(false);
+            await _service.RevokeAsync(keyId, ct);
+            await ReloadAsync(ct);
             StatusMessage = "Chave revogada.";
             ErrorMessage = string.Empty;
         });
@@ -172,12 +172,12 @@ public sealed class ApiKeysViewModel : ViewModelBase
 
     private async Task ReloadAsync(CancellationToken ct)
     {
-        var keys = await _service.ListAsync(ct).ConfigureAwait(false);
+        var keys = await _service.ListAsync(ct);
         Keys.Clear();
         foreach (var item in keys)
             Keys.Add(item);
 
-        Summary = await _service.GetStatsAsync(ct).ConfigureAwait(false);
+        Summary = await _service.GetStatsAsync(ct);
     }
 
     private async Task ExecuteBusyAsync(Func<Task> action)
@@ -186,7 +186,7 @@ public sealed class ApiKeysViewModel : ViewModelBase
         IsBusy = true;
         try
         {
-            await action().ConfigureAwait(false);
+            await action();
         }
         catch (Exception ex)
         {

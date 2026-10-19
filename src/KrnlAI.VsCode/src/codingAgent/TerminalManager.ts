@@ -1,15 +1,59 @@
 import * as vscode from 'vscode';
 
 const ALLOWED_PREFIXES = [
-    'npm', 'npx', 'dotnet', 'git', 'node', 'python',
-    'python3', 'pnpm', 'yarn', 'bun', 'cargo', 'make',
-    'cmake', 'deno', 'go', 'rustc', 'tsc', 'eslint',
-    'prettier', 'jest', 'vitest', 'mocha', 'ava',
-    'nyc', 'docker', 'docker-compose', 'winget', 'choco',
-    'pip', 'pip3', 'nuget', 'code', 'pwsh', 'bash',
-    'sh', 'zsh', 'dir', 'ls', 'cat', 'type', 'echo',
-    'mkdir', 'copy', 'cp', 'move', 'mv', 'del', 'rm',
-    'cd', 'pwd', 'whoami', 'date', 'time',
+    'npm',
+    'npx',
+    'dotnet',
+    'git',
+    'node',
+    'python',
+    'python3',
+    'pnpm',
+    'yarn',
+    'bun',
+    'cargo',
+    'make',
+    'cmake',
+    'deno',
+    'go',
+    'rustc',
+    'tsc',
+    'eslint',
+    'prettier',
+    'jest',
+    'vitest',
+    'mocha',
+    'ava',
+    'nyc',
+    'docker',
+    'docker-compose',
+    'winget',
+    'choco',
+    'pip',
+    'pip3',
+    'nuget',
+    'code',
+    'pwsh',
+    'bash',
+    'sh',
+    'zsh',
+    'dir',
+    'ls',
+    'cat',
+    'type',
+    'echo',
+    'mkdir',
+    'copy',
+    'cp',
+    'move',
+    'mv',
+    'del',
+    'rm',
+    'cd',
+    'pwd',
+    'whoami',
+    'date',
+    'time',
 ];
 
 const BLOCKED_PATTERNS = [
@@ -46,9 +90,7 @@ export class TerminalManager {
         const firstToken = trimmed.split(/\s+/)[0]?.toLowerCase();
         if (!firstToken) return { allowed: false, reason: 'Comando vazio' };
 
-        const matched = ALLOWED_PREFIXES.some(prefix =>
-            firstToken === prefix || firstToken.startsWith(prefix + ':')
-        );
+        const matched = ALLOWED_PREFIXES.some((prefix) => firstToken === prefix || firstToken.startsWith(prefix + ':'));
 
         if (!matched) {
             return { allowed: false, reason: `Comando não está na allowlist: ${firstToken}` };
@@ -61,18 +103,14 @@ export class TerminalManager {
         return ALLOWED_PREFIXES;
     }
 
-    async runCommand(
-        command: string,
-        cwd?: string,
-        timeoutMs = 60_000
-    ): Promise<CommandResult> {
+    async runCommand(command: string, cwd?: string, timeoutMs = 60_000): Promise<CommandResult> {
         const check = this.isAllowed(command);
         if (!check.allowed) {
             return {
                 stdout: '',
                 stderr: check.reason || 'Comando não permitido',
                 exitCode: 1,
-                command
+                command,
             };
         }
 
@@ -92,22 +130,18 @@ export class TerminalManager {
             stdout: `Comando enviado: ${command}`,
             stderr: '',
             exitCode: undefined,
-            command
+            command,
         };
     }
 
-    async runCommandWithOutput(
-        command: string,
-        cwd?: string,
-        timeoutMs = 60_000
-    ): Promise<CommandResult> {
+    async runCommandWithOutput(command: string, cwd?: string, timeoutMs = 60_000): Promise<CommandResult> {
         const check = this.isAllowed(command);
         if (!check.allowed) {
             return {
                 stdout: '',
                 stderr: check.reason || 'Comando não permitido',
                 exitCode: 1,
-                command
+                command,
             };
         }
 
@@ -120,14 +154,18 @@ export class TerminalManager {
             const child = spawn(shellPath, shellArgs, {
                 cwd: workspacePath,
                 timeout: timeoutMs,
-                windowsHide: true
+                windowsHide: true,
             });
 
             let stdout = '';
             let stderr = '';
 
-            child.stdout?.on('data', (data: Buffer) => { stdout += data.toString(); });
-            child.stderr?.on('data', (data: Buffer) => { stderr += data.toString(); });
+            child.stdout?.on('data', (data: Buffer) => {
+                stdout += data.toString();
+            });
+            child.stderr?.on('data', (data: Buffer) => {
+                stderr += data.toString();
+            });
 
             const timer = setTimeout(() => {
                 child.kill();

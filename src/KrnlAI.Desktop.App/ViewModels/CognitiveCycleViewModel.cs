@@ -2,7 +2,6 @@ using System.Collections.ObjectModel;
 using System.Windows.Input;
 using KrnlAI.Desktop.App.Services;
 using KrnlAI.Desktop.Core.Abstractions;
-using KrnlAI.Desktop.Core.Models;
 
 namespace KrnlAI.Desktop.App.ViewModels;
 
@@ -33,7 +32,7 @@ public class CognitiveCycleViewModel : ViewModelBase
     {
         _kernelClient = kernelClient;
         _streamProvider = streamProvider;
-        ConnectCommand = new AsyncRelayCommand(async _ => await ConnectAsync().ConfigureAwait(false));
+        ConnectCommand = new AsyncRelayCommand(async _ => await ConnectAsync());
         DisconnectCommand = new RelayCommand(() => Disconnect());
         ClearEventsCommand = new RelayCommand(() => Events.Clear());
         ClearErrorCommand = new RelayCommand(() => ErrorMessage = "");
@@ -55,7 +54,7 @@ public class CognitiveCycleViewModel : ViewModelBase
         try
         {
             var cycleId = string.IsNullOrWhiteSpace(SelectedCycleId) ? null : SelectedCycleId;
-            await _streamProvider.ConnectAsync(cycleId).ConfigureAwait(false);
+            await _streamProvider.ConnectAsync(cycleId);
         }
         catch (Exception ex)
         {

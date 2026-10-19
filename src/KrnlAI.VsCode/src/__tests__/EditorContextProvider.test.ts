@@ -1,53 +1,68 @@
-jest.mock('vscode', () => {
-    const mockDocument = {
-        getText: jest.fn(() => 'const x = 1;'),
-        uri: { fsPath: '/test/file.ts' },
-        fileName: '/test/file.ts',
-        languageId: 'typescript',
-        lineCount: 1
-    };
+jest.mock(
+    'vscode',
+    () => {
+        const mockDocument = {
+            getText: jest.fn(() => 'const x = 1;'),
+            uri: { fsPath: '/test/file.ts' },
+            fileName: '/test/file.ts',
+            languageId: 'typescript',
+            lineCount: 1,
+        };
 
-    return {
-        window: {
-            activeTextEditor: {
-                document: mockDocument,
-                selection: { isEmpty: false, active: { line: 0, character: 0 } },
-                selections: [{ isEmpty: false }]
+        return {
+            window: {
+                activeTextEditor: {
+                    document: mockDocument,
+                    selection: { isEmpty: false, active: { line: 0, character: 0 } },
+                    selections: [{ isEmpty: false }],
+                },
+                visibleTextEditors: [
+                    { document: { ...mockDocument, uri: { fsPath: '/test/file.ts' } } },
+                    {
+                        document: {
+                            ...mockDocument,
+                            uri: { fsPath: '/test/other.ts' },
+                            fileName: '/test/other.ts',
+                            languageId: 'typescript',
+                        },
+                    },
+                ],
+                showInformationMessage: jest.fn(),
             },
-            visibleTextEditors: [
-                { document: { ...mockDocument, uri: { fsPath: '/test/file.ts' } } },
-                { document: { ...mockDocument, uri: { fsPath: '/test/other.ts' }, fileName: '/test/other.ts', languageId: 'typescript' } }
-            ],
-            showInformationMessage: jest.fn()
-        },
-        workspace: {
-            getConfiguration: jest.fn(() => ({ get: jest.fn() })),
-            findFiles: jest.fn((pattern: string) => {
-                if (pattern.includes('..') || pattern.includes('malicious') ||
-                    /[<>|:;*?{}[\]!()&@#$%^=+~`'"]/.test(pattern.replace('**/', ''))) return [];
-                return [{ fsPath: '/workspace/found.ts' }];
-            }),
-            openTextDocument: jest.fn(() => ({ getText: jest.fn(() => 'found content') }))
-        },
-        languages: {
-            getDiagnostics: jest.fn(() => [
-                [
-                    { fsPath: '/test/file.ts' },
+            workspace: {
+                getConfiguration: jest.fn(() => ({ get: jest.fn() })),
+                findFiles: jest.fn((pattern: string) => {
+                    if (
+                        pattern.includes('..') ||
+                        pattern.includes('malicious') ||
+                        /[<>|:;*?{}[\]!()&@#$%^=+~`'"]/.test(pattern.replace('**/', ''))
+                    )
+                        return [];
+                    return [{ fsPath: '/workspace/found.ts' }];
+                }),
+                openTextDocument: jest.fn(() => ({ getText: jest.fn(() => 'found content') })),
+            },
+            languages: {
+                getDiagnostics: jest.fn(() => [
                     [
-                        { message: 'Test error', severity: 0, source: 'ts' },
-                        { message: 'Test warning', severity: 1, source: 'ts' },
-                        { message: 'Test info', severity: 2, source: 'eslint' }
-                    ]
-                ]
-            ]),
-            registerCodeLensProvider: jest.fn(() => ({ dispose: jest.fn() }))
-        },
-        EventEmitter: jest.fn(() => ({ event: jest.fn() })),
-        Disposable: jest.fn(() => ({ dispose: jest.fn() })),
-        RelativePattern: jest.fn(),
-        DiagnosticSeverity: { Error: 0, Warning: 1, Information: 2, Hint: 3 }
-    };
-}, { virtual: true });
+                        { fsPath: '/test/file.ts' },
+                        [
+                            { message: 'Test error', severity: 0, source: 'ts' },
+                            { message: 'Test warning', severity: 1, source: 'ts' },
+                            { message: 'Test info', severity: 2, source: 'eslint' },
+                        ],
+                    ],
+                ]),
+                registerCodeLensProvider: jest.fn(() => ({ dispose: jest.fn() })),
+            },
+            EventEmitter: jest.fn(() => ({ event: jest.fn() })),
+            Disposable: jest.fn(() => ({ dispose: jest.fn() })),
+            RelativePattern: jest.fn(),
+            DiagnosticSeverity: { Error: 0, Warning: 1, Information: 2, Hint: 3 },
+        };
+    },
+    { virtual: true },
+);
 
 import { EditorContextProvider } from '../codingAgent/EditorContextProvider';
 
@@ -66,11 +81,15 @@ describe('EditorContextProvider', () => {
 
         it('ShouldReturnUndefined_WhenNoActiveEditor', () => {
             jest.resetModules();
-            jest.doMock('vscode', () => ({
-                window: { activeTextEditor: undefined, visibleTextEditors: [] },
-                workspace: { getConfiguration: jest.fn(() => ({ get: jest.fn() })) },
-                languages: { getDiagnostics: jest.fn(() => []) }
-            }), { virtual: true });
+            jest.doMock(
+                'vscode',
+                () => ({
+                    window: { activeTextEditor: undefined, visibleTextEditors: [] },
+                    workspace: { getConfiguration: jest.fn(() => ({ get: jest.fn() })) },
+                    languages: { getDiagnostics: jest.fn(() => []) },
+                }),
+                { virtual: true },
+            );
             const { EditorContextProvider: ECP } = require('../codingAgent/EditorContextProvider');
             const p = new ECP();
             expect(p.getActiveEditorContent()).toBeUndefined();
@@ -85,17 +104,21 @@ describe('EditorContextProvider', () => {
 
         it('ShouldReturnNull_WhenSelectionIsEmpty', () => {
             jest.resetModules();
-            jest.doMock('vscode', () => ({
-                window: {
-                    activeTextEditor: {
-                        document: { getText: jest.fn() },
-                        selection: { isEmpty: true }
+            jest.doMock(
+                'vscode',
+                () => ({
+                    window: {
+                        activeTextEditor: {
+                            document: { getText: jest.fn() },
+                            selection: { isEmpty: true },
+                        },
+                        visibleTextEditors: [],
                     },
-                    visibleTextEditors: []
-                },
-                workspace: { getConfiguration: jest.fn(() => ({ get: jest.fn() })) },
-                languages: { getDiagnostics: jest.fn(() => []) }
-            }), { virtual: true });
+                    workspace: { getConfiguration: jest.fn(() => ({ get: jest.fn() })) },
+                    languages: { getDiagnostics: jest.fn(() => []) },
+                }),
+                { virtual: true },
+            );
             const { EditorContextProvider: ECP } = require('../codingAgent/EditorContextProvider');
             const p = new ECP();
             expect(p.getSelection()).toBeNull();
@@ -146,20 +169,28 @@ describe('EditorContextProvider', () => {
 
         it('ShouldLimitContentToDefaultMaxLength', async () => {
             jest.resetModules();
-            jest.doMock('vscode', () => ({
-                window: {
-                    activeTextEditor: {
-                        document: {
-                            getText: jest.fn(() => 'x'.repeat(100000)),
-                            uri: { fsPath: '/test/file.ts' }
+            jest.doMock(
+                'vscode',
+                () => ({
+                    window: {
+                        activeTextEditor: {
+                            document: {
+                                getText: jest.fn(() => 'x'.repeat(100000)),
+                                uri: { fsPath: '/test/file.ts' },
+                            },
+                            selection: { isEmpty: true },
                         },
-                        selection: { isEmpty: true }
+                        visibleTextEditors: [],
                     },
-                    visibleTextEditors: []
-                },
-                workspace: { getConfiguration: jest.fn(() => ({ get: jest.fn() })), findFiles: jest.fn(), openTextDocument: jest.fn() },
-                languages: { getDiagnostics: jest.fn(() => []) }
-            }), { virtual: true });
+                    workspace: {
+                        getConfiguration: jest.fn(() => ({ get: jest.fn() })),
+                        findFiles: jest.fn(),
+                        openTextDocument: jest.fn(),
+                    },
+                    languages: { getDiagnostics: jest.fn(() => []) },
+                }),
+                { virtual: true },
+            );
             const { EditorContextProvider: ECP } = require('../codingAgent/EditorContextProvider');
             const p = new ECP();
             const ctx = await p.getFullContext();

@@ -10,7 +10,8 @@ public static class SafeCall
     public static async Task<T> ExecuteAsync<T>(
         Func<Task<T>> action,
         T defaultOnError,
-        [CallerMemberName] string? caller = null)
+        [CallerMemberName] string? caller = null,
+        bool propagateErrors = false)
     {
         try
         {
@@ -19,6 +20,7 @@ public static class SafeCall
         catch (Exception ex)
         {
             WriteWithContext(ex, caller);
+            if (propagateErrors) throw;
             return defaultOnError;
         }
     }

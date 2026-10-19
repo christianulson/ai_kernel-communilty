@@ -19,9 +19,7 @@ public sealed class DisputesViewModel : ViewModelBase
     public DisputesViewModel(ILogger<DisputesViewModel>? logger = null)
     {
         _logger = logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<DisputesViewModel>.Instance;
-        var settings = ServiceLocator.Instance.SettingsService.LoadSettings();
-        var baseUrl = settings.ApiEndpoint ?? settings.ApiBaseUrl ?? Environment.GetEnvironmentVariable("KRNL__API_BASE_URL") ?? "http://localhost:5235";
-        _http = new HttpClient { BaseAddress = new Uri(baseUrl), Timeout = TimeSpan.FromSeconds(10) };
+        _http = ServiceLocator.Instance.CreateApiClient();
         RefreshCommand = new AsyncRelayCommand(RefreshAsync);
         ResolveForWorkerCommand = new AsyncRelayCommand(() => ResolveAsync("worker"));
         ResolveForSolicitorCommand = new AsyncRelayCommand(() => ResolveAsync("solicitor"));
@@ -51,7 +49,7 @@ public sealed class DisputesViewModel : ViewModelBase
         {
             if (ServiceLocator.Instance.CurrentMode == RunMode.Local) return;
 
-            var items = await _http.GetFromJsonAsync<List<DisputeItem>>("/api/disputes").ConfigureAwait(false);
+            var items = await _http.GetFromJsonAsync<List<DisputeItem>>("/api/disputes");
             Disputes.Clear();
             if (items != null)
                 foreach (var d in items) Disputes.Add(d);
@@ -73,10 +71,10 @@ public sealed class DisputesViewModel : ViewModelBase
         {
             if (ServiceLocator.Instance.CurrentMode == RunMode.Api)
             {
-                await _http.PostAsJsonAsync($"/api/disputes/{_selectedDispute.DisputeId}/resolve", new { favor }).ConfigureAwait(false);
+                await _http.PostAsJsonAsync($"/api/disputes/{_selectedDispute.DisputeId}/resolve", new { favor });
             }
             SelectedDispute = null;
-            await RefreshAsync().ConfigureAwait(false);
+            await RefreshAsync();
         }
         catch (Exception ex)
         {
