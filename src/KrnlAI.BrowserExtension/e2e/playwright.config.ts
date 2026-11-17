@@ -22,7 +22,7 @@ export default defineConfig({
     ['html', { outputFolder: 'playwright-report' }],
   ],
   use: {
-    headless: false,
+    headless: process.env.PLAYWRIGHT_HEADLESS === '1',
     viewport: { width: 1280, height: 720 },
     actionTimeout: 10000,
     screenshot: process.env.CI ? 'only-on-failure' : 'off',

@@ -76,6 +76,14 @@ jobs:
           npm ci
           npm run lint
           npm run build
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+        working-directory: src/KrnlAI.BrowserExtension/e2e
+      - name: E2E (headless extension)
+        run: npm run test:e2e
+        working-directory: src/KrnlAI.BrowserExtension
+        env:
+          PLAYWRIGHT_HEADLESS: '1'
 
   vscode:
     runs-on: ubuntu-latest
