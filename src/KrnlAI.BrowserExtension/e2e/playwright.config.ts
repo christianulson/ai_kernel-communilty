@@ -1,30 +1,13 @@
-import { defineConfig } from '@playwright/test';
+import { defineConfig, chromium } from '@playwright/test';
 import { fileURLToPath } from 'url';
 import path from 'path';
-import os from 'os';
-import fs from 'fs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const EXTENSION_PATH = path.resolve(__dirname, '..', 'dist');
 
-const CHROME_PATH: string = (() => {
-  const pwDir =
-    process.env.PLAYWRIGHT_BROWSERS_PATH ||
-    path.join(os.homedir(), 'AppData', 'Local', 'ms-playwright');
-
-  const candidates = [
-    path.join(pwDir, 'chromium-1223', 'chrome-win64', 'chrome.exe'),
-    path.join(pwDir, 'chromium-1228', 'chrome-win64', 'chrome.exe'),
-    'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
-    'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-    path.join(os.homedir(), 'AppData', 'Local', 'Google', 'Chrome', 'Application', 'chrome.exe'),
-  ];
-
-  for (const p of candidates) {
-    try { if (fs.existsSync(p)) return p; } catch { /* ignore */ }
-  }
-  return '';
-})();
+// Use the Playwright-managed Chromium (Chrome for Testing). Branded Chrome no
+// longer honors --load-extension on recent versions.
+const CHROME_PATH = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE || chromium.executablePath();
 
 export default defineConfig({
   testDir: '.',
@@ -52,7 +35,7 @@ export default defineConfig({
       use: {
         browserName: 'chromium',
         launchOptions: {
-          executablePath: CHROME_PATH || undefined,
+          executablePath: CHROME_PATH,
           args: [
             `--disable-extensions-except=${EXTENSION_PATH}`,
             `--load-extension=${EXTENSION_PATH}`,

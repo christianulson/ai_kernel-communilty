@@ -9,8 +9,8 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "lint": "tsc --noEmit",
-    "test:e2e": "npx playwright test --config e2e/playwright.config.ts",
-    "test:e2e:headed": "npx playwright test --config e2e/playwright.config.ts --headed"
+    "test:e2e": "npm --prefix e2e test",
+    "test:e2e:headed": "npm --prefix e2e run test:headed"
   },
   "dependencies": {
     "react": "^19.3.1",
@@ -27,7 +27,7 @@
     "esbuild": "^0.28.2",
     "postcss": "^8.5.14",
     "tailwindcss": "^4.3.5",
-    "typescript": "^6.0.3",
+    "typescript": "^7.0.2",
     "vite": "^8.3.8"
   }
 }

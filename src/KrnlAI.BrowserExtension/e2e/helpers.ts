@@ -1,39 +1,18 @@
 import { BrowserContext, chromium, Page } from '@playwright/test';
 import { fileURLToPath } from 'url';
 import path from 'path';
-import os from 'os';
-import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const EXTENSION_PATH = path.resolve(__dirname, '..', 'dist');
 
-// Prefer Playwright Chromium (Chrome for Testing) over system Chrome for reliable extension testing
-const CHROME_PATH: string = (() => {
-  const pwDir =
-    process.env.PLAYWRIGHT_BROWSERS_PATH ||
-    path.join(os.homedir(), 'AppData', 'Local', 'ms-playwright');
-
-  const candidates = [
-    // Playwright Chromium first (Chrome for Testing — best for extensions + service workers)
-    path.join(pwDir, 'chromium-1223', 'chrome-win64', 'chrome.exe'),
-    path.join(pwDir, 'chromium-1228', 'chrome-win64', 'chrome.exe'),
-    path.join(pwDir, 'chromium-1229', 'chrome-win64', 'chrome.exe'),
-    // Fallback to system Chrome
-    'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
-    'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-    path.join(os.homedir(), 'AppData', 'Local', 'Google', 'Chrome', 'Application', 'chrome.exe'),
-  ];
-
-  for (const p of candidates) {
-    try { if (fs.existsSync(p)) return p; } catch { /* ignore */ }
-  }
-  return '';
-})();
+// Branded Chrome ignores --load-extension on recent versions; always use the
+// Playwright-managed Chromium unless an explicit override is provided.
+const CHROME_PATH = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE || chromium.executablePath();
 
 if (!CHROME_PATH) {
   throw new Error(
-    'No Chromium/Chrome executable found. Install Playwright Chromium or set CHROME_TEST_PATH.',
+    'No Chromium executable found. Run "npx playwright install chromium" or set PLAYWRIGHT_CHROMIUM_EXECUTABLE.',
   );
 }
 
