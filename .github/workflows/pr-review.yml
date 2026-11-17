@@ -70,4 +70,4 @@ jobs:
 
       - name: Skip Review (diff too large)
         if: steps.diff.outputs.diff_size >= 50000
-        run: echo "Skipping review (diff size: ${{ steps.diff.outputs.diff_size }} bytes)"
+        run: 'echo "Skipping review (diff size: ${{ steps.diff.outputs.diff_size }} bytes)"'
