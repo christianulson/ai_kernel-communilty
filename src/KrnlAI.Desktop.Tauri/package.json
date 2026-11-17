@@ -1,0 +1,14 @@
+{
+  "name": "@krnlai/desktop-tauri",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Tauri shell for the Krnl-AI Desktop app",
+  "scripts": {
+    "tauri": "tauri",
+    "dev": "tauri dev",
+    "build": "tauri build"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.12.5"
+  }
+}

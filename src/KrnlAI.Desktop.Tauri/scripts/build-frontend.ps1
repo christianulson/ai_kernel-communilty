@@ -9,7 +9,7 @@ $distTarget = Join-Path $PSScriptRoot '../dist'
 if (Test-Path (Join-Path $rootWebapp 'apps/kernel-ui/package.json')) {
     Push-Location $rootWebapp
     try {
-        npx nx run @krnl-ai/kernel-ui:build
+        yarn nx run @krnl-ai/kernel-ui:build
         if ($LASTEXITCODE -ne 0) { throw "nx build failed with exit code $LASTEXITCODE" }
     }
     finally {
